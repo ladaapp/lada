@@ -42,8 +42,8 @@ class Scene:
         current_box = self.data[-1][2]
         t = min(current_box[0], box[0])
         l = min(current_box[1], box[1])
-        b = min(current_box[2], box[2])
-        r = min(current_box[3], box[3])
+        b = max(current_box[2], box[2])
+        r = max(current_box[3], box[3])
         new_box = (t, l, b, r)
 
         current_mask = self.data[-1][1]
