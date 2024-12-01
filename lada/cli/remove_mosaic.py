@@ -51,8 +51,13 @@ def cli():
     video_tmp_file_output_path = os.path.join(tempfile.gettempdir(), f"{os.path.basename(os.path.splitext(args.output)[0])}.tmp{os.path.splitext(args.output)[1]}")
     video_writer = VideoWriter(video_tmp_file_output_path, video_metadata.video_width, video_metadata.video_height, video_metadata.video_fps_exact, codec=args.codec, crf=args.crf, moov_front=args.moov_front, time_base=video_metadata.time_base)
 
-    for restored_frame, restored_frame_pts in tqdm(frame_restorer(), total=video_metadata.frames_count, desc="Processing frames"):
-        video_writer.write(restored_frame, restored_frame_pts, bgr2rgb=True)
+    try:
+        for restored_frame, restored_frame_pts in tqdm(frame_restorer(), total=video_metadata.frames_count, desc="Processing frames"):
+            video_writer.write(restored_frame, restored_frame_pts, bgr2rgb=True)
+    except (RuntimeError, StopIteration) as e:
+        print("Video processing stopped. Output video may be incomplete")
+        print("Exception caught : ")
+        print(e)
 
     video_writer.release()
 
