@@ -146,7 +146,13 @@ This section describes how to install the app from source.
 
 ### Install CLI
 
-1) Install system dependencies with your system package manager or compile/install from source
+1) Get the source
+   ```bash
+   git clone https://github.com/ladaapp/lada.git
+   cd lada
+   ```
+
+2) Install system dependencies with your system package manager or compile/install from source
    * Python >= 3.12
    * FFmpeg >= 5.0
 
@@ -155,20 +161,20 @@ This section describes how to install the app from source.
 > 
 > Ubuntu 24.10: `sudo apt install python3.12 python3.12-venv ffmpeg` 
 
-2) Create a virtual environment to install python dependencies
+3) Create a virtual environment to install python dependencies
     ```bash
     python3 -m venv .venv
     source .venv/bin/activate
     ```
 
-3) [Install PyTorch](https://pytorch.org/get-started/locally)
+4) [Install PyTorch](https://pytorch.org/get-started/locally)
 
-4) Install python dependencies
+5) Install python dependencies
     ```bash
     python -m pip install -e '.[basicvsrpp]'
     ````
 
-5) Apply patches
+6) Apply patches
     On low-end hardware running mosaic detection model could run into a timeout defined in ultralytics library and the scene would not be restored. The following patch increases this time limit (tested with `ultralytics==8.3.92`):
     ```bash
     patch -u .venv/lib/python3.1[23]/site-packages/ultralytics/utils/ops.py patches/increase_mms_time_limit.patch
@@ -179,7 +185,7 @@ This section describes how to install the app from source.
    patch -u .venv/lib/python3.1[23]/site-packages/ultralytics/utils/__init__.py  patches/remove_ultralytics_telemetry.patch
    ```
 
-6) Download model weights
+7) Download model weights
    Download the models from the GitHub Releases page into the `model_weights` directory. The following commands do just that
    ```shell
    wget -P model_weights/ 'https://github.com/ladaapp/lada/releases/download/v0.7.0/lada_mosaic_detection_model_v3.pt'

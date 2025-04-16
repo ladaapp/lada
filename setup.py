@@ -8,8 +8,7 @@ setup(
     python_requires='>=3.12',
     packages=find_packages(where='.',include=['lada','lada.*']),
     # ultralytics pinned as we apply a custom patch. When upstream releases a new version, check if we can remove the patch
-    # av > 13.1.0 shipping ffmpeg 7.1.0 has issues with decoding HEVC decoding videos: https://github.com/PyAV-Org/PyAV/discussions/1704
-    install_requires=['torch', 'ultralytics==8.3.92', 'numpy', 'opencv-python', 'tqdm', 'av==13.1.0'],
+    install_requires=['torch', 'ultralytics==8.3.92', 'numpy', 'opencv-python', 'tqdm', 'av>=14.3.0'],
     extras_require={
         'deepmosaics': ['scikit-image'],
         'basicvsrpp': ['mmengine==0.10.7', 'torchvision'], # mmengine pinned as we apply a custom patch. When upstream releases a new version, check if we can remove the patch

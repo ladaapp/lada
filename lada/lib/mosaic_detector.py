@@ -7,11 +7,10 @@ from pathlib import Path
 import cv2
 import numpy as np
 import torch
-from ultralytics import YOLO
 from ultralytics.engine.results import Results
-
 from lada.lib import Box, Mask, Image, VideoMetadata, threading_utils
 from lada.lib import image_utils
+from lada.lib.mosaic_detection_model import MosaicDetectionModel
 from lada.lib.scene_utils import crop_to_box_v3
 from lada.lib import video_utils
 from lada import LOG_LEVEL
@@ -174,10 +173,8 @@ class Clip:
         return self.data[item]
 
 class MosaicDetector:
-    def __init__(self, model: YOLO, video_file, frame_detection_queue: queue.Queue, mosaic_clip_queue: queue.Queue, max_clip_length=30, clip_size=256, device=None, pad_mode='reflect', preserve_relative_scale=False, dont_preserve_relative_scale=False, batch_size=4, conf=0.2):
+    def __init__(self, model: MosaicDetectionModel, video_file, frame_detection_queue: queue.Queue, mosaic_clip_queue: queue.Queue, max_clip_length=30, clip_size=256, device=None, pad_mode='reflect', preserve_relative_scale=False, dont_preserve_relative_scale=False, batch_size=4):
         self.model = model
-        self.is_segmentation_model = self.model.task == 'segment'
-        self.ignore_non_nsfw_mosaics = True
         self.video_file = video_file
         self.device = torch.device(device) if device is not None else device
         self.max_clip_length = max_clip_length
@@ -192,14 +189,16 @@ class MosaicDetector:
         self.video_meta_data = video_utils.get_video_meta_data(self.video_file)
         self.frame_detection_queue = frame_detection_queue
         self.mosaic_clip_queue = mosaic_clip_queue
-        self.frame_feeder_queue = queue.Queue(maxsize=2 * batch_size)
+        self.frame_feeder_queue = queue.Queue(maxsize=8)
+        self.inference_queue = queue.Queue(maxsize=8)
         self.frame_detector_thread: threading.Thread | None = None
         self.frame_feeder_thread: threading.Thread | None = None
+        self.inference_thread: threading.Thread | None = None
         self.frame_feeder_thread_should_be_running = False
         self.frame_detector_thread_should_be_running = False
+        self.inference_worker_thread_should_be_running = False
         self.stop_requested = False
         self.batch_size = batch_size
-        self.conf = conf
 
         self.queue_stats = {}
         self.queue_stats["frame_detection_queue_wait_time_put"] = 0
@@ -209,6 +208,9 @@ class MosaicDetector:
         self.queue_stats["frame_feeder_queue_wait_time_put"] = 0
         self.queue_stats["frame_feeder_queue_wait_time_get"] = 0
         self.queue_stats["frame_feeder_queue_max_size"] = 0
+        self.queue_stats["inference_queue_wait_time_put"] = 0
+        self.queue_stats["inference_queue_wait_time_get"] = 0
+        self.queue_stats["inference_queue_max_size"] = 0
 
     def start(self, start_ns):
         self.start_ns = start_ns
@@ -216,9 +218,13 @@ class MosaicDetector:
         self.stop_requested = False
         self.frame_detector_thread_should_be_running = True
         self.frame_feeder_thread_should_be_running = True
+        self.inference_worker_thread_should_be_running = True
 
         self.frame_detector_thread = threading.Thread(target=self._frame_detector_worker)
         self.frame_detector_thread.start()
+        
+        self.inference_thread = threading.Thread(target=self._frame_inference_worker)
+        self.inference_thread.start()
 
         self.frame_feeder_thread = threading.Thread(target=self._frame_feeder_worker)
         self.frame_feeder_thread.start()
@@ -236,9 +242,18 @@ class MosaicDetector:
             self.frame_feeder_thread.join()
             logger.debug("frame feeder worker: stopped")
         self.frame_feeder_thread = None
-
+        
         # unblock consumer
         threading_utils.put_closing_queue_marker(self.frame_feeder_queue, "frame_feeder_queue")
+        # unblock producer
+        threading_utils.empty_out_queue(self.inference_queue, "inference_queue")
+        if self.inference_thread:
+            self.inference_thread.join()
+            logger.debug("inference worker: stopped")
+        self.inference_thread = None
+
+        # unblock consumer
+        threading_utils.put_closing_queue_marker(self.inference_queue, "inference_queue")
         # unblock producer
         clean_up_threads = [
             threading_utils.empty_out_queue_until_producer_is_done(self.mosaic_clip_queue, "mosaic_clip_queue", self.frame_detector_thread),
@@ -302,7 +317,7 @@ class MosaicDetector:
             logger.debug("frame detector worker: frame_detection_queue producer unblocked")
             return
         for i in range(len(results.boxes)):
-            if self.is_segmentation_model:
+            if self.model.is_segmentation_model:
                 mask = convert_yolo_mask(results.masks[i], results.orig_shape)
             else:
                 # TODO: we currently don't use mosaic masks in the restoration pipeline, so we could also remove it
@@ -341,57 +356,93 @@ class MosaicDetector:
                 except StopIteration:
                     eof = True
                     self.frame_feeder_thread_should_be_running = False
-                self.queue_stats["frame_feeder_queue_max_size"] = max(self.frame_feeder_queue.qsize()+1, self.queue_stats["frame_feeder_queue_max_size"])
-                s = time.time()
-                self.frame_feeder_queue.put((frames, frame_num, eof))
-                self.queue_stats["frame_feeder_queue_wait_time_put"] += time.time() - s
-                if self.stop_requested:
-                    logger.debug("frame feeder worker: frame_feeder_queue producer unblocked")
+                if len(frames) > 0:
+                    frames_batch = self.model.preprocess(frames)
+                    data = (frames_batch, frames, frame_num)
+                    self.queue_stats["frame_feeder_queue_max_size"] = max(self.frame_feeder_queue.qsize()+1, self.queue_stats["frame_feeder_queue_max_size"])
+                    s = time.time()
+                    self.frame_feeder_queue.put(data)
+                    self.queue_stats["frame_feeder_queue_wait_time_put"] += time.time() - s
+                    if self.stop_requested:
+                        logger.debug("frame feeder worker: frame_feeder_queue producer unblocked")
+                        break
                 frame_num += len(frames)
-            if eof:
+                if eof:
+                    self.queue_stats["frame_feeder_queue_max_size"] = max(self.frame_feeder_queue.qsize()+1, self.queue_stats["frame_feeder_queue_max_size"])
+                    s = time.time()
+                    self.frame_feeder_queue.put(None)
+                    self.queue_stats["frame_feeder_queue_wait_time_put"] += time.time() - s
+                    if self.stop_requested:
+                        logger.debug("frame feeder worker: frame_feeder_queue producer unblocked")
+            if eof and not self.stop_requested:
                 logger.debug("frame feeder worker: stopped itself, EOF")
+
+    def _frame_inference_worker(self):
+        logger.debug("frame inference worker: started")
+        eof = False
+        while self.inference_worker_thread_should_be_running:
+            s = time.time()
+            frames_data = self.frame_feeder_queue.get()
+            self.queue_stats["frame_feeder_queue_wait_time_get"] += time.time() - s
+            if self.stop_requested:
+                logger.debug("inference worker: frame_feeder_queue consumer unblocked")
+            if frames_data is None:
+                eof = True
+                self.inference_worker_thread_should_be_running = False
+                self.queue_stats["inference_queue_max_size"] = max(self.inference_queue.qsize()+1, self.queue_stats["inference_queue_max_size"])
+                s = time.time()
+                self.inference_queue.put(None)
+                self.queue_stats["inference_queue_wait_time_put"] += time.time() -s
+                if self.stop_requested:
+                    logger.debug("inference worker: inference_queue producer unblocked")
+                break
+            frames_batch, frames, frame_num = frames_data
+            inference_results = self.model.inference(frames_batch) if frames_batch is not None else None
+            self.queue_stats["inference_queue_max_size"] = max(self.inference_queue.qsize()+1, self.queue_stats["inference_queue_max_size"])
+            s = time.time()
+            self.inference_queue.put((inference_results, frames_batch, frames, frame_num))
+            self.queue_stats["inference_queue_wait_time_put"] += time.time() - s
+            if self.stop_requested:
+                logger.debug("inference worker: inference_queue producer unblocked")
+        if eof:
+            logger.debug("inference worker: stopped itself, EOF")
 
     def _frame_detector_worker(self):
         logger.debug("frame detector worker: started")
-        with video_utils.VideoReader(self.video_file) as video_reader:
-            if self.start_ns > 0:
-                video_reader.seek(self.start_ns)
-            scenes: list[Scene] = []
-            frame_num = self.start_frame
-            eof = False
-            while self.frame_detector_thread_should_be_running:
-                s = time.time()
-                raw_frames = self.frame_feeder_queue.get()
-                self.queue_stats["frame_feeder_queue_wait_time_get"] += time.time() - s
-                if self.stop_requested:
-                    logger.debug("frame detector worker: frame_feeder_queue consumer unblocked")
-                if raw_frames is None:
-                    assert self.stop_requested, f"Illegal state: Expected frame batch from frame feeder queue but received None (EOF marker) and no stop was requested"
-                    break
-                frames, _frame_num, eof = raw_frames
-                assert frame_num == _frame_num, "frame detector worker out of sync with frame reader"
-                if len(frames) > 0:
-                    classes = [0] if self.ignore_non_nsfw_mosaics else None
-                    batch_prediction_results = self.model.predict(source=frames, stream=False, verbose=False, device=self.device, classes=classes, conf=self.conf)
-                    assert len(frames) == len(batch_prediction_results)
-                    for i, results in enumerate(batch_prediction_results):
-                        self._create_or_append_scenes_based_on_prediction_result(results, scenes, frame_num)
-                        self._create_clips_for_completed_scenes(scenes, frame_num, eof=False)
-                        frame_num += 1
-                if eof:
-                    self._create_clips_for_completed_scenes(scenes, frame_num, eof=True)
-                    self.queue_stats["frame_detection_queue_max_size"] = max(self.frame_detection_queue.qsize()+1, self.queue_stats["frame_detection_queue_max_size"])
-                    s = time.time()
-                    self.frame_detection_queue.put(None)
-                    self.queue_stats["frame_detection_queue_wait_time_put"] += time.time() - s
-                    if self.stop_requested:
-                        logger.debug("frame detector worker: frame_detection_queue producer unblocked")
-                    self.queue_stats["mosaic_clip_queue_max_size"] = max(self.mosaic_clip_queue.qsize()+1, self.queue_stats["mosaic_clip_queue_max_size"])
-                    s = time.time()
-                    self.mosaic_clip_queue.put(None)
-                    self.queue_stats["mosaic_clip_queue_wait_time_put"] += time.time() - s
-                    if self.stop_requested:
-                        logger.debug("frame detector worker: mosaic_clip_queue producer unblocked")
-                    self.frame_detector_thread_should_be_running = False
+        scenes: list[Scene] = []
+        frame_num = self.start_frame
+        eof = False
+        while self.frame_detector_thread_should_be_running:
+            s = time.time()
+            inference_data = self.inference_queue.get()
+            self.queue_stats["inference_queue_wait_time_get"] += time.time() - s
+            if self.stop_requested:
+                logger.debug("frame detector worker: inference_queue consumer unblocked")
+            if inference_data is None:
+                eof = True
             if eof:
-                logger.debug("frame detector worker: stopped itself, EOF")
+                self._create_clips_for_completed_scenes(scenes, frame_num, eof=True)
+                self.queue_stats["frame_detection_queue_max_size"] = max(self.frame_detection_queue.qsize()+1, self.queue_stats["frame_detection_queue_max_size"])
+                s = time.time()
+                self.frame_detection_queue.put(None)
+                self.queue_stats["frame_detection_queue_wait_time_put"] += time.time() - s
+                if self.stop_requested:
+                    logger.debug("frame detector worker: frame_detection_queue producer unblocked")
+                self.queue_stats["mosaic_clip_queue_max_size"] = max(self.mosaic_clip_queue.qsize()+1, self.queue_stats["mosaic_clip_queue_max_size"])
+                s = time.time()
+                self.mosaic_clip_queue.put(None)
+                self.queue_stats["mosaic_clip_queue_wait_time_put"] += time.time() - s
+                if self.stop_requested:
+                    logger.debug("frame detector worker: mosaic_clip_queue producer unblocked")
+                self.frame_detector_thread_should_be_running = False
+            else:
+                inference_results, preprocessed_frames, orig_frames, _frame_num = inference_data
+                assert frame_num == _frame_num, "frame detector worker out of sync with frame reader"
+                batch_prediction_results = self.model.postprocess(inference_results, preprocessed_frames, orig_frames)
+                assert preprocessed_frames.shape[0] == len(batch_prediction_results)
+                for i, results in enumerate(batch_prediction_results):
+                    self._create_or_append_scenes_based_on_prediction_result(results, scenes, frame_num)
+                    self._create_clips_for_completed_scenes(scenes, frame_num, eof=False)
+                    frame_num += 1
+        if eof:
+            logger.debug("frame detector worker: stopped itself, EOF")

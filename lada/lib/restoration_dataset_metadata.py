@@ -228,6 +228,9 @@ class RestorationDatasetMetadataV2(AbstractRestorationDatasetMetadata):
                 ) if json_dict.get("video_quality") else None,
                 json_dict.get("watermark_detected"),
                 json_dict.get("nudenet_nsfw_detected"),
-                json_dict.get("nudenet_nsfw_detected_classes"),
+                NudeNetNsfwClassDetectionsV1(
+                    MALE_GENITALIA_EXPOSED=json_dict["nudenet_nsfw_detected_classes"]["MALE_GENITALIA_EXPOSED"],
+                    FEMALE_GENITALIA_EXPOSED=json_dict["nudenet_nsfw_detected_classes"]["FEMALE_GENITALIA_EXPOSED"],
+                ) if json_dict.get("nudenet_nsfw_detected_classes") else None,
                 json_dict.get("censoring_detected"),
             )
