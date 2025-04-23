@@ -175,10 +175,11 @@ This section describes how to install the app from source.
     ````
 
 6) Apply patches
-    On low-end hardware running mosaic detection model could run into a timeout defined in ultralytics library and the scene would not be restored. The following patch increases this time limit (tested with `ultralytics==8.3.92`):
-    ```bash
-    patch -u .venv/lib/python3.1[23]/site-packages/ultralytics/utils/ops.py patches/increase_mms_time_limit.patch
-    ```
+    
+   On low-end hardware running mosaic detection model could run into a timeout defined in ultralytics library and the scene would not be restored. The following patch increases this time limit (tested with `ultralytics==8.3.92`):
+   ```bash
+   patch -u .venv/lib/python3.1[23]/site-packages/ultralytics/utils/ops.py patches/increase_mms_time_limit.patch
+   ```
    
    Disable crash-reporting / telemetry of one of our dependencies (ultralytics):
    ```bash
@@ -186,6 +187,7 @@ This section describes how to install the app from source.
    ```
 
 7) Download model weights
+   
    Download the models from the GitHub Releases page into the `model_weights` directory. The following commands do just that
    ```shell
    wget -P model_weights/ 'https://github.com/ladaapp/lada/releases/download/v0.7.0/lada_mosaic_detection_model_v3.pt'
@@ -230,6 +232,221 @@ Now you should be able to run the CLI by calling `lada-cli`.
 > If you intend to hack on the GUI code install also `gui-dev` extra: `python -m pip install -e '.[gui-dev]'`
 
 Now you should be able to run the GUI by calling `lada`.
+
+### Installing on Windows Via WSL2 Ubuntu(both CLI+GUI)
+
+> [!CAUTION]
+>Before starting, you will need to have virtualization enabled in your Bios
+
+1.Open Powershell, and install WSL2(You will need to restart your PC after running the following command)
+  ```PowerShell
+  wsl --install
+  ```
+	
+2.Once restarted, run the following command to make sure WSL is installed
+  ```PowerShell
+  wsl --version
+  ```
+	
+3.Make sure WSL is up-to-date
+  ```PowerShell
+  wsl --update
+  ```
+	
+> [!NOTE]
+>The current stable release of WSL has a Linux kernel that doesn't have NUMA nodes enabled, if you are compiling FFmpeg yourself and will use the x265 encoder, please compile your own kernel from this [repository](https://github.com/microsoft/WSL2-Linux-Kernel/tree/linux-msft-wsl-6.6.y)
+>Alternatively, you can also get the pre-release version of WSL which does come with a NUMA enabled kernel:
+>```PowerShell
+>wsl --update --pre-release
+>``` 
+
+4.Install Ubuntu 
+  ```PowerShell
+  wsl --install Ubuntu --name <Any Name You Want>
+  ```
+	
+5.Initialize Ubuntu(the newest pre-release does this automatically)
+  ```PowerShell
+  wsl -d <The Name You Set>
+  ```
+	
+6.Update packages
+  ```bash
+  sudo apt update && sudo apt full-upgrade
+  ```
+	
+7.Edit `release-upgrades` in order to update to lastest Ubuntu release
+  ```bash
+  sudo nano /etc/update-manager/release-upgrades
+  ```
+  Change `lts` > `normal`
+  `Ctrl+O` then `Enter` to Save, `Ctrl+X` to Exit
+
+8.Now Update to Ubuntu 24.10
+  ```bash
+  do-release-upgrade
+  ```
+	
+> [!NOTE]
+>You will be prompted multiple times during the update, you just need to select `Yes` everytime
+
+9.Now Restart Your Ubuntu Instance
+  ```bash
+  exit
+  ```
+  Then terminate it:
+  ```PowerShell
+  wsl --terminate <The Name You Set>
+  ```
+  Or if you don't have any other instance running:
+  ```PowerShell
+  wsl --shutdown
+  ```
+  Then start it again:
+  ```PowerShell
+  wsl -d <The Name You Set>
+  ```
+	
+10.Make Sure Packages are up-to-date again
+   ```bash
+   sudo apt update && sudo apt full-upgrade
+   ```
+	
+11.Update to Ubuntu 25.04
+  ```bash
+  do-release-upgrade -d
+  ```
+> [!TIP]
+>If any error occurs run 
+>```bash
+>sudo apt update && sudo apt full-upgrade
+>```
+>And 
+>```bash
+>sudo apt --fix-broken install
+>```
+>These commands should fix most issues
+
+> [!NOTE]
+>The following are basically almost the same as the Ubuntu Instructions above
+
+
+12.Follow Step 9 to restart after the update, then install the following Packages
+  ```bash
+  sudo apt update && sudo apt install ffmpeg libcairo2-dev libgirepository-2.0-dev libadwaita-1-dev python3.13-venv python3-dev build-essential
+  sudo apt install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio gstreamer1.0-gtk4
+  ```
+13.Get the source inside Linux filesystem
+   ```bash
+   cd ~/
+   git clone https://github.com/ladaapp/lada.git
+   cd lada
+   ```
+14.Create a virtual environment to install python dependencies
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+
+15.[Install PyTorch](https://pytorch.org/get-started/locally)
+
+16.Install python dependencies
+   ```bash
+   pip install -e '.[basicvsrpp, gui]'
+   ````
+
+17.Apply patches
+   
+   On low-end hardware running mosaic detection model could run into a timeout defined in ultralytics library and the scene would not be restored. The following patch increases this time limit (tested with `ultralytics==8.3.92`):
+   ```bash
+   patch -u .venv/lib/python3.13/site-packages/ultralytics/utils/ops.py patches/increase_mms_time_limit.patch
+   ```
+   
+   Disable crash-reporting / telemetry of one of our dependencies (ultralytics):
+   ```bash
+   patch -u .venv/lib/python3.13/site-packages/ultralytics/utils/__init__.py  patches/remove_ultralytics_telemetry.patch
+   ```
+
+18.Download model weights
+   
+   Download the models from the GitHub Releases page into the `model_weights` directory. The following commands do just that
+   ```shell
+   wget -P model_weights/ 'https://github.com/ladaapp/lada/releases/download/v0.7.0/lada_mosaic_detection_model_v3.pt'
+   wget -P model_weights/ 'https://github.com/ladaapp/lada/releases/download/v0.6.0/lada_mosaic_restoration_model_generic_v1.2.pth'
+   ```
+
+   If you're interested in running DeepMosaics' restoration model you can also download their pretrained model `clean_youknow_video.pth`
+   ```shell
+   wget -O model_weights/3rd_party/clean_youknow_video.pth 'https://drive.usercontent.google.com/download?id=1ulct4RhRxQp1v5xwEmUH7xz7AK42Oqlw&export=download&confirm=t'
+   ```
+
+19.Apply fix the following fix for GUI in your `.bashrc`(located in home directory or cd ~/)
+   ```bash
+   sudo nano ~/.bashrc
+   ```
+   Add this line at the end:
+   ```bash
+   echo "Fixing X11 & Wayland..."
+   sudo rm -r /tmp/.X11-unix && ln -s /mnt/wslg/.X11-unix /tmp/.X11-unix
+   ln -sf /mnt/wslg/runtime-dir/wayland* /run/user/`id -u`/
+   ```
+   Credit:[satmandu](https://github.com/microsoft/wslg/issues/1291#issuecomment-2416869718)
+   
+   While you're here, you can also apply the either of the following lines for dark mode:
+   ```bash
+   export GTK_THEME=HighContrastInverse
+   ```
+   ```bash
+   export GTK_THEME=Adwaita:dark
+   ```
+   And finally you can also use x11 instead by adding this line
+   ```bash
+   export GDK_BACKEND=x11
+   ```
+   `Ctrl+O` then `Enter` to Save, `Ctrl+X` to Exit
+	
+20.Restart following Step 9 and you should be able to invoke both `lada` and `lada-cli` commands after activating the enviorment
+   ```bash
+   cd ~/lada
+   source .venv/bin/activate
+   ```
+> [!TIP]
+>Miscellaneous Tip for WSL-
+>
+>Local files from Windows will be located under `/mnt/<drive letter>`
+>
+>You can always convert Windows filepaths to Unix or vice-versa with the following command:
+>```bash
+>wslpath <path/to/file>
+>```
+>
+>If you want to connect a Network Drive already mapped to Windows follow this [video](https://www.youtube.com/watch?v=dZEAQwXzTsA)
+>
+>If you ever forget what you named your distro, you can always run:
+>```PowerShell
+>wsl --list --verbose
+>```
+>It list all your installed distros(it will also show the ones currently running)
+>
+>To delete the distro you can run:
+>```PowerShell
+>wsl --unregister <The Name You Set>
+>```
+>The Following commands allow you to export and import the distro
+>```PowerShell
+>wsl --export <The Name You Set> <path to export.tar>
+>```
+>```PowerShell
+>wsl --import <Set A Name> <where you want to save the distro> <path to export.tar>
+>```
+>
+>As always, you can access the Linux filesystem via Explorer, either by click on the `Linux` tab on the right, or by running the command in Powershell while your distro is active and you're in the Linux filesystem:
+>```shell
+>explorer.exe .
+>```
+>This also allows you run basically any Windows program
+>
+>And a tip for those with low RAM on your base system(since WSL only uses 50% of your system RAM), you might want to make a `.wslconfig` following these [instructions](https://learn.microsoft.com/en-us/windows/wsl/wsl-config#configure-global-options-with-wslconfig) to increase the  amount of RAM that can be used by WSL
 
 ## Training and dataset creation
 For instructions on training your own models and datasets, refer to [Training and dataset creation](docs/training_and_dataset_creation.md).
