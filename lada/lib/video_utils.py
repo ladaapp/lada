@@ -87,7 +87,7 @@ class VideoReader:
         self.container.seek(offset)
 
 def get_video_meta_data(path: str) -> VideoMetadata:
-    cmd = ['ffprobe', '-v', 'quiet', '-output_format', 'json', '-select_streams', 'v', '-show_streams', '-show_format', path]
+    cmd = ['ffprobe', '-v', 'quiet', '-print_format', 'json', '-select_streams', 'v', '-show_streams', '-show_format', path]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err =  p.communicate()
     if p.returncode != 0:
