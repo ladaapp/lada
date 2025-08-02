@@ -104,8 +104,8 @@ This section describes how to install the app (CLI and GUI) from source.
     ````
    For the GUI we'll need to install the Python wheels we've built earlier with gvsbuild:
     ```Powershell
-    pip install --force-reinstall (Resolve-Path ($project + "\build\gtk\x64\release\python\pygobject*.whl))
-    pip install --force-reinstall (Resolve-Path ($project + "\build\gtk\x64\release\python\pycairo*.whl))
+    pip install --force-reinstall (Resolve-Path ($project + "\build\gtk\x64\release\python\pygobject*.whl"))
+    pip install --force-reinstall (Resolve-Path ($project + "\build\gtk\x64\release\python\pycairo*.whl"))
     ````
 
 8) Apply patches
