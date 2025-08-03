@@ -104,8 +104,8 @@ This section describes how to install the app (CLI and GUI) from source.
     ````
    For the GUI we'll need to install the Python wheels we've built earlier with gvsbuild:
     ```Powershell
-    pip install --force-reinstall (Resolve-Path ($project + "\build\gtk\x64\release\python\pygobject*.whl))
-    pip install --force-reinstall (Resolve-Path ($project + "\build\gtk\x64\release\python\pycairo*.whl))
+    pip install --force-reinstall (Resolve-Path ($project + "\build\gtk\x64\release\python\pygobject*.whl"))
+    pip install --force-reinstall (Resolve-Path ($project + "\build\gtk\x64\release\python\pycairo*.whl"))
     ````
 
 8) Apply patches
@@ -140,4 +140,4 @@ This section describes how to install the app (CLI and GUI) from source.
    Invoke-WebRequest 'https://drive.usercontent.google.com/download?id=1ulct4RhRxQp1v5xwEmUH7xz7AK42Oqlw&export=download&confirm=t' -OutFile ".\model_weights\3rd_party\clean_youknow_video.pth"
    ```
 
-    Now you should be able to run the CLI by calling `lada-cli` to the GUI by `lada`.
+    Now you should be able to run the CLI by calling `lada-cli`, and the GUI by `lada`.
