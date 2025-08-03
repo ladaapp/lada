@@ -140,4 +140,4 @@ This section describes how to install the app (CLI and GUI) from source.
    Invoke-WebRequest 'https://drive.usercontent.google.com/download?id=1ulct4RhRxQp1v5xwEmUH7xz7AK42Oqlw&export=download&confirm=t' -OutFile ".\model_weights\3rd_party\clean_youknow_video.pth"
    ```
 
-    Now you should be able to run the CLI by calling `lada-cli` to the GUI by `lada`.
+    Now you should be able to run the CLI by calling `lada-cli`, and the GUI by `lada`.
