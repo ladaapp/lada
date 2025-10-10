@@ -177,19 +177,11 @@ def process_video_file(input_path: str, output_path: str, device, mosaic_restora
         frame_restorer.stop()
 
     if success:
-        try:
-            print(_("Processing audio"))
-            audio_utils.combine_audio_video_files(video_metadata, video_tmp_file_output_path, output_path)
-        except Exception as e:
-            success = False
-            print(f"Error processing audio: {e}")
-    
-    # Always try to cleanup temporary file, even if processing failed
-    if os.path.exists(video_tmp_file_output_path):
-        try:
+        print(_("Processing audio"))
+        audio_utils.combine_audio_video_files(video_metadata, video_tmp_file_output_path, output_path)
+    else:
+        if os.path.exists(video_tmp_file_output_path):
             os.remove(video_tmp_file_output_path)
-        except Exception as e:
-            print(f"Warning: Could not remove temporary file {video_tmp_file_output_path}: {e}")
 
 def setup_input_and_output_paths(input_arg, output_arg, output_file_pattern):
     single_file_input = os.path.isfile(input_arg)
