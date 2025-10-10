@@ -282,6 +282,10 @@ class VideoWriter:
         video_stream_out.options = encoder_options
         self.output_container = output_container
         self.video_stream = video_stream_out
+        self.last_pts = -1
+        self.frame_index = 0
+        self.time_base = time_base
+        self.fps = fps
 
     def __enter__(self):
         return self
@@ -293,8 +297,19 @@ class VideoWriter:
         if bgr2rgb:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         out_frame = av.VideoFrame.from_ndarray(frame, format='rgb24')
-        if frame_pts:
-            out_frame.pts = frame_pts
+        
+        # Handle timestamp to ensure proper MP4 muxing
+        if frame_pts is not None:
+            # Use provided PTS but ensure it's monotonically increasing
+            out_frame.pts = max(frame_pts, self.last_pts + 1)
+        else:
+            # Generate a monotonically increasing PTS based on frame index
+            out_frame.pts = self.frame_index
+        
+        # Ensure DTS will be monotonically increasing by tracking last PTS
+        self.last_pts = out_frame.pts
+        self.frame_index += 1
+        
         out_packet = self.video_stream.encode(out_frame)
         self.output_container.mux(out_packet)
 
