@@ -105,23 +105,19 @@ msgstr "CRF（恒定码率因子）"
 msgid "Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes."
 msgstr "视频编码器的质量设置，值越低，质量越好但文件越大。"
 
-msgid """
-Custom FFmpeg encoder options (Optional).
-Example: <span background="#D3D3D350"><tt>-rc-lookahead 32 -rc vbr_hq</tt></span>
-"""
-msgstr """
-自定义 FFmpeg 编码器设置（可选）
-示例：<span background="#D3D3D350"><tt>-rc-lookahead 32 -rc vbr_hq</tt></span>
-"""
+msgid ""
+"Custom FFmpeg encoder options (Optional).\n"
+"Example: <span background="#D3D3D350"><tt>-rc-lookahead 32 -rc vbr_hq</tt></span>"
+msgstr ""
+"自定义 FFmpeg 编码器设置（可选）\n"
+"示例：<span background="#D3D3D350"><tt>-rc-lookahead 32 -rc vbr_hq</tt></span>"
 
-msgid """
-FFmpeg Codecs Documentation:
-https://ffmpeg.org/ffmpeg-codecs.html
-"""
-msgstr """
-FFmpeg 编码器文档：
-https://ffmpeg.org/ffmpeg-codecs.html
-"""
+msgid ""
+"FFmpeg Codecs Documentation:\n"
+"https://ffmpeg.org/ffmpeg-codecs.html"
+msgstr ""
+"FFmpeg 编码器文档：\n"
+"https://ffmpeg.org/ffmpeg-codecs.html"
 
 msgid "Output Directory"
 msgstr "输出目录"
@@ -132,14 +128,12 @@ msgstr "始终询问"
 msgid "Use this folder"
 msgstr "使用此文件夹"
 
-msgid """
-File name pattern for restored files.
-Must include placeholder <span background="#D3D3D350"><tt>{orig_file_name}</tt></span>.
-"""
-msgstr """
-已修复视频的命名方式。
-必须包含占位符 <span background="#D3D3D350"><tt>{orig_file_name}</tt></span>。
-"""
+msgid ""
+"File name pattern for restored files.\n"
+"Must include placeholder <span background="#D3D3D350"><tt>{orig_file_name}</tt></span>."
+msgstr ""
+"已修复视频的命名方式\n"
+"必须包含占位符 <span background="#D3D3D350"><tt>{orig_file_name}</tt></span>"
 
 msgid "Troubleshooting"
 msgstr "故障排除"
@@ -288,7 +282,7 @@ msgstr "支持硬件加速（GPU）的编码器："
 msgid "Device" 
 msgstr "设备"
 
-msgid "Description" 
+msgid "Description"
 msgstr "描述"
 
 msgid "Available devices:" 
@@ -300,29 +294,29 @@ msgstr "可用检测模型："
 msgid "None!" 
 msgstr "没有！"
 
-msgid "Name" 
+msgid "Name"
 msgstr "名称"
 
-msgid "Path" 
+msgid "Path"
 msgstr "路径"
 
 msgid "Available restoration models:" 
 msgstr "可用修复模型："
 
-msgid "Processing frames" 
+msgid "Processing frames"
 msgstr "正在处理帧"
 
-msgid "Processing audio" 
+msgid "Processing audio"
 msgstr "正在处理音频"
 
-msgid "Invalid file name pattern. It must include the template string '{orig_file_name}' and a file extension" 
+msgid "Invalid file name pattern. It must include the template string '{orig_file_name}' and a file extension"
 msgstr "无效的文件名模式，必须包含模板字符串'{orig_file_name}'和文件扩展名"
 
-msgid "Invalid output directory. If input is a directory then --output must also be set to a directory" 
+msgid "Invalid output directory. If input is a directory then --output must also be set to a directory"
 msgstr "无效的输出目录，如果输入是目录，则 --output 也必须设置为目录"
 
-msgid "Invalid input. No file or directory at {input_path}" 
+msgid "Invalid input. No file or directory at {input_path}"
 msgstr "无效输入。{input_path}处没有文件或目录"
 
-msgid "Received Ctrl-C, stopping restoration." 
+msgid "Received Ctrl-C, stopping restoration."
 msgstr "收到Ctrl-C，正在停止修复。"
