@@ -1,0 +1,328 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Lada\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-10-11 17:30+0800\n"
+"PO-Revision-Date: 2024-10-11 17:30+0800\n"
+"Last-Translator: [i110077] <>\n"
+"Language-Team: Chinese (Simplified)\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Open in External Program…"
+msgstr "在外部程序中打开…"
+
+msgid "Finished video restoration!"
+msgstr "视频修复完成！"
+
+msgid "Restoring video…"
+msgstr "正在修复视频…"
+
+msgid "Save restored video file"
+msgstr "保存修复的视频文件"
+
+msgid "Save restored video files"
+msgstr "保存修复的视频文件"
+
+msgid "Settings"
+msgstr "设置"
+
+msgid "Add Files…"
+msgstr "添加文件…"
+
+msgid "Restore"
+msgstr "修复"
+
+msgid "Export video"
+msgstr "导出视频"
+
+msgid "Open File"
+msgstr "打开文件"
+
+msgid "Click the folder button to choose a default"
+msgstr "点击文件夹按钮选择默认位置"
+
+msgid "Select a folder where restored videos should be saved"
+msgstr "选择保存输出视频的文件夹"
+
+msgid "Mosaic Removal"
+msgstr "马赛克移除"
+
+msgid "Detection model"
+msgstr "检测模型"
+
+msgid "Model used for detecting mosaic areas."
+msgstr "用于检测马赛克区域的模型。"
+
+msgid "Restoration model"
+msgstr "修复模型"
+
+msgid "Model used for restoring mosaic areas."
+msgstr "用于修复（移除）马赛克的模型"
+
+msgid "Maximum clip duration"
+msgstr "最大片段时长"
+
+msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint."
+msgstr "修复时的最大帧数，值越高，时间稳定性越好，值越低，内存占用越小。"
+
+msgid "GPU"
+msgstr "GPU"
+
+msgid "Selected GPU for model processing."
+msgstr "用于模型处理的GPU"
+
+msgid "Playback"
+msgstr "播放"
+
+msgid "Buffer duration"
+msgstr "缓冲时长"
+
+msgid "How much video is pre-loaded for playback, measured in seconds. If set to 0 this value will be chosen automatically."
+msgstr "播放前预加载的视频时长，以秒为单位。设为0将自动选择此值。"
+
+msgid "Mute audio by default"
+msgstr "默认静音"
+
+msgid "When enabled, audio will be muted automatically when a new file is opened."
+msgstr "启用后，打开新文件时将自动静音。"
+
+msgid "Export"
+msgstr "导出"
+
+msgid "Codec"
+msgstr "编码器"
+
+msgid "Video Codec used for encoding the restored video."
+msgstr "用于编码修复视频的视频编码器。"
+
+msgid "CRF (Constant Rate Factor)"
+msgstr "CRF（恒定码率因子）"
+
+msgid "Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes."
+msgstr "视频编码器的质量设置，值越低，质量越好但文件越大。"
+
+msgid """
+Custom FFmpeg encoder options (Optional).
+Example: <span background="#D3D3D350"><tt>-rc-lookahead 32 -rc vbr_hq</tt></span>
+"""
+msgstr """
+自定义 FFmpeg 编码器设置（可选）
+示例：<span background="#D3D3D350"><tt>-rc-lookahead 32 -rc vbr_hq</tt></span>
+"""
+
+msgid """
+FFmpeg Codecs Documentation:
+https://ffmpeg.org/ffmpeg-codecs.html
+"""
+msgstr """
+FFmpeg 编码器文档：
+https://ffmpeg.org/ffmpeg-codecs.html
+"""
+
+msgid "Output Directory"
+msgstr "输出目录"
+
+msgid "Always ask"
+msgstr "始终询问"
+
+msgid "Use this folder"
+msgstr "使用此文件夹"
+
+msgid """
+File name pattern for restored files.
+Must include placeholder <span background="#D3D3D350"><tt>{orig_file_name}</tt></span>.
+"""
+msgstr """
+已修复视频的命名方式。
+必须包含占位符 <span background="#D3D3D350"><tt>{orig_file_name}</tt></span>。
+"""
+
+msgid "Troubleshooting"
+msgstr "故障排除"
+
+msgid "Show mosaic detections"
+msgstr "显示马赛克检测"
+
+msgid "Show detected mosaic areas. Useful to evaluate quality of detection model."
+msgstr "显示检测到的马赛克区域，有助于评估检测模型的质量。"
+
+msgid "UI"
+msgstr "软件界面"
+
+msgid "Color Scheme"
+msgstr "配色方案"
+
+msgid "Follow System style"
+msgstr "跟随系统风格"
+
+msgid "Light style"
+msgstr "浅色风格"
+
+msgid "Dark style"
+msgstr "深色风格"
+
+msgid "Default View"
+msgstr "默认视图"
+
+msgid "View shown after opening files"
+msgstr "打开文件后显示的视图"
+
+msgid "Watch"
+msgstr "观看"
+
+msgid "Reset to factory settings"
+msgstr "重置为初始设置"
+
+msgid "No GPU detected! Running the app on CPU will be painfully slow."
+msgstr "未检测到GPU！在CPU上运行程序会非常缓慢。"
+
+msgid "Mute/Unmute"
+msgstr "静音/取消静音"
+
+msgid "Play/Pause"
+msgstr "播放/暂停"
+
+msgid "Enable/Disable fullscreen"
+msgstr "启用/禁用全屏"
+
+msgid "Toggle Fullscreen"
+msgstr "切换全屏"
+
+msgid "Open Files…"
+msgstr "打开文件…"
+
+msgid "Restore pixelated adult videos"
+msgstr "修复马赛克视频"
+
+msgid "Drop one or more videos here"
+msgstr "将一个或多个视频拖放到此处"
+
+msgid "Switch to Export View"
+msgstr "切换到导出视图"
+
+msgid "Switch to Preview View"
+msgstr "切换到预览视图"
+
+msgid "Select one or multiple video files"
+msgstr "选择一个或多个视频文件"
+
+msgid "%(prog)s [options]"
+msgstr "%(prog)s [选项]"
+
+msgid "Restore pixelated adult videos (JAV)"
+msgstr "修复马赛克视频（JAV）"
+
+msgid "Path to pixelated video file or directory containing video files"
+msgstr "马赛克视频文件或包含视频文件的目录路径"
+
+msgid "Path used to save output file(s). If path is a directory then file name will be chosen automatically (see --output-file-pattern). If no output path was given then the directory of the input file will be used"
+msgstr "保存输出文件的路径。如果路径是目录，文件会自动命名（参见--output-file-pattern）。如果未指定输出路径，则使用输入目录"
+
+msgid "Pattern used to determine output file name(s). Used when input is a directory or a file with no output path specified"
+msgstr "用于确定输出文件的命名模式。在输入为目录或未指定输出路径时使用"
+
+msgid "Device used for running Restoration and Detection models. Use \"cpu\" or \"cuda\". If you have multiple GPUs you can select a specific one via index e.g. \"cuda:0\" (default: %(default)s)"
+msgstr "用于运行检测和修复模型的设备。使用\"cpu\"或\"cuda\"。如果有多个GPU，可以通过索引选择特定的GPU，例如\"cuda:0\"（默认值：%(default)s）"
+
+msgid "List available devices and exit"
+msgstr "列出可用设备并退出"
+
+msgid "Display version and exit"
+msgstr "显示版本并退出"
+
+msgid "Export (Encoder settings)"
+msgstr "导出（编码器设置）"
+
+msgid "FFmpeg video codec. E.g. \"h264, \"hevc\" or \"hevc_nvenc\". Use \"--list-codecs\" to see whats available. (default: %(default)s)"
+msgstr "FFmpeg 视频编码器。例如\"h264\"、\"hevc\"或\"hevc_nvenc\"。使用\"--list-codecs\"查看可选项。（默认值：%(default)s）"
+
+msgid "List available codecs and hardware devices / GPUs for hardware-accelerated video encoding"
+msgstr "列出可用编码器和用于硬件加速的设备/GPU"
+
+msgid "Constant rate factor (CRF). Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes. If you have selected GPU codecs \"h264_nvenc\" or \"hevc_nvenc\" then the option \"qp\" will be used instead as those encoders don't support the \"crf\" option. (default: %(default)s)"
+msgstr "恒定码率因子（CRF）。视频编码器的质量设置，值越低，质量越好但文件越大。如果选择了GPU编码器\"h264_nvenc\"或\"hevc_nvenc\"，则将使用\"qp\"选项，因为这些编码器不支持\"crf\"设定。（默认值：%(default)s）"
+
+msgid "Encoder preset. Mostly affects file-size and speed. (default: %(default)s)"
+msgstr "编码器预设。主要影响文件大小和速度。（默认值：%(default)s）"
+
+msgid "Sets ffmpeg mov flags 'frag_keyframe+empty_moov+faststart'. Enables playing the output video while it's being written (default: %(default)s)"
+msgstr "设置 ffmpeg mov 标志 'frag_keyframe+empty_moov+faststart' 。允许在写入输出视频时播放视频（默认值：%(default)s）"
+
+msgid "Pass arbitrary encoder options. Pass it like you'd specify them using ffmpeg. For example: --custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\". Official FFmpeg Codecs Documentation: https://ffmpeg.org/ffmpeg-codecs.html"
+msgstr "传递任意编码器选项，像使用 ffmpeg 那样指定它们。例如：--custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\"。FFmpeg 编码器官方文档：https://ffmpeg.org/ffmpeg-codecs.html"
+
+msgid "Mosaic Restoration"
+msgstr "马赛克修复"
+
+msgid "Model used to restore mosaic clips (default: %(default)s)"
+msgstr "用于修复马赛克片段的模型（默认值：%(default)s）"
+
+msgid "List available restoration model weights found in MODEL_WEIGHTS_DIR and exit (default location is './model_weights' if not overwritten by environment variable MODEL_WEIGHTS_DIR)"
+msgstr "列出在 MODEL_WEIGHTS_DIR 中找到的可用修复模型权重并退出（如果未被环境变量 MODEL_WEIGHTS_DIR 覆盖，则默认位置为'./model_weights'）"
+
+msgid "Path to restoration model weights file (default: %(default)s)"
+msgstr "修复模型权重文件路径（默认值：%(default)s）"
+
+msgid "Path to restoration model configuration file"
+msgstr "修复模型配置文件的路径"
+
+msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint. If set too low flickering could appear (default: %(default)s)"
+msgstr "用于修复的最大帧数。值越高，时间稳定性越好，值越低，内存占用越小。如果设定过低，可能会出现闪烁（默认值：%(default)s）"
+
+msgid "List available detection model weights found in MODEL_WEIGHTS_DIR and exit (default location is './model_weights' if not overwritten by environment variable MODEL_WEIGHTS_DIR)"
+msgstr "列出在 MODEL_WEIGHTS_DIR 中找到的可用检测模型权重并退出（如果未被环境变量 MODEL_WEIGHTS_DIR 覆盖，则默认位置为'./model_weights'）"
+
+msgid "PyAV version:" 
+msgstr "PyAV 版本："
+
+msgid "Available video encoders:" 
+msgstr "可用的视频编码器："
+
+msgid "Encoders with support for hardware acceleration (GPU):" 
+msgstr "支持硬件加速（GPU）的编码器："
+
+msgid "Device" 
+msgstr "设备"
+
+msgid "Description" 
+msgstr "描述"
+
+msgid "Available devices:" 
+msgstr "可用设备："
+
+msgid "Available detection models:" 
+msgstr "可用检测模型："
+
+msgid "None!" 
+msgstr "没有！"
+
+msgid "Name" 
+msgstr "名称"
+
+msgid "Path" 
+msgstr "路径"
+
+msgid "Available restoration models:" 
+msgstr "可用修复模型："
+
+msgid "Processing frames" 
+msgstr "正在处理帧"
+
+msgid "Processing audio" 
+msgstr "正在处理音频"
+
+msgid "Invalid file name pattern. It must include the template string '{orig_file_name}' and a file extension" 
+msgstr "无效的文件名模式，必须包含模板字符串'{orig_file_name}'和文件扩展名"
+
+msgid "Invalid output directory. If input is a directory then --output must also be set to a directory" 
+msgstr "无效的输出目录，如果输入是目录，则 --output 也必须设置为目录"
+
+msgid "Invalid input. No file or directory at {input_path}" 
+msgstr "无效输入。{input_path}处没有文件或目录"
+
+msgid "Received Ctrl-C, stopping restoration." 
+msgstr "收到Ctrl-C，正在停止修复。"
