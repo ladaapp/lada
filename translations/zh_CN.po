@@ -19,7 +19,7 @@ msgid "Finished video restoration!"
 msgstr "视频修复完成！"
 
 msgid "Restoring video…"
-msgstr "正在修复视频…"
+msgstr "正在移除马赛克…"
 
 msgid "Save restored video file"
 msgstr "保存修复的视频文件"
@@ -34,7 +34,7 @@ msgid "Add Files…"
 msgstr "添加文件…"
 
 msgid "Restore"
-msgstr "修复"
+msgstr "开始修复"
 
 msgid "Export video"
 msgstr "导出视频"
@@ -46,7 +46,7 @@ msgid "Click the folder button to choose a default"
 msgstr "点击文件夹按钮选择默认位置"
 
 msgid "Select a folder where restored videos should be saved"
-msgstr "选择保存输出视频的文件夹"
+msgstr "选择保存输出文件的位置"
 
 msgid "Mosaic Removal"
 msgstr "马赛克移除"
@@ -61,7 +61,7 @@ msgid "Restoration model"
 msgstr "修复模型"
 
 msgid "Model used for restoring mosaic areas."
-msgstr "用于修复（移除）马赛克的模型"
+msgstr "用于移除马赛克的模型"
 
 msgid "Maximum clip duration"
 msgstr "最大片段时长"
@@ -97,13 +97,13 @@ msgid "Codec"
 msgstr "编码器"
 
 msgid "Video Codec used for encoding the restored video."
-msgstr "用于编码修复视频的视频编码器。"
+msgstr "用于编码修复后的视频编码器。"
 
 msgid "CRF (Constant Rate Factor)"
 msgstr "CRF（恒定码率因子）"
 
 msgid "Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes."
-msgstr "视频编码器的质量设置，值越低，质量越好但文件越大。"
+msgstr "视频编码质量，值越低，质量越高但文件越大。"
 
 msgid ""
 "Custom FFmpeg encoder options (Optional).\n"
@@ -132,7 +132,7 @@ msgid ""
 "File name pattern for restored files.\n"
 "Must include placeholder <span background="#D3D3D350"><tt>{orig_file_name}</tt></span>."
 msgstr ""
-"已修复视频的命名方式\n"
+"输出视频的命名方式\n"
 "必须包含占位符 <span background="#D3D3D350"><tt>{orig_file_name}</tt></span>"
 
 msgid "Troubleshooting"
@@ -166,10 +166,10 @@ msgid "View shown after opening files"
 msgstr "打开文件后显示的视图"
 
 msgid "Watch"
-msgstr "观看"
+msgstr "预览"
 
 msgid "Reset to factory settings"
-msgstr "重置为初始设置"
+msgstr "恢复默认设置"
 
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr "未检测到GPU！在CPU上运行程序会非常缓慢。"
@@ -190,7 +190,7 @@ msgid "Open Files…"
 msgstr "打开文件…"
 
 msgid "Restore pixelated adult videos"
-msgstr "修复马赛克视频"
+msgstr "移除马赛克"
 
 msgid "Drop one or more videos here"
 msgstr "将一个或多个视频拖放到此处"
@@ -208,16 +208,16 @@ msgid "%(prog)s [options]"
 msgstr "%(prog)s [选项]"
 
 msgid "Restore pixelated adult videos (JAV)"
-msgstr "修复马赛克视频（JAV）"
+msgstr "移除马赛克（JAV）"
 
 msgid "Path to pixelated video file or directory containing video files"
-msgstr "马赛克视频文件或包含视频文件的目录路径"
+msgstr "视频文件或包含视频文件的目录路径"
 
 msgid "Path used to save output file(s). If path is a directory then file name will be chosen automatically (see --output-file-pattern). If no output path was given then the directory of the input file will be used"
-msgstr "保存输出文件的路径。如果路径是目录，文件会自动命名（参见--output-file-pattern）。如果未指定输出路径，则使用输入目录"
+msgstr "输出文件的路径。如果路径是目录，文件会自动命名（参见--output-file-pattern）。如果未指定输出路径，则使用输入目录"
 
 msgid "Pattern used to determine output file name(s). Used when input is a directory or a file with no output path specified"
-msgstr "用于确定输出文件的命名模式。在输入为目录或未指定输出路径时使用"
+msgstr "用于输出文件的命名模式。在输入为目录或未指定输出路径时使用"
 
 msgid "Device used for running Restoration and Detection models. Use \"cpu\" or \"cuda\". If you have multiple GPUs you can select a specific one via index e.g. \"cuda:0\" (default: %(default)s)"
 msgstr "用于运行检测和修复模型的设备。使用\"cpu\"或\"cuda\"。如果有多个GPU，可以通过索引选择特定的GPU，例如\"cuda:0\"（默认值：%(default)s）"
@@ -250,22 +250,22 @@ msgid "Pass arbitrary encoder options. Pass it like you'd specify them using ffm
 msgstr "传递任意编码器选项，像使用 ffmpeg 那样指定它们。例如：--custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\"。FFmpeg 编码器官方文档：https://ffmpeg.org/ffmpeg-codecs.html"
 
 msgid "Mosaic Restoration"
-msgstr "马赛克修复"
+msgstr "马赛克移除"
 
 msgid "Model used to restore mosaic clips (default: %(default)s)"
-msgstr "用于修复马赛克片段的模型（默认值：%(default)s）"
+msgstr "用于移除马赛克的模型（默认值：%(default)s）"
 
 msgid "List available restoration model weights found in MODEL_WEIGHTS_DIR and exit (default location is './model_weights' if not overwritten by environment variable MODEL_WEIGHTS_DIR)"
 msgstr "列出在 MODEL_WEIGHTS_DIR 中找到的可用修复模型权重并退出（如果未被环境变量 MODEL_WEIGHTS_DIR 覆盖，则默认位置为'./model_weights'）"
 
 msgid "Path to restoration model weights file (default: %(default)s)"
-msgstr "修复模型权重文件路径（默认值：%(default)s）"
+msgstr "模型权重文件路径（默认值：%(default)s）"
 
 msgid "Path to restoration model configuration file"
-msgstr "修复模型配置文件的路径"
+msgstr "模型配置文件的路径"
 
 msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint. If set too low flickering could appear (default: %(default)s)"
-msgstr "用于修复的最大帧数。值越高，时间稳定性越好，值越低，内存占用越小。如果设定过低，可能会出现闪烁（默认值：%(default)s）"
+msgstr "用于修复的最大帧数。值越高，稳定性越好，值越低，内存占用越小。如果设定过低，可能会出现闪烁（默认值：%(default)s）"
 
 msgid "List available detection model weights found in MODEL_WEIGHTS_DIR and exit (default location is './model_weights' if not overwritten by environment variable MODEL_WEIGHTS_DIR)"
 msgstr "列出在 MODEL_WEIGHTS_DIR 中找到的可用检测模型权重并退出（如果未被环境变量 MODEL_WEIGHTS_DIR 覆盖，则默认位置为'./model_weights'）"
