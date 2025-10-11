@@ -19,7 +19,7 @@ msgid "Finished video restoration!"
 msgstr "视频修复完成！"
 
 msgid "Restoring video…"
-msgstr "正在移除马赛克…"
+msgstr "正在修复视频…"
 
 msgid "Save restored video file"
 msgstr "保存修复的视频文件"
@@ -64,10 +64,10 @@ msgid "Model used for restoring mosaic areas."
 msgstr "用于移除马赛克的模型"
 
 msgid "Maximum clip duration"
-msgstr "最大片段时长"
+msgstr "最大处理帧数"
 
 msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint."
-msgstr "修复时的最大帧数，值越高，时间稳定性越好，值越低，内存占用越小。"
+msgstr "修复时单次处理的片段最大连续帧数，值越大，修复效果和稳定性越好，有助于减少闪烁和伪影；值越低，能降低内存/显存占用，提升速度防止奔溃。"
 
 msgid "GPU"
 msgstr "GPU"
@@ -76,13 +76,13 @@ msgid "Selected GPU for model processing."
 msgstr "用于模型处理的GPU"
 
 msgid "Playback"
-msgstr "播放"
+msgstr "播放设置"
 
 msgid "Buffer duration"
 msgstr "缓冲时长"
 
 msgid "How much video is pre-loaded for playback, measured in seconds. If set to 0 this value will be chosen automatically."
-msgstr "播放前预加载的视频时长，以秒为单位。设为0将自动选择此值。"
+msgstr "播放前预加载的时长，以秒为单位，设为0则自动预加载。"
 
 msgid "Mute audio by default"
 msgstr "默认静音"
@@ -97,7 +97,7 @@ msgid "Codec"
 msgstr "编码器"
 
 msgid "Video Codec used for encoding the restored video."
-msgstr "用于编码修复后的视频编码器。"
+msgstr "用于编码修复后视频的编码器。"
 
 msgid "CRF (Constant Rate Factor)"
 msgstr "CRF（恒定码率因子）"
@@ -133,7 +133,7 @@ msgid ""
 "Must include placeholder <span background=\"#D3D3D350\"><tt>{orig_file_name}</tt></span>."
 msgstr ""
 "输出视频的命名方式\n"
-"必須包含佔位符 <span background=\"#D3D3D350\"><tt>{orig_file_name}</tt></span>"
+"必须包含占位符 <span background=\"#D3D3D350\"><tt>{orig_file_name}</tt></span>"
 
 msgid "Troubleshooting"
 msgstr "故障排除"
@@ -172,7 +172,7 @@ msgid "Reset to factory settings"
 msgstr "恢复默认设置"
 
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
-msgstr "未检测到GPU！在CPU上运行程序会非常缓慢。"
+msgstr "未检测到GPU！程序在CPU上运行会非常缓慢。"
 
 msgid "Mute/Unmute"
 msgstr "静音/取消静音"
@@ -190,7 +190,7 @@ msgid "Open Files…"
 msgstr "打开文件…"
 
 msgid "Restore pixelated adult videos"
-msgstr "移除马赛克"
+msgstr "修复马赛克视频"
 
 msgid "Drop one or more videos here"
 msgstr "将一个或多个视频拖放到此处"
@@ -208,7 +208,7 @@ msgid "%(prog)s [options]"
 msgstr "%(prog)s [选项]"
 
 msgid "Restore pixelated adult videos (JAV)"
-msgstr "移除马赛克（JAV）"
+msgstr "修复马赛克视频（JAV）"
 
 msgid "Path to pixelated video file or directory containing video files"
 msgstr "视频文件或包含视频文件的目录路径"
@@ -253,7 +253,7 @@ msgid "Mosaic Restoration"
 msgstr "马赛克移除"
 
 msgid "Model used to restore mosaic clips (default: %(default)s)"
-msgstr "用于移除马赛克的模型（默认值：%(default)s）"
+msgstr "用于修复马赛克的模型（默认值：%(default)s）"
 
 msgid "List available restoration model weights found in MODEL_WEIGHTS_DIR and exit (default location is './model_weights' if not overwritten by environment variable MODEL_WEIGHTS_DIR)"
 msgstr "列出在 MODEL_WEIGHTS_DIR 中找到的可用修复模型权重并退出（如果未被环境变量 MODEL_WEIGHTS_DIR 覆盖，则默认位置为'./model_weights'）"
@@ -277,7 +277,7 @@ msgid "Available video encoders:"
 msgstr "可用的视频编码器："
 
 msgid "Encoders with support for hardware acceleration (GPU):" 
-msgstr "支持硬件加速（GPU）的编码器："
+msgstr "支持GPU硬件加速的编码器："
 
 msgid "Device" 
 msgstr "设备"
