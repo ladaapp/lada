@@ -5,47 +5,96 @@ import numpy as np
 import torch
 import ultralytics.engine
 from ultralytics import settings
-from ultralytics.utils.ops import scale_image
 
 from lada.lib import Box, Mask, mask_utils
 
 def set_default_settings():
     settings.update({'runs_dir': './experiments/yolo', 'datasets_dir': './datasets', 'tensorboard': True})
 
-def convert_yolo_box(yolo_box: ultralytics.engine.results.Boxes, img_shape) -> Box:
+def convert_yolo_box(yolo_box: ultralytics.engine.results.Boxes, img_shape) -> torch.Tensor:
     _box = yolo_box.xyxy[0]
-    l = int(torch.clip(_box[0], 0, img_shape[1]).item())
-    t = int(torch.clip(_box[1], 0, img_shape[0]).item())
-    r = int(torch.clip(_box[2], 0, img_shape[1]).item())
-    b = int(torch.clip(_box[3], 0, img_shape[0]).item())
-    return t, l, b, r
+    l = torch.clip(_box[0], 0, img_shape[1])
+    t = torch.clip(_box[1], 0, img_shape[0])
+    r = torch.clip(_box[2], 0, img_shape[1])
+    b = torch.clip(_box[3], 0, img_shape[0])
+    return torch.stack([t, l, b, r]).int()
 
-def convert_yolo_boxes(yolo_box: ultralytics.engine.results.Boxes, img_shape) -> list[Box]:
+def convert_yolo_boxes(yolo_box: ultralytics.engine.results.Boxes, img_shape) -> torch.Tensor:
     _boxes = yolo_box.xyxy
-    boxes = []
-    for _box in _boxes:
-        l = int(torch.clip(_box[0], 0, img_shape[1]).item())
-        t = int(torch.clip(_box[1], 0, img_shape[0]).item())
-        r = int(torch.clip(_box[2], 0, img_shape[1]).item())
-        b = int(torch.clip(_box[3], 0, img_shape[0]).item())
-        box = t, l, b, r
-        boxes.append(box)
-    return boxes
+    if len(_boxes) == 0:
+        return torch.empty((0, 4), dtype=torch.int32, device=_boxes.device)
+    
+    # Process all boxes at once using vectorized operations
+    l = torch.clip(_boxes[:, 0], 0, img_shape[1])
+    t = torch.clip(_boxes[:, 1], 0, img_shape[0])
+    r = torch.clip(_boxes[:, 2], 0, img_shape[1])
+    b = torch.clip(_boxes[:, 3], 0, img_shape[0])
+    
+    # Stack into [N, 4] tensor with format [t, l, b, r] for each box
+    return torch.stack([t, l, b, r], dim=1).int()
 
-def convert_yolo_mask(yolo_mask: ultralytics.engine.results.Masks, img_shape) -> Mask:
+def convert_yolo_mask(yolo_mask: ultralytics.engine.results.Masks, img_shape) -> torch.Tensor:
     mask_img = _to_mask_img(yolo_mask.data)
     if mask_img.ndim == 2:
-        mask_img = np.expand_dims(mask_img, axis=-1)
-    mask_img = scale_image(mask_img, img_shape)
-    mask_img = np.where(mask_img > 127, 255, 0).astype(np.uint8)
+        mask_img = mask_img.unsqueeze(-1)
+    
+    # Scale the mask using torch operations instead of scale_image
+    mask_img = _scale_mask_torch(mask_img, img_shape)
+    mask_img = torch.where(mask_img > 127, 255, 0).to(torch.uint8)
     assert mask_img.ndim == 3 and mask_img.shape[2] == 1
     return mask_img
 
 
-def _to_mask_img(masks, class_val=0, pixel_val=255) -> Mask:
+def _to_mask_img(masks, class_val=0, pixel_val=255) -> torch.Tensor:
     masks_tensor = (masks != class_val).int() * pixel_val
-    mask_img = masks_tensor.cpu().numpy()[0].astype(np.uint8)
+    mask_img = masks_tensor[0].to(torch.uint8)
     return mask_img
+
+
+def _scale_mask_torch(mask_tensor: torch.Tensor, target_shape: tuple) -> torch.Tensor:
+    """
+    Scale a mask tensor to target shape using torch operations instead of opencv.
+    This is a torch-based equivalent of ultralytics' scale_image function.
+    
+    Args:
+        mask_tensor: Input mask tensor with shape (H, W) or (H, W, C)
+        target_shape: Target shape as (height, width)
+    
+    Returns:
+        Scaled mask tensor with target shape
+    """
+    target_h, target_w = target_shape[:2]
+    
+    # If already the right size, return as-is
+    if mask_tensor.shape[0] == target_h and mask_tensor.shape[1] == target_w:
+        return mask_tensor
+    
+    # Convert to float for interpolation
+    mask_float = mask_tensor.float()
+    
+    # Add batch dimension if needed: (H, W, C) -> (1, C, H, W)
+    if mask_float.ndim == 3:
+        mask_float = mask_float.permute(2, 0, 1).unsqueeze(0)  # (C, H, W) -> (1, C, H, W)
+    elif mask_float.ndim == 2:
+        mask_float = mask_float.unsqueeze(0).unsqueeze(0)  # (H, W) -> (1, 1, H, W)
+    
+    # Use torch's interpolate function
+    scaled = torch.nn.functional.interpolate(
+        mask_float, 
+        size=(target_h, target_w), 
+        mode='bilinear', 
+        align_corners=False
+    )
+    
+    # Convert back to original format: (1, C, H, W) -> (H, W, C)
+    if mask_tensor.ndim == 3:
+        scaled = scaled.squeeze(0).permute(1, 2, 0)  # (1, C, H, W) -> (H, W, C)
+    elif mask_tensor.ndim == 2:
+        scaled = scaled.squeeze(0).squeeze(0)  # (1, 1, H, W) -> (H, W)
+        scaled = scaled.unsqueeze(-1)  # (H, W) -> (H, W, 1)
+    
+    # Convert back to uint8
+    return scaled.to(torch.uint8)
 
 
 def choose_biggest_detection(result: ultralytics.engine.results.Results, tracking_mode=True) -> tuple[

@@ -41,17 +41,20 @@ class Scene:
             self.frame_end = frame_num
             self.data.append((img, mask, box))
 
-    def merge_mask_box(self, mask: Mask, box: Box):
+    def merge_mask_box(self, mask: torch.Tensor, box: torch.Tensor):
         assert self.belongs(box)
         current_box = self.data[-1][2]
-        t = min(current_box[0], box[0])
-        l = min(current_box[1], box[1])
-        b = max(current_box[2], box[2])
-        r = max(current_box[3], box[3])
-        new_box = (t, l, b, r)
-
         current_mask = self.data[-1][1]
-        new_mask = np.maximum(current_mask, mask)
+        
+        # Handle box merging with tensors
+        t = torch.min(current_box[0], box[0])
+        l = torch.min(current_box[1], box[1])
+        b = torch.max(current_box[2], box[2])
+        r = torch.max(current_box[3], box[3])
+        new_box = torch.stack([t, l, b, r])
+        
+        # Handle mask merging with tensors
+        new_mask = torch.maximum(current_mask, mask)
 
         self.data[-1] = self.data[-1][0], new_mask, new_box
 
@@ -329,7 +332,7 @@ class MosaicDetector:
 
     def _frame_feeder_worker(self):
         logger.debug("frame feeder: started")
-        with video_utils.VideoReader(self.video_file) as video_reader:
+        with video_utils.VideoReader(self.video_file, self.batch_size) as video_reader:
             if self.start_ns > 0:
                 video_reader.seek(self.start_ns)
             video_frames_generator = video_reader.frames()

@@ -10,33 +10,45 @@ from torchvision.utils import make_grid
 from lada.lib import Image, Pad
 
 
-def pad_image(img, max_height, max_width, mode='zero'):
-    height, width = img.shape[:2]
+def pad_image(img: torch.Tensor, max_height, max_width, mode='zero'):
+    # For HWC format, height and width are at indices 0 and 1
+    height, width = img.shape[0:2]
     if height == max_height and width == max_width:
-        return img, (0, 0, 0, 0)
+        return img, [0, 0, 0, 0]
+    
     pad_h = max_height - height
     pad_w = max_width - width
     pad_h_t = math.ceil(pad_h / 2)
     pad_h_b = math.floor(pad_h / 2)
     pad_w_l = math.ceil(pad_w / 2)
     pad_w_r = math.floor(pad_w / 2)
-    pad = (pad_h_t, pad_h_b,pad_w_l, pad_w_r)
-    padded_image =  pad_image_by_pad(img, pad, mode)
-    assert padded_image.shape[:2] == (max_height, max_width)
+    
+    pad = [pad_h_t, pad_h_b, pad_w_l, pad_w_r]
+    
+    padded_image = pad_image_by_pad(img, pad, mode)
+    # For HWC format, check height and width at indices 0 and 1
+    assert padded_image.shape[0:2] == (max_height, max_width)
     return padded_image, pad
 
-def pad_image_by_pad(img: Image, pad: Pad, mode='zero'):
-    (pad_h_t, pad_h_b,pad_w_l, pad_w_r) = pad
+def pad_image_by_pad(img: torch.Tensor, pad: list, mode='zero'):
+    pad_h_t, pad_h_b, pad_w_l, pad_w_r = pad
+    
     if img.ndim == 3:
+        # For 3D tensor (H, W, C) - need to permute to (C, H, W) for F.pad
+        img_chw = img.permute(2, 0, 1)  # (H, W, C) -> (C, H, W)
+        img_bchw = img_chw.unsqueeze(0)  # (1, C, H, W)
         if mode == 'zero':
-            padded_img = np.pad(img, ((pad_h_t, pad_h_b),(pad_w_l, pad_w_r),(0,0)), mode='constant', constant_values=0)
+            # F.pad format: (pad_left, pad_right, pad_top, pad_bottom)
+            padded_img = F.pad(img_bchw, (pad_w_l, pad_w_r, pad_h_t, pad_h_b), mode='constant', value=0)
         elif mode == 'reflect':
-            padded_img = np.pad(img, ((pad_h_t, pad_h_b),(pad_w_l, pad_w_r),(0,0)), mode='reflect')
+            padded_img = F.pad(img_bchw, (pad_w_l, pad_w_r, pad_h_t, pad_h_b), mode='reflect')
         else:
             raise NotImplementedError()
+        # Remove batch dimension and permute back to (H, W, C)
+        padded_img = padded_img.squeeze(0).permute(1, 2, 0)  # (C, H, W) -> (H, W, C)
     else:
-        assert mode == 'zero'
-        padded_img = np.pad(img, ((pad_h_t, pad_h_b),(pad_w_l, pad_w_r)), mode='constant', constant_values=0)
+        raise NotImplementedError("pad_image_by_pad currently only supports 3D tensors (H, W, C)")
+    
     return padded_img
 
 def repad_image(imgs: list[Image], pads: list[Pad], mode='reflect'):
@@ -158,25 +170,98 @@ def tensor2img(tensor, rgb2bgr=True, out_type=np.uint8, min_max=(0, 1)):
         result.append(img_np)
     return result
 
-def resize(img: Image, size: int|tuple[int, int], interpolation=cv2.INTER_LINEAR):
+def resize(img: torch.Tensor, size: int|tuple[int, int], interpolation='bilinear'):
+    """
+    Resize a torch.Tensor image using PyTorch's F.interpolate.
+    
+    Args:
+        img (torch.Tensor): Input tensor of shape (H, W, C) or (B, H, W, C)
+        size (int|tuple[int, int]): Target size. If int, resize keeping aspect ratio 
+                                   with max dimension equal to size. If tuple, exact (H, W) size.
+        interpolation (str|int): Interpolation mode. Can be PyTorch mode string 
+                               ('bilinear', 'bicubic', 'nearest', 'area') or OpenCV constant
+                               (cv2.INTER_LINEAR, cv2.INTER_CUBIC, cv2.INTER_NEAREST)
+    
+    Returns:
+        torch.Tensor: Resized tensor in (H, W, C) or (B, H, W, C) format
+    """
+    # Map OpenCV interpolation constants to PyTorch interpolation modes
+    if isinstance(interpolation, int):
+        cv2_to_torch_interp = {
+            cv2.INTER_LINEAR: 'bilinear',
+            cv2.INTER_CUBIC: 'bicubic', 
+            cv2.INTER_NEAREST: 'nearest',
+            cv2.INTER_AREA: 'area'
+        }
+        interpolation = cv2_to_torch_interp.get(interpolation, 'bilinear')
+    
+    # Handle uint8 input - F.interpolate only works with float tensors
+    original_dtype = img.dtype
+    convert_back_to_uint8 = original_dtype == torch.uint8
+    if convert_back_to_uint8:
+        img = img.float()
+    
+    # Handle batch dimension and format conversion
+    original_shape = img.shape
+    if len(original_shape) == 3:  # (H, W, C)
+        h, w, c = img.shape
+        # Convert to (C, H, W) then add batch dimension: (1, C, H, W)
+        img = img.permute(2, 0, 1).unsqueeze(0)
+        squeeze_output = True
+    else:  # (B, H, W, C)
+        b, h, w, c = img.shape
+        # Convert to (B, C, H, W)
+        img = img.permute(0, 3, 1, 2)
+        squeeze_output = False
+    
     if type(size) == int:
-        h, w = img.shape[:2]
+        # Keep aspect ratio, resize so max dimension equals size
         if max(w, h) == size:
-            return img
+            # Convert back to original format
+            if squeeze_output:
+                return img.squeeze(0).permute(1, 2, 0)  # (C, H, W) -> (H, W, C)
+            else:
+                return img.permute(0, 2, 3, 1)  # (B, C, H, W) -> (B, H, W, C)
+            
         if w >= h:
             scale_factor = size / w
-            new_h = size
-            new_w = math.ceil(h * scale_factor) if scale_factor < 1.0 else math.floor(h * scale_factor)
+            new_w = size
+            new_h = math.ceil(h * scale_factor) if scale_factor < 1.0 else math.floor(h * scale_factor)
         else:
             scale_factor = size / h
-            new_w = size
-            new_h = math.ceil(w * scale_factor) if scale_factor < 1.0 else math.floor(w * scale_factor)
+            new_h = size
+            new_w = math.ceil(w * scale_factor) if scale_factor < 1.0 else math.floor(w * scale_factor)
+        new_size = (new_h, new_w)
     else:
-        if img.shape[:2] == size:
-            return img
+        # Exact size
         new_h, new_w = size
-    resized_img = cv2.resize(img, (new_w, new_h), interpolation=interpolation)
-    assert size == max(resized_img.shape[:2]) if type(size) == int else size == resized_img.shape[:2]
+        if (h, w) == (new_h, new_w):
+            # Convert back to original format
+            if squeeze_output:
+                return img.squeeze(0).permute(1, 2, 0)  # (C, H, W) -> (H, W, C)
+            else:
+                return img.permute(0, 2, 3, 1)  # (B, C, H, W) -> (B, H, W, C)
+        new_size = (new_h, new_w)
+    
+    # Use F.interpolate for resizing
+    resized_img = F.interpolate(img, size=new_size, mode=interpolation, align_corners=False if interpolation in ['bilinear', 'bicubic'] else None)
+    
+    # Convert back to original dtype if needed
+    if convert_back_to_uint8:
+        resized_img = resized_img.round().clamp(0, 255).to(torch.uint8)
+    
+    # Convert back to original format (H, W, C) or (B, H, W, C)
+    if squeeze_output:
+        resized_img = resized_img.squeeze(0).permute(1, 2, 0)  # (1, C, H, W) -> (H, W, C)
+    else:
+        resized_img = resized_img.permute(0, 2, 3, 1)  # (B, C, H, W) -> (B, H, W, C)
+    
+    # Verify output size
+    if type(size) == int:
+        assert size == max(resized_img.shape[-3:-1]), f"Expected max dimension {size}, got {max(resized_img.shape[-3:-1])}"
+    else:
+        assert resized_img.shape[-3:-1] == torch.Size(size), f"Expected size {size}, got {resized_img.shape[-3:-1]}"
+    
     return resized_img
 
 def resize_simple(img: Image, size: int, interpolation=cv2.INTER_LINEAR):

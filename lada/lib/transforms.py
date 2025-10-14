@@ -2,7 +2,6 @@ import io
 import math
 import random
 
-import av
 import cv2
 import numpy as np
 import torch

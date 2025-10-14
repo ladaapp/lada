@@ -45,6 +45,7 @@ def load_model(config: str | dict | None, checkpoint_path, device):
     model.to(device)
     model.eval()
     return model
+    #return torch.compile(model, mode="reduce-overhead")
 
 
 def inference(model, video: list, device, max_frames=-1):
@@ -54,7 +55,8 @@ def inference(model, video: list, device, max_frames=-1):
         device = torch.device(device)
     with torch.no_grad():
         result = []
-        input = torch.stack(img2tensor(video, bgr2rgb=False, float32=True), dim=0)
+        input = torch.stack([x.float().div_(255) for x in video], 0)
+        input = input.permute(0, 3, 1, 2)  # TCHW
         input = torch.unsqueeze(input, dim=0)  # TCHW -> BTCHW
         if max_frames > 0:
             for i in range(0, input.shape[1], max_frames):
@@ -64,8 +66,8 @@ def inference(model, video: list, device, max_frames=-1):
         else:
             result = model(inputs=input.to(device))
         result = torch.squeeze(result, dim=0)  # BTCHW -> TCHW
-        result = list(torch.unbind(result, 0))
-        output = tensor2img(result, rgb2bgr=False, out_type=np.uint8, min_max=(0, 1))
+        result = torch.unbind(result, 0)
+        output = [x.mul_(255.0).round().clamp_(0, 255).to(dtype=torch.uint8).permute(1, 2, 0) for x in result]
         output_frame_count = len(output)
         output_frame_shape = output[0].shape
         assert input_frame_count == output_frame_count and input_frame_shape == output_frame_shape

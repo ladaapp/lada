@@ -7,3 +7,4 @@ experiments/
 .idea
 .flatpak-builder
 __pycache__
+.vscode/

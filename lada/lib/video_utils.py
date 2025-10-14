@@ -4,14 +4,15 @@ import re
 import subprocess
 from contextlib import contextmanager
 from fractions import Fraction
-from typing import Callable
+from typing import Callable, Iterator
 
-import av
 import cv2
 import numpy as np
-
+import PyNvVideoCodec as nvc
+import torch
+import pycuda.driver as cuda
 from lada.lib import Image, Mask, VideoMetadata
-
+import av
 
 def read_video_frames(path: str, float32: bool = True, start_idx: int = 0, end_idx: int | None = None, normalize_neg1_pos1 = False, binary_frames=False) -> list[np.ndarray]:
     with VideoReaderOpenCV(path) as video_reader:
@@ -66,25 +67,36 @@ def VideoReaderOpenCV(*args, **kwargs):
         cap.release()
 
 class VideoReader:
-    def __init__(self, file):
+    def __init__(self, file, batch_size=4, cuda_ctx=None, model_stream=None):
         self.file = file
         self.container = None
+        self.batch_size = batch_size
+        self.cuda_ctx = cuda_ctx
+        self.model_stream = model_stream
 
     def __enter__(self):
-        self.container = av.open(self.file)
+        self.demuxer = nvc.CreateDemuxer(filename=self.file)
+        self.decoder: nvc.PyNvDecoder = nvc.CreateDecoder(
+            gpuid=0,
+            cudacontext=self.cuda_ctx.handle,
+            cudastream=self.model_stream.cuda_stream,
+            codec=self.demuxer.GetNvCodecId(),
+            usedevicememory=True,
+            outputColorType=nvc.OutputColorType.RGBP
+        )
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.container.close()
+        pass
 
-    def frames(self):
-        for frame in self.container.decode(video=0):
-            frame_img = frame.to_ndarray(format='bgr24')
-            yield frame_img, frame.pts
+    def frames(self) -> Iterator[tuple[torch.Tensor, int]]:
+        for packet in self.demuxer:
+            for frame in self.decoder.Decode(packet):
+                yield torch.from_dlpack(frame).permute(1, 2, 0).clone(), packet.pts
 
     def seek(self, offset_ns):
-        offset = int((offset_ns / 1_000_000_000) * av.time_base)
-        self.container.seek(offset)
+        index = self.decoder.get_index_from_time_in_seconds(offset_ns)
+        self.decoder.seek_to_index(index)
 
 def get_video_meta_data(path: str) -> VideoMetadata:
     cmd = ['ffprobe', '-v', 'quiet', '-print_format', 'json', '-select_streams', 'v', '-show_streams', '-show_format', path]
@@ -246,42 +258,88 @@ class VideoWriter:
         encoder_defaults['hevc'] = libx265
         return encoder_defaults
 
-    def __init__(self, output_path, width, height, fps, codec, crf=None, preset=None, time_base=None, moov_front=False, custom_encoder_options=None):
-        container_options = {"movflags": "+frag_keyframe+empty_moov+faststart"} if moov_front else {}
-        encoder_defaults = self.get_default_encoder_options()
-        encoder_options = encoder_defaults.get(codec, {})
+    def __init__(self, output_path, width, height, fps, cuda_ctx=None, modelstream=None):
+        config = {
+            "preset": "P6",
+            "codec": "h264",
+            # "tuning_info": "high_quality",
+            # "rc": "vbr",
+            # "gop": 30,
+            # "bf": 3,
+            # "bitrate": "10M",
+            # "vbvinit" : 0,
+            # "vbvbufsize" : 0,
+            # "qmin"         : "0,0,0",
+            # "qmax"         : "0,0,0",
+            # "initqp"       : "0,0,0",
+            "qp": "20"
+        } 
+        self.encoder = nvc.CreateEncoder(
+            width=width,
+            height=height,
+            cudacontext=cuda_ctx.handle,
+            cudastream=modelstream.cuda_stream,
+            fmt="YUV444",
+            usecpuinputbuffer=False,
+            fps=fps,
+            **config)
+        self.output_file = open(output_path, "wb")
 
-        if crf is not None:
-            if codec in ('hevc_nvenc', 'h264_nvenc'):
-                encoder_options['rc'] = 'constqp'
-                encoder_options['qp'] = str(crf)
-            else:
-                encoder_options['crf'] = str(crf)
-        if preset:
-            encoder_options['preset'] = preset
+    def hwc_rgb_to_yuv_bt709(self, img_hwc: torch.Tensor) -> torch.Tensor:
+        """
+        Convert HWC RGB uint8 tensor [H,W,3] to planar YUV uint8 tensor [3*H,W].
+        Uses BT.601 color space with limited range (Y: 16-235, UV: 16-240) to avoid contrast issues.
+        Output format is planar: Y plane, then U plane, then V plane stacked vertically.
+        
+        Args:
+            img_hwc: Input tensor with shape [H,W,3] in RGB order
+            
+        Returns:
+            torch.Tensor: Output tensor with shape [3*H,W] in planar YUV format
+        """
+        assert img_hwc.ndim == 3 and img_hwc.shape[2] == 3, "Input must be HWC RGB with 3 channels"
+        H, W, _ = img_hwc.shape
 
-        if custom_encoder_options:
-            encoder_options.update(self.parse_custom_options(custom_encoder_options))
-
-        output_container = av.open(output_path, "w", options=container_options)
-        video_stream_out: av.VideoStream = output_container.add_stream(codec, fps)
-
-        video_stream_out.width = width
-        video_stream_out.height = height
-        video_stream_out.thread_count = 0
-        video_stream_out.thread_type = 3
-        video_stream_out.time_base = time_base
-
-        # up until PyAV 15.5.0 it was enough to set these settings on the stream only.
-        video_stream_out.codec_context.width = width
-        video_stream_out.codec_context.height = height
-        video_stream_out.codec_context.thread_count = 0
-        video_stream_out.codec_context.thread_type = 3
-        video_stream_out.codec_context.time_base = time_base
-
-        video_stream_out.options = encoder_options
-        self.output_container = output_container
-        self.video_stream = video_stream_out
+        # Convert to float for precise calculations
+        rgb = img_hwc.float()
+        
+        # Extract RGB channels
+        R, G, B = rgb[:, :, 0], rgb[:, :, 1], rgb[:, :, 2]
+        
+        # BT.601 RGB to YUV conversion (limited range 16-235/16-240)
+        # Limited range is what most video encoders expect to avoid contrast issues
+        # Y =  16 + (219/255) * (0.299*R + 0.587*G + 0.114*B)
+        # U = 128 + (224/255) * (-0.169*R - 0.331*G + 0.500*B)
+        # V = 128 + (224/255) * (0.500*R - 0.419*G - 0.081*B)
+        
+        # First convert RGB (0-255) to normalized (0-1)
+        R_norm = R / 255.0
+        G_norm = G / 255.0
+        B_norm = B / 255.0
+        
+        # Apply BT.601 matrix to get YUV in normalized range
+        Y_norm = 0.299 * R_norm + 0.587 * G_norm + 0.114 * B_norm
+        U_norm = -0.169 * R_norm - 0.331 * G_norm + 0.500 * B_norm
+        V_norm = 0.500 * R_norm - 0.419 * G_norm - 0.081 * B_norm
+        
+        # Convert to limited range
+        Y = 16 + 219 * Y_norm          # Y: 16-235 range
+        U = 128 + 224 * U_norm         # U: 16-240 range (128 ± 112)
+        V = 128 + 224 * V_norm         # V: 16-240 range (128 ± 112)
+        
+        # Clamp to valid limited range and convert back to uint8
+        Y = Y.clamp(16, 235).to(torch.uint8)
+        U = U.clamp(16, 240).to(torch.uint8)
+        V = V.clamp(16, 240).to(torch.uint8)
+        
+        # Create planar YUV format: stack Y, U, V planes vertically
+        # Result shape: [3*H, W] where:
+        # - Rows 0 to H-1: Y plane
+        # - Rows H to 2*H-1: U plane  
+        # - Rows 2*H to 3*H-1: V plane
+        yuv_planar = torch.cat([Y, U, V], dim=0)  # [3*H, W]
+        
+        return yuv_planar
 
     def __enter__(self):
         return self
@@ -289,19 +347,18 @@ class VideoWriter:
     def __exit__(self, exc_type, exc_value, traceback):
         self.release()
 
-    def write(self, frame, frame_pts=None, bgr2rgb=False):
-        if bgr2rgb:
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        out_frame = av.VideoFrame.from_ndarray(frame, format='rgb24')
-        if frame_pts:
-            out_frame.pts = frame_pts
-        out_packet = self.video_stream.encode(out_frame)
-        self.output_container.mux(out_packet)
+    def write(self, frame, frame_pts=None):
+        # x = frame.cpu().numpy()
+        # x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
+        # cv2.imwrite("debug_frame.png", x)
+        nv12_frame = self.hwc_rgb_to_yuv_bt709(frame)
+        bitstream = self.encoder.Encode(nv12_frame)
+        self.output_file.write(bytearray(bitstream))
 
     def release(self):
-        out_packet = self.video_stream.encode(None)
-        self.output_container.mux(out_packet)
-        self.output_container.close()
+        bitstream = self.encoder.EndEncode()
+        self.output_file.write(bytearray(bitstream))
+        self.output_file.close()
 
 def is_video_file(file_path):
     SUPPORTED_VIDEO_FILE_EXTENSIONS = {".asf", ".avi", ".m4v", ".mkv", ".mov", ".mp4", ".mpeg", ".mpg", ".ts", ".wmv",
