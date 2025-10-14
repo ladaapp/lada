@@ -1,0 +1,515 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the lada package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: lada\n"
+"Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
+"POT-Creation-Date: 2025-10-14 08:15+0000\n"
+"PO-Revision-Date: 2025-10-15 01:29+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: lada/gui/export/export_item_row.ui:61 lada/gui/export/export_view.ui:173
+msgid "Open in External Program…"
+msgstr "在外部程序中打开…"
+
+#: lada/gui/export/export_view.ui:30 lada/gui/preview/preview_view.ui:41
+msgid "Settings"
+msgstr "设置"
+
+#: lada/gui/export/export_view.ui:37
+msgid "Add Files…"
+msgstr "添加文件..."
+
+#: lada/gui/export/export_view.ui:43 lada/gui/export/export_view.ui:159
+#: lada/gui/export/export_view.py:154
+msgid "Restore"
+msgstr "修复"
+
+#: lada/gui/export/export_view.ui:114
+msgid "Export video"
+msgstr "导出视频"
+
+#: lada/gui/export/export_view.ui:177
+msgid "Open File"
+msgstr "打开文件"
+
+#: lada/gui/export/export_item_row.py:25
+#, python-brace-format
+msgid "Duration: {duration}, Resolution: {resolution}, FPS: {fps}"
+msgstr "持续时间：{duration}，分辨率：{resolution}，帧率： {fps}"
+
+#: lada/gui/export/export_view.py:154
+msgid "Restore…"
+msgstr "修复..."
+
+#: lada/gui/export/export_view.py:184
+msgid "Finished video restoration!"
+msgstr "视频修复已完成！"
+
+#: lada/gui/export/export_view.py:213
+msgid "Restoring video…"
+msgstr "正在修复视频…"
+
+#: lada/gui/export/export_view.py:344
+msgid "Save restored video file"
+msgstr "保存已修复的视频文件"
+
+#: lada/gui/export/export_view.py:351
+msgid "Save restored video files"
+msgstr "保存所有已修复的视频文件"
+
+#: lada/gui/config/no_gpu_banner.ui:11
+msgid "No GPU detected! Running the app on CPU will be painfully slow."
+msgstr "未检测到 GPU！在 CPU 上运行程序，速度会非常缓慢。"
+
+#: lada/gui/config/config_sidebar.ui:16
+msgid "Mosaic Removal"
+msgstr "马赛克修复"
+
+#: lada/gui/config/config_sidebar.ui:19
+msgid "Detection model"
+msgstr "检测模型"
+
+#: lada/gui/config/config_sidebar.ui:20
+msgid "Model used for detecting mosaic areas."
+msgstr "用于检测马赛克的模型。"
+
+#: lada/gui/config/config_sidebar.ui:30
+msgid "Restoration model"
+msgstr "修复模型"
+
+#: lada/gui/config/config_sidebar.ui:31
+msgid "Model used for restoring mosaic areas."
+msgstr "用于修复马赛克的模型。"
+
+#: lada/gui/config/config_sidebar.ui:41
+msgid "Maximum clip duration"
+msgstr "每次修复的最大帧数"
+
+#: lada/gui/config/config_sidebar.ui:42
+msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint."
+msgstr "修复时模型每次处理的最大帧数，较高的值可提高时间稳定性；较低的值可降低显存占用。"
+
+#: lada/gui/config/config_sidebar.ui:57
+msgid "GPU"
+msgstr "GPU"
+
+#: lada/gui/config/config_sidebar.ui:58
+msgid "Selected GPU for model processing."
+msgstr "用于模型处理的 GPU"
+
+#: lada/gui/config/config_sidebar.ui:73
+msgid "Playback"
+msgstr "播放设置"
+
+#: lada/gui/config/config_sidebar.ui:77
+msgid "Buffer duration"
+msgstr "缓冲时长"
+
+#: lada/gui/config/config_sidebar.ui:78
+msgid "How much video is pre-loaded for playback, measured in seconds. If set to 0 this value will be chosen automatically."
+msgstr "播放前预加载的秒数，设为 0 则自动加载。"
+
+#: lada/gui/config/config_sidebar.ui:92
+msgid "Mute audio by default"
+msgstr "默认静音"
+
+#: lada/gui/config/config_sidebar.ui:93
+msgid "When enabled, audio will be muted automatically when a new file is opened."
+msgstr "启用后，打开新文件时将自动静音。"
+
+#: lada/gui/config/config_sidebar.ui:102 lada/gui/config/config_sidebar.ui:273
+#: lada/gui/window.ui:48
+msgid "Export"
+msgstr "导出"
+
+#: lada/gui/config/config_sidebar.ui:106
+msgid "Codec"
+msgstr "编码器"
+
+#: lada/gui/config/config_sidebar.ui:107
+msgid "Video Codec used for encoding the restored video."
+msgstr "用于已修复视频的编码器。"
+
+#: lada/gui/config/config_sidebar.ui:119
+msgid "CRF (Constant Rate Factor)"
+msgstr "CRF（恒定码率因子）"
+
+#: lada/gui/config/config_sidebar.ui:120
+msgid "Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes."
+msgstr "视频编码质量，值越低，质量越高文件也越大。"
+
+#: lada/gui/config/config_sidebar.ui:134
+msgid ""
+"Custom FFmpeg encoder options (Optional).\n"
+"Example: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</tt></span>"
+msgstr ""
+"自定义 FFmpeg 编码器参数（可选）\n"
+"例如: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</tt></span>"
+
+#: lada/gui/config/config_sidebar.ui:135
+msgid ""
+"FFmpeg Codecs Documentation:\n"
+"https://ffmpeg.org/ffmpeg-codecs.html"
+msgstr ""
+"FFmpeg 官方文档：\n"
+"https://ffmpeg.org/ffmpeg-codecs.html"
+
+#: lada/gui/config/config_sidebar.ui:141
+msgid "Output Directory"
+msgstr "输出目录"
+
+#: lada/gui/config/config_sidebar.ui:146
+msgid "Always ask"
+msgstr "每次询问"
+
+#: lada/gui/config/config_sidebar.ui:157
+msgid "Use this folder"
+msgstr "使用此目录"
+
+#: lada/gui/config/config_sidebar.ui:158 lada/gui/config/config_sidebar.py:107
+#: lada/gui/config/config_sidebar.py:223
+msgid "Click the folder button to choose a default"
+msgstr "点击文件夹按钮选择默认位置"
+
+#: lada/gui/config/config_sidebar.ui:179
+msgid ""
+"File name pattern for restored files.\n"
+"Must include placeholder <span background=\"#D3D3D350\"><tt>{orig_file_name}</tt></span>."
+msgstr ""
+"已修复文件的命名模式。\n"
+"必须包含占位符 <span background=\"#D3D3D350\"><tt>{orig_file_name}</tt></span>"
+
+#: lada/gui/config/config_sidebar.ui:189
+msgid "Troubleshooting"
+msgstr "故障诊断"
+
+#: lada/gui/config/config_sidebar.ui:193
+msgid "Show mosaic detections"
+msgstr "显示马赛克检测结果"
+
+#: lada/gui/config/config_sidebar.ui:194
+msgid "Show detected mosaic areas. Useful to evaluate quality of detection model."
+msgstr "显示检测到的马赛克区域，有助于评估检测模型的质量。"
+
+#: lada/gui/config/config_sidebar.ui:207
+msgid "UI"
+msgstr "软件界面"
+
+#: lada/gui/config/config_sidebar.ui:210
+msgid "Color Scheme"
+msgstr "配色方案"
+
+#: lada/gui/config/config_sidebar.ui:214
+msgid "Follow System style"
+msgstr "跟随系统"
+
+#: lada/gui/config/config_sidebar.ui:226
+msgid "Light style"
+msgstr "浅色主题"
+
+#: lada/gui/config/config_sidebar.ui:238
+msgid "Dark style"
+msgstr "深色主题"
+
+#: lada/gui/config/config_sidebar.ui:250
+msgid "Default View"
+msgstr "默认视图"
+
+#: lada/gui/config/config_sidebar.ui:251
+msgid "View shown after opening files"
+msgstr "打开文件后显示的视图"
+
+#: lada/gui/config/config_sidebar.ui:258 lada/gui/preview/preview_view.py:484
+#: lada/gui/window.ui:38
+msgid "Watch"
+msgstr "预览"
+
+#: lada/gui/config/config_sidebar.ui:297
+msgid "Reset to factory settings"
+msgstr "恢复默认设置"
+
+#: lada/gui/config/config_sidebar.py:291
+msgid "Select a folder where restored videos should be saved"
+msgstr "选择已修复视频的保存位置"
+
+#: lada/gui/preview/preview_view.ui:29
+msgid "Toggle Fullscreen"
+msgstr "切换全屏"
+
+#: lada/gui/preview/preview_view.ui:48
+#: lada/gui/fileselection/file_selection_view.ui:35
+msgid "Open Files…"
+msgstr "打开文件…"
+
+#: lada/gui/preview/preview_view.py:485
+msgid "Mute/Unmute"
+msgstr "切换静音"
+
+#: lada/gui/preview/preview_view.py:486
+msgid "Play/Pause"
+msgstr "播放/暂停"
+
+#: lada/gui/preview/preview_view.py:487
+msgid "Enable/Disable fullscreen"
+msgstr "启用/禁用全屏"
+
+#: lada/gui/fileselection/file_selection_view.ui:31
+msgid "Restore pixelated adult videos"
+msgstr "修复马赛克视频"
+
+#: lada/gui/fileselection/file_selection_view.ui:32
+msgid "Drop one or more videos here"
+msgstr "将一个或多个视频拖放到此处"
+
+#: lada/gui/fileselection/file_selection_view.ui:54
+msgid "Keyboard Shortcuts"
+msgstr "键盘快捷键"
+
+#: lada/gui/fileselection/file_selection_view.ui:58
+msgid "About Lada"
+msgstr "关于 Lada"
+
+#: lada/gui/window.py:91
+msgid "Switch to Export View"
+msgstr "切换到导出视图"
+
+#: lada/gui/window.py:92
+msgid "Switch to Preview View"
+msgstr "切换到预览视图"
+
+#: lada/gui/utils.py:78
+msgid "Select one or multiple video files"
+msgstr "选择一个或多个视频文件"
+
+#: lada/cli/main.py:28
+msgid "Usage: "
+msgstr "用法："
+
+#: lada/cli/main.py:33
+msgid "Examples:"
+msgstr "示例："
+
+#: lada/cli/main.py:35
+msgid "Restore video with default settings:"
+msgstr "使用默认设置修复视频："
+
+#: lada/cli/main.py:36
+#, python-format
+msgid "%(prog)s --input input.mp4"
+msgstr "%(prog)s --input input.mp4"
+
+#: lada/cli/main.py:38
+msgid "Restore all videos found in the specified directory and save them to a different folder:"
+msgstr "修复指定目录中的所有视频，并将其保存到另一个文件夹："
+
+#: lada/cli/main.py:39
+#, python-format
+msgid "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
+msgstr "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
+
+#: lada/cli/main.py:41
+msgid "Use a GPU-accelerated codec for encoding the restored video:"
+msgstr "使用 GPU 编码器对修复后的视频进行编码加速："
+
+#: lada/cli/main.py:42
+#, python-format
+msgid "%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20"
+msgstr "%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20"
+
+#: lada/cli/main.py:45
+#, python-format
+msgid "%(prog)s [options]"
+msgstr "%(prog)s [选项]"
+
+#: lada/cli/main.py:46
+msgid "Restore pixelated adult videos (JAV)"
+msgstr "修复马赛克视频（JAV）"
+
+#: lada/cli/main.py:59
+msgid "General"
+msgstr "常规"
+
+#: lada/cli/main.py:60
+msgid "Path to pixelated video file or directory containing video files"
+msgstr "视频文件或包含视频文件的目录路径"
+
+#: lada/cli/main.py:61
+msgid "Path used to save output file(s). If path is a directory then file name will be chosen automatically (see --output-file-pattern). If no output path was given then the directory of the input file will be used"
+msgstr "输出文件的保存路径。若为目录，则会自动命名（详见--output-file-pattern）。如果未指定输出路径，则默认使用输入目录"
+
+#: lada/cli/main.py:62
+msgid "Pattern used to determine output file name(s). Used when input is a directory or a file with no output path specified"
+msgstr "输出文件名命名模式，在输入为目录或未指定输出路径时使用。"
+
+#: lada/cli/main.py:63
+#, python-format
+msgid "Device used for running Restoration and Detection models. Use \"cpu\" or \"cuda\". If you have multiple GPUs you can select a specific one via index e.g. \"cuda:0\" (default: %(default)s)"
+msgstr "用于运行修复和检测模型的设备。使用 \"cpu\" 或 \"cuda\"。若有多个 GPU，可通过索引选择特定设备，例如 \"cuda:0\"（默认值：%(default)s）"
+
+#: lada/cli/main.py:64
+msgid "List available devices and exit"
+msgstr "列出可用设备并退出"
+
+#: lada/cli/main.py:65
+msgid "Display version and exit"
+msgstr "显示版本信息并退出"
+
+#: lada/cli/main.py:66
+msgid "Show this help message and exit"
+msgstr "显示帮助信息并退出"
+
+#: lada/cli/main.py:68
+msgid "Export (Encoder settings)"
+msgstr "导出（视频编码设置）"
+
+#: lada/cli/main.py:69
+#, python-format
+msgid "FFmpeg video codec. E.g. \"h264, \"hevc\" or \"hevc_nvenc\". Use \"--list-codecs\" to see whats available. (default: %(default)s)"
+msgstr "FFmpeg 视频编码器。例如\"h264\"、\"hevc\"或\"hevc_nvenc\"。请使用\"--list-codecs\"查看可选项。（默认值：%(default)s）"
+
+#: lada/cli/main.py:70
+msgid "List available codecs and hardware devices / GPUs for hardware-accelerated video encoding"
+msgstr "列出可用编码器及硬件加速设备/GPU"
+
+#: lada/cli/main.py:71
+#, python-format
+msgid "Constant rate factor (CRF). Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes. If you have selected GPU codecs \"h264_nvenc\" or \"hevc_nvenc\" then the option \"qp\" will be used instead as those encoders don't support the \"crf\" option. (default: %(default)s)"
+msgstr "恒定码率因子（CRF）。视频编码器的质量设置，值越低，质量越好但文件越大。如果选择了GPU编码器\"h264_nvenc\" 或 \"hevc_nvenc\"则将使用\"qp\"因为这些编码器不支持\"crf\"值。(默认值：%(default)s)"
+
+#: lada/cli/main.py:72
+#, python-format
+msgid "Encoder preset. Mostly affects file-size and speed. (default: %(default)s)"
+msgstr "编码器预设。主要影响文件大小与编码速度。（默认值：%(default)s）"
+
+#: lada/cli/main.py:73
+#, python-format
+msgid "Sets ffmpeg mov flags 'frag_keyframe+empty_moov+faststart'. Enables playing the output video while it's being written (default: %(default)s)"
+msgstr "设置 FFmpeg 的 MOV 标志参数'frag_keyframe+empty_moov+faststart'，使输出视频在写入过程中即可播放（默认值：%(default)s）"
+
+#: lada/cli/main.py:74
+msgid "Pass arbitrary encoder options. Pass it like you'd specify them using ffmpeg. For example: --custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\". Official FFmpeg Codecs Documentation: https://ffmpeg.org/ffmpeg-codecs.html"
+msgstr "传递任意编码器参数，写法与 FFmpeg 命令行相同。例如：--custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\"。FFmpeg 官方文档：https://ffmpeg.org/ffmpeg-codecs.html"
+
+#: lada/cli/main.py:53
+msgid "Mosaic Restoration"
+msgstr "马赛克修复"
+
+#: lada/cli/main.py:54
+#, python-format
+msgid "Model used to restore mosaic clips (default: %(default)s)"
+msgstr "用于修复马赛克的模型（默认值：%(default)s）"
+
+#: lada/cli/main.py:55
+msgid "List available restoration model weights found in MODEL_WEIGHTS_DIR and exit (default location is './model_weights' if not overwritten by environment variable MODEL_WEIGHTS_DIR)"
+msgstr "列出在 MODEL_WEIGHTS_DIR 中找到的可用修复模型权重并退出（若未被环境变量 MODEL_WEIGHTS_DIR 覆盖，则默认位置为 './model_weights'）"
+
+#: lada/cli/main.py:56 lada/cli/main.py:61
+#, python-format
+msgid "Path to restoration model weights file (default: %(default)s)"
+msgstr "模型权重文件路径（默认值：%(default)s）"
+
+#: lada/cli/main.py:57
+msgid "Path to restoration model configuration file"
+msgstr "模型配置文件的路径"
+
+#: lada/cli/main.py:58
+#, python-format
+msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint. If set too low flickering could appear (default: %(default)s)"
+msgstr "修复时模型每次处理的最大帧数，较高的值可提高时间稳定性；较低的值可降低显存占；若设置过低，可能会出现画面闪烁。（默认值：%(default)s）"
+
+#: lada/cli/main.py:83
+msgid "Mosaic Detection"
+msgstr "马赛克检测"
+
+#: lada/cli/main.py:85
+msgid "List available detection model weights found in MODEL_WEIGHTS_DIR and exit (default location is './model_weights' if not overwritten by environment variable MODEL_WEIGHTS_DIR)"
+msgstr "列出 MODEL_WEIGHTS_DIR 中的可用检测模型权重并退出（默认位置为 './model_weights'，可通过环境变量 MODEL_WEIGHTS_DIR 覆盖）"
+
+#: lada/cli/main.py:79
+msgid "PyAV version:"
+msgstr "PyAV 版本："
+
+#: lada/cli/main.py:83
+msgid "Available video encoders:"
+msgstr "可用视频编码器："
+
+#: lada/cli/main.py:118
+msgid "Encoders with support for hardware acceleration (GPU):"
+msgstr "支持硬件加速（GPU）的编码器："
+
+#: lada/cli/main.py:131
+msgid "Device"
+msgstr "设备"
+
+#: lada/cli/main.py:132
+msgid "Description"
+msgstr "描述"
+
+#: lada/cli/main.py:133
+msgid "Available devices:"
+msgstr "可用设备："
+
+#: lada/cli/main.py:143
+msgid "Available detection models:"
+msgstr "可用检测模型："
+
+#: lada/cli/main.py:146 lada/cli/main.py:160
+msgid "None!"
+msgstr "没有！"
+
+#: lada/cli/main.py:148 lada/cli/main.py:162
+msgid "Name"
+msgstr "名称"
+
+#: lada/cli/main.py:149 lada/cli/main.py:163
+msgid "Path"
+msgstr "路径"
+
+#: lada/cli/main.py:157
+msgid "Available restoration models:"
+msgstr "可用修复模型："
+
+#: lada/cli/main.py:186
+msgid "Processing frames"
+msgstr "正在处理帧"
+
+#: lada/cli/main.py:203
+msgid "Processing audio"
+msgstr "正在处理音频"
+
+#: lada/cli/main.py:218
+msgid "No video files found"
+msgstr "找不到视频文件"
+
+#: lada/cli/main.py:277
+#, python-brace-format
+msgid "GPU {device} selected but CUDA is not available"
+msgstr "GPU {device} 已选择，但 CUDA 不可用"
+
+#: lada/cli/main.py:280
+#, python-brace-format
+msgid "Invalid file name pattern. It must include the template string '{orig_file_name}' and a file extension"
+msgstr "无效的文件命名模式。必须包含模板字符串'{orig_file_name}'和文件扩展名"
+
+#: lada/cli/main.py:252
+msgid "Invalid output directory. If input is a directory then --output must also be set to a directory"
+msgstr "无效的输出目录。若输入为目录，则 --output 也必须指向一个目录"
+
+#: lada/cli/main.py:286
+#, python-brace-format
+msgid "Invalid input. No file or directory at {input_path}"
+msgstr "输入无效。在 {input_path} 处未找到文件或目录"
+
+#: lada/cli/main.py:306
+msgid "Received Ctrl-C, stopping restoration."
+msgstr "检测到 Ctrl-C 信号，正在终止修复。"
