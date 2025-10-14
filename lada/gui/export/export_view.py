@@ -151,7 +151,7 @@ class ExportView(Gtk.Widget):
         self.set_restore_button_label()
 
     def set_restore_button_label(self):
-        label = "Restore" if self._config.export_directory else "Restore…"
+        label = _("Restore") if self._config.export_directory else _("Restore…")
         self.button_start_export_status_page.set_label(label)
         self.button_start_export.set_label(label)
 

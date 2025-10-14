@@ -1,6 +1,7 @@
 import logging
 import pathlib
 import threading
+from gettext import gettext as _
 
 from gi.repository import Adw, Gtk, Gio, GObject, GLib
 
@@ -21,7 +22,10 @@ MIN_VISIBLE_PROGRESS_FRACTION = 0.01
 
 def get_video_metadata_string(file: Gio.File):
     meta_data = video_utils.get_video_meta_data(file.get_path())
-    return f"Duration: {_format_duration(meta_data.duration)}, Resolution: {meta_data.video_width}x{meta_data.video_height}, FPS: {meta_data.video_fps:.2f}"
+    return _("Duration: {duration}, Resolution: {resolution}, FPS: {fps}").format(
+        duration=_format_duration(meta_data.duration),
+        resolution=f"{meta_data.video_width}x{meta_data.video_height}",
+        fps=f"{meta_data.video_fps:.2f}")
 
 def _format_duration(duration_s):
     if not duration_s or duration_s == -1:
