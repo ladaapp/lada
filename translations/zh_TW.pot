@@ -153,7 +153,7 @@ msgid ""
 "Custom FFmpeg encoder options (Optional).\n"
 "Example: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</tt></span>"
 msgstr ""
-"自訂 FFmpeg 編碼器設置（可選）"
+"自訂 FFmpeg 編碼器設置（可選）\n"
 "範例: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</tt></span>"
 
 #: lada/gui/config/config_sidebar.ui:135
