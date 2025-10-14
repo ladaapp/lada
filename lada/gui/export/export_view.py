@@ -256,6 +256,7 @@ class ExportView(Gtk.Widget):
 
                 with video_utils.VideoWriter(video_tmp_file_output_path, video_metadata.video_width,
                                              video_metadata.video_height, video_metadata.video_fps_exact,
+                                             video_metadata.is_vfr,
                                              self._config.export_codec, time_base=video_metadata.time_base,
                                              crf=self._config.export_crf, custom_encoder_options=self._config.custom_ffmpeg_encoder_options) as video_writer:
                     for frame_num, elem in enumerate(frame_restorer):

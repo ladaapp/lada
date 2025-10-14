@@ -98,6 +98,7 @@ def get_video_meta_data(path: str) -> VideoMetadata:
 
     value = [int(num) for num in json_video_stream['avg_frame_rate'].split("/")]
     average_fps = value[0]/value[1] if len(value) == 2 else value[0]
+    average_fps_exact = Fraction(value[0], value[1])
 
     value = [int(num) for num in json_video_stream['r_frame_rate'].split("/")]
     fps = value[0]/value[1] if len(value) == 2 else value[0]
@@ -128,7 +129,8 @@ def get_video_meta_data(path: str) -> VideoMetadata:
         frames_count=frame_count,
         duration=float(json_video_stream.get('duration', json_video_format['duration'])),
         time_base=time_base,
-        start_pts=start_pts
+        start_pts=start_pts,
+        is_vfr=average_fps_exact != fps_exact
     )
     return metadata
 
@@ -246,10 +248,11 @@ class VideoWriter:
         encoder_defaults['hevc'] = libx265
         return encoder_defaults
 
-    def __init__(self, output_path, width, height, fps, codec, crf=None, preset=None, time_base=None, moov_front=False, custom_encoder_options=None):
+    def __init__(self, output_path, width, height, fps, is_vfr, codec, crf=None, preset=None, time_base=None, moov_front=False, custom_encoder_options=None):
         container_options = {"movflags": "+frag_keyframe+empty_moov+faststart"} if moov_front else {}
         encoder_defaults = self.get_default_encoder_options()
         encoder_options = encoder_defaults.get(codec, {})
+        self.is_vfr = is_vfr
 
         if crf is not None:
             if codec in ('hevc_nvenc', 'h264_nvenc'):
@@ -263,7 +266,7 @@ class VideoWriter:
         if custom_encoder_options:
             encoder_options.update(self.parse_custom_options(custom_encoder_options))
 
-        if time_base is None:
+        if time_base is None and not self.is_vfr:
             rounded = (fps.numerator * 1000 + fps.denominator // 2) // fps.denominator  # nearest int to fps*1000
             time_base = Fraction(1000, rounded)
 
@@ -298,12 +301,18 @@ class VideoWriter:
     def calculate_pts(self, frame_number):
         return round(frame_number * self.video_stream.time_base.denominator / self.fps)
 
-    def write(self, frame, bgr2rgb=False):
+    def write(self, frame, original_pts = None, bgr2rgb=False):
         if bgr2rgb:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         out_frame = av.VideoFrame.from_ndarray(frame, format='rgb24')
-        out_frame.pts = self.calculate_pts(self.frame_number)
-        out_frame.time_base = self.video_stream.time_base
+
+        if self.is_vfr:
+            if original_pts is not None:
+                out_frame.pts = original_pts
+        else:
+            out_frame.pts = self.calculate_pts(self.frame_number)
+            out_frame.time_base = self.video_stream.time_base
+
         out_packet = self.video_stream.encode(out_frame)
         self.output_container.mux(out_packet)
         self.frame_number += 1

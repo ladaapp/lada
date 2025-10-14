@@ -150,7 +150,7 @@ def process_video_file(input_path: str, output_path: str, device, mosaic_restora
         frame_restorer.start()
 
         with VideoWriter(video_tmp_file_output_path, video_metadata.video_width, video_metadata.video_height,
-                         video_metadata.video_fps_exact, codec=codec, crf=crf, moov_front=moov_front,
+                         video_metadata.video_fps_exact, video_metadata.is_vfr, codec=codec, crf=crf, moov_front=moov_front,
                          time_base=video_metadata.time_base, preset=preset,
                          custom_encoder_options=custom_encoder_options) as video_writer:
             for elem in tqdm(frame_restorer, total=video_metadata.frames_count, desc=_("Processing frames")):
@@ -158,8 +158,8 @@ def process_video_file(input_path: str, output_path: str, device, mosaic_restora
                     success = False
                     print("Error on export: frame restorer stopped prematurely")
                     break
-                restored_frame = elem[0]
-                video_writer.write(restored_frame, bgr2rgb=True)
+                restored_frame, pts = elem
+                video_writer.write(restored_frame, original_pts=pts, bgr2rgb=True)
     except (Exception, KeyboardInterrupt) as e:
         success = False
         if isinstance(e, KeyboardInterrupt):
