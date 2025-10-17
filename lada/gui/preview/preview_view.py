@@ -1,6 +1,7 @@
 import logging
 import pathlib
 import threading
+from gettext import gettext as _
 
 from gi.repository import Gtk, GObject, GLib, Gio, Gst, Adw
 
@@ -22,7 +23,7 @@ here = pathlib.Path(__file__).parent.resolve()
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
 
-@Gtk.Template(string=utils.translate_ui_xml(here / 'preview_view.ui'))
+@Gtk.Template(filename=here / 'preview_view.ui')
 class PreviewView(Gtk.Widget):
     __gtype_name__ = 'PreviewView'
 

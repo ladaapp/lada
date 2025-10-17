@@ -4,7 +4,6 @@ import pathlib
 from gi.repository import Gtk, Gio, GObject, Pango
 
 from lada import LOG_LEVEL
-from lada.gui import utils
 
 here = pathlib.Path(__file__).parent.resolve()
 
@@ -12,7 +11,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
 
 
-@Gtk.Template(string=utils.translate_ui_xml(here / 'headerbar_files_drop_down.ui'))
+@Gtk.Template(filename=here / 'headerbar_files_drop_down.ui')
 class HeaderbarFilesDropDown(Gtk.DropDown):
     __gtype_name__ = "HeaderbarFilesDropDown"
 

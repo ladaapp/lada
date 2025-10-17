@@ -37,11 +37,13 @@ class BasicVSRPlusPlusNet(BaseModule):
             Default: None.
     """
 
-    def __init__(self,
-                 mid_channels=64,
-                 num_blocks=7,
-                 max_residue_magnitude=10,
-                 spynet_pretrained=None):
+    def __init__(
+        self,
+        mid_channels=64,
+        num_blocks=7,
+        max_residue_magnitude=10,
+        spynet_pretrained=None,
+    ):
 
         super().__init__()
         self.mid_channels = mid_channels
@@ -49,18 +51,18 @@ class BasicVSRPlusPlusNet(BaseModule):
         # optical flow
         self.spynet = SPyNet(pretrained=spynet_pretrained)
 
-
         self.feat_extract = nn.Sequential(
             nn.Conv2d(3, mid_channels, 3, 2, 1),
             nn.LeakyReLU(negative_slope=0.1, inplace=True),
             nn.Conv2d(mid_channels, mid_channels, 3, 2, 1),
             nn.LeakyReLU(negative_slope=0.1, inplace=True),
-            ResidualBlocksWithInputConv(mid_channels, mid_channels, 5))
+            ResidualBlocksWithInputConv(mid_channels, mid_channels, 5),
+        )
 
         # propagation branches
         self.deform_align = nn.ModuleDict()
         self.backbone = nn.ModuleDict()
-        modules = ['backward_1', 'forward_1', 'backward_2', 'forward_2']
+        modules = ["backward_1", "forward_1", "backward_2", "forward_2"]
         for i, module in enumerate(modules):
             self.deform_align[module] = SecondOrderDeformableAlignment(
                 2 * mid_channels,
@@ -68,17 +70,20 @@ class BasicVSRPlusPlusNet(BaseModule):
                 3,
                 padding=1,
                 deform_groups=16,
-                max_residue_magnitude=max_residue_magnitude)
+                max_residue_magnitude=max_residue_magnitude,
+            )
             self.backbone[module] = ResidualBlocksWithInputConv(
-                (2 + i) * mid_channels, mid_channels, num_blocks)
+                (2 + i) * mid_channels, mid_channels, num_blocks
+            )
 
         # upsampling module
         self.reconstruction = ResidualBlocksWithInputConv(
-            5 * mid_channels, mid_channels, 5)
+            5 * mid_channels, mid_channels, 5
+        )
         self.upsample1 = PixelShufflePack(
-            mid_channels, mid_channels, 2, upsample_kernel=3)
-        self.upsample2 = PixelShufflePack(
-            mid_channels, 64, 2, upsample_kernel=3)
+            mid_channels, mid_channels, 2, upsample_kernel=3
+        )
+        self.upsample2 = PixelShufflePack(mid_channels, 64, 2, upsample_kernel=3)
         self.conv_hr = nn.Conv2d(64, 64, 3, 1, 1)
         self.conv_last = nn.Conv2d(64, 3, 3, 1, 1)
 
@@ -100,6 +105,16 @@ class BasicVSRPlusPlusNet(BaseModule):
         """
 
         n, t, c, h, w = lqs.size()
+
+        # Handle single frame case - no flow can be computed
+        if t <= 1:
+            # Return zero flows for single frame
+            device = lqs.device
+            dtype = lqs.dtype
+            flows_forward = torch.zeros(n, 0, 2, h, w, device=device, dtype=dtype)
+            flows_backward = torch.zeros(n, 0, 2, h, w, device=device, dtype=dtype)
+            return flows_forward, flows_backward
+
         lqs_1 = lqs[:, :-1, :, :, :].reshape(-1, c, h, w)
         lqs_2 = lqs[:, 1:, :, :, :].reshape(-1, c, h, w)
 
@@ -127,21 +142,28 @@ class BasicVSRPlusPlusNet(BaseModule):
 
         n, t, _, h, w = flows.size()
 
+        # Handle case with no flows (single frame)
+        if t == 0:
+            # Just copy spatial features without propagation
+            for feat in feats["spatial"]:
+                feats[module_name].append(feat.clone())
+            return feats
+
         # PyTorch 2.0 could not compile data type of 'range'
         # frame_idx = range(0, t + 1)
         # flow_idx = range(-1, t)
         frame_idx = list(range(0, t + 1))
         flow_idx = list(range(-1, t))
-        mapping_idx = list(range(0, len(feats['spatial'])))
+        mapping_idx = list(range(0, len(feats["spatial"])))
         mapping_idx += mapping_idx[::-1]
 
-        if 'backward' in module_name:
+        if "backward" in module_name:
             frame_idx = frame_idx[::-1]
             flow_idx = frame_idx
 
         feat_prop = flows.new_zeros(n, self.mid_channels, h, w)
         for i, idx in enumerate(frame_idx):
-            feat_current = feats['spatial'][mapping_idx[idx]]
+            feat_current = feats["spatial"][mapping_idx[idx]]
             # second-order deformable alignment
             if i > 0:
                 flow_n1 = flows[:, flow_idx[i], :, :, :]
@@ -158,27 +180,28 @@ class BasicVSRPlusPlusNet(BaseModule):
 
                     flow_n2 = flows[:, flow_idx[i - 1], :, :, :]
 
-                    flow_n2 = flow_n1 + flow_warp(flow_n2,
-                                                  flow_n1.permute(0, 2, 3, 1))
+                    flow_n2 = flow_n1 + flow_warp(flow_n2, flow_n1.permute(0, 2, 3, 1))
                     cond_n2 = flow_warp(feat_n2, flow_n2.permute(0, 2, 3, 1))
 
                 # flow-guided deformable convolution
                 cond = torch.cat([cond_n1, feat_current, cond_n2], dim=1)
                 feat_prop = torch.cat([feat_prop, feat_n2], dim=1)
-                feat_prop = self.deform_align[module_name](feat_prop, cond,
-                                                           flow_n1, flow_n2)
+                feat_prop = self.deform_align[module_name](
+                    feat_prop, cond, flow_n1, flow_n2
+                )
 
             # concatenate and residual blocks
-            feat = [feat_current] + [
-                feats[k][idx]
-                for k in feats if k not in ['spatial', module_name]
-            ] + [feat_prop]
+            feat = (
+                [feat_current]
+                + [feats[k][idx] for k in feats if k not in ["spatial", module_name]]
+                + [feat_prop]
+            )
 
             feat = torch.cat(feat, dim=1)
             feat_prop = feat_prop + self.backbone[module_name](feat)
             feats[module_name].append(feat_prop)
 
-        if 'backward' in module_name:
+        if "backward" in module_name:
             feats[module_name] = feats[module_name][::-1]
 
         return feats
@@ -196,14 +219,14 @@ class BasicVSRPlusPlusNet(BaseModule):
         """
 
         outputs = []
-        num_outputs = len(feats['spatial'])
+        num_outputs = len(feats["spatial"])
 
         mapping_idx = list(range(0, num_outputs))
         mapping_idx += mapping_idx[::-1]
 
         for i in range(0, lqs.size(1)):
-            hr = [feats[k].pop(0) for k in feats if k != 'spatial']
-            hr.insert(0, feats['spatial'][mapping_idx[i]])
+            hr = [feats[k].pop(0) for k in feats if k != "spatial"]
+            hr.insert(0, feats["spatial"][mapping_idx[i]])
             hr = torch.cat(hr, dim=1)
 
             hr = self.reconstruction(hr)
@@ -232,29 +255,30 @@ class BasicVSRPlusPlusNet(BaseModule):
         n, t, c, h, w = lqs.size()
 
         lqs_downsample = F.interpolate(
-            lqs.view(-1, c, h, w), scale_factor=0.25,
-            mode='bicubic').view(n, t, c, h // 4, w // 4)
+            lqs.view(-1, c, h, w), scale_factor=0.25, mode="bicubic"
+        ).view(n, t, c, h // 4, w // 4)
 
         feats = {}
         # compute spatial features
         feats_ = self.feat_extract(lqs.view(-1, c, h, w))
         h, w = feats_.shape[2:]
         feats_ = feats_.view(n, t, -1, h, w)
-        feats['spatial'] = [feats_[:, i, :, :, :] for i in range(0, t)]
+        feats["spatial"] = [feats_[:, i, :, :, :] for i in range(0, t)]
 
         # compute optical flow using the low-res inputs
         assert lqs_downsample.size(3) >= 64 and lqs_downsample.size(4) >= 64, (
-            'The height and width of low-res inputs must be at least 64, '
-            f'but got {h} and {w}.')
+            "The height and width of low-res inputs must be at least 64, "
+            f"but got {h} and {w}."
+        )
         flows_forward, flows_backward = self.compute_flow(lqs_downsample)
 
         # feature propagation
         for iter_ in [1, 2]:
-            for direction in ['backward', 'forward']:
-                module = f'{direction}_{iter_}'
+            for direction in ["backward", "forward"]:
+                module = f"{direction}_{iter_}"
 
                 feats[module] = []
-                flows = flows_backward if direction == 'backward' else flows_forward
+                flows = flows_backward if direction == "backward" else flows_forward
 
                 feats = self.propagate(feats, flows, module)
 
@@ -280,7 +304,7 @@ class SecondOrderDeformableAlignment(ModulatedDeformConv2d):
     """
 
     def __init__(self, *args, **kwargs):
-        self.max_residue_magnitude = kwargs.pop('max_residue_magnitude', 10)
+        self.max_residue_magnitude = kwargs.pop("max_residue_magnitude", 10)
 
         super(SecondOrderDeformableAlignment, self).__init__(*args, **kwargs)
 
@@ -307,23 +331,26 @@ class SecondOrderDeformableAlignment(ModulatedDeformConv2d):
         o1, o2, mask = torch.chunk(out, 3, dim=1)
 
         # offset
-        offset = self.max_residue_magnitude * torch.tanh(
-            torch.cat((o1, o2), dim=1))
+        offset = self.max_residue_magnitude * torch.tanh(torch.cat((o1, o2), dim=1))
         offset_1, offset_2 = torch.chunk(offset, 2, dim=1)
-        offset_1 = offset_1 + flow_1.flip(1).repeat(1,
-                                                    offset_1.size(1) // 2, 1,
-                                                    1)
-        offset_2 = offset_2 + flow_2.flip(1).repeat(1,
-                                                    offset_2.size(1) // 2, 1,
-                                                    1)
+        offset_1 = offset_1 + flow_1.flip(1).repeat(1, offset_1.size(1) // 2, 1, 1)
+        offset_2 = offset_2 + flow_2.flip(1).repeat(1, offset_2.size(1) // 2, 1, 1)
         offset = torch.cat([offset_1, offset_2], dim=1)
 
         # mask
         mask = torch.sigmoid(mask)
 
-        return torchvision.ops.deform_conv2d(x, offset, self.weight, self.bias,
-                                             self.stride, self.padding,
-                                             self.dilation, mask)
+        return torchvision.ops.deform_conv2d(
+            x,
+            offset,
+            self.weight,
+            self.bias,
+            self.stride,
+            self.padding,
+            self.dilation,
+            mask,
+        )
+
 
 class ResidualBlocksWithInputConv(BaseModule):
     """Residual blocks with a convolution in front.
@@ -346,8 +373,8 @@ class ResidualBlocksWithInputConv(BaseModule):
 
         # residual blocks
         main.append(
-            make_layer(
-                ResidualBlockNoBN, num_blocks, mid_channels=out_channels))
+            make_layer(ResidualBlockNoBN, num_blocks, mid_channels=out_channels)
+        )
 
         self.main = nn.Sequential(*main)
 
@@ -380,22 +407,22 @@ class SPyNet(BaseModule):
     def __init__(self, pretrained):
         super().__init__()
 
-        self.basic_module = nn.ModuleList(
-            [SPyNetBasicModule() for _ in range(6)])
+        self.basic_module = nn.ModuleList([SPyNetBasicModule() for _ in range(6)])
 
         if isinstance(pretrained, str):
             logger = MMLogger.get_current_instance()
             load_checkpoint(self, pretrained, strict=True, logger=logger)
         elif pretrained is not None:
-            raise TypeError('[pretrained] should be str or None, '
-                            f'but got {type(pretrained)}.')
+            raise TypeError(
+                "[pretrained] should be str or None, " f"but got {type(pretrained)}."
+            )
 
         self.register_buffer(
-            'mean',
-            torch.Tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1))
+            "mean", torch.Tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
+        )
         self.register_buffer(
-            'std',
-            torch.Tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1))
+            "std", torch.Tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
+        )
 
     def compute_flow(self, ref, supp):
         """Compute flow from ref to supp.
@@ -412,6 +439,28 @@ class SPyNet(BaseModule):
         """
         n, _, h, w = ref.size()
 
+        # Debug logging for MPS compatibility (commented out for production)
+        # import torch
+        #
+        # if torch.backends.mps.is_available() and ref.is_mps:
+        #     print(
+        #         f"[DEBUG] SPyNet.compute_flow: ref.shape={ref.shape}, ref.device={ref.device}"
+        #     )
+        #     print(
+        #         f"[DEBUG] SPyNet.compute_flow: supp.shape={supp.shape}, supp.device={supp.device}"
+        #     )
+        #     print(f"[DEBUG] SPyNet.compute_flow: h={h}, w={w}")
+        #
+        #     # Check for empty tensors
+        #     if ref.numel() == 0 or supp.numel() == 0:
+        #         print(
+        #             f"[ERROR] SPyNet.compute_flow: Empty tensor detected - ref.numel={ref.numel()}, supp.numel={supp.numel()}"
+        #         )
+        #
+        #     # Check for valid dimensions
+        #     if h <= 0 or w <= 0:
+        #         print(f"[ERROR] SPyNet.compute_flow: Invalid dimensions - h={h}, w={w}")
+
         # normalize the input images
         ref = [(ref - self.mean) / self.std]
         supp = [(supp - self.mean) / self.std]
@@ -420,16 +469,14 @@ class SPyNet(BaseModule):
         for level in range(5):
             ref.append(
                 F.avg_pool2d(
-                    input=ref[-1],
-                    kernel_size=2,
-                    stride=2,
-                    count_include_pad=False))
+                    input=ref[-1], kernel_size=2, stride=2, count_include_pad=False
+                )
+            )
             supp.append(
                 F.avg_pool2d(
-                    input=supp[-1],
-                    kernel_size=2,
-                    stride=2,
-                    count_include_pad=False))
+                    input=supp[-1], kernel_size=2, stride=2, count_include_pad=False
+                )
+            )
         ref = ref[::-1]
         supp = supp[::-1]
 
@@ -439,21 +486,50 @@ class SPyNet(BaseModule):
             if level == 0:
                 flow_up = flow
             else:
-                flow_up = F.interpolate(
-                    input=flow,
-                    scale_factor=2,
-                    mode='bilinear',
-                    align_corners=True) * 2.0
+                flow_up = (
+                    F.interpolate(
+                        input=flow, scale_factor=2, mode="bilinear", align_corners=True
+                    )
+                    * 2.0
+                )
+
+            # Debug logging for MPS compatibility before flow_warp (commented out for production)
+            # if torch.backends.mps.is_available() and ref[level].is_mps:
+            #     print(
+            #         f"[DEBUG] SPyNet.compute_flow level {level}: ref[level].shape={ref[level].shape}"
+            #     )
+            #     print(
+            #         f"[DEBUG] SPyNet.compute_flow level {level}: supp[level].shape={supp[level].shape}"
+            #     )
+            #     print(
+            #         f"[DEBUG] SPyNet.compute_flow level {level}: flow_up.shape={flow_up.shape}"
+            #     )
+            #
+            #     # Check for empty tensors
+            #     if (
+            #         ref[level].numel() == 0
+            #         or supp[level].numel() == 0
+            #         or flow_up.numel() == 0
+            #     ):
+            #         print(
+            #             f"[ERROR] SPyNet.compute_flow level {level}: Empty tensor detected"
+            #         )
 
             # add the residue to the upsampled flow
             flow = flow_up + self.basic_module[level](
-                torch.cat([
-                    ref[level],
-                    flow_warp(
-                        supp[level],
-                        flow_up.permute(0, 2, 3, 1),
-                        padding_mode='border'), flow_up
-                ], 1))
+                torch.cat(
+                    [
+                        ref[level],
+                        flow_warp(
+                            supp[level],
+                            flow_up.permute(0, 2, 3, 1),
+                            padding_mode="border",
+                        ),
+                        flow_up,
+                    ],
+                    1,
+                )
+            )
 
         return flow
 
@@ -475,19 +551,19 @@ class SPyNet(BaseModule):
         w_up = w if (w % 32) == 0 else 32 * (w // 32 + 1)
         h_up = h if (h % 32) == 0 else 32 * (h // 32 + 1)
         ref = F.interpolate(
-            input=ref, size=(h_up, w_up), mode='bilinear', align_corners=False)
+            input=ref, size=(h_up, w_up), mode="bilinear", align_corners=False
+        )
         supp = F.interpolate(
-            input=supp,
-            size=(h_up, w_up),
-            mode='bilinear',
-            align_corners=False)
+            input=supp, size=(h_up, w_up), mode="bilinear", align_corners=False
+        )
 
         # compute flow, and resize back to the original resolution
         flow = F.interpolate(
             input=self.compute_flow(ref, supp),
             size=(h, w),
-            mode='bilinear',
-            align_corners=False)
+            mode="bilinear",
+            align_corners=False,
+        )
 
         # adjust the flow values
         flow[:, 0, :, :] *= float(w) / float(w_up)
@@ -497,19 +573,26 @@ class SPyNet(BaseModule):
 
 
 class SPyNetConvModule(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, stride, padding, activation):
+    def __init__(
+        self, in_channels, out_channels, kernel_size, stride, padding, activation
+    ):
         super().__init__()
-        self.conv = nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size, stride=stride, padding=padding)
-        kaiming_init(self.conv, a=0, nonlinearity='relu')
+        self.conv = nn.Conv2d(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            kernel_size=kernel_size,
+            stride=stride,
+            padding=padding,
+        )
+        kaiming_init(self.conv, a=0, nonlinearity="relu")
         self.activate = nn.ReLU(inplace=True) if activation else None
 
-    def forward(self,
-                x: torch.Tensor,
-                activate: bool = True) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, activate: bool = True) -> torch.Tensor:
         x = self.conv(x)
         if activate and self.activate:
             x = self.activate(x)
         return x
+
 
 class SPyNetBasicModule(BaseModule):
     """Basic Module for SPyNet.
@@ -528,35 +611,41 @@ class SPyNetBasicModule(BaseModule):
                 kernel_size=7,
                 stride=1,
                 padding=3,
-                activation=True),
+                activation=True,
+            ),
             SPyNetConvModule(
                 in_channels=32,
                 out_channels=64,
                 kernel_size=7,
                 stride=1,
                 padding=3,
-                activation=True),
+                activation=True,
+            ),
             SPyNetConvModule(
                 in_channels=64,
                 out_channels=32,
                 kernel_size=7,
                 stride=1,
                 padding=3,
-                activation=True),
+                activation=True,
+            ),
             SPyNetConvModule(
                 in_channels=32,
                 out_channels=16,
                 kernel_size=7,
                 stride=1,
                 padding=3,
-                activation=True),
+                activation=True,
+            ),
             SPyNetConvModule(
                 in_channels=16,
                 out_channels=2,
                 kernel_size=7,
                 stride=1,
                 padding=3,
-                activation=False))
+                activation=False,
+            ),
+        )
 
     def forward(self, tensor_input):
         """
@@ -569,6 +658,7 @@ class SPyNetBasicModule(BaseModule):
             Tensor: Refined flow with shape (b, 2, h, w)
         """
         return self.basic_module(tensor_input)
+
 
 class ResidualBlockNoBN(nn.Module):
     """Residual block without BN.
@@ -626,6 +716,7 @@ class ResidualBlockNoBN(nn.Module):
         out = self.conv2(self.relu(self.conv1(x)))
         return identity + out * self.res_scale
 
+
 class PixelShufflePack(nn.Module):
     """Pixel Shuffle upsample layer.
 
@@ -639,8 +730,13 @@ class PixelShufflePack(nn.Module):
         Upsampled feature map.
     """
 
-    def __init__(self, in_channels: int, out_channels: int, scale_factor: int,
-                 upsample_kernel: int):
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        scale_factor: int,
+        upsample_kernel: int,
+    ):
         super().__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -650,7 +746,8 @@ class PixelShufflePack(nn.Module):
             self.in_channels,
             self.out_channels * scale_factor * scale_factor,
             self.upsample_kernel,
-            padding=(self.upsample_kernel - 1) // 2)
+            padding=(self.upsample_kernel - 1) // 2,
+        )
         self.init_weights()
 
     def init_weights(self) -> None:

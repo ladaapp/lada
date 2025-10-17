@@ -4,6 +4,7 @@ import threading
 from enum import Enum
 from pathlib import Path
 
+import torch
 from gi.repository import GLib, GObject, Adw
 
 from lada import LOG_LEVEL
@@ -20,38 +21,38 @@ class ColorScheme(Enum):
 
 class Config(GObject.Object):
     _defaults = {
-        'color_scheme': ColorScheme.SYSTEM,
-        'custom_ffmpeg_encoder_options': '',
-        'device': 'cuda:0',
+        'show_mosaic_detections': False,
+        'mosaic_restoration_model': 'basicvsrpp-v1.2',
+        'mosaic_detection_model': 'v3.1-fast',
         'export_codec': 'libx264',
         'export_crf': 20,
+        'preview_buffer_duration': 0,
+        'max_clip_duration': 180,
+        'device': 'mps' if (hasattr(torch.backends, 'mps') and torch.backends.mps.is_available()) else 'cpu',
+        'mute_audio': False,
+        'color_scheme': ColorScheme.SYSTEM,
         'export_directory': None,
         'file_name_pattern': "{orig_file_name}.restored.mp4",
         'initial_view': 'preview',
-        'max_clip_duration': 180,
-        'mosaic_detection_model': 'v3.1-fast',
-        'mosaic_restoration_model': 'basicvsrpp-v1.2',
-        'mute_audio': False,
-        'preview_buffer_duration': 0,
-        'show_mosaic_detections': False,
+        'custom_ffmpeg_encoder_options': '',
     }
 
     def __init__(self, style_manager: Adw.StyleManager):
         super().__init__()
-        self._color_scheme = self._defaults['color_scheme']
-        self._custom_ffmpeg_encoder_options = self._defaults['custom_ffmpeg_encoder_options']
-        self._device = self._defaults['device']
+        self._show_mosaic_detections = self._defaults['show_mosaic_detections']
+        self._mosaic_restoration_model = self._defaults['mosaic_restoration_model']
+        self._mosaic_detection_model = self._defaults['mosaic_detection_model']
         self._export_codec = self._defaults['export_codec']
         self._export_crf = self._defaults['export_crf']
+        self._preview_buffer_duration = self._defaults['preview_buffer_duration']
+        self._max_clip_duration = self._defaults['max_clip_duration']
+        self._device = self._defaults['device']
+        self._mute_audio = self._defaults['mute_audio']
+        self._color_scheme = self._defaults['color_scheme']
         self._export_directory = self._defaults['export_directory']
         self._file_name_pattern = self._defaults['file_name_pattern']
         self._initial_view = self._defaults['initial_view']
-        self._max_clip_duration = self._defaults['max_clip_duration']
-        self._mosaic_detection_model = self._defaults['mosaic_detection_model']
-        self._mosaic_restoration_model = self._defaults['mosaic_restoration_model']
-        self._mute_audio = self._defaults['mute_audio']
-        self._preview_buffer_duration = self._defaults['preview_buffer_duration']
-        self._show_mosaic_detections = self._defaults['show_mosaic_detections']
+        self._custom_ffmpeg_encoder_options = self._defaults['custom_ffmpeg_encoder_options']
 
         self.save_lock = threading.Lock()
         self._style_manager = style_manager
@@ -243,20 +244,18 @@ class Config(GObject.Object):
         self._update_style(self._color_scheme)
 
     def reset_to_default_values(self):
-        self.color_scheme = self._defaults['color_scheme']
-        self.custom_ffmpeg_encoder_options = self._defaults['custom_ffmpeg_encoder_options']
-        self.export_codec = self._defaults['export_codec']
-        self.export_crf = self._defaults['export_crf']
-        self.export_directory = self._defaults['export_directory']
-        self.file_name_pattern = self._defaults['file_name_pattern']
-        self.initial_view = self._defaults['initial_view']
-        self.max_clip_duration = self._defaults['max_clip_duration']
-        self.mosaic_detection_model = self._defaults['mosaic_detection_model']
-        self.mosaic_restoration_model = self._defaults['mosaic_restoration_model']
-        self.mute_audio = self._defaults['mute_audio']
-        self.preview_buffer_duration = self._defaults['preview_buffer_duration']
         self.show_mosaic_detections = self._defaults['show_mosaic_detections']
+        self.mosaic_restoration_model = self._defaults['mosaic_restoration_model']
         self.validate_and_set_device(self._defaults['device'])
+        self.preview_buffer_duration = self._defaults['preview_buffer_duration']
+        self.max_clip_duration = self._defaults['max_clip_duration']
+        self.export_crf = self._defaults['export_crf']
+        self.export_codec = self._defaults['export_codec']
+        self.mute_audio = self._defaults['mute_audio']
+        self.color_scheme = self._defaults['color_scheme']
+        self.export_directory = self._defaults['export_directory']
+        self.initial_view = self._defaults['initial_view']
+        self.custom_ffmpeg_encoder_options = self._defaults['custom_ffmpeg_encoder_options']
         self.save()
 
     def _update_style(self, color_scheme: ColorScheme):
@@ -268,20 +267,20 @@ class Config(GObject.Object):
 
     def _as_dict(self) -> dict:
         return {
-            'color_scheme': self._color_scheme.value,
-            'custom_ffmpeg_encoder_options': self._custom_ffmpeg_encoder_options,
-            'device': self._device,
+            'show_mosaic_detections': self._show_mosaic_detections,
+            'mosaic_restoration_model': self._mosaic_restoration_model,
+            'mosaic_detection_model': self._mosaic_detection_model,
             'export_codec': self._export_codec,
             'export_crf': self._export_crf,
+            'preview_buffer_duration': self._preview_buffer_duration,
+            'max_clip_duration': self._max_clip_duration,
+            'device': self._device,
+            'mute_audio': self._mute_audio,
+            'color_scheme': self._color_scheme.value,
             'export_directory': self._export_directory,
             'file_name_pattern': self._file_name_pattern,
             'initial_view': self._initial_view,
-            'max_clip_duration': self._max_clip_duration,
-            'mosaic_detection_model': self._mosaic_detection_model,
-            'mosaic_restoration_model': self._mosaic_restoration_model,
-            'mute_audio': self._mute_audio,
-            'preview_buffer_duration': self._preview_buffer_duration,
-            'show_mosaic_detections': self._show_mosaic_detections,
+            'custom_ffmpeg_encoder_options': self._custom_ffmpeg_encoder_options,
         }
 
     def get_default_value(self, key):
@@ -330,7 +329,11 @@ class Config(GObject.Object):
                 else:
                     logger.info(
                         f"Configured device {configured_device} is not available choose {self._device} instead. Available gpus: {available_gpus}")
-                self._device = f"cuda:{available_gpus[0][0]}"
+                # Handle MPS device separately
+                if available_gpus[0][0] == "mps":
+                    self._device = "mps"
+                else:
+                    self._device = f"cuda:{available_gpus[0][0]}"
 
     def validate_and_set_restoration_model(self, restoration_model_name: str):
         available_models = get_available_restoration_models()

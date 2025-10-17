@@ -4,7 +4,6 @@ import pathlib
 from gi.repository import Adw, Gtk, GObject
 
 from lada import LOG_LEVEL
-from lada.gui import utils
 from lada.gui.config.config import Config
 
 here = pathlib.Path(__file__).parent.resolve()
@@ -12,7 +11,7 @@ here = pathlib.Path(__file__).parent.resolve()
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
 
-@Gtk.Template(string=utils.translate_ui_xml(here / 'no_gpu_banner.ui'))
+@Gtk.Template(filename=here / 'no_gpu_banner.ui')
 class NoGpuBanner(Gtk.Box):
     __gtype_name__ = "NoGpuBanner"
 

@@ -1,9 +1,9 @@
 import pathlib
 import threading
+from gettext import gettext as _
 
 from gi.repository import Adw, Gtk, Gio, GLib, GObject
 
-from lada.gui import utils
 from lada.gui.config.config import Config
 from lada.gui.export.export_view import ExportView
 from lada.gui.fileselection.file_selection_view import FileSelectionView
@@ -12,7 +12,7 @@ from lada.gui.shortcuts import ShortcutsManager
 
 here = pathlib.Path(__file__).parent.resolve()
 
-@Gtk.Template(string=utils.translate_ui_xml(here / 'window.ui'))
+@Gtk.Template(filename=here / 'window.ui')
 class MainWindow(Adw.ApplicationWindow):
     __gtype_name__ = 'MainWindow'
 

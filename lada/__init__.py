@@ -1,5 +1,4 @@
 import os
-import sys
 
 if "LADA_MODEL_WEIGHTS_DIR" in os.environ:
   MODEL_WEIGHTS_DIR = os.environ["LADA_MODEL_WEIGHTS_DIR"]
@@ -29,34 +28,10 @@ DETECTION_MODEL_FILES_TO_NAMES = {
 }
 DETECTION_MODEL_NAMES_TO_FILES = {v: k for k, v in DETECTION_MODEL_FILES_TO_NAMES.items()}
 
-def _get_language_from_os() -> str:
-    if sys.platform == "win32":
-        # source: https://stackoverflow.com/questions/3425294/how-to-detect-the-os-default-language-in-python/25691701#25691701
-        import ctypes
-        import locale
-        windll = ctypes.windll.kernel32
-        if language := locale.windows_locale.get(windll.GetUserDefaultUILanguage()):
-            return language
-    return ""
-
-def _init_translations():
-    import gettext
-    DOMAIN = 'lada'
-    if "LOCALE_DIR" in os.environ:
-        LOCALE_DIR = os.environ["LOCALE_DIR"]
-    else:
-        LOCALE_DIR = "translations"
-    is_language_set = False
-    for var_name in ["LANGUAGE", "LANG"]:
-        if var_name in os.environ:
-            is_language_set = True
-            break
-    if not is_language_set:
-        os.environ["LANGUAGE"] = _get_language_from_os()
-    gettext.bindtextdomain(DOMAIN, LOCALE_DIR)
-    gettext.textdomain(DOMAIN)
-    gettext.install(DOMAIN, LOCALE_DIR)
-
+if "LOCALE_DIR" in os.environ:
+  LOCALE_DIR = os.environ["LOCALE_DIR"]
+else:
+  LOCALE_DIR = "translations"
 
 def get_available_restoration_models():
   available_models = []
@@ -72,5 +47,3 @@ def get_available_detection_models():
     if os.path.exists(file_path):
       available_models.append(DETECTION_MODEL_FILES_TO_NAMES[file_path])
   return available_models
-
-_init_translations()

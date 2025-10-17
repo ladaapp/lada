@@ -1,5 +1,6 @@
 import logging
 import pathlib
+from gettext import gettext as _
 
 from gi.repository import Gtk, GObject, Adw, Gio, GLib
 
@@ -13,7 +14,7 @@ here = pathlib.Path(__file__).parent.resolve()
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
 
-@Gtk.Template(string=utils.translate_ui_xml(here / 'config_sidebar.ui'))
+@Gtk.Template(filename=here / 'config_sidebar.ui')
 class ConfigSidebar(Gtk.Box):
     __gtype_name__ = 'ConfigSidebar'
 
@@ -174,7 +175,10 @@ class ConfigSidebar(Gtk.Box):
         selected_gpu_name = combo_row.get_property("selected_item").get_string()
         for id, name in utils.get_available_gpus():
             if name == selected_gpu_name:
-                self._config.device = f"cuda:{id}"
+                if id == "mps":
+                    self._config.device = "mps"
+                else:
+                    self._config.device = f"cuda:{id}"
                 break
 
     @Gtk.Template.Callback()

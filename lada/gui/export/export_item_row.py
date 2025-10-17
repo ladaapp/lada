@@ -5,7 +5,6 @@ import threading
 from gi.repository import Adw, Gtk, Gio, GObject, GLib
 
 from lada import LOG_LEVEL
-from lada.gui import utils
 from lada.lib import video_utils
 
 here = pathlib.Path(__file__).parent.resolve()
@@ -22,10 +21,7 @@ MIN_VISIBLE_PROGRESS_FRACTION = 0.01
 
 def get_video_metadata_string(file: Gio.File):
     meta_data = video_utils.get_video_meta_data(file.get_path())
-    return _("Duration: {duration}, Resolution: {resolution}, FPS: {fps}").format(
-        duration=_format_duration(meta_data.duration),
-        resolution=f"{meta_data.video_width}x{meta_data.video_height}",
-        fps=f"{meta_data.video_fps:.2f}")
+    return f"Duration: {_format_duration(meta_data.duration)}, Resolution: {meta_data.video_width}x{meta_data.video_height}, FPS: {meta_data.video_fps:.2f}"
 
 def _format_duration(duration_s):
     if not duration_s or duration_s == -1:
@@ -39,7 +35,7 @@ def _format_duration(duration_s):
     time = f"{minutes}:{seconds:02d}" if hours == 0 else f"{hours}:{minutes:02d}:{seconds:02d}"
     return time
 
-@Gtk.Template(string=utils.translate_ui_xml(here / 'export_item_row.ui'))
+@Gtk.Template(filename=here / 'export_item_row.ui')
 class ExportItemRow(Adw.PreferencesRow):
     __gtype_name__ = "ExportItemRow"
 

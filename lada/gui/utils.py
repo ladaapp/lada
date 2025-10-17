@@ -1,6 +1,6 @@
 import logging
 import os
-import xml.etree.ElementTree as ET
+from gettext import gettext as _
 
 import torch
 from gi.repository import Gio
@@ -17,7 +17,9 @@ def is_device_available(device: str) -> bool:
     if device == 'cpu':
         return True
     elif device.startswith("cuda:"):
-        return device_to_gpu_id(device) < torch.cuda.device_count()
+        return torch.cuda.is_available() and device_to_gpu_id(device) < torch.cuda.device_count()
+    elif device == 'mps':
+        return torch.backends.mps.is_available() if hasattr(torch.backends, 'mps') else False
     return False
 
 
@@ -29,13 +31,25 @@ def device_to_gpu_id(device) -> int | None:
 
 def get_available_gpus():
     gpus = []
-    for id in range(torch.cuda.device_count()):
-        gpu_name = torch.cuda.get_device_properties(id).name
-        # We're using these GPU names in a ComboBox but libadwaita sets up the label with max-width-chars: 20 and there does not
-        # seem to be a way to overwrite this. So let's try to make sure GPU names are below 20 characters to be readable
-        if gpu_name.startswith("NVIDIA GeForce RTX"):
-            gpu_name = gpu_name.replace("NVIDIA GeForce RTX", "RTX")
-        gpus.append((id, gpu_name))
+    
+    # Add CUDA GPUs
+    try:
+        if torch.cuda.is_available():
+            for id in range(torch.cuda.device_count()):
+                gpu_name = torch.cuda.get_device_properties(id).name
+                # We're using these GPU names in a ComboBox but libadwaita sets up the label with max-width-chars: 20 and there does not
+                # seem to be a way to overwrite this. So let's try to make sure GPU names are below 20 characters to be readable
+                if gpu_name.startswith("NVIDIA GeForce RTX"):
+                    gpu_name = gpu_name.replace("NVIDIA GeForce RTX", "RTX")
+                gpus.append((id, gpu_name))
+    except (AssertionError, RuntimeError):
+        # CUDA not available or not compiled with CUDA support
+        pass
+    
+    # Add Apple Silicon GPU (MPS)
+    if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        gpus.append(("mps", "Apple Silicon GPU"))
+    
     return gpus
 
 def skip_if_uninitialized(f):
@@ -99,14 +113,3 @@ def create_video_files_drop_target(callback):
             callback(video_files)
     drop_target.connect("drop", on_file_drop)
     return drop_target
-
-def translate_ui_xml(path: str) -> str:
-    with open(path, 'r', encoding="utf-8") as file:
-        element = file.read()
-    tree = ET.fromstring(element)
-    for node in tree.iter():
-        if 'translatable' in node.attrib:
-            node.text = _(node.text)
-            del node.attrib["translatable"]
-    as_str = ET.tostring(tree, encoding='utf-8', method='xml')
-    return as_str

@@ -1,6 +1,8 @@
 import logging
 import pathlib
+
 from gi.repository import Adw, Gtk, Gio, GObject
+
 from lada import LOG_LEVEL
 from lada.gui import utils
 from lada.gui.frame_restorer_provider import FrameRestorerOptions
@@ -10,7 +12,7 @@ here = pathlib.Path(__file__).parent.resolve()
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
 
-@Gtk.Template(string=utils.translate_ui_xml(here / 'file_selection_view.ui'))
+@Gtk.Template(filename=here / 'file_selection_view.ui')
 class FileSelectionView(Gtk.Widget):
     __gtype_name__ = 'FileSelectionView'
 

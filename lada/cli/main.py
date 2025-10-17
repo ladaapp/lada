@@ -1,10 +1,13 @@
 import argparse
+import gettext
+import locale
 import mimetypes
 import os
 import sys
 import pathlib
 import tempfile
 import textwrap
+from gettext import gettext as _
 
 import av
 import torch
@@ -17,50 +20,27 @@ from lada.lib.frame_restorer import load_models, FrameRestorer
 from lada.lib.video_utils import get_video_meta_data, VideoWriter
 
 
-class TranslatableHelpFormatter(argparse.RawDescriptionHelpFormatter):
-    def __init__(self, *args, **kwargs):
-        super(TranslatableHelpFormatter, self).__init__(*args, **kwargs)
-
-    def add_usage(self, usage, actions, groups, prefix=None):
-        prefix = _("Usage: ")
-        args = usage, actions, groups, prefix
-        self._add_item(self._format_usage, args)
-
 def setup_argparser() -> argparse.ArgumentParser:
-    examples_header_text = _("Examples:")
-
-    example1_text = _("Restore video with default settings:")
-    example1_command = _("%(prog)s --input input.mp4")
-
-    example2_text = _("Restore all videos found in the specified directory and save them to a different folder:")
-    example2_command = _("%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/")
-
-    example3_text = _("Use a GPU-accelerated codec for encoding the restored video:")
-    example3_command = _("%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20")
-
     parser = argparse.ArgumentParser(
         usage=_('%(prog)s [options]'),
         description=_("Restore pixelated adult videos (JAV)"),
-        epilog=_(textwrap.dedent(f'''\
-            {examples_header_text}
-                * {example1_text}
-                    {example1_command}
-                * {example2_text}
-                     {example2_command}
-                * {example3_text}
-                    {example3_command}
+        epilog=_(textwrap.dedent('''\
+            examples:
+                * Restore video with default settings:
+                    %(prog)s --input input.mp4
+                * Restore all videos found in the specified directory as save them in a different folder:
+                     %(prog)s --input path/to/input/dir/ --output /path/to/output/dir/
+                * Use a GPU-accelerated codec and a slower Mosaic Detection model
+                    %(prog)s --input input.mp4 --codec hevc_nvenc --crf 20
             ''')),
-        formatter_class=TranslatableHelpFormatter,
-        add_help=False)
+        formatter_class=argparse.RawDescriptionHelpFormatter)
 
-    group_general = parser.add_argument_group(_('General'))
-    group_general.add_argument('--input', type=str, help=_('Path to pixelated video file or directory containing video files'))
-    group_general.add_argument('--output', type=str, help=_('Path used to save output file(s). If path is a directory then file name will be chosen automatically (see --output-file-pattern). If no output path was given then the directory of the input file will be used'))
-    group_general.add_argument('--output-file-pattern', type=str, default="{orig_file_name}.restored.mp4", help=_("Pattern used to determine output file name(s). Used when input is a directory or a file with no output path specified"))
-    group_general.add_argument('--device', type=str, default="cuda:0", help=_('Device used for running Restoration and Detection models. Use "cpu" or "cuda". If you have multiple GPUs you can select a specific one via index e.g. "cuda:0" (default: %(default)s)'))
-    group_general.add_argument('--list-devices', action='store_true', help=_("List available devices and exit"))
-    group_general.add_argument('--version', action='store_true', help=_("Display version and exit"))
-    group_general.add_argument('--help', action='store_true', help=_("Show this help message and exit"))
+    parser.add_argument('--input', type=str, help=_('Path to pixelated video file or directory containing video files'))
+    parser.add_argument('--output', type=str, help=_('Path used to save output file(s). If path is a directory then file name will be chosen automatically (see --output-file-pattern). If no output path was given then the directory of the input file will be used'))
+    parser.add_argument('--output-file-pattern', type=str, default="{orig_file_name}.restored.mp4", help=_("Pattern used to determine output file name(s). Used when input is a directory or a file with no output path specified"))
+    parser.add_argument('--device', type=str, default="cuda:0", help=_('Device used for running Restoration and Detection models. Use "cpu", "cuda", or "mps" (for Apple Silicon). If you have multiple GPUs you can select a specific one via index e.g. "cuda:0" (default: %(default)s)'))
+    parser.add_argument('--list-devices', action='store_true', help=_("List available devices and exit"))
+    parser.add_argument('--version', action='store_true', help=_("Display version and exit"))
 
     export = parser.add_argument_group(_('Export (Encoder settings)'))
     export.add_argument('--codec', type=str, default="h264", help=_('FFmpeg video codec. E.g. "h264, "hevc" or "hevc_nvenc". Use "--list-codecs" to see whats available. (default: %(default)s)'))
@@ -77,7 +57,7 @@ def setup_argparser() -> argparse.ArgumentParser:
     group_restoration.add_argument('--mosaic-restoration-config-path', type=str, default=None, help=_("Path to restoration model configuration file"))
     group_restoration.add_argument('--max-clip-length', type=int, default=180, help=_('Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint. If set too low flickering could appear (default: %(default)s)'))
 
-    group_detection = parser.add_argument_group(_('Mosaic Detection'))
+    group_detection = parser.add_argument_group('Mosaic Detection')
     group_detection.add_argument('--mosaic-detection-model-path', type=str, default=os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v3.1_fast.pt'), help=_("Path to restoration model weights file (default: %(default)s)"))
     group_detection.add_argument('--list-mosaic-detection-models', action='store_true', help=_("List available detection model weights found in MODEL_WEIGHTS_DIR and exit (default location is './model_weights' if not overwritten by environment variable MODEL_WEIGHTS_DIR)"))
 
@@ -131,9 +111,16 @@ def dump_torch_devices():
     s += f"\n\t{device_header}\t{description_header}"
     s += f"\n\t{len(device_header)*"-"}\t{len(description_header)*"-"}"
     s += "\n\tcpu\tCPU"
+    
+    # Add CUDA devices
     for i in range(torch.cuda.device_count()):
         gpu_name = torch.cuda.get_device_properties(i).name
         s += f"\n\tcuda:{i}\t{gpu_name}"
+    
+    # Add MPS device for Apple Silicon
+    if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        s += "\n\tmps\tApple Silicon GPU (Metal Performance Shaders)"
+    
     print(s)
 
 def dump_available_detection_models():
@@ -235,7 +222,21 @@ def setup_input_and_output_paths(input_arg, output_arg, output_file_pattern):
 
     return input_files, output_files
 
+def init_localization():
+    APP_NAME = 'lada'
+    LOCALE_DIR =  './translations'
+    try:
+        locale.bindtextdomain(APP_NAME, LOCALE_DIR)
+        locale.textdomain(APP_NAME)
+    except AttributeError as e:
+        pass
+        # TODO: Workaround for Windows as reported in #88
+        #  Translations of .ui files will probably not work then
+    gettext.bindtextdomain(APP_NAME, LOCALE_DIR)
+    gettext.textdomain(APP_NAME)
+
 def main():
+    init_localization()
     argparser = setup_argparser()
     args = argparser.parse_args()
     if args.version:
@@ -253,11 +254,14 @@ def main():
     if args.list_devices:
         dump_torch_devices()
         sys.exit(0)
-    if args.help or not args.input:
+    if not args.input:
         argparser.print_help()
         sys.exit(0)
     if args.device.startswith("cuda") and not torch.cuda.is_available():
-        print(_("GPU {device} selected but CUDA is not available").format(device=args.device))
+        print(_(f"GPU {args.device} selected but CUDA is not available"))
+        sys.exit(1)
+    if args.device == "mps" and (not hasattr(torch.backends, 'mps') or not torch.backends.mps.is_available()):
+        print(_("MPS device selected but Metal Performance Shaders are not available (requires macOS 13.0+ on Apple Silicon)"))
         sys.exit(1)
     if "{orig_file_name}" not in args.output_file_pattern or "." not in args.output_file_pattern:
         print(_("Invalid file name pattern. It must include the template string '{orig_file_name}' and a file extension"))
@@ -266,7 +270,7 @@ def main():
         print(_("Invalid output directory. If input is a directory then --output must also be set to a directory"))
         sys.exit(1)
     if not (os.path.isfile(args.input) or os.path.isdir(args.input)):
-        print(_("Invalid input. No file or directory at {input_path}").format(input_path=args.input))
+        print(_("Invalid input. No file or directory at {input_path}".format(input_path=args.input)))
         sys.exit(1)
 
     mosaic_detection_model, mosaic_restoration_model, preferred_pad_mode = load_models(

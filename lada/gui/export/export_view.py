@@ -3,6 +3,7 @@ import os
 import pathlib
 import tempfile
 import threading
+from gettext import gettext as _
 
 from gi.repository import Gtk, GObject, Gio, Adw, GLib
 
@@ -20,7 +21,7 @@ here = pathlib.Path(__file__).parent.resolve()
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
 
-@Gtk.Template(string=utils.translate_ui_xml(here / 'export_view.ui'))
+@Gtk.Template(filename=here / 'export_view.ui')
 class ExportView(Gtk.Widget):
     __gtype_name__ = 'ExportView'
 
@@ -150,7 +151,7 @@ class ExportView(Gtk.Widget):
         self.set_restore_button_label()
 
     def set_restore_button_label(self):
-        label = _("Restore") if self._config.export_directory else _("Restore…")
+        label = "Restore" if self._config.export_directory else "Restore…"
         self.button_start_export_status_page.set_label(label)
         self.button_start_export.set_label(label)
 

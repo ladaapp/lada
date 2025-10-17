@@ -266,11 +266,12 @@
                                         </child>
                                         <child>
                                             <object class="GtkToggleButton" id="toggle_button_initial_view_export">
+                                                <property name="label" translatable="true">Export</property>
                                                 <property name="group">toggle_button_initial_view_preview</property>
                                                 <property name="child">
                                                     <object class="AdwButtonContent">
                                                         <property name="icon-name">arrow-pointing-away-from-line-right-symbolic</property>
-                                                        <property name="label" translatable="true">Export</property>
+                                                        <property name="label">Export</property>
                                                     </object>
                                                 </property>
                                                 <property name="sensitive">True</property>

@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lada"
+version = "0.8.1.dev0"
+description = "Lada Video Enhancement Tool"
+authors = [{name = "Your Name"}]
+readme = "README.md"
+license = "GPL-3.0-or-later"
+requires-python = ">=3.9"
+dependencies = [
+    "av>=15.1.0",
+    "mmengine==0.10.7",
+    "numpy>=2.3.3",
+    "opencv-python>=4.11.0.86",
+    "torch>=2.8.0",
+    "torchaudio>=2.8.0",
+    "torchvision>=0.23.0",
+    "tqdm>=4.67.1",
+    "ultralytics==8.3.203",
+]
+
+[tool.setuptools.packages.find]
+where = [""]
+include = ["lada", "lada.*"]
+
+[project.scripts]
+lada = "lada.gui.main:main"
+lada-cli = "lada.cli.main:main"
+
+[project.optional-dependencies]
+deepmosaics = ["scikit-image"]
+basicvsrpp = ["mmengine==0.10.7", "torchvision"]
+gui = ["pycairo", "PyGObject"]
+gui-dev = ["pygobject-stubs"]
+training = ["torchvision", "albumentations", "tensorboard", "standard-imghdr"]
+dataset-creation = ["lap>=0.5.12", "timm", "einops", "torchvision", "pillow"]

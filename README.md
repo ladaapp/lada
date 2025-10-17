@@ -75,6 +75,20 @@ The CPU is used for encoding the restored video so shouldn't be too slow either.
 
 The app also needs quite a bit of RAM for buffering to increase throughput. For 1080p content you should be fine with 6-8GB RAM, 4K will need a lot more.
 
+### Apple Silicon (M1/M2/M3/M4) Performance
+
+On macOS with Apple Silicon chips, the app now supports Metal Performance Shaders (MPS) for GPU acceleration:
+
+- **M4 Studio**: Excellent performance for 1080p and 4K content with unified memory architecture
+- **M3/M3 Pro/M3 Max**: Very good performance, especially M3 Max with more memory
+- **M2/M2 Pro/M2 Ultra**: Good performance, Ultra models perform best
+- **M1/M1 Pro/M1 Max**: Decent performance for 1080p content
+
+For optimal performance on Apple Silicon, use the `mps` device:
+```bash
+lada-cli --input <video_path> --device mps
+```
+
 To watch the restored video in realtime you'll need a pretty beefy machine or you'll see the player pausing and buffering until next restored frames are computed.
 When viewing the video no encoding is done but it will use more additional RAM for buffering.
 
@@ -91,6 +105,11 @@ Here are some speed performance numbers using Lada v0.7.0 on my available hardwa
 | vid3       | half of the video doesn't have any mosaics present,<br>the other half mostly single mosaic per frame | 41m16s / 852x480 / 30 FPS            | 26m30s / 46 FPS                                            | 10m20s / 119 FPS                                          |
 
 ## Installation
+
+### macOS (Apple Silicon)
+
+For macOS users with Apple Silicon chips (M1/M2/M3/M4), follow the [macOS Installation Guide](docs/macos_install.md) for optimized performance using Metal Performance Shaders (MPS).
+
 ### Using Flatpak
 The easiest way to install the app (CLI and GUI) on Linux is via Flathub:
 
@@ -174,7 +193,7 @@ AMD GPUs should potentially also work but probably not with Windows as PyTorch/R
 Reach out if you can support packaging the app for other operating systems or hardware.
 
 ## Build
-If you want to start hacking on this project you'll need to install the app from source. Check out the detailed installation guides for [Linux](docs/linux_install.md) and [Windows](docs/windows_install.md).
+If you want to start hacking on this project you'll need to install the app from source. Check out the detailed installation guides for [macOS](docs/macos_install.md), [Linux](docs/linux_install.md) and [Windows](docs/windows_install.md).
 
 ## Training and dataset creation
 For instructions on training your own models and datasets, refer to [Training and dataset creation](docs/training_and_dataset_creation.md).

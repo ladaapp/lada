@@ -1,4 +1,6 @@
 .venv/
+.venv-gui/
+.venv-*/
 experiments/
 *.egg-info/
 *.pth

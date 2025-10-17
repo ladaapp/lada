@@ -7,6 +7,7 @@ from typing import Optional
 
 import cv2
 import numpy as np
+import torch
 
 from lada import LOG_LEVEL
 from lada.lib import image_utils, video_utils, threading_utils, mask_utils
@@ -18,9 +19,23 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
 
 def load_models(device, mosaic_restoration_model_name, mosaic_restoration_model_path, mosaic_restoration_config_path, mosaic_detection_model_path):
+    # Convert device string to torch device object
+    if isinstance(device, str):
+        if device == "mps":
+            if not hasattr(torch.backends, 'mps') or not torch.backends.mps.is_available():
+                logger.warning("MPS device requested but not available, falling back to CPU")
+                device = "cpu"
+        device = torch.device(device)
+    
     if mosaic_restoration_model_name.startswith("deepmosaics"):
         from lada.deepmosaics.models import loadmodel, model_util
-        mosaic_restoration_model = loadmodel.video(model_util.device_to_gpu_id(device), mosaic_restoration_model_path)
+        # Convert device back to string for deepmosaics compatibility
+        device_str = str(device)
+        if device_str == "mps":
+            # DeepMosaics doesn't support MPS directly, use CPU
+            device_str = "cpu"
+            logger.warning("DeepMosaics model doesn't support MPS, using CPU")
+        mosaic_restoration_model = loadmodel.video(model_util.device_to_gpu_id(device_str), mosaic_restoration_model_path)
         pad_mode = 'reflect'
     elif mosaic_restoration_model_name.startswith("basicvsrpp"):
         from lada.basicvsrpp.inference import load_model, get_default_gan_inference_config
@@ -33,7 +48,7 @@ def load_models(device, mosaic_restoration_model_name, mosaic_restoration_model_
     else:
         raise NotImplementedError()
     # setting classes=[0] will consider only for class id = 0 as detections (nsfw mosaics) therefore filtering out sfw mosaics (heads, faces)
-    mosaic_detection_model = MosaicDetectionModel(mosaic_detection_model_path, device, classes=[0], conf=0.2)
+    mosaic_detection_model = MosaicDetectionModel(mosaic_detection_model_path, str(device), classes=[0], conf=0.2)
     return mosaic_detection_model, mosaic_restoration_model, pad_mode
 
 

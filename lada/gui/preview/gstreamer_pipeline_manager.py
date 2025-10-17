@@ -4,7 +4,7 @@ import sys
 from enum import Enum
 from time import sleep
 
-from gi.repository import GObject, GLib, Gst, GstApp, Gdk, Gio
+from gi.repository import GObject, GLib, Gst, GstApp, Gdk
 
 from lada import LOG_LEVEL
 from lada.gui.frame_restorer_provider import FrameRestorerProvider
@@ -147,7 +147,7 @@ class PipelineManager(GObject.Object):
         self.pipeline_audio_elements.append(audio_queue)
 
         audio_uridecodebin = Gst.ElementFactory.make('uridecodebin', None)
-        audio_uridecodebin.set_property('uri', self.path_to_gst_uri(self.video_metadata.video_file))
+        audio_uridecodebin.set_property('uri', pathlib.Path(self.video_metadata.video_file).resolve().as_uri())
 
         def on_pad_added(decodebin, decoder_src_pad, audio_queue):
             caps = decoder_src_pad.get_current_caps()
@@ -243,7 +243,7 @@ class PipelineManager(GObject.Object):
         self.has_audio = audio_utils.get_audio_codec(self.video_metadata.video_file) is not None
         if self.has_audio:
             if audio_pipeline_already_added:
-                self.audio_uridecodebin.set_property('uri', self.path_to_gst_uri(self.video_metadata.video_file))
+                self.audio_uridecodebin.set_property('uri', pathlib.Path(self.video_metadata.video_file).resolve().as_uri())
             else:
                 self.pipeline_add_audio()
         else:
@@ -263,10 +263,3 @@ class PipelineManager(GObject.Object):
         if self.has_audio:
             self.audio_buffer_queue.set_property('max-size-time', buffer_queue_max_thresh_time * Gst.SECOND)
             self.audio_buffer_queue.set_property('min-threshold-time', buffer_queue_min_thresh_time * Gst.SECOND)
-
-    def path_to_gst_uri(self, path: str):
-        # On Windows Gst expects 4-slash URI format syntax. So \\1.2.3.4\share\file.mp4 needs to end up as file:////1.2.3.4/share/file.mp4
-        # pathlib:Path::as_uri returns regular 2-slash format so we use Gio:File::get_uri instead
-        abs_path = str(pathlib.Path(path).resolve())
-        file = Gio.File.new_for_path(abs_path)
-        return file.get_uri()
