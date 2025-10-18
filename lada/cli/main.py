@@ -89,7 +89,10 @@ def filter_video_files(directory_path: str):
         path = os.path.join(directory_path, name)
         if not os.path.isfile(path):
             continue
-        mime_type, _ = mimetypes.guess_file_type(path)
+        if sys.version_info >= (3, 13):
+            mime_type, _ = mimetypes.guess_file_type(path)
+        else:
+            mime_type, _ = mimetypes.guess_type(path)
         if not mime_type:
             continue
         if not mime_type.lower().startswith("video/"):
