@@ -44,3 +44,4 @@ class VideoMetadata:
     duration: float
     time_base: Fraction
     start_pts: int
+    is_vfr: bool
