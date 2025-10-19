@@ -282,8 +282,6 @@ class VideoWriter:
         video_stream_out.options = encoder_options
         self.output_container = output_container
         self.video_stream = video_stream_out
-        self.frame_number = 0
-        self.fps = fps
 
     def __enter__(self):
         return self
