@@ -289,9 +289,6 @@ class VideoWriter:
     def __exit__(self, exc_type, exc_value, traceback):
         self.release()
 
-    def calculate_pts(self, frame_number):
-        return round(frame_number * self.video_stream.time_base.denominator / self.fps)
-
     def write(self, frame, original_pts = None, original_dts = None, bgr2rgb=False):
         if bgr2rgb:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -304,7 +301,6 @@ class VideoWriter:
 
         out_packet = self.video_stream.encode(out_frame)
         self.output_container.mux(out_packet)
-        self.frame_number += 1
 
     def release(self):
         out_packet = self.video_stream.encode(None)
