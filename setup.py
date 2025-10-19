@@ -20,7 +20,7 @@ setup(
     },
     include_package_data=True,
     package_data={
-        '': ['*.css', '*.ui', '*.gresource', '*.gresource.xml']
+        '': ['*.css', '*.ui', '*.gresource', '*.gresource.xml', '*.mo']
     },
     entry_points={
         'console_scripts': [

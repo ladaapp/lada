@@ -1,11 +1,10 @@
-import locale
 import logging
 import pathlib
-import gettext
 import sys
+
 import gi
 
-from lada import VERSION, LOG_LEVEL, LOCALE_DIR
+from lada import VERSION, LOG_LEVEL
 
 gi.require_version('Gtk', '4.0')
 gi.require_version('Adw', '1')
@@ -72,7 +71,7 @@ class LadaApplication(Adw.Application):
             self.bind_property("config", win.export_view, "config", flags=GObject.BindingFlags.SYNC_CREATE)
             self.bind_property("config", win, "config", flags=GObject.BindingFlags.SYNC_CREATE)
             self.bind_property("shortcuts-manager", win.preview_view, "shortcuts-manager", flags=GObject.BindingFlags.SYNC_CREATE)
-            self.bind_property("shortcuts-manager", win.file_selection_view, "shortcuts-manager", flags=GObject.BindingFlags.SYNC_CREATE)
+            self.bind_property("shortcuts-manager", win, "shortcuts-manager", flags=GObject.BindingFlags.SYNC_CREATE)
             self.window = win
 
             self._shortcuts_manager.init(win.shortcut_controller)
@@ -103,20 +102,8 @@ class LadaApplication(Adw.Application):
         if shortcuts:
             self.set_accels_for_action(f"app.{name}", shortcuts)
 
-def init_localization():
-    APP_NAME = 'lada'
-    try:
-        locale.bindtextdomain(APP_NAME, LOCALE_DIR)
-        locale.textdomain(APP_NAME)
-    except AttributeError as e:
-        pass
-        # TODO: Workaround for Windows as reported in #88
-        #  Translations of .ui files will probably not work then
-    gettext.bindtextdomain(APP_NAME, LOCALE_DIR)
-    gettext.textdomain(APP_NAME)
 
 def main():
-    init_localization()
     app = LadaApplication()
     try:
         return app.run(sys.argv)

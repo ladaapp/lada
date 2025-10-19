@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="ExportMultipleFilesPage" parent="GtkWidget">
+        <property name="layout-manager">
+            <object class="GtkBinLayout">
+            </object>
+        </property>
+        <child>
+            <object class="GtkScrolledWindow">
+                <property name="vexpand">True</property>
+                <child>
+                    <object class="GtkBox">
+                        <property name="orientation">1</property>
+                        <child>
+                            <object class="GtkListBox" id="list_box">
+                                <property name="hexpand">true</property>
+                                <property name="valign">1</property>
+                                <property name="margin-start">18</property>
+                                <property name="margin-end">18</property>
+                                <property name="margin-top">12</property>
+                                <property name="margin-bottom">12</property>
+                                <property name="selection-mode">0</property>
+                                <style>
+                                    <class name="boxed-list"/>
+                                </style>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>

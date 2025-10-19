@@ -97,7 +97,7 @@ The easiest way to install the app (CLI and GUI) on Linux is via Flathub:
 <a href='https://flathub.org/apps/details/io.github.ladaapp.lada'><img width='200' alt='Download from Flathub' src='https://flathub.org/api/badge?svg&locale=en'/></a>
 
 > [!NOTE]
-> The Flatpak version works only with x86_64 CPUs and Nvidia/CUDA GPUs. Ensure your system NVIDIA GPU drivers are upt-to-date.
+> The Flatpak only works with x86_64 CPUs and Nvidia/CUDA GPUs (Turing or newer: RTX 20xx up to including RTX 50xx). Ensure your NVIDIA GPU driver is up-to-date.
 > It can also be used without a GPU but it will be very slow.
 
 > [!TIP]
@@ -130,7 +130,7 @@ docker pull ladaapp/lada:latest
 ````
 
 > [!NOTE]
-> The Docker version works only with x86_64 CPUs and Nvidia/CUDA GPUs. Ensure your system NVIDIA GPU drivers are upt-to-date.
+> The Docker image only works with x86_64 CPUs and Nvidia/CUDA GPUs (Turing or newer: RTX 20xx up to including RTX 50xx). Ensure your NVIDIA GPU driver is up-to-date.
 > It can also be used without a GPU but it will be very slow.
 
 > [!TIP]
@@ -142,6 +142,25 @@ docker pull ladaapp/lada:latest
 > docker run --rm --gpus all --mount type=bind,src=<input video path>,dst=/mnt ladaapp/lada:latest --input "/mnt/<input video file>"
 > ```
 
+### Using Windows
+
+For Windows users, the app (CLI and GUI) is packaged as a standalone .zip file.
+
+Get the latest release from the [Release Page](https://github.com/ladaapp/lada/releases).
+The .zip is available in the *Assets* section. You'll find ´lada.exe´ and ´lada-cli.exe´ after unzipping the archive.
+
+> [!NOTE]
+> The Docker image only works with x86_64 CPUs and Nvidia/CUDA GPUs (Turing or newer: RTX 20xx up to including RTX 50xx). Ensure your NVIDIA GPU driver is up-to-date.
+> It can also be used without a GPU but it will be very slow.
+
+> [!NOTE]
+> Be aware that the first start of lada.exe or lada-cli.exe could take a while before Windows Defender or your AV has scanned it. The next time you open the program it should start fast.
+
+> [!TIP]
+> Files on GitHub Releases are limited to 2GB each, so I had to split the file.
+> Download both files (´<version>.zip.001´ and ´<version>.zip.002´). Then open the first file in [7-zip](https://7-zip.org/).
+> You should then be able to see and extract the *lada* folder containing the .exe files and another subfolder with the dependencies of the application.
+
 ### Alternative Installation Methods
 
 If the packages above don't work for you then you'll have to follow the [Build](#build) steps to set up the project.
@@ -149,11 +168,10 @@ If the packages above don't work for you then you'll have to follow the [Build](
 Note that these instructions are mostly intended for developers to set up their environment to start working on the source code. But you should hopefully be able
 to follow the instructions even if you aren't a developer.
 
-There have been successful reports of installing Lada on Windows with Nvidia and Intel GPUs. AMD GPUs should also work but probably not with Windows as PyTorch/ROCm builds are only available for Linux.
+All packages currently only work with Nvidia cards (or CPU) but there have been reports that following the Build instructions newer Intel Xe GPUs also work fine.
+AMD GPUs should potentially also work but probably not with Windows as PyTorch/ROCm builds are only available for Linux.
 
 Reach out if you can support packaging the app for other operating systems or hardware.
-
-There is some work going on to package the app natively for Windows [here](https://github.com/ladaapp/lada/issues/77).
 
 ## Build
 If you want to start hacking on this project you'll need to install the app from source. Check out the detailed installation guides for [Linux](docs/linux_install.md) and [Windows](docs/windows_install.md).

@@ -1,13 +1,14 @@
 import logging
 import pathlib
 import threading
-from gettext import gettext as _
 
-from gi.repository import Gtk, GObject, GLib, Gio, Gst, GstApp, Adw
+from gi.repository import Gtk, GObject, GLib, Gio, Gst, Adw
 
 from lada import LOG_LEVEL
+from lada.gui import utils
 from lada.gui.config.config import Config
 from lada.gui.config.config_sidebar import ConfigSidebar
+from lada.gui.config.no_gpu_banner import NoGpuBanner
 from lada.gui.frame_restorer_provider import FrameRestorerProvider, FrameRestorerOptions, FRAME_RESTORER_PROVIDER
 from lada.gui.preview.fullscreen_mouse_activity_controller import FullscreenMouseActivityController
 from lada.gui.preview.gstreamer_pipeline_manager import PipelineManager, PipelineState
@@ -21,7 +22,7 @@ here = pathlib.Path(__file__).parent.resolve()
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
 
-@Gtk.Template(filename=here / 'preview_view.ui')
+@Gtk.Template(string=utils.translate_ui_xml(here / 'preview_view.ui'))
 class PreviewView(Gtk.Widget):
     __gtype_name__ = 'PreviewView'
 
@@ -37,12 +38,13 @@ class PreviewView(Gtk.Widget):
     box_video_preview = Gtk.Template.Child()
     drop_down_files: HeaderbarFilesDropDown = Gtk.Template.Child()
     spinner_overlay = Gtk.Template.Child()
-    banner_no_gpu = Gtk.Template.Child()
+    banner_no_gpu: NoGpuBanner = Gtk.Template.Child()
     config_sidebar: ConfigSidebar = Gtk.Template.Child()
     header_bar: Adw.HeaderBar = Gtk.Template.Child()
     button_toggle_fullscreen: Gtk.Button = Gtk.Template.Child()
     stack_video_preview: Gtk.Stack = Gtk.Template.Child()
     view_switcher: Adw.ViewSwitcher = Gtk.Template.Child()
+    button_open_files: Gtk.Button = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -80,13 +82,26 @@ class PreviewView(Gtk.Widget):
 
         self._view_stack: Adw.ViewStack | None = None
 
-        click_gesture = Gtk.GestureClick()
-        def on_click(click_obj, n_press, x, y):
-            if n_press == 2:
-                # double-click
-                self.emit("toggle-fullscreen-requested")
-        click_gesture.connect( "pressed", on_click)
-        self.box_video_preview.add_controller(click_gesture)
+        self.drop_down_selected_handler_id = self.drop_down_files.connect("notify::selected", lambda obj, spec: self.play_file(obj.get_property(spec.name)))
+
+        self.setup_double_click_fullscreen()
+
+        drop_target = utils.create_video_files_drop_target(lambda files: self.emit("files-opened", files))
+        self.add_controller(drop_target)
+
+        def on_files_opened(obj, files):
+            self.button_open_files.set_sensitive(True)
+            self.add_files(files)
+            if self._video_preview_init_done:
+                last_file_idx = len(self.files) - 1
+                if self.drop_down_files.get_selected() != last_file_idx:
+                    self.drop_down_files.handler_block(self.drop_down_selected_handler_id)
+                    self.drop_down_files.set_selected(last_file_idx)
+                    self.drop_down_files.handler_unblock(self.drop_down_selected_handler_id)
+                    self.play_file(last_file_idx)
+            else:
+                self.drop_down_files.set_sensitive(False)
+        self.connect("files-opened", on_files_opened)
 
     @GObject.Property(type=Config)
     def config(self):
@@ -95,8 +110,6 @@ class PreviewView(Gtk.Widget):
     @config.setter
     def config(self, value):
         self._config = value
-        if self._config.get_property('device') == 'cpu':
-            self.banner_no_gpu.set_revealed(True)
         self.setup_config_signal_handlers()
 
     @GObject.Property()
@@ -140,6 +153,10 @@ class PreviewView(Gtk.Widget):
     def toggle_fullscreen_requested(self):
         pass
 
+    @GObject.Signal(name="files-opened", arg_types=(GObject.TYPE_PYOBJECT,))
+    def files_opened_signal(self, files: list[Gio.File]):
+        pass
+
     @Gtk.Template.Callback()
     def button_toggle_fullscreen_callback(self, button_clicked):
         self.emit("toggle-fullscreen-requested")
@@ -168,6 +185,13 @@ class PreviewView(Gtk.Widget):
         self.pipeline_manager.muted = new_mute_state
         self.set_speaker_icon(new_mute_state)
 
+    @Gtk.Template.Callback()
+    def button_open_files_callback(self, button_clicked):
+        self.button_open_files.set_sensitive(False)
+        callback = lambda files: self.emit("files-opened", files)
+        dismissed_callback = lambda *args: self.button_open_files.set_sensitive(True)
+        utils.show_open_files_dialog(callback, dismissed_callback)
+
     @property
     def frame_restorer_options(self):
         return self._frame_restorer_options
@@ -195,6 +219,15 @@ class PreviewView(Gtk.Widget):
         self._buffer_queue_min_thresh_time_auto = value
         if self._video_preview_init_done:
             self.update_gst_buffers()
+
+    def setup_double_click_fullscreen(self):
+            click_gesture = Gtk.GestureClick()
+            def on_click(click_obj, n_press, x, y):
+                if n_press == 2:
+                    # double-click
+                    self.emit("toggle-fullscreen-requested")
+            click_gesture.connect( "pressed", on_click)
+            self.box_video_preview.add_controller(click_gesture)
 
     def setup_config_signal_handlers(self):
         def on_show_mosaic_detections(*args):
@@ -263,11 +296,18 @@ class PreviewView(Gtk.Widget):
         self._reinit_open_file_async(self.files[idx])
 
     def add_files(self, files: list[Gio.File]):
-        for item in files:
-            self.files.append(item)
+        unique_files_to_add = []
+        for file_to_add in files:
+            if any(file_to_add.get_path() == file_already_added.get_path() for file_already_added in self.files):
+                # duplicate
+                continue
+            self.files.append(file_to_add)
+            unique_files_to_add.append(file_to_add)
 
-        self.drop_down_files.add_files(files)
-        self.drop_down_files.connect("notify::selected", lambda obj, spec: self.play_file(obj.get_property(spec.name)))
+        if len(unique_files_to_add) > 0:
+            self.drop_down_files.handler_block(self.drop_down_selected_handler_id)
+            self.drop_down_files.add_files(files)
+            self.drop_down_files.handler_unblock(self.drop_down_selected_handler_id)
 
     def _reinit_open_file_async(self, file: Gio.File):
         def run():
@@ -408,7 +448,7 @@ class PreviewView(Gtk.Widget):
 
     def on_fullscreened(self, fullscreened: bool):
         if fullscreened:
-            self.fullscreen_mouse_activity_controller = FullscreenMouseActivityController(self)
+            self.fullscreen_mouse_activity_controller = FullscreenMouseActivityController(self, self.box_video_preview)
             self.banner_no_gpu.set_revealed(False)
             self.button_toggle_fullscreen.set_property("icon-name", "view-restore-symbolic")
             self.box_video_preview.set_css_classes(["fullscreen-preview"])
@@ -428,20 +468,18 @@ class PreviewView(Gtk.Widget):
         self.config_sidebar.set_property("disabled", True)
         self.drop_down_files.set_sensitive(False)
         self.view_switcher.set_sensitive(False)
+        self.button_open_files.set_sensitive(False)
         self.stack_video_preview.set_visible_child_name("spinner")
 
     def _show_video_preview(self, *args):
         self.config_sidebar.set_property("disabled", False)
         self.drop_down_files.set_sensitive(True)
         self.view_switcher.set_sensitive(True)
+        self.button_open_files.set_sensitive(True)
         self.stack_video_preview.set_visible_child_name("video-player")
         self.grab_focus()
 
     def _setup_shortcuts(self):
-        self._shortcuts_manager.register_group("ui", "UI")
-        self._shortcuts_manager.add("ui", "show-export-view", "e", lambda *args: self._view_stack.set_visible_child_name('export'), _("Switch to Export View"))
-        self._shortcuts_manager.add("ui", "show-preview-view", "p", lambda *args: self._view_stack.set_visible_child_name('preview'), _("Switch to Preview View"))
-
         self._shortcuts_manager.register_group("preview", _("Watch"))
         self._shortcuts_manager.add("preview", "toggle-mute-unmute", "m", lambda *args: self.button_mute_unmute_callback(self.button_mute_unmute), _("Mute/Unmute"))
         self._shortcuts_manager.add("preview", "toggle-play-pause", "<Ctrl>space", lambda *args: self.button_play_pause_callback(self.button_play_pause), _("Play/Pause"))

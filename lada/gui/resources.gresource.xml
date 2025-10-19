@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
-  <gresource prefix="/io/github/ladaapp/lada/icons/scalable/actions">
-    <file alias="arrow-pointing-away-from-line-right-symbolic.svg">icons/arrow-pointing-away-from-line-right-symbolic.svg</file>
-    <file alias="cafe-symbolic.svg">icons/cafe-symbolic.svg</file>
-    <file alias="check-round-outline2-symbolic.svg">icons/check-round-outline2-symbolic.svg</file>
-    <file alias="color-scheme-dark.svg">icons/color-scheme-dark.svg</file>
-    <file alias="color-scheme-light.svg">icons/color-scheme-light.svg</file>
-    <file alias="color-scheme-system.svg">icons/color-scheme-system.svg</file>
-    <file alias="external-link-symbolic.svg">icons/external-link-symbolic.svg</file>
-    <file alias="media-playback-pause-symbolic.svg">icons/media-playback-pause-symbolic.svg</file>
-    <file alias="media-playback-start-symbolic.svg">icons/media-playback-start-symbolic.svg</file>
-    <file alias="playback-symbolic.svg">icons/playback-symbolic.svg</file>
-    <file alias="sliders-horizontal-symbolic.svg">icons/sliders-horizontal-symbolic.svg</file>
-    <file alias="speaker-0-symbolic.svg">icons/speaker-0-symbolic.svg</file>
-    <file alias="speaker-4-symbolic.svg">icons/speaker-4-symbolic.svg</file>
-  </gresource>
-  <gresource prefix="/io/github/ladaapp/lada/icons/128x128">
-    <file alias="lada-logo-gray.png">icons/lada-logo-gray.png</file>
-  </gresource>
+    <gresource prefix="/io/github/ladaapp/lada/icons/scalable/actions">
+        <file alias="arrow-pointing-away-from-line-right-symbolic.svg">icons/arrow-pointing-away-from-line-right-symbolic.svg</file>
+        <file alias="cafe-symbolic.svg">icons/cafe-symbolic.svg</file>
+        <file alias="check-round-outline2-symbolic.svg">icons/check-round-outline2-symbolic.svg</file>
+        <file alias="color-scheme-dark.svg">icons/color-scheme-dark.svg</file>
+        <file alias="color-scheme-light.svg">icons/color-scheme-light.svg</file>
+        <file alias="color-scheme-system.svg">icons/color-scheme-system.svg</file>
+        <file alias="external-link-symbolic.svg">icons/external-link-symbolic.svg</file>
+        <file alias="media-playback-pause-symbolic.svg">icons/media-playback-pause-symbolic.svg</file>
+        <file alias="media-playback-start-symbolic.svg">icons/media-playback-start-symbolic.svg</file>
+        <file alias="playback-symbolic.svg">icons/playback-symbolic.svg</file>
+        <file alias="sliders-horizontal-symbolic.svg">icons/sliders-horizontal-symbolic.svg</file>
+        <file alias="speaker-0-symbolic.svg">icons/speaker-0-symbolic.svg</file>
+        <file alias="speaker-4-symbolic.svg">icons/speaker-4-symbolic.svg</file>
+        <file alias="plus-large-symbolic.svg">icons/plus-large-symbolic.svg</file>
+        <file alias="folder-open-symbolic.svg">icons/folder-open-symbolic.svg</file>
+        <file alias="exclamation-mark-symbolic.svg">icons/exclamation-mark-symbolic.svg</file>
+        <file alias="cross-large-symbolic.svg">icons/cross-large-symbolic.svg</file>
+        <file alias="pause-large-symbolic.svg">icons/pause-large-symbolic.svg</file>
+    </gresource>
+    <gresource prefix="/io/github/ladaapp/lada/icons/128x128">
+        <file alias="lada-logo-gray.png">icons/lada-logo-gray.png</file>
+    </gresource>
 </gresources>

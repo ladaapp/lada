@@ -190,7 +190,7 @@ def resize_simple(img: Image, size: int, interpolation=cv2.INTER_LINEAR):
     return res
 
 def is_image_file(file_path):
-    SUPPORTED_IMAGE_FILE_EXTENSIONS = {".jpg", ".jpeg", "png", ".bmp"}
+    SUPPORTED_IMAGE_FILE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp"}
 
     file_ext = os.path.splitext(file_path)[1]
     return file_ext in SUPPORTED_IMAGE_FILE_EXTENSIONS

@@ -1,0 +1,2 @@
+# As locale is not a package (no __init__.py) package_data in setup.py will not pick it up so we have to add these files like so:
+include lada/locale/*/LC_MESSAGES/*.mo

@@ -51,11 +51,11 @@
     <menu id="primary_menu">
         <section>
             <item>
-                <attribute name="label">Keyboard Shortcuts</attribute>
+                <attribute name="label" translatable="true">Keyboard Shortcuts</attribute>
                 <attribute name="action">app.shortcuts</attribute>
             </item>
             <item>
-                <attribute name="label">About Lada</attribute>
+                <attribute name="label" translatable="true">About Lada</attribute>
                 <attribute name="action">app.about</attribute>
             </item>
         </section>

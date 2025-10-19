@@ -11,6 +11,10 @@ progressbar.finished > trough > progress {
   background-color: var(--success-color);
 }
 
+progressbar.failed > trough > progress {
+  background-color: var(--error-color);
+}
+
 .fullscreen-preview {
 	background-color: black;
 }

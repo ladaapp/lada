@@ -55,6 +55,17 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release date="2025-10-06" version="0.8.1">
+            <description>
+                <p>This Release is mostly about packaging improvements as this marks the first release for Windows.</p>
+                <p>Changes:</p>
+                <ul>
+                    <li>GUI: Drop files onto Export View or use Add button to add to restore queue</li>
+                    <li>GUI: Drop files onto Watch View or use Open button to play them</li>
+                    <li>packaging: Lada is now packaged for Windows</li>
+                </ul>
+            </description>
+        </release>
         <release date="2025-10-02" version="0.8.0">
             <description>
                 <p>Revamped the GUI so it can be used with multiple files enabling you to queue a batch of files for restoration. You can choose if you want the start the app in watch mode (watch restored video in realtime) or in export mode (restore one or multiple files in the background to watch later)</p>

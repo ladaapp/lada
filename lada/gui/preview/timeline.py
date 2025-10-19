@@ -3,6 +3,8 @@ from dataclasses import dataclass
 
 from gi.repository import Gtk, GObject, Gdk, Graphene, Gsk, Adw
 
+from lada.gui import utils
+
 here = pathlib.Path(__file__).parent.resolve()
 
 @dataclass
@@ -11,7 +13,7 @@ class TimelineColors:
     playhead_color: Gdk.RGBA()
     cursor_color: Gdk.RGBA()
 
-@Gtk.Template(filename=here / 'timeline.ui')
+@Gtk.Template(string=utils.translate_ui_xml(here / 'timeline.ui'))
 class Timeline(Gtk.Widget):
     __gtype_name__ = 'Timeline'
 

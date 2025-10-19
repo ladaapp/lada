@@ -32,10 +32,41 @@
                             </object>
                         </child>
                         <child type="end">
+                            <object class="GtkButton" id="button_add_files">
+                                <property name="icon-name">plus-large-symbolic</property>
+                                <property name="tooltip-text" translatable="true">Add Files…</property>
+                                <signal name="clicked" handler="button_add_files_callback"/>
+                            </object>
+                        </child>
+                        <child type="end">
+                            <object class="GtkButton" id="button_cancel_export">
+                                <property name="label" translatable="true">Cancel</property>
+                                <property name="visible">False</property>
+                                <signal name="clicked" handler="on_button_cancel_export_clicked"/>
+                              <style>
+                                    <class name="destructive-action"/>
+                                </style>
+                            </object>
+                        </child>
+                        <child type="end">
+                            <object class="GtkButton" id="button_pause_export">
+                                <property name="label" translatable="true">Pause</property>
+                                <property name="visible">False</property>
+                                <signal name="clicked" handler="on_button_pause_export_clicked"/>
+                            </object>
+                        </child>
+                        <child type="end">
+                            <object class="GtkButton" id="button_resume_export">
+                                <property name="label" translatable="true">Resume</property>
+                                <property name="visible">False</property>
+                                <signal name="clicked" handler="on_button_resume_export_clicked"/>
+                            </object>
+                        </child>
+                        <child type="end">
                             <object class="GtkButton" id="button_start_export">
                                 <property name="label" translatable="true">Restore</property>
                                 <property name="visible">False</property>
-                                <signal name="clicked" handler="button_start_export_callback"/>
+                                <signal name="clicked" handler="on_button_start_export_clicked"/>
                                 <style>
                                     <class name="suggested-action"/>
                                 </style>
@@ -60,121 +91,35 @@
                             </object>
                         </property>
                         <property name="content">
-
-                            <object class="GtkStack" id="stack">
-                                <property name="transition-type">none</property>
+                            <object class="GtkBox">
+                                <property name="orientation">vertical</property>
                                 <child>
-                                    <object class="GtkStackPage">
-                                        <property name="name">multiple-files</property>
-                                        <property name="child">
-                                            <object class="GtkScrolledWindow">
-                                                <property name="vexpand">True</property>
-                                                <child>
-                                                    <object class="GtkBox">
-                                                        <property name="orientation">1</property>
-                                                        <child>
-                                                            <object class="GtkListBox" id="list_box">
-                                                                <property name="hexpand">true</property>
-                                                                <property name="valign">1</property>
-                                                                <property name="margin-start">18</property>
-                                                                <property name="margin-end">18</property>
-                                                                <property name="margin-top">12</property>
-                                                                <property name="margin-bottom">12</property>
-                                                                <property name="selection-mode">0</property>
-                                                                <style>
-                                                                    <class name="boxed-list"/>
-                                                                </style>
-                                                            </object>
-                                                        </child>
-                                                    </object>
-                                                </child>
-                                            </object>
-                                        </property>
+                                    <object class="NoGpuBanner" id="banner_no_gpu">
+                                        <property name="config" bind-source="ExportView" bind-property="config"/>
                                     </object>
                                 </child>
                                 <child>
-                                    <object class="GtkStackPage">
-                                        <property name="name">single-file</property>
-                                        <property name="child">
-                                            <object class="AdwStatusPage" id="status_page">
-                                                <property name="title" translatable="true">Export video</property>
-                                                <property name="icon-name">arrow-pointing-away-from-line-right-symbolic</property>
-                                                <child>
-                                                    <object class="GtkBox">
-                                                        <property name="orientation">vertical</property>
-                                                        <child>
-                                                            <object class="GtkBox">
-                                                                <property name="orientation">vertical</property>
-                                                                <property name="margin-bottom">20</property>
-                                                                <child>
-                                                                    <object class="GtkLabel" id="label_file_name_status_page">
-                                                                        <property name="visible">True</property>
-                                                                        <property name="use-markup">True</property>
-                                                                        <property name="single-line-mode">true</property>
-                                                                        <property name="ellipsize">3</property>
-                                                                        <property name="halign">center</property>
-                                                                        <style>
-                                                                            <class name="title-4"/>
-                                                                        </style>
-                                                                    </object>
-                                                                </child>
-                                                                <child>
-                                                                    <object class="GtkLabel" id="label_meta_data_status_page">
-                                                                        <property name="visible">True</property>
-                                                                        <property name="use-markup">True</property>
-                                                                        <property name="single-line-mode">true</property>
-                                                                        <property name="ellipsize">3</property>
-                                                                        <property name="halign">center</property>
-                                                                        <style>
-                                                                            <class name="dim-label"/>
-                                                                            <class name="caption"/>
-                                                                        </style>
-                                                                    </object>
-                                                                </child>
-                                                            </object>
-                                                        </child>
-                                                        <child>
-                                                            <object class="GtkProgressBar" id="progress_bar_file_export_status_page">
-                                                                <property name="visible">False</property>
-                                                                <property name="margin-start">20</property>
-                                                                <property name="margin-end">20</property>
-                                                            </object>
-                                                        </child>
-                                                        <child>
-                                                            <object class="GtkButton" id="button_start_export_status_page">
-                                                                <property name="label" translatable="true">Restore</property>
-                                                                <property name="visible">False</property>
-                                                                <signal name="clicked" handler="button_start_export_callback"/>
-                                                                <property name="halign">center</property>
-                                                                <style>
-                                                                    <class name="suggested-action"/>
-                                                                    <class name="pill"/>
-                                                                </style>
-                                                            </object>
-                                                        </child>
-                                                        <child>
-                                                            <object class="GtkButton" id="button_open_status_page">
-                                                                <property name="visible">false</property>
-                                                                <property name="halign">center</property>
-                                                                <property name="tooltip-text" translatable="true">Open in External Program…</property>
-                                                                  <property name="child">
-                                                                    <object class="AdwButtonContent">
-                                                                      <property name="icon-name">external-link-symbolic</property>
-                                                                      <property name="label" translatable="true">Open File</property>
-                                                                    </object>
-                                                                  </property>
-                                                                <style>
-                                                                    <class name="pill"/>
-                                                                </style>
-                                                            </object>
-                                                        </child>
-                                                    </object>
-                                                </child>
+                                    <object class="GtkStack" id="stack">
+                                        <property name="transition-type">none</property>
+                                        <child>
+                                            <object class="GtkStackPage">
+                                                <property name="name">multiple-files</property>
+                                                <property name="child">
+                                                    <object class="ExportMultipleFilesPage" id="multiple_files_page"/>
+                                                </property>
                                             </object>
-                                        </property>
+                                        </child>
+                                        <child>
+                                            <object class="GtkStackPage">
+                                                <property name="name">single-file</property>
+                                                <property name="child">
+                                                    <object class="ExportSingleFileStatusPage" id="status_page"/>
+                                                </property>
+                                            </object>
+                                        </child>
+                                        <property name="visible-child-name">multiple-files</property>
                                     </object>
                                 </child>
-                                <property name="visible-child-name">multiple-files</property>
                             </object>
                         </property>
                     </object>
@@ -186,11 +131,11 @@
     <menu id="primary_menu">
         <section>
             <item>
-                <attribute name="label">Keyboard Shortcuts</attribute>
+                <attribute name="label" translatable="true">Keyboard Shortcuts</attribute>
                 <attribute name="action">app.shortcuts</attribute>
             </item>
             <item>
-                <attribute name="label">About Lada</attribute>
+                <attribute name="label" translatable="true">About Lada</attribute>
                 <attribute name="action">app.about</attribute>
             </item>
         </section>

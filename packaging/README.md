@@ -13,6 +13,8 @@ deactivate
 rm -r .venv_requirements_cli
 ```
 
+TODO: Revise this process now that Windows is also part of the release train
+
 ## Release Process
 1. Create GitHub PR for Flathub/Lada repository (check README there)
 2. Once pipeline is green pull this flatpak from flathub

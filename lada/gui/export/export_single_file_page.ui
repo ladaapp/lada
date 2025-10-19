@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="ExportSingleFileStatusPage" parent="GtkWidget">
+        <property name="layout-manager">
+            <object class="GtkBinLayout">
+            </object>
+        </property>
+        <property name="vexpand">true</property>
+        <child>
+            <object class="AdwStatusPage" id="status_page">
+                <property name="title" translatable="true">Export video</property>
+                <property name="icon-name">arrow-pointing-away-from-line-right-symbolic</property>
+                <child>
+                    <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="orientation">vertical</property>
+                                <property name="margin-bottom">20</property>
+                                <child>
+                                    <object class="GtkLabel" id="label_file_name">
+                                        <property name="visible">True</property>
+                                        <property name="use-markup">True</property>
+                                        <property name="single-line-mode">true</property>
+                                        <property name="ellipsize">3</property>
+                                        <property name="halign">center</property>
+                                        <style>
+                                            <class name="title-4"/>
+                                        </style>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkLabel" id="label_meta_data">
+                                        <property name="visible">True</property>
+                                        <property name="use-markup">True</property>
+                                        <property name="single-line-mode">true</property>
+                                        <property name="ellipsize">3</property>
+                                        <property name="halign">center</property>
+                                        <style>
+                                            <class name="dim-label"/>
+                                            <class name="caption"/>
+                                        </style>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkProgressBar" id="progress_bar">
+                                <property name="visible">False</property>
+                                <property name="halign">center</property>
+                                <property name="margin-start">20</property>
+                                <property name="margin-end">20</property>
+                                <property name="margin-bottom">40</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <property name="orientation">horizontal</property>
+                                <property name="halign">center</property>
+                                <property name="spacing">6</property>
+                                <child>
+                                    <object class="GtkButton" id="button_start_export">
+                                        <property name="label" translatable="true">Restore</property>
+                                        <property name="visible">false</property>
+                                        <signal name="clicked" handler="on_button_start_export_clicked"/>
+                                        <property name="halign">center</property>
+                                        <style>
+                                            <class name="suggested-action"/>
+                                            <class name="pill"/>
+                                        </style>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkButton" id="button_resume_export">
+                                        <property name="label" translatable="true">Resume</property>
+                                        <property name="visible">false</property>
+                                        <signal name="clicked" handler="on_button_resume_export_clicked"/>
+                                        <style>
+                                            <class name="pill"/>
+                                        </style>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkButton" id="button_pause_export">
+                                        <property name="label" translatable="true">Pause</property>
+                                        <property name="visible">false</property>
+                                        <signal name="clicked" handler="on_button_pause_export_clicked"/>
+                                        <style>
+                                            <class name="pill"/>
+                                        </style>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkButton" id="button_cancel_export">
+                                        <property name="label" translatable="true">Cancel</property>
+                                        <property name="visible">false</property>
+                                        <signal name="clicked" handler="on_button_cancel_export_clicked"/>
+                                        <style>
+                                            <class name="destructive-action"/>
+                                            <class name="pill"/>
+                                        </style>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkButton" id="button_open">
+                                        <property name="visible">false</property>
+                                        <property name="halign">center</property>
+                                        <property name="tooltip-text" translatable="true">Open in External Program…</property>
+                                        <property name="child">
+                                            <object class="AdwButtonContent">
+                                                <property name="icon-name">external-link-symbolic</property>
+                                                <property name="label" translatable="true">Open File</property>
+                                            </object>
+                                        </property>
+                                        <style>
+                                            <class name="pill"/>
+                                        </style>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkButton" id="button_show_error">
+                                        <property name="visible">false</property>
+                                        <property name="halign">center</property>
+                                        <property name="label" translatable="true">Show Error</property>
+                                        <signal name="clicked" handler="on_button_show_error_clicked"/>
+                                        <style>
+                                            <class name="pill"/>
+                                        </style>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </template>
+</interface>

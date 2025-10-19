@@ -40,7 +40,7 @@ def main(input_json_dir, output_text_dir, output_images_dir):
             if len(yolo_txt_lines) == 0:
                 continue
 
-            image_filename_without_ext = image_filename.split('.')[0]
+            image_filename_without_ext = os.path.splitext(image_filename)[0]
             yolo_txt_file_path = os.path.join(output_text_dir, image_filename_without_ext + '.txt')
             with open(yolo_txt_file_path, 'w') as yolo_txt_file:
                 for line in yolo_txt_lines:

@@ -4,6 +4,7 @@ experiments/
 *.pth
 *.pt
 *.pyc
+*.mo
 .idea
 .flatpak-builder
 __pycache__

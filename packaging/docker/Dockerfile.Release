@@ -3,10 +3,10 @@ RUN useradd --create-home lada
 WORKDIR /home/lada
 ENV PIP_ROOT_USER_ACTION=ignore
 RUN pip install --no-deps --no-cache-dir --requirement https://raw.githubusercontent.com/ladaapp/lada/refs/tags/v0.8.0/packaging/requirements-cli.txt
-RUN pip install --no-deps --no-cache-dir 'lada[basicvsrpp]@git+https://github.com/ladaapp/lada.git@v0.8.0'
-RUN curl -Ls https://raw.githubusercontent.com/ladaapp/lada/refs/tags/v0.8.0/patches/increase_mms_time_limit.patch | patch -u -p4 -d /usr/local/lib/python3.13
-RUN curl -Ls https://raw.githubusercontent.com/ladaapp/lada/refs/tags/v0.8.0/patches/remove_ultralytics_telemetry.patch | patch -u -p4 -d /usr/local/lib/python3.13
-RUN curl -Ls https://raw.githubusercontent.com/ladaapp/lada/refs/heads/main/patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff | patch -u -p4 -d /usr/local/lib/python3.13
+RUN pip install --no-deps --no-cache-dir 'lada[basicvsrpp]@git+https://github.com/ladaapp/lada.git@v0.8.1'
+RUN curl -Ls https://raw.githubusercontent.com/ladaapp/lada/refs/tags/v0.8.1/patches/increase_mms_time_limit.patch | patch -u -p4 -d /usr/local/lib/python3.13
+RUN curl -Ls https://raw.githubusercontent.com/ladaapp/lada/refs/tags/v0.8.1/patches/remove_ultralytics_telemetry.patch | patch -u -p4 -d /usr/local/lib/python3.13
+RUN curl -Ls https://raw.githubusercontent.com/ladaapp/lada/refs/tags/v0.8.1/patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff | patch -u -p4 -d /usr/local/lib/python3.13
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ffmpeg \
     && apt-get clean \

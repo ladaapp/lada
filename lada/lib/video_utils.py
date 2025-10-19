@@ -10,7 +10,7 @@ import av
 import cv2
 import numpy as np
 
-from lada.lib import Image, Mask, VideoMetadata
+from lada.lib import Image, Mask, VideoMetadata, os_utils
 
 
 def read_video_frames(path: str, float32: bool = True, start_idx: int = 0, end_idx: int | None = None, normalize_neg1_pos1 = False, binary_frames=False) -> list[np.ndarray]:
@@ -88,7 +88,7 @@ class VideoReader:
 
 def get_video_meta_data(path: str) -> VideoMetadata:
     cmd = ['ffprobe', '-v', 'quiet', '-print_format', 'json', '-select_streams', 'v', '-show_streams', '-show_format', path]
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=os_utils.get_subprocess_startup_info())
     out, err =  p.communicate()
     if p.returncode != 0:
         raise Exception(f"error running ffprobe: {err.strip()}. Code: {p.returncode}, cmd: {cmd}")
@@ -152,7 +152,7 @@ def write_frames_to_video_file(frames: list[Image], output_path, fps: int | floa
         ffmpeg_output.extend(['-vcodec', 'libx264', '-crf', str(crf) if crf else '15'])
     ffmpeg_output.append(output_path)
 
-    ffmpeg_process = subprocess.Popen(ffmpeg_output, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+    ffmpeg_process = subprocess.Popen(ffmpeg_output, stdin=subprocess.PIPE, stderr=subprocess.PIPE, stdout=subprocess.PIPE, startupinfo=os_utils.get_subprocess_startup_info())
     for frame in frames:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         ffmpeg_process.stdin.write(frame.tobytes())
@@ -172,7 +172,7 @@ def write_masks_to_video_file(frames: list[Mask], output_path, fps: int | float 
         '-i', '-', '-an', '-vcodec', 'ffv1', '-level', '3', '-tag:v', 'ffv1',  output_path
     ]
 
-    ffmpeg_process = subprocess.Popen(ffmpeg_output, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    ffmpeg_process = subprocess.Popen(ffmpeg_output, stdin=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=os_utils.get_subprocess_startup_info())
     for frame in frames:
         try:
             ffmpeg_process.stdin.write(frame.tobytes())

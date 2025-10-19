@@ -1,12 +1,14 @@
-from gi.repository import Gst, GstApp
 import logging
 import threading
 import time
+
 import numpy as np
+from gi.repository import Gst, GstApp
+
 from lada import LOG_LEVEL
+from lada.gui.frame_restorer_provider import FrameRestorerProvider
 from lada.lib import video_utils, VideoMetadata, threading_utils
 from lada.lib.frame_restorer import FrameRestorer
-from lada.gui.frame_restorer_provider import FrameRestorerProvider
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)

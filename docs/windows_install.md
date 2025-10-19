@@ -38,7 +38,7 @@ This section describes how to install the app (CLI and GUI) from source.
    Now that the `gvsbuild` build environment is set up we can build the remaining system dependencies which we couldn't install via winget.
    Grab a coffee, this will take a while...
    ```Powershell
-   gvsbuild build --configuration=release --build-dir='./build' --enable-gi --py-wheel gtk4 adwaita-icon-theme pygobject libadwaita gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-rtsp-server gst-python --extra-opts ogg:-DCMAKE_POLICY_VERSION_MINIMUM=3.5;
+   gvsbuild build --configuration=release --build-dir='./build' --enable-gi --py-wheel gtk4 adwaita-icon-theme pygobject libadwaita gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav gst-rtsp-server gst-python --extra-opts ogg:-DCMAKE_POLICY_VERSION_MINIMUM=3.5;
    ```
    
 > [!TIP]
@@ -73,7 +73,9 @@ This section describes how to install the app (CLI and GUI) from source.
    
    We need to build the Gstreamer GTK4 plugin (needed for the GUI video player) ourselves as it cannot be built with gvsbuild yet
    ```Powershell
-   git clone https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git -b 0.13
+   # Get GStreamer version we built earlier with gvsbuild to make sure we build a compatible version of the gst rust plugins
+   $env:gstreamer_version = (gvsbuild.exe list --json | ConvertFrom-Json).psobject.Properties.Where({ $_.Name -eq "gstreamer" }).Value.version
+   git clone https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git -b gstreamer-$env:gstreamer_version
    cd gst-plugins-rs
    cargo install cargo-c
    cargo cinstall -p gst-plugin-gtk4 --prefix ($project + "\build\gtk\x64\release") --libdir ($project + "\build\gtk\x64\release\lib") 
@@ -112,24 +114,24 @@ This section describes how to install the app (CLI and GUI) from source.
 8) Apply patches
    
    On low-end hardware running mosaic detection model could run into a timeout defined in ultralytics library and the scene would not be restored. The following patch increases this time limit:
-    ```bash
+    ```shell
     patch -u .venv/lib/site-packages/ultralytics/utils/ops.py patches/increase_mms_time_limit.patch
     ```
    
    Disable crash-reporting / telemetry of one of our dependencies (ultralytics):
-   ```bash
+   ```shell
    patch -u .venv/lib/site-packages/ultralytics/utils/__init__.py  patches/remove_ultralytics_telemetry.patch
    ```
    
    Compatibility fix for using mmengine (restoration model dependency) with latest PyTorch:
-   ```bash
+   ```shell
    patch -u .venv/lib/site-packages/mmengine/runner/checkpoint.py  patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
    ```
 
 9) Download model weights
    
    Download the models from the GitHub Releases page into the `model_weights` directory. The following commands do just that
-   ```shell
+   ```Powershell
    Invoke-WebRequest 'https://github.com/ladaapp/lada/releases/download/v0.7.1/lada_mosaic_detection_model_v3.1_accurate.pt' -OutFile ".\model_weights\lada_mosaic_detection_model_v3.1_accurate.pt"
    Invoke-WebRequest 'https://github.com/ladaapp/lada/releases/download/v0.7.1/lada_mosaic_detection_model_v3.1_fast.pt' -OutFile ".\model_weights\lada_mosaic_detection_model_v3.1_fast.pt"
    Invoke-WebRequest 'https://github.com/ladaapp/lada/releases/download/v0.2.0/lada_mosaic_detection_model_v2.pt' -OutFile ".\model_weights\lada_mosaic_detection_model_v2.pt"
@@ -137,8 +139,26 @@ This section describes how to install the app (CLI and GUI) from source.
    ```
 
    If you're interested in running DeepMosaics' restoration model you can also download their pretrained model `clean_youknow_video.pth`
-   ```shell
+   ```Powershell
    Invoke-WebRequest 'https://drive.usercontent.google.com/download?id=1ulct4RhRxQp1v5xwEmUH7xz7AK42Oqlw&export=download&confirm=t' -OutFile ".\model_weights\3rd_party\clean_youknow_video.pth"
    ```
 
     Now you should be able to run the CLI by calling `lada-cli`, and the GUI by `lada`.
+
+10) Install translations (optional)
+
+    If we have a translation file for your language you might want to use Lada in your preferred language instead of English.
+    
+    First, we need to install `gettext`:
+    * Go to [GNU gettext tools for Windows](https://github.com/vslavik/gettext-tools-windows/releases) and download the latest release .zip file.
+    * Extract it into your `$project` directory to a subdirectory named `gettext`
+    * Add it to the $PATH environment variable: `$env:Path = "$project" + \gettext\bin;" + $env:Path`
+    
+    Now compile the translations:
+    ```Powershell
+    .\translations/compile_po.ps1
+    ```
+    
+    The app should now use the translations and be shown in your system language. If not then check that Windows display language is correct (*Time & language | Language & region | Windows display languag*).
+
+    Alternatively you can set the environment variable `LANGUAGE` to your preferred language e.g. `$env:LANGUAGE = "zh_TW"`. Using Windows settings is the  preferred method though as only setting the environment variable may miss to set up the correct fonts.

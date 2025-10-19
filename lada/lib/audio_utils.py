@@ -6,7 +6,7 @@ import os
 import subprocess
 import shutil
 from typing import Optional
-from lada.lib import video_utils
+from lada.lib import video_utils, os_utils
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ def combine_audio_video_files(av_video_metadata: video_utils.VideoMetadata, tmp_
         cmd += ["-map", "1:v:0"]
         cmd += ["-map", "0:a:0"]
         cmd += [av_video_output_path]
-        subprocess.run(cmd, stdout=subprocess.PIPE)
+        subprocess.run(cmd, stdout=subprocess.PIPE, startupinfo=os_utils.get_subprocess_startup_info())
     else:
         shutil.copy(tmp_v_video_input_path, av_video_output_path)
     os.remove(tmp_v_video_input_path)
@@ -37,7 +37,7 @@ def combine_audio_video_files(av_video_metadata: video_utils.VideoMetadata, tmp_
 def get_audio_codec(file_path: str) -> Optional[str]:
     cmd = f"ffprobe -loglevel error -select_streams a:0 -show_entries stream=codec_name -of default=nw=1:nk=1"
     cmd = cmd.split() + [file_path]
-    cmd_result = subprocess.run(cmd, stdout=subprocess.PIPE)
+    cmd_result = subprocess.run(cmd, stdout=subprocess.PIPE, startupinfo=os_utils.get_subprocess_startup_info())
     audio_codec = cmd_result.stdout.decode('utf-8').strip().lower()
     return audio_codec if len(audio_codec) > 0 else None
 

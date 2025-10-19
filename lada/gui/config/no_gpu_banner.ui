@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+
+    <!-- When subclassing GtkWidget the widget is not visible and there are warnings, hence using GtkBox as parent   -->
+    <template class="NoGpuBanner" parent="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+            <object class="AdwBanner" id="banner">
+                <property name="title" translatable="true">No GPU detected! Running the app on CPU will be painfully slow.</property>
+                <property name="revealed">False</property>
+                <property name="button-label">Dismiss</property>
+                <signal name="button-clicked" handler="banner_no_gpu_button_clicked"/>
+            </object>
+        </child>
+    </template>
+</interface>

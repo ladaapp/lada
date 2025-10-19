@@ -12,10 +12,10 @@
                 <child type="top">
                     <object class="AdwHeaderBar" id="header_bar">
                         <property name="title-widget">
-                          <object class="AdwViewSwitcher" id="view_switcher">
-                            <property name="policy">1</property>
-                              <property name="stack" bind-source="PreviewView" bind-property="view-stack"/>
-                          </object>
+                            <object class="AdwViewSwitcher" id="view_switcher">
+                                <property name="policy">1</property>
+                                <property name="stack" bind-source="PreviewView" bind-property="view-stack"/>
+                            </object>
                         </property>
                         <child type="start">
                             <object class="GtkToggleButton" id="toggle_button_pane">
@@ -32,7 +32,7 @@
                             </object>
                         </child>
                         <child type="start">
-                          <object class="HeaderbarFilesDropDown" id="drop_down_files"/>
+                            <object class="HeaderbarFilesDropDown" id="drop_down_files"/>
                         </child>
                         <child type="end">
                             <object class="GtkMenuButton">
@@ -40,6 +40,13 @@
                                 <property name="icon-name">open-menu-symbolic</property>
                                 <property name="tooltip-text" translatable="true">Settings</property>
                                 <property name="menu-model">primary_menu</property>
+                            </object>
+                        </child>
+                        <child type="end">
+                            <object class="GtkButton" id="button_open_files">
+                                <property name="icon-name">folder-open-symbolic</property>
+                                <property name="tooltip-text" translatable="true">Open Files…</property>
+                                <signal name="clicked" handler="button_open_files_callback"/>
                             </object>
                         </child>
                     </object>
@@ -63,9 +70,8 @@
                             <object class="GtkBox">
                                 <property name="orientation">vertical</property>
                                 <child>
-                                    <object class="AdwBanner" id="banner_no_gpu">
-                                        <property name="title" translatable="true">No GPU detected! Running the app on CPU will be painfully slow</property>
-                                        <property name="revealed">False</property>
+                                    <object class="NoGpuBanner" id="banner_no_gpu">
+                                        <property name="config" bind-source="PreviewView" bind-property="config"/>
                                     </object>
                                 </child>
                                 <child>
@@ -205,11 +211,11 @@
     <menu id="primary_menu">
         <section>
             <item>
-                <attribute name="label">Keyboard Shortcuts</attribute>
+                <attribute name="label" translatable="true">Keyboard Shortcuts</attribute>
                 <attribute name="action">app.shortcuts</attribute>
             </item>
             <item>
-                <attribute name="label">About Lada</attribute>
+                <attribute name="label" translatable="true">About Lada</attribute>
                 <attribute name="action">app.about</attribute>
             </item>
         </section>
