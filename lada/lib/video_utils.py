@@ -80,7 +80,7 @@ class VideoReader:
     def frames(self):
         for frame in self.container.decode(video=0):
             frame_img = frame.to_ndarray(format='bgr24')
-            yield frame_img, frame.pts
+            yield frame_img, frame.pts, frame.dts
 
     def seek(self, offset_ns):
         offset = int((offset_ns / 1_000_000_000) * av.time_base)
@@ -248,11 +248,10 @@ class VideoWriter:
         encoder_defaults['hevc'] = libx265
         return encoder_defaults
 
-    def __init__(self, output_path, width, height, fps, is_vfr, codec, crf=None, preset=None, time_base=None, moov_front=False, custom_encoder_options=None):
+    def __init__(self, output_path, width, height, fps, codec, crf=None, preset=None, time_base=None, moov_front=False, custom_encoder_options=None):
         container_options = {"movflags": "+frag_keyframe+empty_moov+faststart"} if moov_front else {}
         encoder_defaults = self.get_default_encoder_options()
         encoder_options = encoder_defaults.get(codec, {})
-        self.is_vfr = is_vfr
 
         if crf is not None:
             if codec in ('hevc_nvenc', 'h264_nvenc'):
@@ -265,10 +264,6 @@ class VideoWriter:
 
         if custom_encoder_options:
             encoder_options.update(self.parse_custom_options(custom_encoder_options))
-
-        if time_base is None and not self.is_vfr:
-            rounded = (fps.numerator * 1000 + fps.denominator // 2) // fps.denominator  # nearest int to fps*1000
-            time_base = Fraction(1000, rounded)
 
         output_container = av.open(output_path, "w", options=container_options)
         video_stream_out: av.VideoStream = output_container.add_stream(codec, fps)
@@ -301,17 +296,15 @@ class VideoWriter:
     def calculate_pts(self, frame_number):
         return round(frame_number * self.video_stream.time_base.denominator / self.fps)
 
-    def write(self, frame, original_pts = None, bgr2rgb=False):
+    def write(self, frame, original_pts = None, original_dts = None, bgr2rgb=False):
         if bgr2rgb:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         out_frame = av.VideoFrame.from_ndarray(frame, format='rgb24')
 
-        if self.is_vfr:
-            if original_pts is not None:
-                out_frame.pts = original_pts
-        else:
-            out_frame.pts = self.calculate_pts(self.frame_number)
-            out_frame.time_base = self.video_stream.time_base
+        if original_pts is not None:
+            out_frame.pts = original_pts
+        if original_dts is not None:
+            out_frame.dts = original_dts
 
         out_packet = self.video_stream.encode(out_frame)
         self.output_container.mux(out_packet)

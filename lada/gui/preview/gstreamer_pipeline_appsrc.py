@@ -186,7 +186,7 @@ class FrameRestorerAppSrc:
                 return True
             return False
         else:
-            frame, frame_pts = result
+            frame, frame_pts, _ = result
 
         frame_timestamp_ns = int((frame_pts * self.video_metadata.time_base) * Gst.SECOND)
         frame = GstPaddingHelpers.pad_frame(frame)

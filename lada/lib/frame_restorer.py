@@ -264,7 +264,7 @@ class FrameRestorer:
 
     def _read_next_frame(self, video_frames_generator, expected_frame_num) -> Optional[tuple[bool, np.ndarray, int]]:
         try:
-            frame, frame_pts = next(video_frames_generator)
+            frame, frame_pts, frame_dts = next(video_frames_generator)
         except StopIteration:
             s = time.time()
             elem = self.frame_detection_queue.get()
@@ -282,7 +282,7 @@ class FrameRestorer:
         assert elem is not None, "Illegal state: Expected to read detection result from detection queue but received None (EOF marker)"
         detection_frame_num, mosaic_detected = elem
         assert self.stop_requested or detection_frame_num == expected_frame_num, f"frame detection queue out of sync: received {detection_frame_num} expected {expected_frame_num}"
-        return mosaic_detected, frame, frame_pts
+        return mosaic_detected, frame, frame_pts, frame_dts
 
     def _read_next_clip(self, current_frame_num, clip_buffer) -> bool:
         s = time.time()
@@ -317,7 +317,7 @@ class FrameRestorer:
                         self.frame_restoration_queue.put(None)
                     break
                 else:
-                    mosaic_detected, frame, frame_pts = _frame_result
+                    mosaic_detected, frame, frame_pts, frame_dts = _frame_result
                 if mosaic_detected:
                     # As we don't know how many clips starting with the current frame we'll read and buffer restored clips until we receive a clip
                     # that starts after the current frame. This makes sure that we've gather all restored clips necessary to restore the current frame.
@@ -327,7 +327,7 @@ class FrameRestorer:
                     self._restore_frame(frame, frame_num, clip_buffer)
                     self.queue_stats["frame_restoration_queue_max_size"] = max(self.frame_restoration_queue.qsize()+1, self.queue_stats["frame_restoration_queue_max_size"])
                     s = time.time()
-                    self.frame_restoration_queue.put((frame, frame_pts))
+                    self.frame_restoration_queue.put((frame, frame_pts, frame_dts))
                     self.queue_stats["frame_restoration_queue_wait_time_put"] += time.time() -s
                     if self.stop_requested:
                         logger.debug("frame restoration worker: frame_restoration_queue producer unblocked")
@@ -335,7 +335,7 @@ class FrameRestorer:
                 else:
                     self.queue_stats["frame_restoration_queue_max_size"] = max(self.frame_restoration_queue.qsize()+1, self.queue_stats["frame_restoration_queue_max_size"])
                     s = time.time()
-                    self.frame_restoration_queue.put((frame, frame_pts))
+                    self.frame_restoration_queue.put((frame, frame_pts, frame_dts))
                     self.queue_stats["frame_restoration_queue_wait_time_put"] += time.time() - s
                     if self.stop_requested:
                         logger.debug("frame restoration worker: frame_restoration_queue producer unblocked")
