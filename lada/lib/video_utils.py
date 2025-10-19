@@ -98,7 +98,6 @@ def get_video_meta_data(path: str) -> VideoMetadata:
 
     value = [int(num) for num in json_video_stream['avg_frame_rate'].split("/")]
     average_fps = value[0]/value[1] if len(value) == 2 else value[0]
-    average_fps_exact = Fraction(value[0], value[1])
 
     value = [int(num) for num in json_video_stream['r_frame_rate'].split("/")]
     fps = value[0]/value[1] if len(value) == 2 else value[0]
@@ -129,8 +128,7 @@ def get_video_meta_data(path: str) -> VideoMetadata:
         frames_count=frame_count,
         duration=float(json_video_stream.get('duration', json_video_format['duration'])),
         time_base=time_base,
-        start_pts=start_pts,
-        is_vfr=average_fps_exact != fps_exact
+        start_pts=start_pts
     )
     return metadata
 
