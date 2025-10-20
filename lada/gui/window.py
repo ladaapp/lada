@@ -102,7 +102,7 @@ class MainWindow(Adw.ApplicationWindow):
             if self.stack.props.visible_child_name == "main":
                 self.view_stack.set_visible_child_name(child_name)
         self._shortcuts_manager.add("ui", "show-export-view", "e", lambda *args: switch_views('export'), _("Switch to Export View"))
-        self._shortcuts_manager.add("ui", "show-preview-view", "p", lambda *args: switch_views('preview'), _("Switch to Preview View"))
+        self._shortcuts_manager.add("ui", "show-preview-view", "p", lambda *args: switch_views('preview'), _("Switch to Watch View"))
 
     def close(self, *args):
         self.preview_view.close()
