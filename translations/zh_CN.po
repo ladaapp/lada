@@ -8,9 +8,10 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
 "POT-Creation-Date: 2025-10-19 15:35+0000\n"
-"PO-Revision-Date: 2025-10-17 10:49+0000\n"
+"PO-Revision-Date: 2025-10-20 10:27+0000\n"
 "Last-Translator: i110077 <i110077@noreply.codeberg.org>\n"
-"Language-Team: Chinese (Simplified Han script) <https://translate.codeberg.org/projects/lada/lada/zh_Hans/>\n"
+"Language-Team: Chinese (Simplified Han script) <https://"
+"translate.codeberg.org/projects/lada/lada/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -19,50 +20,51 @@ msgstr ""
 "X-Generator: Weblate 5.13.3\n"
 
 #: lada/gui/export/export_utils.py:23
-#, fuzzy, python-brace-format
-#| msgid "Duration: {duration}, Resolution: {resolution}, FPS: {fps}"
+#, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
-msgstr "持续时间：{duration}，分辨率：{resolution}，帧率： {fps}"
+msgstr "持续时间：{duration}，分辨率：{resolution}，帧率： {fps} FPS"
 
 #: lada/gui/export/export_utils.py:47
 #: lada/gui/export/export_single_file_page.py:109
-#, fuzzy
-#| msgid "Restoration model"
 msgid "Restoration failed"
-msgstr "修复模型"
+msgstr "修复失败"
 
 #: lada/gui/export/export_utils.py:48
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
-msgstr ""
+msgstr "处理文件<span><tt>{filename}</tt></span>时出错"
 
 #: lada/gui/export/export_utils.py:57
 msgid "Okay"
-msgstr ""
+msgstr "确定"
 
 #: lada/gui/export/export_utils.py:63
 msgid "Failed"
-msgstr ""
+msgstr "失败"
 
 #: lada/gui/export/export_utils.py:68
 #, python-brace-format
 msgid "Finished  |  Processed: {time_done} ({frames_done} frames)"
-msgstr ""
+msgstr "已完成  ｜  处理时长：{time_done} （{frames_done} 帧）"
 
 #: lada/gui/export/export_utils.py:76
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: {time_remaining} ({frames_remaining} frames)  |  Speed: {speed_fps} FPS"
 msgstr ""
+"处理中… {done_percent}%  ｜  已处理：{time_done} （{frames_done} 帧） ｜  剩"
+"余：{time_remaining} （{frames_remaining} 帧） ｜  速度：{speed_fps} FPS"
 
 #: lada/gui/export/export_utils.py:84
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: Estimating… |  Speed: Estimating…"
 msgstr ""
+"处理中… {done_percent}%  ｜  已处理：{time_done} （{frames_done} 帧） ｜  剩"
+"余：估算中… ｜  速度：估算中…"
 
 #: lada/gui/export/export_utils.py:90
 #, python-brace-format
 msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
-msgstr ""
+msgstr "已暂停  ｜  已处理：{time_done} （{frames_done} 帧）"
 
 #: lada/gui/export/export_multiple_files_row.ui:61
 #: lada/gui/export/export_single_file_page.ui:110
@@ -72,11 +74,11 @@ msgstr "在外部程序中打开…"
 #: lada/gui/export/export_multiple_files_row.ui:73
 #: lada/gui/export/export_single_file_page.ui:126
 msgid "Show Error"
-msgstr ""
+msgstr "显示错误信息"
 
 #: lada/gui/export/export_multiple_files_row.ui:86
 msgid "Remove"
-msgstr ""
+msgstr "移除"
 
 #: lada/gui/export/export_single_file_page.py:85
 #: lada/gui/export/export_single_file_page.py:141
@@ -94,10 +96,8 @@ msgid "Export video"
 msgstr "导出视频"
 
 #: lada/gui/export/export_single_file_page.py:131
-#, fuzzy
-#| msgid "Restoration model"
 msgid "Restoration paused"
-msgstr "修复模型"
+msgstr "修复已暂停"
 
 #: lada/gui/export/export_single_file_page.ui:65
 #: lada/gui/export/export_view.py:239 lada/gui/export/export_view.ui:67
@@ -107,19 +107,17 @@ msgstr "修复"
 #: lada/gui/export/export_single_file_page.ui:77
 #: lada/gui/export/export_view.ui:60
 msgid "Resume"
-msgstr ""
+msgstr "继续"
 
 #: lada/gui/export/export_single_file_page.ui:87
 #: lada/gui/export/export_view.ui:53
-#, fuzzy
-#| msgid "Play/Pause"
 msgid "Pause"
-msgstr "播放/暂停"
+msgstr "暂停"
 
 #: lada/gui/export/export_single_file_page.ui:97
 #: lada/gui/export/export_view.ui:43
 msgid "Cancel"
-msgstr ""
+msgstr "取消"
 
 #: lada/gui/export/export_single_file_page.ui:114
 msgid "Open File"
@@ -594,11 +592,13 @@ msgstr "使用情况： "
 #, python-brace-format
 msgid "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}"
 msgstr ""
+"正在处理视频：{done_percent}%｜{bar}｜已处理：{time_done} （{frames_done} 帧"
+"）{bar_suffix}"
 
 #: lada/cli/utils.py:194
 #, python-brace-format
 msgid " | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
+msgstr " ｜ 剩余：{time_remaining} （{frames_remaining} 帧） ｜ 速度：{speed_fps}fps"
 
 #~ msgid "Processing frames"
 #~ msgstr "正在处理帧"
