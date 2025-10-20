@@ -146,6 +146,9 @@ docker pull ladaapp/lada:latest
 
 For Windows users, the app (CLI and GUI) is packaged as a standalone .zip file.
 
+> [!WARNING]
+> The Lada repository on GitHub apparently [got flagged by GitHub](https://codeberg.org/ladaapp/lada/issues/1) and the release page cannot be accessed anymore. The links for downloading the .zip files will not work anymore. [Need to find a new place for it](https://codeberg.org/ladaapp/lada/issues/2).
+
 Get the latest release from the [Release Page](https://github.com/ladaapp/lada/releases).
 The .zip is available in the *Assets* section. You'll find ´lada.exe´ and ´lada-cli.exe´ after unzipping the archive.
 
@@ -174,9 +177,17 @@ AMD GPUs should potentially also work but probably not with Windows as PyTorch/R
 Reach out if you can support packaging the app for other operating systems or hardware.
 
 ## Build
+
+> [!WARNING]
+> The Lada repository on GitHub apparently [got flagged by GitHub](https://codeberg.org/ladaapp/lada/issues/1) and the release page cannot be accessed anymore. The links for downloading model files don't work anymore. [Need to find a new place for it](https://codeberg.org/ladaapp/lada/issues/2).
+
 If you want to start hacking on this project you'll need to install the app from source. Check out the detailed installation guides for [Linux](docs/linux_install.md) and [Windows](docs/windows_install.md).
 
 ## Training and dataset creation
+
+> [!WARNING]
+> The Lada repository on GitHub apparently [got flagged by GitHub](https://codeberg.org/ladaapp/lada/issues/1) and the release page cannot be accessed anymore. The links for downloading model files don't work anymore. [Need to find a new place for it](https://codeberg.org/ladaapp/lada/issues/2).
+
 For instructions on training your own models and datasets, refer to [Training and dataset creation](docs/training_and_dataset_creation.md).
 
 ## Acknowledgement
