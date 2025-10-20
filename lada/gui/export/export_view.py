@@ -40,7 +40,7 @@ class ResumeInformation:
 class ExportView(Gtk.Widget):
     __gtype_name__ = 'ExportView'
 
-    status_page: ExportSingleFileStatusPage = Gtk.Template.Child()
+    single_file_page: ExportSingleFileStatusPage = Gtk.Template.Child()
     multiple_files_page: ExportMultipleFilesPage = Gtk.Template.Child()
     button_start_export: Gtk.Button = Gtk.Template.Child()
     button_cancel_export: Gtk.Button = Gtk.Template.Child()
@@ -80,10 +80,10 @@ class ExportView(Gtk.Widget):
             self.add_files(files)
         self.connect("files-added", on_files_added)
 
-        self.status_page.connect("start-export-requested", self.on_button_start_export_clicked)
-        self.status_page.connect("stop-export-requested", self.on_button_cancel_export_clicked)
-        self.status_page.connect("pause-export-requested", self.on_button_pause_export_clicked)
-        self.status_page.connect("resume-export-requested", self.on_button_resume_export_clicked)
+        self.single_file_page.connect("start-export-requested", lambda page, button: self.on_button_start_export_clicked(button))
+        self.single_file_page.connect("stop-export-requested", self.on_button_cancel_export_clicked)
+        self.single_file_page.connect("pause-export-requested", self.on_button_pause_export_clicked)
+        self.single_file_page.connect("resume-export-requested", self.on_button_resume_export_clicked)
 
         self.multiple_files_page.connect("show-error-requested", self.on_show_error_requested)
         self.multiple_files_page.connect("remove-item-requested", self.on_remove_item_requested)
@@ -129,7 +129,7 @@ class ExportView(Gtk.Widget):
 
         if self.single_file:
             self.stack.set_visible_child_name("single-file")
-            self.status_page.on_add_file(self.model[0])
+            self.single_file_page.on_add_file(self.model[0])
         else:
             self.stack.set_visible_child_name("multiple-files")
             self.update_export_buttons()
@@ -179,12 +179,14 @@ class ExportView(Gtk.Widget):
         pass
 
     @Gtk.Template.Callback()
-    def on_button_start_export_clicked(self, *args):
+    def on_button_start_export_clicked(self, start_export_button: Gtk.Button):
         if self._config.export_directory:
             item = self.model[self.get_next_queued_item_idx()]
             self.emit("video-export-requested", item.restored_file)
         else:
-            self.show_export_dialog()
+            start_export_button.set_sensitive(False)
+            dismissed_callback = lambda *args: start_export_button.set_sensitive(True)
+            self.show_export_dialog(dismissed_callback)
 
     @Gtk.Template.Callback()
     def button_add_files_callback(self, button_clicked):
@@ -235,7 +237,7 @@ class ExportView(Gtk.Widget):
 
     def set_restore_button_label(self):
         label = _("Restore") if self._config.export_directory else _("Restore…")
-        self.status_page.set_button_start_restore_label(label)
+        self.single_file_page.set_button_start_restore_label(label)
         self.button_start_export.set_label(label)
 
     def get_next_queued_item_idx(self) -> int | None:
@@ -271,7 +273,7 @@ class ExportView(Gtk.Widget):
         model_item.state = ExportItemState.PROCESSING
 
         if self.single_file:
-            self.status_page.show_video_export_started(save_file)
+            self.single_file_page.show_video_export_started(save_file)
         self.multiple_files_page.show_video_export_started(idx)
 
     def on_video_export_finished(self, obj):
@@ -282,7 +284,7 @@ class ExportView(Gtk.Widget):
         model_item.state = ExportItemState.FINISHED
 
         if self.single_file:
-            self.status_page.on_video_export_finished()
+            self.single_file_page.on_video_export_finished()
         self.multiple_files_page.on_video_export_finished(self.in_progress_idx)
 
         self.continue_next_file()
@@ -295,7 +297,7 @@ class ExportView(Gtk.Widget):
         model_item.progress = progress
 
         if self.single_file:
-            self.status_page.on_video_export_progress(progress)
+            self.single_file_page.on_video_export_progress(progress)
         self.multiple_files_page.on_video_export_progress(self.in_progress_idx, progress)
 
     def on_video_export_stopped(self, obj):
@@ -306,7 +308,7 @@ class ExportView(Gtk.Widget):
         model_item.progress = ExportItemDataProgress()
 
         if self.single_file:
-            self.status_page.on_video_export_stopped()
+            self.single_file_page.on_video_export_stopped()
         self.multiple_files_page.on_video_export_stopped(self.in_progress_idx)
 
         self.in_progress_idx = None
@@ -325,7 +327,7 @@ class ExportView(Gtk.Widget):
         model_item.state = ExportItemState.PAUSED
 
         if self.single_file:
-            self.status_page.on_video_export_paused()
+            self.single_file_page.on_video_export_paused()
         self.multiple_files_page.on_video_export_paused(self.in_progress_idx)
 
         self.update_export_buttons()
@@ -341,7 +343,7 @@ class ExportView(Gtk.Widget):
         model_item.state = ExportItemState.PROCESSING
 
         if self.single_file:
-            self.status_page.on_video_export_resumed()
+            self.single_file_page.on_video_export_resumed()
         self.multiple_files_page.on_video_export_resumed(self.in_progress_idx)
 
         self.update_export_buttons()
@@ -356,7 +358,7 @@ class ExportView(Gtk.Widget):
         model_item.error_details = error_message
 
         if self.single_file:
-            self.status_page.on_video_export_failed()
+            self.single_file_page.on_video_export_failed()
         self.multiple_files_page.on_video_export_failed(self.in_progress_idx)
 
         export_utils.open_error_dialog(self, model_item.original_file.get_basename(), error_message)
@@ -479,7 +481,7 @@ class ExportView(Gtk.Widget):
         exporter_thread = threading.Thread(target=run_export)
         exporter_thread.start()
 
-    def show_export_dialog(self):
+    def show_export_dialog(self, dismissed_callback):
         def on_dialog_result(dialog, result):
             try:
                 if self.single_file:
@@ -490,6 +492,7 @@ class ExportView(Gtk.Widget):
                     self.emit("video-export-requested",selected)
             except GLib.Error as error:
                 if error.message == "Dismissed by user":
+                    dismissed_callback()
                     logger.debug("FileDialog cancelled: Dismissed by user")
                 else:
                     logger.error(f"Error opening file: {error.message}")

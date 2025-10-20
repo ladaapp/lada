@@ -34,7 +34,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
         self.item: ExportItemData | None = None
 
     @GObject.Signal(name="start-export-requested")
-    def start_export_requested_signal(self):
+    def start_export_requested_signal(self, start_export_button: Gtk.Button):
         pass
 
     @GObject.Signal(name="stop-export-requested")
@@ -53,7 +53,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
     def on_button_start_export_clicked(self, button_clicked):
         assert self.item.state == ExportItemState.QUEUED
 
-        self.emit("start-export-requested")
+        self.emit("start-export-requested", button_clicked)
 
     @Gtk.Template.Callback()
     def on_button_resume_export_clicked(self, button_clicked):

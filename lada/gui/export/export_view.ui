@@ -113,7 +113,7 @@
                                             <object class="GtkStackPage">
                                                 <property name="name">single-file</property>
                                                 <property name="child">
-                                                    <object class="ExportSingleFileStatusPage" id="status_page"/>
+                                                    <object class="ExportSingleFileStatusPage" id="single_file_page"/>
                                                 </property>
                                             </object>
                                         </child>
