@@ -230,9 +230,11 @@ class ExportView(Gtk.Widget):
 
     def on_config_changed(self, *args):
         if self._config.export_directory:
-            for model_item in self.model:
-                restored_file = self.get_restored_file_path(model_item.original_file, self._config.export_directory)
-                model_item.restored_file = restored_file
+            for idx, model_item in enumerate(self.model):
+                if model_item.state == ExportItemState.QUEUED:
+                    restored_file = self.get_restored_file_path(model_item.original_file, self._config.export_directory)
+                    model_item.restored_file = restored_file
+                    self.multiple_files_page.on_restored_file_changed(idx, restored_file)
         self.set_restore_button_label()
 
     def set_restore_button_label(self):

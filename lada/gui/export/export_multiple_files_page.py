@@ -89,3 +89,8 @@ class ExportMultipleFilesPage(Gtk.Widget):
         for idx, restored_file in enumerate(restored_files):
             view_item = self.list_box.get_row_at_index(idx)
             view_item.restored_file = restored_file
+
+    def on_restored_file_changed(self, idx: int, restored_file: Gio.File):
+        view_item = self.list_box.get_row_at_index(idx)
+        assert view_item.state == ExportItemState.QUEUED
+        view_item.restored_file = restored_file

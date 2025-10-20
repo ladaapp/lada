@@ -27,13 +27,13 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
     def __init__(self, original_file: Gio.File, restored_file: Gio.File, **kwargs) -> None:
         super().__init__(**kwargs)
         self._restored_file = restored_file
-        self._attach_file_launcher_to_open_button()
-
         self.original_file = original_file
-        self.set_title(original_file.get_basename())
         self._progress: ExportItemDataProgress = ExportItemDataProgress()
         self._state: ExportItemState = ExportItemState.QUEUED
         self._subtitle = ""
+
+        self.set_title(original_file.get_basename())
+        self._attach_file_launcher_to_open_button()
 
         def update_title_with_video_metadata():
             subtitle = get_video_metadata_string(original_file)
