@@ -190,6 +190,10 @@ If you want to start hacking on this project you'll need to install the app from
 
 For instructions on training your own models and datasets, refer to [Training and dataset creation](docs/training_and_dataset_creation.md).
 
+## Translations
+
+If you want to help translating the app you can contribute to existing translations or set up a new language over at [Codeberg Translate](https://translate.codeberg.org/projects/lada/lada/).
+
 ## Acknowledgement
 This project builds upon work done by these fantastic individuals and projects:
 

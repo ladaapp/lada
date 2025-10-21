@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
-"POT-Creation-Date: 2025-10-19 15:35+0000\n"
+"POT-Creation-Date: 2025-10-21 08:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,13 +17,27 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: lada/gui/export/export_multiple_files_row.ui:61
+#: lada/gui/export/export_single_file_page.ui:110
+msgid "Open in External Program…"
+msgstr ""
+
+#: lada/gui/export/export_multiple_files_row.ui:73
+#: lada/gui/export/export_single_file_page.ui:126
+msgid "Show Error"
+msgstr ""
+
+#: lada/gui/export/export_multiple_files_row.ui:86
+msgid "Remove"
+msgstr ""
+
 #: lada/gui/export/export_utils.py:23
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
 msgstr ""
 
 #: lada/gui/export/export_utils.py:47
-#: lada/gui/export/export_single_file_page.py:109
+#: lada/gui/export/export_single_file_page.py:117
 msgid "Restoration failed"
 msgstr ""
 
@@ -60,41 +74,14 @@ msgstr ""
 msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
 msgstr ""
 
-#: lada/gui/export/export_multiple_files_row.ui:61
-#: lada/gui/export/export_single_file_page.ui:110
-msgid "Open in External Program…"
-msgstr ""
-
-#: lada/gui/export/export_multiple_files_row.ui:73
-#: lada/gui/export/export_single_file_page.ui:126
-msgid "Show Error"
-msgstr ""
-
-#: lada/gui/export/export_multiple_files_row.ui:86
-msgid "Remove"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.py:85
-#: lada/gui/export/export_single_file_page.py:141
-msgid "Restoring video…"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.py:101
-msgid "Finished video restoration!"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.py:118
-#: lada/gui/export/export_single_file_page.py:156
 #: lada/gui/export/export_single_file_page.ui:13
+#: lada/gui/export/export_single_file_page.py:126
+#: lada/gui/export/export_single_file_page.py:168
 msgid "Export video"
 msgstr ""
 
-#: lada/gui/export/export_single_file_page.py:131
-msgid "Restoration paused"
-msgstr ""
-
 #: lada/gui/export/export_single_file_page.ui:65
-#: lada/gui/export/export_view.py:239 lada/gui/export/export_view.ui:67
+#: lada/gui/export/export_view.ui:67 lada/gui/export/export_view.py:249
 msgid "Restore"
 msgstr ""
 
@@ -117,18 +104,6 @@ msgstr ""
 msgid "Open File"
 msgstr ""
 
-#: lada/gui/export/export_view.py:239
-msgid "Restore…"
-msgstr ""
-
-#: lada/gui/export/export_view.py:502
-msgid "Save restored video file"
-msgstr ""
-
-#: lada/gui/export/export_view.py:509
-msgid "Save restored video files"
-msgstr ""
-
 #: lada/gui/export/export_view.ui:30 lada/gui/preview/preview_view.ui:41
 msgid "Settings"
 msgstr ""
@@ -137,27 +112,45 @@ msgstr ""
 msgid "Add Files…"
 msgstr ""
 
-#: lada/gui/export/export_view.ui:134 lada/gui/preview/preview_view.ui:214
+#: lada/gui/export/export_view.ui:134
 #: lada/gui/fileselection/file_selection_view.ui:54
+#: lada/gui/preview/preview_view.ui:214
 msgid "Keyboard Shortcuts"
 msgstr ""
 
-#: lada/gui/export/export_view.ui:138 lada/gui/preview/preview_view.ui:218
+#: lada/gui/export/export_view.ui:138
 #: lada/gui/fileselection/file_selection_view.ui:58
+#: lada/gui/preview/preview_view.ui:218
 msgid "About Lada"
+msgstr ""
+
+#: lada/gui/export/export_view.py:249
+msgid "Restore…"
+msgstr ""
+
+#: lada/gui/export/export_view.py:519
+msgid "Save restored video file"
+msgstr ""
+
+#: lada/gui/export/export_view.py:526
+msgid "Save restored video files"
+msgstr ""
+
+#: lada/gui/export/export_single_file_page.py:91
+#: lada/gui/export/export_single_file_page.py:152
+msgid "Restoring video…"
+msgstr ""
+
+#: lada/gui/export/export_single_file_page.py:109
+msgid "Finished video restoration!"
+msgstr ""
+
+#: lada/gui/export/export_single_file_page.py:141
+msgid "Restoration paused"
 msgstr ""
 
 #: lada/gui/config/no_gpu_banner.ui:11
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
-msgstr ""
-
-#: lada/gui/config/config_sidebar.py:106 lada/gui/config/config_sidebar.py:222
-#: lada/gui/config/config_sidebar.ui:158
-msgid "Click the folder button to choose a default"
-msgstr ""
-
-#: lada/gui/config/config_sidebar.py:290
-msgid "Select a folder where restored videos should be saved"
 msgstr ""
 
 #: lada/gui/config/config_sidebar.ui:16
@@ -261,6 +254,11 @@ msgstr ""
 msgid "Use this folder"
 msgstr ""
 
+#: lada/gui/config/config_sidebar.ui:158 lada/gui/config/config_sidebar.py:108
+#: lada/gui/config/config_sidebar.py:224
+msgid "Click the folder button to choose a default"
+msgstr ""
+
 #: lada/gui/config/config_sidebar.ui:179
 msgid ""
 "File name pattern for restored files.\n"
@@ -307,7 +305,7 @@ msgstr ""
 msgid "View shown after opening files"
 msgstr ""
 
-#: lada/gui/config/config_sidebar.ui:258 lada/gui/preview/preview_view.py:483
+#: lada/gui/config/config_sidebar.ui:258 lada/gui/preview/preview_view.py:497
 #: lada/gui/window.ui:38
 msgid "Watch"
 msgstr ""
@@ -316,25 +314,8 @@ msgstr ""
 msgid "Reset to factory settings"
 msgstr ""
 
-#: lada/gui/preview/preview_view.ui:29
-msgid "Toggle Fullscreen"
-msgstr ""
-
-#: lada/gui/preview/preview_view.ui:48
-#: lada/gui/fileselection/file_selection_view.ui:35
-msgid "Open Files…"
-msgstr ""
-
-#: lada/gui/preview/preview_view.py:484
-msgid "Mute/Unmute"
-msgstr ""
-
-#: lada/gui/preview/preview_view.py:485
-msgid "Play/Pause"
-msgstr ""
-
-#: lada/gui/preview/preview_view.py:486
-msgid "Enable/Disable fullscreen"
+#: lada/gui/config/config_sidebar.py:292
+msgid "Select a folder where restored videos should be saved"
 msgstr ""
 
 #: lada/gui/fileselection/file_selection_view.ui:31
@@ -345,16 +326,103 @@ msgstr ""
 msgid "Drop one or more videos here"
 msgstr ""
 
-#: lada/gui/window.py:91
-msgid "Switch to Export View"
-msgstr ""
-
-#: lada/gui/window.py:92
-msgid "Switch to Preview View"
+#: lada/gui/fileselection/file_selection_view.ui:35
+#: lada/gui/preview/preview_view.ui:48
+msgid "Open Files…"
 msgstr ""
 
 #: lada/gui/utils.py:78
 msgid "Select one or multiple video files"
+msgstr ""
+
+#: lada/gui/preview/preview_view.ui:29
+msgid "Toggle Fullscreen"
+msgstr ""
+
+#: lada/gui/preview/preview_view.py:498
+msgid "Mute/Unmute"
+msgstr ""
+
+#: lada/gui/preview/preview_view.py:499
+msgid "Play/Pause"
+msgstr ""
+
+#: lada/gui/preview/preview_view.py:500
+msgid "Enable/Disable fullscreen"
+msgstr ""
+
+#: lada/gui/window.py:104
+msgid "Switch to Export View"
+msgstr ""
+
+#: lada/gui/window.py:105
+msgid "Switch to Watch View"
+msgstr ""
+
+#: lada/cli/utils.py:47
+msgid "No video files found"
+msgstr ""
+
+#: lada/cli/utils.py:74
+msgid "PyAV version:"
+msgstr ""
+
+#: lada/cli/utils.py:78
+msgid "Available video encoders:"
+msgstr ""
+
+#: lada/cli/utils.py:84
+msgid "Encoders with support for hardware acceleration (GPU):"
+msgstr ""
+
+#: lada/cli/utils.py:97
+msgid "Device"
+msgstr ""
+
+#: lada/cli/utils.py:98
+msgid "Description"
+msgstr ""
+
+#: lada/cli/utils.py:99
+msgid "Available devices:"
+msgstr ""
+
+#: lada/cli/utils.py:109
+msgid "Available detection models:"
+msgstr ""
+
+#: lada/cli/utils.py:112 lada/cli/utils.py:126
+msgid "None!"
+msgstr ""
+
+#: lada/cli/utils.py:114 lada/cli/utils.py:128
+msgid "Name"
+msgstr ""
+
+#: lada/cli/utils.py:115 lada/cli/utils.py:129
+msgid "Path"
+msgstr ""
+
+#: lada/cli/utils.py:123
+msgid "Available restoration models:"
+msgstr ""
+
+#: lada/cli/utils.py:141
+msgid "Usage: "
+msgstr ""
+
+#: lada/cli/utils.py:153
+#, python-brace-format
+msgid "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}"
+msgstr ""
+
+#: lada/cli/utils.py:155
+msgid " | Remaining: ? | Speed: ?"
+msgstr ""
+
+#: lada/cli/utils.py:195
+#, python-brace-format
+msgid " | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
 msgstr ""
 
 #: lada/cli/main.py:17
@@ -522,66 +590,4 @@ msgstr ""
 
 #: lada/cli/main.py:166
 msgid "Received Ctrl-C, stopping restoration."
-msgstr ""
-
-#: lada/cli/utils.py:47
-msgid "No video files found"
-msgstr ""
-
-#: lada/cli/utils.py:74
-msgid "PyAV version:"
-msgstr ""
-
-#: lada/cli/utils.py:78
-msgid "Available video encoders:"
-msgstr ""
-
-#: lada/cli/utils.py:84
-msgid "Encoders with support for hardware acceleration (GPU):"
-msgstr ""
-
-#: lada/cli/utils.py:97
-msgid "Device"
-msgstr ""
-
-#: lada/cli/utils.py:98
-msgid "Description"
-msgstr ""
-
-#: lada/cli/utils.py:99
-msgid "Available devices:"
-msgstr ""
-
-#: lada/cli/utils.py:109
-msgid "Available detection models:"
-msgstr ""
-
-#: lada/cli/utils.py:112 lada/cli/utils.py:126
-msgid "None!"
-msgstr ""
-
-#: lada/cli/utils.py:114 lada/cli/utils.py:128
-msgid "Name"
-msgstr ""
-
-#: lada/cli/utils.py:115 lada/cli/utils.py:129
-msgid "Path"
-msgstr ""
-
-#: lada/cli/utils.py:123
-msgid "Available restoration models:"
-msgstr ""
-
-#: lada/cli/utils.py:141
-msgid "Usage: "
-msgstr ""
-
-#: lada/cli/utils.py:153
-#, python-brace-format
-msgid "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}"
-msgstr ""
-
-#: lada/cli/utils.py:194
-#, python-brace-format
-msgid " | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
 msgstr ""

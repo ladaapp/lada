@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
-"POT-Creation-Date: 2025-10-19 15:35+0000\n"
+"POT-Creation-Date: 2025-10-21 08:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,20 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+#: lada/gui/export/export_multiple_files_row.ui:61
+#: lada/gui/export/export_single_file_page.ui:110
+msgid "Open in External Program…"
+msgstr "開啟於外部程式…"
+
+#: lada/gui/export/export_multiple_files_row.ui:73
+#: lada/gui/export/export_single_file_page.ui:126
+msgid "Show Error"
+msgstr ""
+
+#: lada/gui/export/export_multiple_files_row.ui:86
+msgid "Remove"
+msgstr ""
+
 #: lada/gui/export/export_utils.py:23
 #, fuzzy, python-brace-format
 #| msgid "Duration: {duration}, Resolution: {resolution}, FPS: {fps}"
@@ -24,7 +38,7 @@ msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
 msgstr "持續時間：{duration}, 解析度：{resolution}, FPS：{fps}"
 
 #: lada/gui/export/export_utils.py:47
-#: lada/gui/export/export_single_file_page.py:109
+#: lada/gui/export/export_single_file_page.py:117
 #, fuzzy
 #| msgid "Restoration model"
 msgid "Restoration failed"
@@ -63,43 +77,14 @@ msgstr ""
 msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
 msgstr ""
 
-#: lada/gui/export/export_multiple_files_row.ui:61
-#: lada/gui/export/export_single_file_page.ui:110
-msgid "Open in External Program…"
-msgstr "開啟於外部程式…"
-
-#: lada/gui/export/export_multiple_files_row.ui:73
-#: lada/gui/export/export_single_file_page.ui:126
-msgid "Show Error"
-msgstr ""
-
-#: lada/gui/export/export_multiple_files_row.ui:86
-msgid "Remove"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.py:85
-#: lada/gui/export/export_single_file_page.py:141
-msgid "Restoring video…"
-msgstr "正在修復影片…"
-
-#: lada/gui/export/export_single_file_page.py:101
-msgid "Finished video restoration!"
-msgstr "影片修復完成"
-
-#: lada/gui/export/export_single_file_page.py:118
-#: lada/gui/export/export_single_file_page.py:156
 #: lada/gui/export/export_single_file_page.ui:13
+#: lada/gui/export/export_single_file_page.py:126
+#: lada/gui/export/export_single_file_page.py:168
 msgid "Export video"
 msgstr "輸出影片"
 
-#: lada/gui/export/export_single_file_page.py:131
-#, fuzzy
-#| msgid "Restoration model"
-msgid "Restoration paused"
-msgstr "修復模型"
-
 #: lada/gui/export/export_single_file_page.ui:65
-#: lada/gui/export/export_view.py:239 lada/gui/export/export_view.ui:67
+#: lada/gui/export/export_view.ui:67 lada/gui/export/export_view.py:249
 msgid "Restore"
 msgstr "修復"
 
@@ -124,18 +109,6 @@ msgstr ""
 msgid "Open File"
 msgstr "開啟檔案"
 
-#: lada/gui/export/export_view.py:239
-msgid "Restore…"
-msgstr "修復…"
-
-#: lada/gui/export/export_view.py:502
-msgid "Save restored video file"
-msgstr "保存修復影片檔"
-
-#: lada/gui/export/export_view.py:509
-msgid "Save restored video files"
-msgstr "保存修復影片檔"
-
 #: lada/gui/export/export_view.ui:30 lada/gui/preview/preview_view.ui:41
 msgid "Settings"
 msgstr "設定"
@@ -144,28 +117,48 @@ msgstr "設定"
 msgid "Add Files…"
 msgstr "新增檔案…"
 
-#: lada/gui/export/export_view.ui:134 lada/gui/preview/preview_view.ui:214
+#: lada/gui/export/export_view.ui:134
 #: lada/gui/fileselection/file_selection_view.ui:54
+#: lada/gui/preview/preview_view.ui:214
 msgid "Keyboard Shortcuts"
 msgstr "鍵盤快速鍵"
 
-#: lada/gui/export/export_view.ui:138 lada/gui/preview/preview_view.ui:218
+#: lada/gui/export/export_view.ui:138
 #: lada/gui/fileselection/file_selection_view.ui:58
+#: lada/gui/preview/preview_view.ui:218
 msgid "About Lada"
 msgstr "關於 Lada"
+
+#: lada/gui/export/export_view.py:249
+msgid "Restore…"
+msgstr "修復…"
+
+#: lada/gui/export/export_view.py:519
+msgid "Save restored video file"
+msgstr "保存修復影片檔"
+
+#: lada/gui/export/export_view.py:526
+msgid "Save restored video files"
+msgstr "保存修復影片檔"
+
+#: lada/gui/export/export_single_file_page.py:91
+#: lada/gui/export/export_single_file_page.py:152
+msgid "Restoring video…"
+msgstr "正在修復影片…"
+
+#: lada/gui/export/export_single_file_page.py:109
+msgid "Finished video restoration!"
+msgstr "影片修復完成"
+
+#: lada/gui/export/export_single_file_page.py:141
+#, fuzzy
+#| msgid "Restoration model"
+msgid "Restoration paused"
+msgstr "修復模型"
 
 #: lada/gui/config/no_gpu_banner.ui:11
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr "偵測不到GPU!使用CPU運行此軟體將會非常緩慢"
-
-#: lada/gui/config/config_sidebar.py:106 lada/gui/config/config_sidebar.py:222
-#: lada/gui/config/config_sidebar.ui:158
-msgid "Click the folder button to choose a default"
-msgstr "點擊資料夾按鈕以選取預設"
-
-#: lada/gui/config/config_sidebar.py:290
-msgid "Select a folder where restored videos should be saved"
-msgstr "選擇修復影片檔儲存資料夾"
 
 #: lada/gui/config/config_sidebar.ui:16
 msgid "Mosaic Removal"
@@ -272,6 +265,11 @@ msgstr "總是詢問"
 msgid "Use this folder"
 msgstr "使用此資料夾"
 
+#: lada/gui/config/config_sidebar.ui:158 lada/gui/config/config_sidebar.py:108
+#: lada/gui/config/config_sidebar.py:224
+msgid "Click the folder button to choose a default"
+msgstr "點擊資料夾按鈕以選取預設"
+
 #: lada/gui/config/config_sidebar.ui:179
 msgid ""
 "File name pattern for restored files.\n"
@@ -318,7 +316,7 @@ msgstr "預設畫面"
 msgid "View shown after opening files"
 msgstr "開啟檔案後顯示的畫面"
 
-#: lada/gui/config/config_sidebar.ui:258 lada/gui/preview/preview_view.py:483
+#: lada/gui/config/config_sidebar.ui:258 lada/gui/preview/preview_view.py:497
 #: lada/gui/window.ui:38
 msgid "Watch"
 msgstr "觀看"
@@ -327,26 +325,9 @@ msgstr "觀看"
 msgid "Reset to factory settings"
 msgstr "重設為初始設置"
 
-#: lada/gui/preview/preview_view.ui:29
-msgid "Toggle Fullscreen"
-msgstr "全螢幕切換"
-
-#: lada/gui/preview/preview_view.ui:48
-#: lada/gui/fileselection/file_selection_view.ui:35
-msgid "Open Files…"
-msgstr "開啟檔案…"
-
-#: lada/gui/preview/preview_view.py:484
-msgid "Mute/Unmute"
-msgstr "靜音/取消靜音"
-
-#: lada/gui/preview/preview_view.py:485
-msgid "Play/Pause"
-msgstr "播放/暫停"
-
-#: lada/gui/preview/preview_view.py:486
-msgid "Enable/Disable fullscreen"
-msgstr "啟用/停用 全螢幕"
+#: lada/gui/config/config_sidebar.py:292
+msgid "Select a folder where restored videos should be saved"
+msgstr "選擇修復影片檔儲存資料夾"
 
 #: lada/gui/fileselection/file_selection_view.ui:31
 msgid "Restore pixelated adult videos"
@@ -356,17 +337,106 @@ msgstr "修復馬賽克AV"
 msgid "Drop one or more videos here"
 msgstr "新增一個或多個影片"
 
-#: lada/gui/window.py:91
-msgid "Switch to Export View"
-msgstr "切換至輸出畫面"
-
-#: lada/gui/window.py:92
-msgid "Switch to Preview View"
-msgstr "切換至觀看畫面"
+#: lada/gui/fileselection/file_selection_view.ui:35
+#: lada/gui/preview/preview_view.ui:48
+msgid "Open Files…"
+msgstr "開啟檔案…"
 
 #: lada/gui/utils.py:78
 msgid "Select one or multiple video files"
 msgstr "選擇單個或多個影片檔"
+
+#: lada/gui/preview/preview_view.ui:29
+msgid "Toggle Fullscreen"
+msgstr "全螢幕切換"
+
+#: lada/gui/preview/preview_view.py:498
+msgid "Mute/Unmute"
+msgstr "靜音/取消靜音"
+
+#: lada/gui/preview/preview_view.py:499
+msgid "Play/Pause"
+msgstr "播放/暫停"
+
+#: lada/gui/preview/preview_view.py:500
+msgid "Enable/Disable fullscreen"
+msgstr "啟用/停用 全螢幕"
+
+#: lada/gui/window.py:104
+msgid "Switch to Export View"
+msgstr "切換至輸出畫面"
+
+#: lada/gui/window.py:105
+#, fuzzy
+#| msgid "Switch to Export View"
+msgid "Switch to Watch View"
+msgstr "切換至輸出畫面"
+
+#: lada/cli/utils.py:47
+msgid "No video files found"
+msgstr "找不到影片檔"
+
+#: lada/cli/utils.py:74
+msgid "PyAV version:"
+msgstr "PyAV 版本"
+
+#: lada/cli/utils.py:78
+msgid "Available video encoders:"
+msgstr "可用的影片編碼器："
+
+#: lada/cli/utils.py:84
+msgid "Encoders with support for hardware acceleration (GPU):"
+msgstr "支援硬體加速（GPU）的編碼器"
+
+#: lada/cli/utils.py:97
+msgid "Device"
+msgstr "設備"
+
+#: lada/cli/utils.py:98
+msgid "Description"
+msgstr "描述"
+
+#: lada/cli/utils.py:99
+msgid "Available devices:"
+msgstr "可用設備"
+
+#: lada/cli/utils.py:109
+msgid "Available detection models:"
+msgstr "可用偵測模型"
+
+#: lada/cli/utils.py:112 lada/cli/utils.py:126
+msgid "None!"
+msgstr "沒有!"
+
+#: lada/cli/utils.py:114 lada/cli/utils.py:128
+msgid "Name"
+msgstr "名稱"
+
+#: lada/cli/utils.py:115 lada/cli/utils.py:129
+msgid "Path"
+msgstr "路徑"
+
+#: lada/cli/utils.py:123
+msgid "Available restoration models:"
+msgstr "可用修復模型"
+
+#: lada/cli/utils.py:141
+msgid "Usage: "
+msgstr "用量:"
+
+#: lada/cli/utils.py:153
+#, python-brace-format
+msgid "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}"
+msgstr ""
+
+#: lada/cli/utils.py:155
+msgid " | Remaining: ? | Speed: ?"
+msgstr ""
+
+#: lada/cli/utils.py:195
+#, python-brace-format
+msgid " | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr ""
 
 #: lada/cli/main.py:17
 msgid "Examples:"
@@ -535,67 +605,8 @@ msgstr "無效輸入。沒有檔案或目錄在{input_path}"
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "接收到Ctrl-C及停止修復"
 
-#: lada/cli/utils.py:47
-msgid "No video files found"
-msgstr "找不到影片檔"
-
-#: lada/cli/utils.py:74
-msgid "PyAV version:"
-msgstr "PyAV 版本"
-
-#: lada/cli/utils.py:78
-msgid "Available video encoders:"
-msgstr "可用的影片編碼器："
-
-#: lada/cli/utils.py:84
-msgid "Encoders with support for hardware acceleration (GPU):"
-msgstr "支援硬體加速（GPU）的編碼器"
-
-#: lada/cli/utils.py:97
-msgid "Device"
-msgstr "設備"
-
-#: lada/cli/utils.py:98
-msgid "Description"
-msgstr "描述"
-
-#: lada/cli/utils.py:99
-msgid "Available devices:"
-msgstr "可用設備"
-
-#: lada/cli/utils.py:109
-msgid "Available detection models:"
-msgstr "可用偵測模型"
-
-#: lada/cli/utils.py:112 lada/cli/utils.py:126
-msgid "None!"
-msgstr "沒有!"
-
-#: lada/cli/utils.py:114 lada/cli/utils.py:128
-msgid "Name"
-msgstr "名稱"
-
-#: lada/cli/utils.py:115 lada/cli/utils.py:129
-msgid "Path"
-msgstr "路徑"
-
-#: lada/cli/utils.py:123
-msgid "Available restoration models:"
-msgstr "可用修復模型"
-
-#: lada/cli/utils.py:141
-msgid "Usage: "
-msgstr "用量:"
-
-#: lada/cli/utils.py:153
-#, python-brace-format
-msgid "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}"
-msgstr ""
-
-#: lada/cli/utils.py:194
-#, python-brace-format
-msgid " | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
+#~ msgid "Switch to Preview View"
+#~ msgstr "切換至觀看畫面"
 
 #~ msgid "Processing frames"
 #~ msgstr "幀處理"

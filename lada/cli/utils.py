@@ -152,7 +152,8 @@ class Progressbar:
         # Use {unit} instead of {postfix} as tqdm will add an additional comma without a way to overwrite this behavior (https://github.com/tqdm/tqdm/issues/712)
         BAR_FORMAT = _("Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}")
         BAR_FORMAT_TQDM = BAR_FORMAT.format(done_percent="{percentage:3.0f}", bar="{bar}", time_done="{elapsed}", frames_done="{n_fmt}", bar_suffix="{desc}")
-        self.tqdm_iterable = tqdm(frame_restorer, total=video_metadata.frames_count, bar_format=BAR_FORMAT_TQDM, desc=" | Remaining: ? | Speed: ?")
+        initial_estimating_bar_suffix = _(" | Remaining: ? | Speed: ?")
+        self.tqdm_iterable = tqdm(frame_restorer, total=video_metadata.frames_count, bar_format=BAR_FORMAT_TQDM, desc=initial_estimating_bar_suffix)
         self.duration_start = None
 
     def __iter__(self):
