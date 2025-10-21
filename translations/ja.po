@@ -8,28 +8,30 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
 "POT-Creation-Date: 2025-10-21 08:16+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2025-10-22 03:20+0000\n"
+"Last-Translator: sanatorium <sanatorium@noreply.codeberg.org>\n"
+"Language-Team: Japanese <https://translate.codeberg.org/projects/lada/lada/"
+"ja/>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.13.3\n"
 
 #: lada/gui/export/export_multiple_files_row.ui:61
 #: lada/gui/export/export_single_file_page.ui:110
 msgid "Open in External Program…"
-msgstr ""
+msgstr "別のプログラムで開いています…"
 
 #: lada/gui/export/export_multiple_files_row.ui:73
 #: lada/gui/export/export_single_file_page.ui:126
 msgid "Show Error"
-msgstr ""
+msgstr "エラーを表示"
 
 #: lada/gui/export/export_multiple_files_row.ui:86
 msgid "Remove"
-msgstr ""
+msgstr "削除"
 
 #: lada/gui/export/export_utils.py:23
 #, python-brace-format
@@ -39,7 +41,7 @@ msgstr ""
 #: lada/gui/export/export_utils.py:47
 #: lada/gui/export/export_single_file_page.py:117
 msgid "Restoration failed"
-msgstr ""
+msgstr "修復に失敗しました"
 
 #: lada/gui/export/export_utils.py:48
 #, python-brace-format
@@ -52,7 +54,7 @@ msgstr ""
 
 #: lada/gui/export/export_utils.py:63
 msgid "Failed"
-msgstr ""
+msgstr "失敗"
 
 #: lada/gui/export/export_utils.py:68
 #, python-brace-format
@@ -78,51 +80,51 @@ msgstr ""
 #: lada/gui/export/export_single_file_page.py:126
 #: lada/gui/export/export_single_file_page.py:168
 msgid "Export video"
-msgstr ""
+msgstr "ビデオをエクスポート"
 
 #: lada/gui/export/export_single_file_page.ui:65
 #: lada/gui/export/export_view.ui:67 lada/gui/export/export_view.py:249
 msgid "Restore"
-msgstr ""
+msgstr "除去"
 
 #: lada/gui/export/export_single_file_page.ui:77
 #: lada/gui/export/export_view.ui:60
 msgid "Resume"
-msgstr ""
+msgstr "再開"
 
 #: lada/gui/export/export_single_file_page.ui:87
 #: lada/gui/export/export_view.ui:53
 msgid "Pause"
-msgstr ""
+msgstr "一時停止"
 
 #: lada/gui/export/export_single_file_page.ui:97
 #: lada/gui/export/export_view.ui:43
 msgid "Cancel"
-msgstr ""
+msgstr "キャンセル"
 
 #: lada/gui/export/export_single_file_page.ui:114
 msgid "Open File"
-msgstr ""
+msgstr "ファイルを開く"
 
 #: lada/gui/export/export_view.ui:30 lada/gui/preview/preview_view.ui:41
 msgid "Settings"
-msgstr ""
+msgstr "設定"
 
 #: lada/gui/export/export_view.ui:37
 msgid "Add Files…"
-msgstr ""
+msgstr "ファイルを追加…"
 
 #: lada/gui/export/export_view.ui:134
 #: lada/gui/fileselection/file_selection_view.ui:54
 #: lada/gui/preview/preview_view.ui:214
 msgid "Keyboard Shortcuts"
-msgstr ""
+msgstr "キーボードショートカット"
 
 #: lada/gui/export/export_view.ui:138
 #: lada/gui/fileselection/file_selection_view.ui:58
 #: lada/gui/preview/preview_view.ui:218
 msgid "About Lada"
-msgstr ""
+msgstr "Ladaについて"
 
 #: lada/gui/export/export_view.py:249
 msgid "Restore…"
@@ -130,11 +132,11 @@ msgstr ""
 
 #: lada/gui/export/export_view.py:519
 msgid "Save restored video file"
-msgstr ""
+msgstr "除去された動画ファイルを保存"
 
 #: lada/gui/export/export_view.py:526
 msgid "Save restored video files"
-msgstr ""
+msgstr "除去された動画ファイルを複数保存"
 
 #: lada/gui/export/export_single_file_page.py:91
 #: lada/gui/export/export_single_file_page.py:152
@@ -143,51 +145,52 @@ msgstr ""
 
 #: lada/gui/export/export_single_file_page.py:109
 msgid "Finished video restoration!"
-msgstr ""
+msgstr "ビデオのモザイク除去が完了しました！"
 
 #: lada/gui/export/export_single_file_page.py:141
 msgid "Restoration paused"
-msgstr ""
+msgstr "除去作業が一時停止されました"
 
 #: lada/gui/config/no_gpu_banner.ui:11
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
-msgstr ""
+msgstr "GPUが検出されませんでした！CPUでアプリを実行すると、非常に遅くなります。"
 
 #: lada/gui/config/config_sidebar.ui:16
 msgid "Mosaic Removal"
-msgstr ""
+msgstr "モザイク除去"
 
 #: lada/gui/config/config_sidebar.ui:19
 msgid "Detection model"
-msgstr ""
+msgstr "検出モデル"
 
 #: lada/gui/config/config_sidebar.ui:20
 msgid "Model used for detecting mosaic areas."
-msgstr ""
+msgstr "モザイク範囲の検出に使用されるモデル。"
 
 #: lada/gui/config/config_sidebar.ui:30
 msgid "Restoration model"
-msgstr ""
+msgstr "除去モデル"
 
 #: lada/gui/config/config_sidebar.ui:31
 msgid "Model used for restoring mosaic areas."
-msgstr ""
+msgstr "モザイク範囲の除去に使用するモデル。"
 
 #: lada/gui/config/config_sidebar.ui:41
 msgid "Maximum clip duration"
-msgstr ""
+msgstr "最大クリップ時間"
 
 #: lada/gui/config/config_sidebar.ui:42
 msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint."
-msgstr ""
+msgstr "除去可能なフレームの最大数。値を大きくするとフレーム間の安定性が上昇し、値を"
+"小さくするとメモリ使用量が削減されます。"
 
 #: lada/gui/config/config_sidebar.ui:57
 msgid "GPU"
-msgstr ""
+msgstr "GPU"
 
 #: lada/gui/config/config_sidebar.ui:58
 msgid "Selected GPU for model processing."
-msgstr ""
+msgstr "モデル処理に選択されたGPU。"
 
 #: lada/gui/config/config_sidebar.ui:73
 msgid "Playback"
@@ -195,7 +198,7 @@ msgstr ""
 
 #: lada/gui/config/config_sidebar.ui:77
 msgid "Buffer duration"
-msgstr ""
+msgstr "バッファ時間"
 
 #: lada/gui/config/config_sidebar.ui:78
 msgid "How much video is pre-loaded for playback, measured in seconds. If set to 0 this value will be chosen automatically."
@@ -203,7 +206,7 @@ msgstr ""
 
 #: lada/gui/config/config_sidebar.ui:92
 msgid "Mute audio by default"
-msgstr ""
+msgstr "デフォルトで音量をミュートする"
 
 #: lada/gui/config/config_sidebar.ui:93
 msgid "When enabled, audio will be muted automatically when a new file is opened."
@@ -212,52 +215,58 @@ msgstr ""
 #: lada/gui/config/config_sidebar.ui:102 lada/gui/config/config_sidebar.ui:273
 #: lada/gui/window.ui:48
 msgid "Export"
-msgstr ""
+msgstr "エクスポート"
 
 #: lada/gui/config/config_sidebar.ui:106
 msgid "Codec"
-msgstr ""
+msgstr "コーデック"
 
 #: lada/gui/config/config_sidebar.ui:107
 msgid "Video Codec used for encoding the restored video."
-msgstr ""
+msgstr "除去したビデオをエンコードするために使用されるビデオコーデック。"
 
 #: lada/gui/config/config_sidebar.ui:119
 msgid "CRF (Constant Rate Factor)"
-msgstr ""
+msgstr "CRF (固定品質)"
 
 #: lada/gui/config/config_sidebar.ui:120
 msgid "Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes."
-msgstr ""
+msgstr "ビデオエンコーダの品質設定。値を低くすると品質は高くなりますが、ファイルサイ"
+"ズは大きくなります。"
 
 #: lada/gui/config/config_sidebar.ui:134
 msgid ""
 "Custom FFmpeg encoder options (Optional).\n"
 "Example: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</tt></span>"
 msgstr ""
+"Custom FFmpeg encoder options (Optional).\n"
+"例: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc "
+"vbr_hq</tt></span>"
 
 #: lada/gui/config/config_sidebar.ui:135
 msgid ""
 "FFmpeg Codecs Documentation:\n"
 "https://ffmpeg.org/ffmpeg-codecs.html"
 msgstr ""
+"FFmpeg コーデックドキュメント:\n"
+"https://ffmpeg.org/ffmpeg-codecs.html"
 
 #: lada/gui/config/config_sidebar.ui:141
 msgid "Output Directory"
-msgstr ""
+msgstr "出力ディレクトリ"
 
 #: lada/gui/config/config_sidebar.ui:146
 msgid "Always ask"
-msgstr ""
+msgstr "常に尋ねる"
 
 #: lada/gui/config/config_sidebar.ui:157
 msgid "Use this folder"
-msgstr ""
+msgstr "このフォルダーを使用する"
 
 #: lada/gui/config/config_sidebar.ui:158 lada/gui/config/config_sidebar.py:108
 #: lada/gui/config/config_sidebar.py:224
 msgid "Click the folder button to choose a default"
-msgstr ""
+msgstr "フォルダボタンをクリックしてデフォルトを選択してください"
 
 #: lada/gui/config/config_sidebar.ui:179
 msgid ""
@@ -267,19 +276,20 @@ msgstr ""
 
 #: lada/gui/config/config_sidebar.ui:189
 msgid "Troubleshooting"
-msgstr ""
+msgstr "トラブルシューティング"
 
 #: lada/gui/config/config_sidebar.ui:193
 msgid "Show mosaic detections"
-msgstr ""
+msgstr "モザイク検出を表示"
 
 #: lada/gui/config/config_sidebar.ui:194
 msgid "Show detected mosaic areas. Useful to evaluate quality of detection model."
-msgstr ""
+msgstr "検出されたモザイク領域を表示します。検出モデルの品質を評価するのに役立ちます"
+"。"
 
 #: lada/gui/config/config_sidebar.ui:207
 msgid "UI"
-msgstr ""
+msgstr "UI"
 
 #: lada/gui/config/config_sidebar.ui:210
 msgid "Color Scheme"
@@ -287,15 +297,15 @@ msgstr ""
 
 #: lada/gui/config/config_sidebar.ui:214
 msgid "Follow System style"
-msgstr ""
+msgstr "システムスタイルに従う"
 
 #: lada/gui/config/config_sidebar.ui:226
 msgid "Light style"
-msgstr ""
+msgstr "ライトテーマ"
 
 #: lada/gui/config/config_sidebar.ui:238
 msgid "Dark style"
-msgstr ""
+msgstr "ダークテーマ"
 
 #: lada/gui/config/config_sidebar.ui:250
 msgid "Default View"
@@ -308,48 +318,48 @@ msgstr ""
 #: lada/gui/config/config_sidebar.ui:258 lada/gui/preview/preview_view.py:497
 #: lada/gui/window.ui:38
 msgid "Watch"
-msgstr ""
+msgstr "視聴"
 
 #: lada/gui/config/config_sidebar.ui:297
 msgid "Reset to factory settings"
-msgstr ""
+msgstr "初期設定にリセット"
 
 #: lada/gui/config/config_sidebar.py:292
 msgid "Select a folder where restored videos should be saved"
-msgstr ""
+msgstr "除去したビデオを保存するフォルダを選んでください"
 
 #: lada/gui/fileselection/file_selection_view.ui:31
 msgid "Restore pixelated adult videos"
-msgstr ""
+msgstr "ピクセルモザイクのアダルトビデオを除去する"
 
 #: lada/gui/fileselection/file_selection_view.ui:32
 msgid "Drop one or more videos here"
-msgstr ""
+msgstr "ここに1つ以上の動画をドロップしてください"
 
 #: lada/gui/fileselection/file_selection_view.ui:35
 #: lada/gui/preview/preview_view.ui:48
 msgid "Open Files…"
-msgstr ""
+msgstr "ファイルを開く…"
 
 #: lada/gui/utils.py:78
 msgid "Select one or multiple video files"
-msgstr ""
+msgstr "1つまたは複数のビデオファイルを選択"
 
 #: lada/gui/preview/preview_view.ui:29
 msgid "Toggle Fullscreen"
-msgstr ""
+msgstr "フルスクリーン切り替え"
 
 #: lada/gui/preview/preview_view.py:498
 msgid "Mute/Unmute"
-msgstr ""
+msgstr "ミュート/ミュート解除"
 
 #: lada/gui/preview/preview_view.py:499
 msgid "Play/Pause"
-msgstr ""
+msgstr "再生/一時停止"
 
 #: lada/gui/preview/preview_view.py:500
 msgid "Enable/Disable fullscreen"
-msgstr ""
+msgstr "フルスクリーンを有効/無効にする"
 
 #: lada/gui/window.py:104
 msgid "Switch to Export View"
@@ -361,35 +371,35 @@ msgstr ""
 
 #: lada/cli/utils.py:47
 msgid "No video files found"
-msgstr ""
+msgstr "ビデオファイルが見つかりません"
 
 #: lada/cli/utils.py:74
 msgid "PyAV version:"
-msgstr ""
+msgstr "PyAV バージョン:"
 
 #: lada/cli/utils.py:78
 msgid "Available video encoders:"
-msgstr ""
+msgstr "利用可能なビデオエンコーダ:"
 
 #: lada/cli/utils.py:84
 msgid "Encoders with support for hardware acceleration (GPU):"
-msgstr ""
+msgstr "ハードウェアアクセラレーション(GPU)をサポートするエンコーダ:"
 
 #: lada/cli/utils.py:97
 msgid "Device"
-msgstr ""
+msgstr "デバイス"
 
 #: lada/cli/utils.py:98
 msgid "Description"
-msgstr ""
+msgstr "説明"
 
 #: lada/cli/utils.py:99
 msgid "Available devices:"
-msgstr ""
+msgstr "利用可能なデバイス:"
 
 #: lada/cli/utils.py:109
 msgid "Available detection models:"
-msgstr ""
+msgstr "利用可能な検出モデル:"
 
 #: lada/cli/utils.py:112 lada/cli/utils.py:126
 msgid "None!"
@@ -397,15 +407,15 @@ msgstr ""
 
 #: lada/cli/utils.py:114 lada/cli/utils.py:128
 msgid "Name"
-msgstr ""
+msgstr "名前"
 
 #: lada/cli/utils.py:115 lada/cli/utils.py:129
 msgid "Path"
-msgstr ""
+msgstr "パス"
 
 #: lada/cli/utils.py:123
 msgid "Available restoration models:"
-msgstr ""
+msgstr "利用可能な除去モデル:"
 
 #: lada/cli/utils.py:141
 msgid "Usage: "
@@ -415,6 +425,8 @@ msgstr ""
 #, python-brace-format
 msgid "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}"
 msgstr ""
+"ビデオの処理中: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f)"
+"{bar_suffix}"
 
 #: lada/cli/utils.py:155
 msgid " | Remaining: ? | Speed: ?"
