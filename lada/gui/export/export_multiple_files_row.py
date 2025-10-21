@@ -33,6 +33,7 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
         self._subtitle = ""
 
         self.set_title(original_file.get_basename())
+        self._handler_id_button_open_clicked = None
         self._attach_file_launcher_to_open_button()
 
         def update_title_with_video_metadata():
@@ -116,8 +117,9 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
             always_ask=False,
             file=self._restored_file,
         )
-
-        self.button_open.connect("clicked", lambda _: file_launcher.launch())
+        if self._handler_id_button_open_clicked is not None:
+            self.button_open.disconnect(self._handler_id_button_open_clicked)
+        self._handler_id_button_open_clicked = self.button_open.connect("clicked", lambda _: file_launcher.launch())
 
     @Gtk.Template.Callback()
     def button_remove_callback(self, button):

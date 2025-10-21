@@ -33,6 +33,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.item: ExportItemData | None = None
+        self._handler_id_button_open_clicked = None
 
     @GObject.Signal(name="start-export-requested")
     def start_export_requested_signal(self, start_export_button: Gtk.Button):
@@ -100,7 +101,9 @@ class ExportSingleFileStatusPage(Gtk.Widget):
             always_ask=False,
             file=save_file
         )
-        self.button_open.connect("clicked", lambda _: file_launcher.launch())
+        if self._handler_id_button_open_clicked is not None:
+            self.button_open.disconnect(self._handler_id_button_open_clicked)
+        self._handler_id_button_open_clicked = self.button_open.connect("clicked", lambda _: file_launcher.launch())
 
     def on_video_export_finished(self):
         self.status_page.set_title(_("Finished video restoration!"))
