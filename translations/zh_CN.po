@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
 "POT-Creation-Date: 2025-10-21 08:16+0000\n"
-"PO-Revision-Date: 2025-10-21 10:31+0000\n"
+"PO-Revision-Date: 2025-10-21 10:52+0000\n"
 "Last-Translator: i110077 <i110077@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://"
 "translate.codeberg.org/projects/lada/lada/zh_Hans/>\n"
@@ -364,10 +364,8 @@ msgid "Switch to Export View"
 msgstr "切换到导出视图"
 
 #: lada/gui/window.py:105
-#, fuzzy
-#| msgid "Switch to Export View"
 msgid "Switch to Watch View"
-msgstr "切换到导出视图"
+msgstr "切换到预览视图"
 
 #: lada/cli/utils.py:47
 msgid "No video files found"
