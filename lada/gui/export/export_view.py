@@ -110,6 +110,11 @@ class ExportView(Gtk.Widget):
     @view_stack.setter
     def view_stack(self, value: Adw.ViewStack):
         self._view_stack = value
+        def on_visible_child_name_changed(object, spec):
+            visible_child_name = object.get_property(spec.name)
+            if visible_child_name == "export":
+                self.config_sidebar.init_sidebar_from_config(self._config)
+        self._view_stack.connect("notify::visible-child-name", on_visible_child_name_changed)
 
     def add_files(self, added_files: list[Gio.File]):
         assert len(added_files) > 0

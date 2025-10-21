@@ -68,6 +68,7 @@ class PreviewView(Gtk.Widget):
         self.should_be_paused = False
         self.seek_in_progress = False
         self.waiting_for_data = False
+        self.appsource_worker_reset_requested = False
 
         self._config: Config | None = None
 
@@ -145,8 +146,12 @@ class PreviewView(Gtk.Widget):
             if visible_child_name != "preview":
                 self.should_be_paused = True
                 self.pause_if_currently_playing()
-            elif visible_child_name == "preview" and not self._video_preview_init_done:
-                self.play_file(0)
+            else:
+                if not self._video_preview_init_done:
+                    self.play_file(0)
+                elif self.appsource_worker_reset_requested:
+                    self.reset_appsource_worker()
+                self.config_sidebar.init_sidebar_from_config(self._config)
         self._view_stack.connect("notify::visible-child-name", on_visible_child_name_changed)
 
     @GObject.Signal(name="toggle-fullscreen-requested")
@@ -208,7 +213,10 @@ class PreviewView(Gtk.Widget):
             self.buffer_queue_min_thresh_time_auto = float(value.max_clip_length / value.video_metadata.video_fps_exact)
         self._frame_restorer_options = value
         if self._video_preview_init_done:
-            self.reset_appsource_worker()
+            if self._view_stack.props.visible_child_name == "preview":
+                self.reset_appsource_worker()
+            else:
+                self.appsource_worker_reset_requested = True
 
     @property
     def buffer_queue_min_thresh_time_auto(self):
@@ -410,6 +418,7 @@ class PreviewView(Gtk.Widget):
         self._show_spinner()
 
         def reinit():
+            self.appsource_worker_reset_requested = False
             self._video_preview_init_done = False
             self.pipeline_manager.pause()
             self.frame_restorer_provider.init(self._frame_restorer_options)

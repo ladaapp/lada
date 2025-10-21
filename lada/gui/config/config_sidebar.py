@@ -46,6 +46,8 @@ class ConfigSidebar(Gtk.Box):
         self._show_export_section = True
 
     def init_sidebar_from_config(self, config: Config):
+        self.init_done = False
+
         self.check_button_show_mosaic_detections.props.active = config.show_mosaic_detections
 
         # init device
