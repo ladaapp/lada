@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="SpinnerButton" parent="GtkButton">
+        <property name="child">
+            <object class="GtkBox">
+                <property name="orientation">horizontal</property>
+                <property name="spacing">6</property>
+                <child>
+                    <object class="AdwSpinner" id="spinner">
+                        <property name="visible">False</property>
+                    </object>
+                </child>
+                 <child>
+                    <object class="GtkLabel" id="_label">
+                        <property name="visible">True</property>
+                    </object>
+                </child>
+            </object>
+        </property>
+    </template>
+</interface>

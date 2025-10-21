@@ -9,6 +9,7 @@ from lada.gui import utils
 from lada.gui.export import export_utils
 from lada.gui.export.export_item_data import ExportItemData, ExportItemDataProgress, ExportItemState
 from lada.gui.export.export_utils import MIN_VISIBLE_PROGRESS_FRACTION
+from lada.gui.export.spinner_button import SpinnerButton
 
 here = pathlib.Path(__file__).parent.resolve()
 logger = logging.getLogger(__name__)
@@ -21,9 +22,9 @@ class ExportSingleFileStatusPage(Gtk.Widget):
     status_page = Gtk.Template.Child()
     progress_bar: Gtk.ProgressBar = Gtk.Template.Child()
     button_open: Gtk.Button = Gtk.Template.Child()
-    button_cancel_export: Gtk.Button = Gtk.Template.Child()
-    button_resume_export: Gtk.Button = Gtk.Template.Child()
-    button_pause_export: Gtk.Button = Gtk.Template.Child()
+    button_cancel_export: SpinnerButton = Gtk.Template.Child()
+    button_resume_export: SpinnerButton = Gtk.Template.Child()
+    button_pause_export: SpinnerButton = Gtk.Template.Child()
     button_show_error: Gtk.Button = Gtk.Template.Child()
     button_start_export: Gtk.Button = Gtk.Template.Child()
     label_meta_data: Gtk.Label = Gtk.Template.Child()
@@ -60,6 +61,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
         assert self.item.state == ExportItemState.PAUSED
         self.button_cancel_export.set_sensitive(False)
         self.button_resume_export.set_sensitive(False)
+        self.button_resume_export.set_spinner_visible(True)
         self.emit("resume-export-requested")
 
     @Gtk.Template.Callback()
@@ -67,12 +69,14 @@ class ExportSingleFileStatusPage(Gtk.Widget):
         assert self.item.state == ExportItemState.PROCESSING
         self.button_cancel_export.set_sensitive(False)
         self.button_pause_export.set_sensitive(False)
+        self.button_pause_export.set_spinner_visible(True)
         self.emit("pause-export-requested")
 
     @Gtk.Template.Callback()
     def on_button_cancel_export_clicked(self, button_clicked):
         assert self.item.state in [ExportItemState.PROCESSING, ExportItemState.PAUSED]
         self.button_cancel_export.set_sensitive(False)
+        self.button_cancel_export.set_spinner_visible(True)
         self.button_pause_export.set_sensitive(False)
         self.emit("stop-export-requested")
 
@@ -122,6 +126,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
         self.button_start_export.set_sensitive(True)
         self.button_pause_export.set_sensitive(True)
         self.button_cancel_export.set_sensitive(True)
+        self.button_cancel_export.set_spinner_visible(False)
 
         self.button_start_export.set_visible(True)
         self.button_pause_export.set_visible(False)
@@ -134,6 +139,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
         self.status_page.set_icon_name("pause-large-symbolic")
 
         self.button_pause_export.set_sensitive(True)
+        self.button_pause_export.set_spinner_visible(False)
         self.button_cancel_export.set_sensitive(True)
 
         self.button_resume_export.set_visible(True)
@@ -144,6 +150,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
         self.status_page.set_icon_name("cafe-symbolic")
 
         self.button_resume_export.set_sensitive(True)
+        self.button_resume_export.set_spinner_visible(False)
         self.button_cancel_export.set_sensitive(True)
 
         self.button_resume_export.set_visible(False)

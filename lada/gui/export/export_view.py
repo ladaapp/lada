@@ -18,6 +18,7 @@ from lada.gui.export import export_utils
 from lada.gui.export.export_item_data import ExportItemData, ExportItemDataProgress, ExportItemState
 from lada.gui.export.export_multiple_files_page import ExportMultipleFilesPage
 from lada.gui.export.export_single_file_page import ExportSingleFileStatusPage
+from lada.gui.export.spinner_button import SpinnerButton
 from lada.gui.frame_restorer_provider import FrameRestorerOptions, FRAME_RESTORER_PROVIDER
 from lada.lib import audio_utils, video_utils
 
@@ -43,9 +44,9 @@ class ExportView(Gtk.Widget):
     single_file_page: ExportSingleFileStatusPage = Gtk.Template.Child()
     multiple_files_page: ExportMultipleFilesPage = Gtk.Template.Child()
     button_start_export: Gtk.Button = Gtk.Template.Child()
-    button_cancel_export: Gtk.Button = Gtk.Template.Child()
-    button_resume_export: Gtk.Button = Gtk.Template.Child()
-    button_pause_export: Gtk.Button = Gtk.Template.Child()
+    button_cancel_export: SpinnerButton = Gtk.Template.Child()
+    button_resume_export: SpinnerButton = Gtk.Template.Child()
+    button_pause_export: SpinnerButton = Gtk.Template.Child()
     stack: Gtk.Stack = Gtk.Template.Child()
     view_switcher: Adw.ViewSwitcher = Gtk.Template.Child()
     config_sidebar = Gtk.Template.Child()
@@ -200,19 +201,21 @@ class ExportView(Gtk.Widget):
         self.stop_requested = True
         self.button_pause_export.set_sensitive(False)
         self.button_cancel_export.set_sensitive(False)
+        self.button_cancel_export.set_spinner_visible(True)
 
     @Gtk.Template.Callback()
     def on_button_pause_export_clicked(self, button_clicked):
         assert self.resume_info is None
-
-        self.button_pause_export.set_sensitive(False)
-        self.button_cancel_export.set_sensitive(False)
         self.pause_requested = True
+        self.button_pause_export.set_sensitive(False)
+        self.button_pause_export.set_spinner_visible(True)
+        self.button_cancel_export.set_sensitive(False)
 
     @Gtk.Template.Callback()
     def on_button_resume_export_clicked(self, button_clicked):
         assert self.resume_info is not None
         self.button_resume_export.set_sensitive(False)
+        self.button_resume_export.set_spinner_visible(True)
         self.button_cancel_export.set_sensitive(False)
 
         self.pause_requested = False
@@ -320,6 +323,7 @@ class ExportView(Gtk.Widget):
         self.config_sidebar.set_property("disabled", False)
         self.button_start_export.set_sensitive(True)
         self.button_cancel_export.set_sensitive(True)
+        self.button_cancel_export.set_spinner_visible(False)
         self.button_pause_export.set_sensitive(True)
 
     def on_video_export_paused(self, obj):
@@ -334,6 +338,7 @@ class ExportView(Gtk.Widget):
 
         self.update_export_buttons()
         self.button_pause_export.set_sensitive(True)
+        self.button_pause_export.set_spinner_visible(False)
         self.button_cancel_export.set_sensitive(True)
         self.pause_requested = False
 
@@ -350,6 +355,7 @@ class ExportView(Gtk.Widget):
 
         self.update_export_buttons()
         self.button_resume_export.set_sensitive(True)
+        self.button_resume_export.set_spinner_visible(False)
         self.button_cancel_export.set_sensitive(True)
 
     def on_video_export_failed(self, obj, error_message):

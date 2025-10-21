@@ -39,7 +39,7 @@
                             </object>
                         </child>
                         <child type="end">
-                            <object class="GtkButton" id="button_cancel_export">
+                            <object class="SpinnerButton" id="button_cancel_export">
                                 <property name="label" translatable="true">Cancel</property>
                                 <property name="visible">False</property>
                                 <signal name="clicked" handler="on_button_cancel_export_clicked"/>
@@ -49,14 +49,14 @@
                             </object>
                         </child>
                         <child type="end">
-                            <object class="GtkButton" id="button_pause_export">
+                            <object class="SpinnerButton" id="button_pause_export">
                                 <property name="label" translatable="true">Pause</property>
                                 <property name="visible">False</property>
                                 <signal name="clicked" handler="on_button_pause_export_clicked"/>
                             </object>
                         </child>
                         <child type="end">
-                            <object class="GtkButton" id="button_resume_export">
+                            <object class="SpinnerButton" id="button_resume_export">
                                 <property name="label" translatable="true">Resume</property>
                                 <property name="visible">False</property>
                                 <signal name="clicked" handler="on_button_resume_export_clicked"/>
