@@ -5,8 +5,6 @@ import tempfile
 import threading
 import time
 import traceback
-from dataclasses import dataclass
-from fractions import Fraction
 
 from gi.repository import Gtk, GObject, Gio, Adw, GLib
 
@@ -18,6 +16,7 @@ from lada.gui.export import export_utils
 from lada.gui.export.export_item_data import ExportItemData, ExportItemDataProgress, ExportItemState
 from lada.gui.export.export_multiple_files_page import ExportMultipleFilesPage
 from lada.gui.export.export_single_file_page import ExportSingleFileStatusPage
+from lada.gui.export.export_utils import ResumeInformation
 from lada.gui.export.spinner_button import SpinnerButton
 from lada.gui.frame_restorer_provider import FrameRestorerOptions, FRAME_RESTORER_PROVIDER
 from lada.lib import audio_utils, video_utils
@@ -26,16 +25,6 @@ here = pathlib.Path(__file__).parent.resolve()
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
-
-@dataclass
-class ResumeInformation:
-    frame_pts: int
-    time_base: Fraction
-    frame_num : int
-
-    def get_resume_timestamp_ns(self):
-        SECOND = 1_000_000_000
-        return int((self.frame_pts * self.time_base) * SECOND)
 
 @Gtk.Template(string=utils.translate_ui_xml(here / 'export_view.ui'))
 class ExportView(Gtk.Widget):
@@ -481,10 +470,12 @@ class ExportView(Gtk.Widget):
             else:
                 if success:
                     audio_utils.combine_audio_video_files(video_metadata, video_tmp_file_output_path, restore_file_path)
-                    progress = self.progress_calculator.get_progress()
-                    progress.complete()
-                    GLib.idle_add(lambda: self.emit('video-export-progress', progress))
-                    GLib.idle_add(lambda: self.emit('video-export-finished'))
+                    def on_success():
+                        progress = self.progress_calculator.get_progress()
+                        progress.complete()
+                        self.emit('video-export-progress', progress)
+                        self.emit('video-export-finished')
+                    GLib.idle_add(on_success)
                 else:
                     if os.path.exists(video_tmp_file_output_path):
                         os.remove(video_tmp_file_output_path)

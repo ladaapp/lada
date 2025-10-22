@@ -280,20 +280,16 @@ class PreviewView(Gtk.Widget):
     def seek_video(self, seek_position_ns):
         if self.seek_in_progress:
             return
-        # pipeline.seek_simple is blocking. As we're stopping/starting our appsrc on seek this could potentially take a few seconds and freeze the UI
-        def seek():
-            self.eos = False
-            self.seek_in_progress = True
-            self.spinner_overlay.set_visible(True)
-            self.label_current_time.set_text(self.get_time_label_text(seek_position_ns))
-            self.widget_timeline.set_property("playhead-position", seek_position_ns)
-            self.pipeline_manager.seek(seek_position_ns)
-            self.seek_in_progress = False
-            if not self.waiting_for_data:
-                self.spinner_overlay.set_visible(False)
 
-        seek_thread = threading.Thread(target=seek, daemon=True)
-        seek_thread.start()
+        self.eos = False
+        self.seek_in_progress = True
+        self.spinner_overlay.set_visible(True)
+        self.label_current_time.set_text(self.get_time_label_text(seek_position_ns))
+        self.widget_timeline.set_property("playhead-position", seek_position_ns)
+        self.pipeline_manager.seek_async(seek_position_ns)
+        self.seek_in_progress = False
+        if not self.waiting_for_data:
+            self.spinner_overlay.set_visible(False)
 
     def show_cursor_position(self, cursor_position_ns):
         if cursor_position_ns > 0:
@@ -361,10 +357,10 @@ class PreviewView(Gtk.Widget):
             self.pipeline_manager = PipelineManager(self.frame_restorer_provider, buffer_queue_min_thresh_time, buffer_queue_max_thresh_time, self.config.mute_audio)
             self.pipeline_manager.init_pipeline(self.video_metadata)
             self.picture_video_preview.set_paintable(self.pipeline_manager.paintable)
-            self.pipeline_manager.paintable.connect("invalidate-size", lambda obj: self.emit("window-resize-requested", self.pipeline_manager.paintable, self.box_playback_controls, self.header_bar))
+            self.pipeline_manager.connect("paintable-size-changed", lambda obj: self.emit("window-resize-requested", self.pipeline_manager.paintable, self.box_playback_controls, self.header_bar))
             self.pipeline_manager.connect("eos", self.on_eos)
             self.pipeline_manager.connect("waiting-for-data", lambda obj, waiting_for_data: self.on_waiting_for_data(waiting_for_data))
-            self.pipeline_manager.connect("notify::state", lambda object, spec: self.on_pipeline_state(object.get_property(spec.name)))
+            self.pipeline_manager.connect("notify::state", lambda obj, spec: GLib.idle_add(lambda: self.on_pipeline_state(obj.get_property(spec.name))))
             GLib.timeout_add(100, self.update_current_position)
 
         threading.Thread(target=self.pipeline_manager.play).start()
@@ -417,15 +413,16 @@ class PreviewView(Gtk.Widget):
     def reset_appsource_worker(self):
         self._show_spinner()
 
-        def reinit():
-            self.appsource_worker_reset_requested = False
-            self._video_preview_init_done = False
+        self.appsource_worker_reset_requested = False
+        self._video_preview_init_done = False
+        self.frame_restorer_provider.init(self._frame_restorer_options)
+
+        def reinit_pipeline():
             self.pipeline_manager.pause()
-            self.frame_restorer_provider.init(self._frame_restorer_options)
             self.pipeline_manager.reinit_appsrc()
             self.pipeline_manager.play()
 
-        reinit_thread = threading.Thread(target=reinit)
+        reinit_thread = threading.Thread(target=reinit_pipeline)
         reinit_thread.start()
 
     def update_current_position(self):
@@ -451,12 +448,12 @@ class PreviewView(Gtk.Widget):
 
     def on_fullscreen_activity(self, fullscreen_activity: bool):
         if fullscreen_activity:
-            GLib.idle_add(lambda: self.header_bar.set_visible(True))
+            self.header_bar.set_visible(True)
             self.set_cursor_from_name("default")
             self.box_playback_controls.set_visible(True)
             self.button_play_pause.grab_focus()
         else:
-            GLib.idle_add(lambda: self.header_bar.set_visible(False))
+            self.header_bar.set_visible(False)
             self.set_cursor_from_name("none")
             self.box_playback_controls.set_visible(False)
 
@@ -476,7 +473,7 @@ class PreviewView(Gtk.Widget):
             if self._config.get_property('device') == 'cpu':
                 self.banner_no_gpu.set_revealed(True)
         self.fullscreen_mouse_activity_controller.on_fullscreened(fullscreened)
-        self.fullscreen_mouse_activity_controller.connect("notify::fullscreen-activity", lambda object, spec: self.on_fullscreen_activity(object.get_property(spec.name)))
+        self.fullscreen_mouse_activity_controller.connect("notify::fullscreen-activity", lambda object, spec: GLib.idle_add(lambda: self.on_fullscreen_activity(object.get_property(spec.name))))
 
     def _show_spinner(self, *args):
         self.config_sidebar.set_property("disabled", True)

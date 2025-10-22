@@ -1,6 +1,7 @@
 import logging
 import pathlib
 import sys
+import threading
 from enum import Enum
 from time import sleep
 
@@ -46,14 +47,6 @@ class PipelineManager(GObject.Object):
     def paintable(self, value: Gdk.Paintable):
         self._paintable = value
 
-    @GObject.Signal(name="waiting-for-data")
-    def buffer_queue_underrun(self, waiting_for_data: bool):
-        pass
-
-    @GObject.Signal(name="eos")
-    def eos(self):
-        pass
-
     @GObject.Property()
     def state(self):
         return self._state
@@ -72,6 +65,18 @@ class PipelineManager(GObject.Object):
         if self.audio_volume:
             self.audio_volume.set_property("mute", value)
 
+    @GObject.Signal(name="waiting-for-data")
+    def buffer_queue_underrun(self, waiting_for_data: bool):
+        pass
+
+    @GObject.Signal(name="eos")
+    def eos(self):
+        pass
+
+    @GObject.Signal(name="paintable-size-changed")
+    def paintable_size_changed(self):
+        pass
+
     def play(self):
         self.pipeline.set_state(Gst.State.PLAYING)
 
@@ -87,7 +92,7 @@ class PipelineManager(GObject.Object):
         match msg.type:
             case Gst.MessageType.EOS:
                 self.state = PipelineState.PAUSED
-                self.emit("eos")
+                GLib.idle_add(lambda: self.emit("eos"))
             case Gst.MessageType.ERROR:
                 (err, _) = msg.parse_error()
                 logger.error(f"Error from {msg.src.get_path_string()}: {err}")
@@ -128,14 +133,21 @@ class PipelineManager(GObject.Object):
         self.frame_restorer_app_src.stop()
         # self.pipeline.get_bus().remove_watch()
 
-    def seek(self, seek_position_ns):
-        # Pausing before seek seems to fix an issue where calling seek_simple() never returns.
-        # I did not notice it on smaller/shorter files but on long files (>3h) I could reproduce this issue pretty consistently.
-        # Shouldn't be necessary and I don't understand how it helps but apparently it does.
-        self.pipeline.set_state(Gst.State.PAUSED)
-        self.pipeline.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH, seek_position_ns)
-        logger.debug("returned from pipeline.seek_simple()")
-        self.pipeline.set_state(Gst.State.PLAYING)
+    def seek_async(self, seek_position_ns):
+        #  seek_simple() is blocking. As we're stopping/starting our appsrc on seek this could potentially take a few seconds.
+        # As this method is used from the UI it could introduce freezes so let's run this in another thread.
+        def do_seek():
+            # TODO: Evaluate if this statement about pausing before seeking is actually true
+            # Pausing before seek seems to fix an issue where calling seek_simple() never returns.
+            # I did not notice it on smaller/shorter files but on long files (>3h) I could reproduce this issue pretty consistently.
+            # Shouldn't be necessary and I don't understand how it helps but apparently it does.
+            self.pipeline.set_state(Gst.State.PAUSED)
+            self.pipeline.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH, seek_position_ns)
+            logger.debug("returned from pipeline.seek_simple()")
+            self.pipeline.set_state(Gst.State.PLAYING)
+
+        seek_thread = threading.Thread(target=do_seek, daemon=True)
+        seek_thread.start()
 
     def pipeline_add_audio(self):
         audio_queue = Gst.ElementFactory.make('queue', None)
@@ -192,7 +204,7 @@ class PipelineManager(GObject.Object):
         self.audio_buffer_queue = audio_queue
 
     def pipeline_add_video(self):
-        self.frame_restorer_app_src = FrameRestorerAppSrc(self.video_metadata, self.frame_restorer_provider, lambda: self.emit("waiting-for-data", False))
+        self.frame_restorer_app_src = FrameRestorerAppSrc(self.video_metadata, self.frame_restorer_provider, lambda: GLib.idle_add(lambda: self.emit("waiting-for-data", False)))
         appsrc = self.frame_restorer_app_src.appsrc
         self.pipeline.add(appsrc)
 
@@ -202,12 +214,12 @@ class PipelineManager(GObject.Object):
         buffer_queue.set_property('max-size-time', self.buffer_queue_max_thresh_time * Gst.SECOND)  # ns
         buffer_queue.set_property('min-threshold-time', self.buffer_queue_min_thresh_time * Gst.SECOND)
 
-        buffer_queue.connect("underrun", lambda queue: self.emit("waiting-for-data", True))
-        buffer_queue.connect("overrun", lambda queue: self.emit("waiting-for-data", False))
+        buffer_queue.connect("underrun", lambda queue: GLib.idle_add(lambda: self.emit("waiting-for-data", True)))
+        buffer_queue.connect("overrun", lambda queue: GLib.idle_add(lambda: self.emit("waiting-for-data", False)))
         self.pipeline.add(buffer_queue)
 
         gtksink = Gst.ElementFactory.make('gtk4paintablesink', None)
-        paintable = gtksink.get_property('paintable')
+        paintable: Gdk.Paintable = gtksink.get_property('paintable')
         # TODO: workaround for #62. On Windows using Nvidia GPU and OpenGL for the paintable when it's available causes messed up colors.
         #  I could not reproduce this on a VM without a Nvidia card.
         if paintable.props.gl_context and sys.platform != 'win32':
@@ -227,6 +239,7 @@ class PipelineManager(GObject.Object):
 
         self.video_buffer_queue = buffer_queue
         self.paintable = paintable
+        self.paintable.connect("invalidate-size", lambda obj: GLib.idle_add(lambda: self.emit("paintable-size-changed")))
 
     def pipeline_remove_audio(self):
         for audio_element in self.pipeline_audio_elements:
