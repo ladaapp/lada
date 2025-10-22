@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
 "POT-Creation-Date: 2025-10-21 08:16+0000\n"
-"PO-Revision-Date: 2025-10-21 10:52+0000\n"
-"Last-Translator: i110077 <i110077@noreply.codeberg.org>\n"
+"PO-Revision-Date: 2025-10-22 09:37+0000\n"
+"Last-Translator: xl <xl@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://"
 "translate.codeberg.org/projects/lada/lada/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -36,7 +36,7 @@ msgstr "移除"
 #: lada/gui/export/export_utils.py:23
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
-msgstr "持续时间：{duration}，分辨率：{resolution}，帧率： {fps} FPS"
+msgstr "时长：{duration}，分辨率：{resolution}，帧率：{fps} 帧/秒"
 
 #: lada/gui/export/export_utils.py:47
 #: lada/gui/export/export_single_file_page.py:117
@@ -59,17 +59,21 @@ msgstr "失败"
 #: lada/gui/export/export_utils.py:68
 #, python-brace-format
 msgid "Finished  |  Processed: {time_done} ({frames_done} frames)"
-msgstr "已完成  ｜  处理时长：{time_done} （{frames_done} 帧）"
+msgstr "已完成  |  已处理：{time_done} ({frames_done} 帧)"
 
 #: lada/gui/export/export_utils.py:76
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: {time_remaining} ({frames_remaining} frames)  |  Speed: {speed_fps} FPS"
-msgstr "处理中… {done_percent}%  ｜  已处理：{time_done} （{frames_done} 帧） ｜  剩余：{time_remaining} （{frames_remaining} 帧） ｜  速度：{speed_fps} FPS"
+msgstr ""
+"处理中… {done_percent}% ｜ 已处理：{time_done}（{frames_done} 帧）｜ 剩余：{t"
+"ime_remaining}（{frames_remaining} 帧）｜ 速度：{speed_fps} 帧/秒"
 
 #: lada/gui/export/export_utils.py:84
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: Estimating… |  Speed: Estimating…"
-msgstr "处理中… {done_percent}%  ｜  已处理：{time_done} （{frames_done} 帧） ｜  剩余：估算中… ｜  速度：估算中…"
+msgstr ""
+"处理中… {done_percent}% ｜ 已处理：{time_done}（{frames_done} 帧）｜ 剩余：估"
+"算中… ｜ 速度：估算中…"
 
 #: lada/gui/export/export_utils.py:90
 #, python-brace-format
@@ -132,11 +136,11 @@ msgstr "修复…"
 
 #: lada/gui/export/export_view.py:519
 msgid "Save restored video file"
-msgstr "保存已修复的视频文件"
+msgstr "保存修复后的视频"
 
 #: lada/gui/export/export_view.py:526
 msgid "Save restored video files"
-msgstr "保存所有已修复的视频文件"
+msgstr "保存修复后的视频文件"
 
 #: lada/gui/export/export_single_file_page.py:91
 #: lada/gui/export/export_single_file_page.py:152
@@ -165,7 +169,7 @@ msgstr "检测模型"
 
 #: lada/gui/config/config_sidebar.ui:20
 msgid "Model used for detecting mosaic areas."
-msgstr "用于检测马赛克的模型。"
+msgstr "用于检测马赛克区域的模型。"
 
 #: lada/gui/config/config_sidebar.ui:30
 msgid "Restoration model"
@@ -189,7 +193,7 @@ msgstr "GPU"
 
 #: lada/gui/config/config_sidebar.ui:58
 msgid "Selected GPU for model processing."
-msgstr "用于模型处理的 GPU。"
+msgstr "选择用于模型处理的 GPU。"
 
 #: lada/gui/config/config_sidebar.ui:73
 msgid "Playback"
@@ -222,7 +226,7 @@ msgstr "编码器"
 
 #: lada/gui/config/config_sidebar.ui:107
 msgid "Video Codec used for encoding the restored video."
-msgstr "用于已修复视频的编码器。"
+msgstr "用于编码修复后视频的编码器。"
 
 #: lada/gui/config/config_sidebar.ui:119
 msgid "CRF (Constant Rate Factor)"
@@ -324,7 +328,7 @@ msgstr "恢复默认设置"
 
 #: lada/gui/config/config_sidebar.py:292
 msgid "Select a folder where restored videos should be saved"
-msgstr "选择已修复视频的保存位置"
+msgstr "选择修复后视频的保存位置"
 
 #: lada/gui/fileselection/file_selection_view.ui:31
 msgid "Restore pixelated adult videos"
@@ -401,7 +405,7 @@ msgstr "可用检测模型："
 
 #: lada/cli/utils.py:112 lada/cli/utils.py:126
 msgid "None!"
-msgstr "没有！"
+msgstr "无！"
 
 #: lada/cli/utils.py:114 lada/cli/utils.py:128
 msgid "Name"
@@ -417,12 +421,14 @@ msgstr "可用修复模型："
 
 #: lada/cli/utils.py:141
 msgid "Usage: "
-msgstr "使用情况： "
+msgstr "用法： "
 
 #: lada/cli/utils.py:153
 #, python-brace-format
 msgid "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}"
-msgstr "正在处理视频：{done_percent}%｜{bar}｜已处理：{time_done} （{frames_done} 帧）{bar_suffix}"
+msgstr ""
+"正在处理视频：{done_percent}%｜{bar}｜已处理：{time_done}（{frames_done}f）{b"
+"ar_suffix}"
 
 #: lada/cli/utils.py:155
 msgid " | Remaining: ? | Speed: ?"
@@ -431,7 +437,7 @@ msgstr " | 剩余时间：？ | 处理速度：？"
 #: lada/cli/utils.py:195
 #, python-brace-format
 msgid " | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr " ｜ 剩余：{time_remaining} （{frames_remaining} 帧） ｜ 速度：{speed_fps}fps"
+msgstr " ｜ 剩余：{time_remaining} （{frames_remaining} f）｜速度：{speed_fps}fps"
 
 #: lada/cli/main.py:17
 msgid "Examples:"
@@ -522,7 +528,10 @@ msgstr "列出可用编码器及硬件加速设备/GPU"
 #: lada/cli/main.py:55
 #, python-format
 msgid "Constant rate factor (CRF). Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes. If you have selected GPU codecs \"h264_nvenc\" or \"hevc_nvenc\" then the option \"qp\" will be used instead as those encoders don't support the \"crf\" option. (default: %(default)s)"
-msgstr "恒定码率因子（CRF）。视频编码器的质量设置，值越低，质量越好但文件越大。如果选择了GPU编码器\"h264_nvenc\" 或 \"hevc_nvenc\"则将使用\"qp\"因为这些编码器不支持\"crf\"值。(默认值：%(default)s)"
+msgstr ""
+"恒定码率因子（CRF）。视频编码器的质量设置，值越低，质量越好但文件越大。如果选"
+"择了GPU编码器 \"h264_nvenc\" 或 \"hevc_nvenc\"，则将改用 \"qp\" 选项，因为这"
+"些编码器不支持 \"crf\" 选项。(默认值：%(default)s)"
 
 #: lada/cli/main.py:56
 #, python-format
@@ -563,7 +572,9 @@ msgstr "模型配置文件的路径"
 #: lada/cli/main.py:65
 #, python-format
 msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint. If set too low flickering could appear (default: %(default)s)"
-msgstr "修复时模型每次处理的最大帧数，较高的值可提高时间稳定性；较低的值可降低显存占；若设置过低，可能会出现画面闪烁。（默认值：%(default)s）"
+msgstr ""
+"修复时模型每次处理的最大帧数，较高的值可提高时间稳定性；较低的值可降低显存占"
+"用；若设置过低，可能会出现画面闪烁。（默认值：%(default)s）"
 
 #: lada/cli/main.py:67
 msgid "Mosaic Detection"
