@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
 "POT-Creation-Date: 2025-10-21 08:16+0000\n"
-"PO-Revision-Date: 2025-10-22 23:37+0000\n"
+"PO-Revision-Date: 2025-10-22 10:54+0000\n"
 "Last-Translator: xl <xl@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://"
 "translate.codeberg.org/projects/lada/lada/zh_Hans/>\n"
@@ -27,7 +27,7 @@ msgstr "用外部程序打开…"
 #: lada/gui/export/export_multiple_files_row.ui:73
 #: lada/gui/export/export_single_file_page.ui:126
 msgid "Show Error"
-msgstr "显示错误信息"
+msgstr "显示错误详情"
 
 #: lada/gui/export/export_multiple_files_row.ui:86
 msgid "Remove"
@@ -36,7 +36,7 @@ msgstr "移除"
 #: lada/gui/export/export_utils.py:23
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
-msgstr "时长：{duration}，分辨率：{resolution}，帧率：{fps} 帧/秒"
+msgstr "时长：{duration}，分辨率：{resolution}，帧率：{fps} fps"
 
 #: lada/gui/export/export_utils.py:47
 #: lada/gui/export/export_single_file_page.py:117
@@ -59,14 +59,14 @@ msgstr "失败"
 #: lada/gui/export/export_utils.py:68
 #, python-brace-format
 msgid "Finished  |  Processed: {time_done} ({frames_done} frames)"
-msgstr "完成  |  已处理：{time_done} ({frames_done} 帧)"
+msgstr "完成 ｜ 已处理：{time_done}（{frames_done} 帧）"
 
 #: lada/gui/export/export_utils.py:76
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: {time_remaining} ({frames_remaining} frames)  |  Speed: {speed_fps} FPS"
 msgstr ""
-"处理中… {done_percent}%  |  已处理： {time_done} ({frames_done} 帧）  |  剩余"
-"：{time_remaining} ({frames_remaining} 帧）  |  速度：{speed_fps} 帧/秒"
+"处理中… {done_percent}% ｜ 已处理：{time_done}（{frames_done} 帧）｜ 剩余：{t"
+"ime_remaining}（{frames_remaining} 帧）｜ 速度：{speed_fps} fps"
 
 #: lada/gui/export/export_utils.py:84
 #, python-brace-format
@@ -78,7 +78,7 @@ msgstr ""
 #: lada/gui/export/export_utils.py:90
 #, python-brace-format
 msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
-msgstr "已暂停  |  已处理： {time_done} ({frames_done} 帧)"
+msgstr "已暂停 ｜ 已处理：{time_done}（{frames_done} 帧）"
 
 #: lada/gui/export/export_single_file_page.ui:13
 #: lada/gui/export/export_single_file_page.py:126
@@ -276,7 +276,7 @@ msgid ""
 "File name pattern for restored files.\n"
 "Must include placeholder <span background=\"#D3D3D350\"><tt>{orig_file_name}</tt></span>."
 msgstr ""
-"修复后视频的文件名模板。\n"
+"已修复视频的文件名模板。\n"
 "必须包含占位符 <span background=\"#D3D3D350\""
 "><tt>{orig_file_name}</tt></span>。"
 
@@ -498,7 +498,7 @@ msgstr ""
 
 #: lada/cli/main.py:46
 msgid "Pattern used to determine output file name(s). Used when input is a directory or a file with no output path specified"
-msgstr "输出文件名模板。用于输入为目录或未指定输出路径时"
+msgstr "输出文件的文件名模板，在输入为目录或未指定输出路径时使用"
 
 #: lada/cli/main.py:47
 #, python-format
@@ -589,7 +589,7 @@ msgstr "修复模型配置文件的路径"
 msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint. If set too low flickering could appear (default: %(default)s)"
 msgstr ""
 "修复时模型每次最多处理的帧数。较高的值可增强时间稳定性，较低的值可减少显存占"
-"用，若设置过低，可能会出现画面闪烁。 (默认: %(default)s)"
+"用，若设置过低，可能会出现画面闪烁。（默认值：%(default)s）"
 
 #: lada/cli/main.py:67
 msgid "Mosaic Detection"
