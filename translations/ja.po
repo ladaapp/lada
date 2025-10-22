@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
 "POT-Creation-Date: 2025-10-21 08:16+0000\n"
-"PO-Revision-Date: 2025-10-22 03:20+0000\n"
+"PO-Revision-Date: 2025-10-22 07:24+0000\n"
 "Last-Translator: sanatorium <sanatorium@noreply.codeberg.org>\n"
 "Language-Team: Japanese <https://translate.codeberg.org/projects/lada/lada/"
 "ja/>\n"
@@ -36,7 +36,7 @@ msgstr "削除"
 #: lada/gui/export/export_utils.py:23
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
-msgstr ""
+msgstr "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
 
 #: lada/gui/export/export_utils.py:47
 #: lada/gui/export/export_single_file_page.py:117
@@ -46,11 +46,11 @@ msgstr "修復に失敗しました"
 #: lada/gui/export/export_utils.py:48
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
-msgstr ""
+msgstr "処理中にエラーが発生しました <span><tt>{filename}</tt></span>"
 
 #: lada/gui/export/export_utils.py:57
 msgid "Okay"
-msgstr ""
+msgstr "了解"
 
 #: lada/gui/export/export_utils.py:63
 msgid "Failed"
@@ -59,22 +59,26 @@ msgstr "失敗"
 #: lada/gui/export/export_utils.py:68
 #, python-brace-format
 msgid "Finished  |  Processed: {time_done} ({frames_done} frames)"
-msgstr ""
+msgstr "完了  |  処理済み: {time_done} ({frames_done} frames)"
 
 #: lada/gui/export/export_utils.py:76
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: {time_remaining} ({frames_remaining} frames)  |  Speed: {speed_fps} FPS"
 msgstr ""
+"処理中… {done_percent}%  |  処理済み: {time_done} ({frames_done} frames)  |  "
+"残り: {time_remaining} ({frames_remaining} frames)  |  速度: {speed_fps} FPS"
 
 #: lada/gui/export/export_utils.py:84
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: Estimating… |  Speed: Estimating…"
 msgstr ""
+"処理中… {done_percent}%  |  処理済み: {time_done} ({frames_done} frames)  |  "
+"残り: 計算中… |  速度: 計算中…"
 
 #: lada/gui/export/export_utils.py:90
 #, python-brace-format
 msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
-msgstr ""
+msgstr "一時停止  |  処理済み: {time_done} ({frames_done} frames)"
 
 #: lada/gui/export/export_single_file_page.ui:13
 #: lada/gui/export/export_single_file_page.py:126
@@ -128,7 +132,7 @@ msgstr "Ladaについて"
 
 #: lada/gui/export/export_view.py:249
 msgid "Restore…"
-msgstr ""
+msgstr "除去…"
 
 #: lada/gui/export/export_view.py:519
 msgid "Save restored video file"
@@ -141,7 +145,7 @@ msgstr "除去された動画ファイルを複数保存"
 #: lada/gui/export/export_single_file_page.py:91
 #: lada/gui/export/export_single_file_page.py:152
 msgid "Restoring video…"
-msgstr ""
+msgstr "動画の除去…"
 
 #: lada/gui/export/export_single_file_page.py:109
 msgid "Finished video restoration!"
@@ -194,7 +198,7 @@ msgstr "モデル処理に選択されたGPU。"
 
 #: lada/gui/config/config_sidebar.ui:73
 msgid "Playback"
-msgstr ""
+msgstr "再生"
 
 #: lada/gui/config/config_sidebar.ui:77
 msgid "Buffer duration"
@@ -202,7 +206,8 @@ msgstr "バッファ時間"
 
 #: lada/gui/config/config_sidebar.ui:78
 msgid "How much video is pre-loaded for playback, measured in seconds. If set to 0 this value will be chosen automatically."
-msgstr ""
+msgstr "再生用にプリロードされる動画の長さ(秒単位)。0に設定すると、この値は自動的に選"
+"択されます。"
 
 #: lada/gui/config/config_sidebar.ui:92
 msgid "Mute audio by default"
@@ -210,7 +215,7 @@ msgstr "デフォルトで音量をミュートする"
 
 #: lada/gui/config/config_sidebar.ui:93
 msgid "When enabled, audio will be muted automatically when a new file is opened."
-msgstr ""
+msgstr "有効にすると、新しいファイルを開いた際に音声が自動的にミュートされます。"
 
 #: lada/gui/config/config_sidebar.ui:102 lada/gui/config/config_sidebar.ui:273
 #: lada/gui/window.ui:48
