@@ -88,7 +88,7 @@ This section describes how to install the app (CLI and GUI) from source.
    
    ```Powershell
    cd $project
-   git clone https://github.com/ladaapp/lada.git
+   git clone https://codeberg.org/ladaapp/lada.git
    cd lada
    ```
 5) Create a virtual environment to install python dependencies

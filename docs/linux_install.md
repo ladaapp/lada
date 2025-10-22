@@ -9,7 +9,7 @@ This section describes how to install the app (CLI and GUI) from source.
 
 1) Get the code
    ```bash
-   git clone https://github.com/ladaapp/lada.git
+   git clone https://codeberg.org/ladaapp/lada.git
    cd lada
    ```
 
