@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
 "POT-Creation-Date: 2025-10-21 08:16+0000\n"
-"PO-Revision-Date: 2025-10-22 07:24+0000\n"
+"PO-Revision-Date: 2025-10-22 07:47+0000\n"
 "Last-Translator: sanatorium <sanatorium@noreply.codeberg.org>\n"
 "Language-Team: Japanese <https://translate.codeberg.org/projects/lada/lada/"
 "ja/>\n"
@@ -278,6 +278,9 @@ msgid ""
 "File name pattern for restored files.\n"
 "Must include placeholder <span background=\"#D3D3D350\"><tt>{orig_file_name}</tt></span>."
 msgstr ""
+"除去ファイルのファイル名パターン.\n"
+"Must include placeholder <span background=\"#D3D3D350\""
+"><tt>{orig_file_name}</tt></span>."
 
 #: lada/gui/config/config_sidebar.ui:189
 msgid "Troubleshooting"
@@ -298,7 +301,7 @@ msgstr "UI"
 
 #: lada/gui/config/config_sidebar.ui:210
 msgid "Color Scheme"
-msgstr ""
+msgstr "配色"
 
 #: lada/gui/config/config_sidebar.ui:214
 msgid "Follow System style"
@@ -314,11 +317,11 @@ msgstr "ダークテーマ"
 
 #: lada/gui/config/config_sidebar.ui:250
 msgid "Default View"
-msgstr ""
+msgstr "標準表示"
 
 #: lada/gui/config/config_sidebar.ui:251
 msgid "View shown after opening files"
-msgstr ""
+msgstr "ファイルを開いたときの表示"
 
 #: lada/gui/config/config_sidebar.ui:258 lada/gui/preview/preview_view.py:497
 #: lada/gui/window.ui:38
@@ -368,11 +371,11 @@ msgstr "フルスクリーンを有効/無効にする"
 
 #: lada/gui/window.py:104
 msgid "Switch to Export View"
-msgstr ""
+msgstr "エクスポート表示に切り替え"
 
 #: lada/gui/window.py:105
 msgid "Switch to Watch View"
-msgstr ""
+msgstr "視聴表示に切り替え"
 
 #: lada/cli/utils.py:47
 msgid "No video files found"
@@ -408,7 +411,7 @@ msgstr "利用可能な検出モデル:"
 
 #: lada/cli/utils.py:112 lada/cli/utils.py:126
 msgid "None!"
-msgstr ""
+msgstr "なし！"
 
 #: lada/cli/utils.py:114 lada/cli/utils.py:128
 msgid "Name"
@@ -424,7 +427,7 @@ msgstr "利用可能な除去モデル:"
 
 #: lada/cli/utils.py:141
 msgid "Usage: "
-msgstr ""
+msgstr "使用法 "
 
 #: lada/cli/utils.py:153
 #, python-brace-format
@@ -435,126 +438,148 @@ msgstr ""
 
 #: lada/cli/utils.py:155
 msgid " | Remaining: ? | Speed: ?"
-msgstr ""
+msgstr " | 残り: ? | 速度: ?"
 
 #: lada/cli/utils.py:195
 #, python-brace-format
 msgid " | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
+msgstr " | 残り: {time_remaining} ({frames_remaining}f) | 速度: {speed_fps}fps"
 
 #: lada/cli/main.py:17
 msgid "Examples:"
-msgstr ""
+msgstr "例:"
 
 #: lada/cli/main.py:19
 msgid "Restore video with default settings:"
-msgstr ""
+msgstr "デフォルト設定で動画の除去をする:"
 
 #: lada/cli/main.py:20
 #, python-format
 msgid "%(prog)s --input input.mp4"
-msgstr ""
+msgstr "%(prog)s --input input.mp4"
 
 #: lada/cli/main.py:22
 msgid "Restore all videos found in the specified directory and save them to a different folder:"
-msgstr ""
+msgstr "指定されたディレクトリ内にあるすべての動画を復元し、別のフォルダに保存します:"
 
 #: lada/cli/main.py:23
 #, python-format
 msgid "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
-msgstr ""
+msgstr "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
 
 #: lada/cli/main.py:25
 msgid "Use a GPU-accelerated codec for encoding the restored video:"
-msgstr ""
+msgstr "除去したビデオのエンコードにはGPUアクセラレーション対応コーデックを使用してく"
+"ださい:"
 
 #: lada/cli/main.py:26
 #, python-format
 msgid "%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20"
-msgstr ""
+msgstr "%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20"
 
 #: lada/cli/main.py:29
 #, python-format
 msgid "%(prog)s [options]"
-msgstr ""
+msgstr "%(prog)s [設定]"
 
 #: lada/cli/main.py:30
 msgid "Restore pixelated adult videos (JAV)"
-msgstr ""
+msgstr "ピクセル化されたアダルト動画を復元する"
 
 #: lada/cli/main.py:43
 msgid "General"
-msgstr ""
+msgstr "一般"
 
 #: lada/cli/main.py:44
 msgid "Path to pixelated video file or directory containing video files"
-msgstr ""
+msgstr "ピクセル化された動画ファイルへのパス、または動画ファイルを含むディレクトリ"
 
 #: lada/cli/main.py:45
 msgid "Path used to save output file(s). If path is a directory then file name will be chosen automatically (see --output-file-pattern). If no output path was given then the directory of the input file will be used"
 msgstr ""
+"出力ファイルを保存するパス。パスがディレクトリの場合、ファイル名は自動的に選"
+"択されます（--output-file-pattern を参照）。出力パスが指定されていない場合、"
+"入力ファイルのディレクトリが使用されます"
 
 #: lada/cli/main.py:46
 msgid "Pattern used to determine output file name(s). Used when input is a directory or a file with no output path specified"
-msgstr ""
+msgstr "出力ファイル名を決定するために使用されるパターン。入力がディレクトリ、または"
+"出力パスが指定されていないファイルの場合に使用されます"
 
 #: lada/cli/main.py:47
 #, python-format
 msgid "Device used for running Restoration and Detection models. Use \"cpu\" or \"cuda\". If you have multiple GPUs you can select a specific one via index e.g. \"cuda:0\" (default: %(default)s)"
 msgstr ""
+"復元および検出モデルの実行に使用するデバイス。\"cpu\" または \"cuda\" を指定"
+"してください。複数のGPUがある場合、インデックスで特定のGPUを選択できます（例:"
+"\"cuda:0\"）。デフォルト: (%(default)s)"
 
 #: lada/cli/main.py:48
 msgid "List available devices and exit"
-msgstr ""
+msgstr "利用可能なデバイスの一覧を表示して終了する"
 
 #: lada/cli/main.py:49
 msgid "Display version and exit"
-msgstr ""
+msgstr "バージョンを表示して終了する"
 
 #: lada/cli/main.py:50
 msgid "Show this help message and exit"
-msgstr ""
+msgstr "このヘルプメッセージを表示して終了します"
 
 #: lada/cli/main.py:52
 msgid "Export (Encoder settings)"
-msgstr ""
+msgstr "Export (Encoder settings)"
 
 #: lada/cli/main.py:53
 #, python-format
 msgid "FFmpeg video codec. E.g. \"h264, \"hevc\" or \"hevc_nvenc\". Use \"--list-codecs\" to see whats available. (default: %(default)s)"
 msgstr ""
+"FFmpegビデオコーデック。例：「h264」「hevc」または「hevc_nvenc」。利用可能な"
+"コーデックを確認するには「--list-codecs」を使用してください。（デフォルト：%"
+"(default)s）"
 
 #: lada/cli/main.py:54
 msgid "List available codecs and hardware devices / GPUs for hardware-accelerated video encoding"
-msgstr ""
+msgstr "利用可能なコーデックとハードウェアデバイス/GPUをリストアップし、ハードウェア"
+"アクセラレーションによる動画エンコードを実現します"
 
 #: lada/cli/main.py:55
 #, python-format
 msgid "Constant rate factor (CRF). Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes. If you have selected GPU codecs \"h264_nvenc\" or \"hevc_nvenc\" then the option \"qp\" will be used instead as those encoders don't support the \"crf\" option. (default: %(default)s)"
 msgstr ""
+"固定品質（CRF）。ビデオエンコーダの画質設定。値を低くすると画質は向上しますが"
+"、ファイルサイズが大きくなります。GPUコーデック「h264_nvenc」または「hevc_nve"
+"nc」を選択した場合、これらのエンコーダは「crf」オプションをサポートしていない"
+"ため、代わりに「qp」オプションが使用されます。（デフォルト：%(default)s）"
 
 #: lada/cli/main.py:56
 #, python-format
 msgid "Encoder preset. Mostly affects file-size and speed. (default: %(default)s)"
-msgstr ""
+msgstr "エンコーダプリセット。主にファイルサイズと速度に影響します。（デフォルト：%"
+"(default)s）"
 
 #: lada/cli/main.py:57
 #, python-format
 msgid "Sets ffmpeg mov flags 'frag_keyframe+empty_moov+faststart'. Enables playing the output video while it's being written (default: %(default)s)"
 msgstr ""
+"ffmpeg mov フラグに 'frag_keyframe+empty_moov+faststart' を設定します。出力動"
+"画の書き込み中に再生を有効にします（デフォルト: %(default)s）"
 
 #: lada/cli/main.py:58
 msgid "Pass arbitrary encoder options. Pass it like you'd specify them using ffmpeg. For example: --custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\". Official FFmpeg Codecs Documentation: https://ffmpeg.org/ffmpeg-codecs.html"
 msgstr ""
+"任意のエンコーダオプションを記述します。ffmpegで使用する場合と同様に指定して"
+"ください。例: --custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\"。公式F"
+"Fmpegコーデックドキュメント: https://ffmpeg.org/ffmpeg-codecs.html"
 
 #: lada/cli/main.py:60
 msgid "Mosaic Restoration"
-msgstr ""
+msgstr "モザイク除去"
 
 #: lada/cli/main.py:61
 #, python-format
 msgid "Model used to restore mosaic clips (default: %(default)s)"
-msgstr ""
+msgstr "モザイククリップを除去するために使用するモデル （デフォルト: %(default)s）"
 
 #: lada/cli/main.py:62
 msgid "List available restoration model weights found in MODEL_WEIGHTS_DIR and exit (default location is './model_weights' if not overwritten by environment variable MODEL_WEIGHTS_DIR)"
