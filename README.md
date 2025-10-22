@@ -20,7 +20,7 @@ After opening a file, you can either watch the restored via in realtime or expor
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_gui_1_dark.png">
   <source media="(prefers-color-scheme: light)" srcset="assets/screenshot_gui_1_light.png">
-  <img alt="Screenshot showing video preview" src="assets/screenshot_gui_1_dark.png" width="45%">
+  <img alt="Screenshot showing video preview" src="assets/screenshot_gui_1_dark.png" width="36%">
 </picture>
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_gui_2_dark.png">
@@ -37,7 +37,7 @@ You can also use the command-line interface (CLI) to restore video(s):
 ```shell
 lada-cli --input <input video path>
 ```
-<img src="assets/screenshot_cli_1.png" alt="screenshot showing video export" width="45%">
+<img src="assets/screenshot_cli_1.png" alt="screenshot showing video export" width="60%">
 
 For more information about additional options, use the `--help` argument.
 

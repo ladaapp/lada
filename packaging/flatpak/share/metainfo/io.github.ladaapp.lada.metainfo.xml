@@ -42,15 +42,15 @@
 
     <screenshots>
         <screenshot type="default">
-            <image>https://github.com/ladaapp/lada/raw/main/assets/screenshot_gui_1_dark.png</image>
+            <image>https://codeberg.org/ladaapp/lada/raw/main/assets/screenshot_gui_1_dark.png</image>
             <caption>Watching restored video</caption>
         </screenshot>
         <screenshot>
-            <image>https://github.com/ladaapp/lada/raw/main/assets/screenshot_gui_2_dark.png</image>
+            <image>https://codeberg.org/ladaapp/lada/raw/main/assets/screenshot_gui_2_dark.png</image>
             <caption>Exporting restored video</caption>
         </screenshot>
         <screenshot>
-            <image>https://github.com/ladaapp/lada/raw/main/assets/screenshot_cli_1.png</image>
+            <image>https://codeberg.org/ladaapp/lada/raw/branch/main/assets/screenshot_cli_1.png</image>
             <caption>Exporting restored video via CLI</caption>
         </screenshot>
     </screenshots>
