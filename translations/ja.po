@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
 "POT-Creation-Date: 2025-10-21 08:16+0000\n"
-"PO-Revision-Date: 2025-10-22 07:47+0000\n"
+"PO-Revision-Date: 2025-10-22 15:51+0000\n"
 "Last-Translator: sanatorium <sanatorium@noreply.codeberg.org>\n"
 "Language-Team: Japanese <https://translate.codeberg.org/projects/lada/lada/"
 "ja/>\n"
@@ -145,7 +145,7 @@ msgstr "除去された動画ファイルを複数保存"
 #: lada/gui/export/export_single_file_page.py:91
 #: lada/gui/export/export_single_file_page.py:152
 msgid "Restoring video…"
-msgstr "動画の除去…"
+msgstr "モザイクの除去…"
 
 #: lada/gui/export/export_single_file_page.py:109
 msgid "Finished video restoration!"
@@ -301,7 +301,7 @@ msgstr "UI"
 
 #: lada/gui/config/config_sidebar.ui:210
 msgid "Color Scheme"
-msgstr "配色"
+msgstr "テーマ"
 
 #: lada/gui/config/config_sidebar.ui:214
 msgid "Follow System style"
