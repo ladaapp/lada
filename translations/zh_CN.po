@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
 "POT-Creation-Date: 2025-10-21 08:16+0000\n"
-"PO-Revision-Date: 2025-10-22 21:53+0000\n"
+"PO-Revision-Date: 2025-10-22 23:37+0000\n"
 "Last-Translator: xl <xl@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://"
 "translate.codeberg.org/projects/lada/lada/zh_Hans/>\n"
@@ -505,7 +505,7 @@ msgstr "输出文件名模板。用于输入为目录或未指定输出路径时
 msgid "Device used for running Restoration and Detection models. Use \"cpu\" or \"cuda\". If you have multiple GPUs you can select a specific one via index e.g. \"cuda:0\" (default: %(default)s)"
 msgstr ""
 "运行检测和修复模型的设备。使用 \"cpu\" 或 \"cuda\"。若有多个 GPU，可通过索引"
-"来指定，例如 \"cuda:0\" (默认值: %(default)s)"
+"来指定，例如 \"cuda:0\" (默认: %(default)s)"
 
 #: lada/cli/main.py:48
 msgid "List available devices and exit"
@@ -528,7 +528,7 @@ msgstr "导出设置 (视频编码设置)"
 msgid "FFmpeg video codec. E.g. \"h264, \"hevc\" or \"hevc_nvenc\". Use \"--list-codecs\" to see whats available. (default: %(default)s)"
 msgstr ""
 "FFmpeg 视频编码器。例如\"h264\"、\"hevc\"或\"hevc_nvenc\"。请使用\"--list-cod"
-"ecs\"查看可选项。 (默认值: %(default)s)"
+"ecs\"查看可选项。 (默认: %(default)s)"
 
 #: lada/cli/main.py:54
 msgid "List available codecs and hardware devices / GPUs for hardware-accelerated video encoding"
@@ -540,19 +540,19 @@ msgid "Constant rate factor (CRF). Quality setting of the video encoder. Lower v
 msgstr ""
 "恒定码率因子 (CRF)。用于控制视频编码质量，数值越低，画质越高但文件体积也越大"
 "。若使用 GPU 编码器 \"h264_nvenc\" 或 \"hevc_nvenc\"，程序将自动使用参数 "
-"\"qp\"，因为这些编码器不支持 \"crf\"。 (默认值: %(default)s)"
+"\"qp\"，因为这些编码器不支持 \"crf\"。 (默认: %(default)s)"
 
 #: lada/cli/main.py:56
 #, python-format
 msgid "Encoder preset. Mostly affects file-size and speed. (default: %(default)s)"
-msgstr "编码器预设。主要影响文件大小与编码速度。 (默认值: %(default)s)"
+msgstr "编码器预设。主要影响文件大小与编码速度。 (默认: %(default)s)"
 
 #: lada/cli/main.py:57
 #, python-format
 msgid "Sets ffmpeg mov flags 'frag_keyframe+empty_moov+faststart'. Enables playing the output video while it's being written (default: %(default)s)"
 msgstr ""
-"设置 FFmpeg 的 MOV 标志参数'frag_keyframe+empty_moov+faststart'，使输出视频在"
-"写入过程中即可播放 (默认值: %(default)s)"
+"设置 FFmpeg movflags 'frag_keyframe+empty_moov+faststart'，使输出视频在写入过"
+"程中可边写边播 (默认: %(default)s)"
 
 #: lada/cli/main.py:58
 msgid "Pass arbitrary encoder options. Pass it like you'd specify them using ffmpeg. For example: --custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\". Official FFmpeg Codecs Documentation: https://ffmpeg.org/ffmpeg-codecs.html"
@@ -567,7 +567,7 @@ msgstr "马赛克修复"
 #: lada/cli/main.py:61
 #, python-format
 msgid "Model used to restore mosaic clips (default: %(default)s)"
-msgstr "用于修复马赛克区域的模型 (默认值: %(default)s)"
+msgstr "用于修复马赛克区域的模型 (默认: %(default)s)"
 
 #: lada/cli/main.py:62
 msgid "List available restoration model weights found in MODEL_WEIGHTS_DIR and exit (default location is './model_weights' if not overwritten by environment variable MODEL_WEIGHTS_DIR)"
@@ -578,7 +578,7 @@ msgstr ""
 #: lada/cli/main.py:63 lada/cli/main.py:68
 #, python-format
 msgid "Path to restoration model weights file (default: %(default)s)"
-msgstr "模型权重文件路径 (默认值: %(default)s)"
+msgstr "修复模型文件的路径 (默认: %(default)s)"
 
 #: lada/cli/main.py:64
 msgid "Path to restoration model configuration file"
@@ -589,7 +589,7 @@ msgstr "修复模型配置文件的路径"
 msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint. If set too low flickering could appear (default: %(default)s)"
 msgstr ""
 "修复时模型每次最多处理的帧数。较高的值可增强时间稳定性，较低的值可减少显存占"
-"用，若设置过低，可能会出现画面闪烁。 (默认值: %(default)s)"
+"用，若设置过低，可能会出现画面闪烁。 (默认: %(default)s)"
 
 #: lada/cli/main.py:67
 msgid "Mosaic Detection"
