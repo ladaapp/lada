@@ -27,8 +27,8 @@ In order to work on the models and datasets you'll have to install the requireme
    wget -P model_weights/3rd_party/ 'https://download.openmmlab.com/mmediting/restorers/basicvsr/spynet_20210409-c6c1bd09.pth'
    wget -P model_weights/3rd_party/ 'https://download.pytorch.org/models/vgg19-dcbb9e9d.pth'
    wget -P model_weights/3rd_party/ 'https://github.com/QualityAssessment/DOVER/releases/download/v0.1.0/DOVER.pth'
-   wget -P model_weights/ 'https://github.com/ladaapp/lada/releases/download/v0.5.1-beta/lada_nsfw_detection_model_v1.3.pt'
-   wget -P model_weights/ 'https://github.com/ladaapp/lada/releases/download/v0.7.3-beta1/lada_watermark_detection_model_v1.3.pt'
+   wget -P model_weights/ 'https://huggingface.co/ladaapp/lada/resolve/main/lada_nsfw_detection_model_v1.3.pt?download=true'
+   wget -P model_weights/ 'https://huggingface.co/ladaapp/lada/resolve/main/lada_watermark_detection_model_v1.3.pt?download=true'
    wget -P model_weights/3rd_party/ 'https://github.com/notAI-tech/NudeNet/releases/download/v3.4-weights/640m.pt'
    ```
 

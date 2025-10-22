@@ -16,13 +16,13 @@ RUN mkdir -p /home/lada/.config/Ultralytics \
     && chown -R lada:lada /home/lada/.config
 RUN mkdir -p model_weights/3rd_party mnt && chmod -R 555 model_weights && chmod 777 mnt
 ADD --checksum=sha256:2b6e5d6cd5a795a4dcc1205b817a7323a4bd3725cef1a7de3a172cb5689f0368 \
-    https://github.com/ladaapp/lada/releases/download/v0.7.1/lada_mosaic_detection_model_v3.1_accurate.pt model_weights/lada_mosaic_detection_model_v3.1_accurate.pt
+    https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v3.1_accurate.pt?download=true model_weights/lada_mosaic_detection_model_v3.1_accurate.pt
 ADD --checksum=sha256:25d62894c16bba00468f3bcc160360bb84726b2f92751b5e235578bf2f9b0820 \
-    https://github.com/ladaapp/lada/releases/download/v0.7.1/lada_mosaic_detection_model_v3.1_fast.pt model_weights/lada_mosaic_detection_model_v3.1_fast.pt
+    https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v3.1_fast.pt?download=true model_weights/lada_mosaic_detection_model_v3.1_fast.pt
 ADD --checksum=sha256:056756fcab250bcdf0833e75aac33e2197b8809b0ab8c16e14722dcec94269b5 \
-    https://github.com/ladaapp/lada/releases/download/v0.2.0/lada_mosaic_detection_model_v2.pt  model_weights/lada_mosaic_detection_model_v2.pt
+    https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v2.pt?download=true  model_weights/lada_mosaic_detection_model_v2.pt
 ADD --checksum=sha256:d404152576ce64fb5b2f315c03062709dac4f5f8548934866cd01c823c8104ee \
-    https://github.com/ladaapp/lada/releases/download/v0.6.0/lada_mosaic_restoration_model_generic_v1.2.pth model_weights/lada_mosaic_restoration_model_generic_v1.2.pth
+    https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_restoration_model_generic_v1.2.pth?download=true model_weights/lada_mosaic_restoration_model_generic_v1.2.pth
 ADD --checksum=sha256:5643ca297c13920b8ffd39a0d85296e494683a69e5e8204d662653d24c582766 \
     https://drive.usercontent.google.com/download?id=1ulct4RhRxQp1v5xwEmUH7xz7AK42Oqlw&export=download&confirm=t model_weights/3rd_party/clean_youknow_video.pth
 RUN chmod 444 model_weights/*\.pt* model_weights/3rd_party/*\.pt*

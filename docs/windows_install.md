@@ -132,10 +132,10 @@ This section describes how to install the app (CLI and GUI) from source.
    
    Download the models from the GitHub Releases page into the `model_weights` directory. The following commands do just that
    ```Powershell
-   Invoke-WebRequest 'https://github.com/ladaapp/lada/releases/download/v0.7.1/lada_mosaic_detection_model_v3.1_accurate.pt' -OutFile ".\model_weights\lada_mosaic_detection_model_v3.1_accurate.pt"
-   Invoke-WebRequest 'https://github.com/ladaapp/lada/releases/download/v0.7.1/lada_mosaic_detection_model_v3.1_fast.pt' -OutFile ".\model_weights\lada_mosaic_detection_model_v3.1_fast.pt"
-   Invoke-WebRequest 'https://github.com/ladaapp/lada/releases/download/v0.2.0/lada_mosaic_detection_model_v2.pt' -OutFile ".\model_weights\lada_mosaic_detection_model_v2.pt"
-   Invoke-WebRequest 'https://github.com/ladaapp/lada/releases/download/v0.6.0/lada_mosaic_restoration_model_generic_v1.2.pth' -OutFile ".\model_weights\lada_mosaic_restoration_model_generic_v1.2.pth"
+   Invoke-WebRequest 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v3.1_accurate.pt?download=true' -OutFile ".\model_weights\lada_mosaic_detection_model_v3.1_accurate.pt"
+   Invoke-WebRequest 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v3.1_fast.pt?download=true' -OutFile ".\model_weights\lada_mosaic_detection_model_v3.1_fast.pt"
+   Invoke-WebRequest 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v2.pt?download=true' -OutFile ".\model_weights\lada_mosaic_detection_model_v2.pt"
+   Invoke-WebRequest 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_restoration_model_generic_v1.2.pth?download=true' -OutFile ".\model_weights\lada_mosaic_restoration_model_generic_v1.2.pth"
    ```
 
    If you're interested in running DeepMosaics' restoration model you can also download their pretrained model `clean_youknow_video.pth`
