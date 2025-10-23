@@ -31,7 +31,7 @@ common_datas = [
 common_datas += [(str(p), str(p.relative_to(LADA_BASE_DIR).parent)) for p in pathlib.Path(ospj(LADA_BASE_DIR, "lada/locale")).rglob("*.mo")]
 gui_datas = []
 gui_datas += common_datas
-gui_datas += gui_datas += [(str(p), str(p.relative_to(LADA_BASE_DIR).parent)) for p in pathlib.Path(ospj(LADA_BASE_DIR, "lada/gui")).rglob("*.ui")]
+gui_datas += [(str(p), str(p.relative_to(LADA_BASE_DIR).parent)) for p in pathlib.Path(ospj(LADA_BASE_DIR, "lada/gui")).rglob("*.ui")]
 gui_datas += [
         (ospj(LADA_BASE_DIR, 'lada/gui/style.css'), '.'),
         (ospj(LADA_BASE_DIR, 'lada/gui/resources.gresource'), '.'),
