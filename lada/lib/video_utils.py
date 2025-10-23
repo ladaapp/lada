@@ -100,7 +100,8 @@ def get_video_meta_data(path: str) -> VideoMetadata:
     json_video_format = json_output["format"]
 
     value = [int(num) for num in json_video_stream['avg_frame_rate'].split("/")]
-    average_fps = value[0]/value[1] if len(value) == 2 else value[0]
+    # Can be 0/0 for some files for ffprobe isn't able to determine the number of frames nb_frames
+    average_fps = value[0]/value[1] if len(value) == 2 and value[1] != 0 else value[0]
 
     value = [int(num) for num in json_video_stream['r_frame_rate'].split("/")]
     fps = value[0]/value[1] if len(value) == 2 else value[0]

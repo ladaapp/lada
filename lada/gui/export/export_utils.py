@@ -26,7 +26,7 @@ def get_video_metadata_string(file: Gio.File):
     return _("Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS").format(
         duration=_format_duration(meta_data.duration),
         resolution=f"{meta_data.video_width}x{meta_data.video_height}",
-        fps=f"{meta_data.video_fps:.2f}")
+        fps=f"{meta_data.video_fps_exact:.2f}")
 
 def open_error_dialog(parent: Gtk.Widget, filename:str, details:str|None):
     extra_child = None
