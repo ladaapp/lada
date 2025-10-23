@@ -86,8 +86,8 @@ class LadaApplication(Adw.Application):
         about = Adw.AboutDialog(application_name='lada',
                                 application_icon='io.github.ladaapp.lada',
                                 license_type=Gtk.License.AGPL_3_0,
-                                website='https://github.com/ladaapp',
-                                issue_url='https://github.com/ladaapp/issues',
+                                website='https://codeberg.org/ladaapp',
+                                issue_url='https://codeberg.org/ladaapp/issues',
                                 version=VERSION)
         about.present(self.props.active_window)
 
