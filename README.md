@@ -148,7 +148,8 @@ For Windows users, the app (CLI and GUI) is packaged as a standalone .7z archive
 You'll need [7-zip](https://7-zip.org/) to unpack the files. It is recommended to validate the file after downloading. See the Tip below.
 
 Get the latest release from the [Releases Page](https://codeberg.org/ladaapp/lada/releases).
-The .zip is available in the *Assets* section. You'll find ´lada.exe´ and ´lada-cli.exe´ after unzipping the archive.
+
+You'll find ´lada.exe´ and ´lada-cli.exe´ after extracting the archive.
 
 > [!NOTE]
 > The Windows release only works with x86_64 CPUs and Nvidia/CUDA GPUs (Turing or newer: RTX 20xx up to including RTX 50xx). Ensure your NVIDIA GPU driver is up-to-date.
