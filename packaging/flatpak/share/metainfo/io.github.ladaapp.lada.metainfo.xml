@@ -55,6 +55,33 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release date="2025-10-23" version="0.8.2">
+            <description>
+                <p>Features:</p>
+                <ul>
+                    <li>GUI+CLI: Set up translation project at Codeberg Translate. This release comes with a full Simplified Chinese translation!</li>
+                    <li>GUI(Export): Add buttons to pause/resume and cancel</li>
+                    <li>GUI(Export): Show processed and (estimated) remaining processing time as well as speed information. This was only available in CLI up until now</li>
+                    <li>I: Improve showing progress information matching what is shown in GUI now. This should give a more useful speed and remaining time estimate compared to what we had before</li>
+                    <li>GUI(Export): Show error message and error state when restoration fails. This was only available in CLI up until now</li>
+                    <li>GUI(Export): Add a button to remove an item from the list of files</li>
+                    <li>CLI: Support single file --input and directory --output combination</li>
+                    <li>GUI(Watch): Resize window based on video resolution/ratio to avoid having to show padding/borders if window ratio doesn't match video ratio</li>
+                </ul>
+                <p>Fixes:</p>
+                <ul>
+                    <li>GUI+CLI: Fix opening files with non UTF-8 encoded metadata</li>
+                    <li>GUI(Watch): Fix opening files located on a network drive in Watch mode on Windows</li>
+                    <li>GUI+CLI: Fix opening files where frame rate couldn't be determined resulting in ZeroDivisionError</li>
+                    <li>GUI(Export): Prevent opening multiple file dialogs</li>
+                    <li>GUI: Fix shared settings of export and watch sidebars not being synced when changed</li>
+                    <li>GUI(Export): Fix Button to open restored file opening wrong location if restore directory was changed while being queued</li>
+                    <li>GUI(Export): Fix Button to open restored file not opening file if export directory was changed after file was added</li>
+                    <li>GUI: Fix factory reset not resetting detection model and file name pattern</li>
+                </ul>
+            </description>
+            <url>https://translate.codeberg.org/projects/lada/lada/</url>
+        </release>
         <release date="2025-10-06" version="0.8.1">
             <description>
                 <p>This Release is mostly about packaging improvements as this marks the first release for Windows.</p>

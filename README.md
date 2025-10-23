@@ -144,25 +144,26 @@ docker pull ladaapp/lada:latest
 
 ### Using Windows
 
-For Windows users, the app (CLI and GUI) is packaged as a standalone .zip file.
+For Windows users, the app (CLI and GUI) is packaged as a standalone .7z archive file.
+You'll need [7-zip](https://7-zip.org/) to unpack the files. It is recommended to validate the file after downloading. See the Tip below.
 
-> [!WARNING]
-> The Lada repository on GitHub apparently [got flagged by GitHub](https://codeberg.org/ladaapp/lada/issues/1) and the release page cannot be accessed anymore. The links for downloading the .zip files will not work anymore. [Need to find a new place for it](https://codeberg.org/ladaapp/lada/issues/2).
-
-Get the latest release from the [Release Page](https://github.com/ladaapp/lada/releases).
+Get the latest release from the [Releases Page](https://codeberg.org/ladaapp/lada/releases).
 The .zip is available in the *Assets* section. You'll find ´lada.exe´ and ´lada-cli.exe´ after unzipping the archive.
 
 > [!NOTE]
-> The Docker image only works with x86_64 CPUs and Nvidia/CUDA GPUs (Turing or newer: RTX 20xx up to including RTX 50xx). Ensure your NVIDIA GPU driver is up-to-date.
+> The Windows release only works with x86_64 CPUs and Nvidia/CUDA GPUs (Turing or newer: RTX 20xx up to including RTX 50xx). Ensure your NVIDIA GPU driver is up-to-date.
 > It can also be used without a GPU but it will be very slow.
 
 > [!NOTE]
 > Be aware that the first start of lada.exe or lada-cli.exe could take a while before Windows Defender or your AV has scanned it. The next time you open the program it should start fast.
 
 > [!TIP]
-> Files on GitHub Releases are limited to 2GB each, so I had to split the file.
-> Download both files (´<version>.zip.001´ and ´<version>.zip.002´). Then open the first file in [7-zip](https://7-zip.org/).
-> You should then be able to see and extract the *lada* folder containing the .exe files and another subfolder with the dependencies of the application.
+> It is recommended to compare the checksum of the downloaded file against the value you'll find in the release announcement.
+> This makes sure that you got the correct and unaltered file, especially important if you got the file from an unofficial source.
+> 
+> Calculate the checksum of the downloaded file on your computer and compare it against the `SHA256` value you'll find in the release announcement. They must be the same!
+> 
+> You can do this with Powershell `Get-FileHash /path/to/file.7z` or [QuickHash-GUI](https://www.quickhash-gui.org/).
 
 ### Alternative Installation Methods
 
@@ -171,22 +172,15 @@ If the packages above don't work for you then you'll have to follow the [Build](
 Note that these instructions are mostly intended for developers to set up their environment to start working on the source code. But you should hopefully be able
 to follow the instructions even if you aren't a developer.
 
-All packages currently only work with Nvidia cards (or CPU) but there have been reports that following the Build instructions newer Intel Xe GPUs also work fine.
-AMD GPUs should potentially also work but probably not with Windows as PyTorch/ROCm builds are only available for Linux.
+All packages currently only work with Nvidia cards (or CPU) but there have been reports that, following the Build instructions, newer Intel Xe GPUs and AMD ROCm-compatible cards work as well.
 
 Reach out if you can support packaging the app for other operating systems or hardware.
 
 ## Build
 
-> [!WARNING]
-> The Lada repository on GitHub apparently [got flagged by GitHub](https://codeberg.org/ladaapp/lada/issues/1) and the release page cannot be accessed anymore. The links for downloading model files don't work anymore. [Need to find a new place for it](https://codeberg.org/ladaapp/lada/issues/2).
-
 If you want to start hacking on this project you'll need to install the app from source. Check out the detailed installation guides for [Linux](docs/linux_install.md) and [Windows](docs/windows_install.md).
 
 ## Training and dataset creation
-
-> [!WARNING]
-> The Lada repository on GitHub apparently [got flagged by GitHub](https://codeberg.org/ladaapp/lada/issues/1) and the release page cannot be accessed anymore. The links for downloading model files don't work anymore. [Need to find a new place for it](https://codeberg.org/ladaapp/lada/issues/2).
 
 For instructions on training your own models and datasets, refer to [Training and dataset creation](docs/training_and_dataset_creation.md).
 
