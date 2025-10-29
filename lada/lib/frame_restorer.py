@@ -206,8 +206,13 @@ class FrameRestorer:
             clip_mask = image_utils.resize(clip_mask, orig_crop_shape[:2],interpolation=cv2.INTER_NEAREST)
             t, l, b, r = orig_clip_box
             blend_mask = mask_utils.create_blend_mask(clip_mask)
-            blended_img = (frame[t:b + 1, l:r + 1, :] * (1 - blend_mask[..., None]) + clip_img * (blend_mask[..., None])).clip(0, 255).astype(np.uint8)
-            frame[t:b + 1, l:r + 1, :] = blended_img
+
+            frame_roi = frame[t:b + 1, l:r + 1, :]
+            temp_buffer = np.empty_like(frame_roi, dtype=np.float32)
+            np.subtract(clip_img, frame_roi, out=temp_buffer, dtype=np.float32)
+            np.multiply(temp_buffer, blend_mask[..., None], out=temp_buffer)
+            np.add(temp_buffer, frame_roi, out=temp_buffer)
+            frame_roi[:] = temp_buffer.astype(np.uint8)
 
     def _restore_clip(self, clip):
         """
