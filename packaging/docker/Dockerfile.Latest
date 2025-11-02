@@ -1,16 +1,19 @@
-FROM python:3.13-trixie
+FROM python:3.13-slim-trixie
 RUN useradd --create-home lada
 WORKDIR /home/lada
 ENV PIP_ROOT_USER_ACTION=ignore
-RUN pip install --no-deps --no-cache-dir --requirement https://codeberg.org/ladaapp/lada/raw/main/packaging/requirements-cli.txt
-RUN pip install --no-deps --no-cache-dir 'lada[basicvsrpp]@git+https://codeberg.org/ladaapp/lada.git'
-RUN curl -Ls https://codeberg.org/ladaapp/lada/raw/main/patches/increase_mms_time_limit.patch | patch -u -p4 -d /usr/local/lib/python3.13
-RUN curl -Ls https://codeberg.org/ladaapp/lada/raw/main/patches/remove_ultralytics_telemetry.patch | patch -u -p4 -d /usr/local/lib/python3.13
-RUN curl -Ls https://codeberg.org/ladaapp/lada/raw/main/patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff | patch -u -p4 -d /usr/local/lib/python3.13
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ffmpeg \
+    && apt-get install -y --no-install-recommends ffmpeg curl gettext patch \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-deps --no-cache-dir --requirement https://codeberg.org/ladaapp/lada/raw/main/packaging/requirements-cli.txt
+RUN curl -Ls https://codeberg.org/ladaapp/lada/archive/main.tar.gz | tar -zx \
+    && sh lada/translations/compile_po.sh zh_CN \
+    && pip install --no-deps --no-cache-dir './lada[basicvsrpp]' \
+    && patch -u -p4 -d /usr/local/lib/python3.13 < lada/patches/increase_mms_time_limit.patch \
+    && patch -u -p4 -d /usr/local/lib/python3.13 < lada/patches/remove_ultralytics_telemetry.patch \
+    && patch -u -p4 -d /usr/local/lib/python3.13 < lada/patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff \
+    && rm -r lada
 RUN mkdir -p /home/lada/.config/Ultralytics \
     && echo '{"settings_version":"0.0.6","datasets_dir":"datasets","weights_dir":"weights","runs_dir":"experiments","uuid":"dummy","sync":false,"api_key":"","openai_api_key":"","clearml":false,"comet":false,"dvc":false,"hub":false,"mlflow":false,"neptune":false,"raytune":false,"tensorboard":false,"wandb":false,"vscode_msg":false,"openvino_msg":false}' > /home/lada/.config/Ultralytics/settings.json \
     && chown -R lada:lada /home/lada/.config
