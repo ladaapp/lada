@@ -7,8 +7,9 @@ import cv2
 import numpy as np
 import torch
 import ultralytics.engine
-from ultralytics import settings
 from ultralytics.utils.ops import scale_image
+import torch.nn.functional as F
+from ultralytics import settings
 
 from lada.lib import Box, Mask, mask_utils
 
@@ -23,6 +24,14 @@ def convert_yolo_box(yolo_box: ultralytics.engine.results.Boxes, img_shape) -> B
     b = int(torch.clip(_box[3], 0, img_shape[0]).item())
     return t, l, b, r
 
+def convert_yolo_box_tensor(yolo_box: ultralytics.engine.results.Boxes, img_shape) -> torch.Tensor:
+    _box = yolo_box.xyxy[0]
+    l = torch.clip(_box[0], 0, img_shape[1]).to(torch.int64)
+    t = torch.clip(_box[1], 0, img_shape[0]).to(torch.int64)
+    r = torch.clip(_box[2], 0, img_shape[1]).to(torch.int64)
+    b = torch.clip(_box[3], 0, img_shape[0]).to(torch.int64)
+    return torch.stack((t, l, b, r))
+
 def convert_yolo_boxes(yolo_box: ultralytics.engine.results.Boxes, img_shape) -> list[Box]:
     _boxes = yolo_box.xyxy
     boxes = []
@@ -35,6 +44,32 @@ def convert_yolo_boxes(yolo_box: ultralytics.engine.results.Boxes, img_shape) ->
         boxes.append(box)
     return boxes
 
+def scale_and_unpad_image(masks, im0_shape):
+    h0, w0 = im0_shape[:2]
+    h1, w1, _ = masks.shape
+    if h1 == h0 and w1 == w0:
+        return masks
+    g = min(h1 / h0, w1 / w0)
+    pw, ph = (w1 - w0 * g) / 2, (h1 - h0 * g) / 2
+    t, l = round(ph - 0.1), round(pw - 0.1)
+    b, r = h1 - round(ph + 0.1), w1 - round(pw + 0.1)
+    x = masks[t:b, l:r].permute(2, 0, 1).unsqueeze(0).float()
+    y = F.interpolate(x, size=(h0, w0), mode='bilinear', align_corners=False)
+    return y.squeeze(0).permute(1, 2, 0).round().clamp(0, 255).to(masks.dtype)
+
+def convert_yolo_mask_tensor(yolo_mask: ultralytics.engine.results.Masks, img_shape) -> torch.Tensor:
+    mask_img = _to_mask_img_tensor(yolo_mask.data)
+    if mask_img.ndim == 2:
+        mask_img = mask_img.unsqueeze(-1)
+    mask_img = scale_and_unpad_image(mask_img, img_shape)
+    mask_img = torch.where(mask_img > 127, 255, 0).to(torch.uint8)
+    assert mask_img.ndim == 3 and mask_img.shape[2] == 1
+    return mask_img
+
+def _to_mask_img_tensor(masks: torch.Tensor, class_val=0, pixel_val=255) -> torch.Tensor:
+    masks_tensor = torch.where(masks != class_val, pixel_val, 0).to(torch.uint8)
+    return masks_tensor[0]
+
 def convert_yolo_mask(yolo_mask: ultralytics.engine.results.Masks, img_shape) -> Mask:
     mask_img = _to_mask_img(yolo_mask.data)
     if mask_img.ndim == 2:
@@ -44,12 +79,10 @@ def convert_yolo_mask(yolo_mask: ultralytics.engine.results.Masks, img_shape) ->
     assert mask_img.ndim == 3 and mask_img.shape[2] == 1
     return mask_img
 
-
 def _to_mask_img(masks, class_val=0, pixel_val=255) -> Mask:
     masks_tensor = (masks != class_val).int() * pixel_val
     mask_img = masks_tensor.cpu().numpy()[0].astype(np.uint8)
     return mask_img
-
 
 def choose_biggest_detection(result: ultralytics.engine.results.Results, tracking_mode=True) -> tuple[
     ultralytics.engine.results.Boxes | None, ultralytics.engine.results.Masks | None]:

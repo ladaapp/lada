@@ -191,7 +191,7 @@ class FrameRestorer:
             restored_clip_images = restore_video_frames(model_util.device_to_gpu_id(self.device), self.mosaic_restoration_model, images)
         elif self.mosaic_restoration_model_name.startswith("basicvsrpp"):
             from lada.basicvsrpp.inference import inference
-            restored_clip_images = inference(self.mosaic_restoration_model, images, self.device)
+            restored_clip_images = inference(self.mosaic_restoration_model, images)
         else:
             raise NotImplementedError()
         return restored_clip_images
@@ -211,11 +211,12 @@ class FrameRestorer:
             blend_mask = mask_utils.create_blend_mask(clip_mask)
 
             frame_roi = frame[t:b + 1, l:r + 1, :]
-            temp_buffer = np.empty_like(frame_roi, dtype=np.float32)
-            np.subtract(clip_img, frame_roi, out=temp_buffer, dtype=np.float32)
-            np.multiply(temp_buffer, blend_mask[..., None], out=temp_buffer)
-            np.add(temp_buffer, frame_roi, out=temp_buffer)
-            frame_roi[:] = temp_buffer.astype(np.uint8)
+            roi_f = frame_roi.float()
+            temp = clip_img.float()
+            temp = temp.sub(roi_f)
+            temp = temp.mul(blend_mask.unsqueeze(-1))
+            temp = temp.add(roi_f)
+            frame_roi[:] = temp.round().clamp_(0, 255).to(dtype=frame_roi.dtype)
 
     def _restore_clip(self, clip):
         """
@@ -306,7 +307,7 @@ class FrameRestorer:
 
     def _frame_restoration_worker(self):
         logger.debug("frame restoration worker: started")
-        with video_utils.VideoReader(self.video_meta_data.video_file) as video_reader:
+        with video_utils.VideoReader(self.video_meta_data.video_file, device=self.device) as video_reader:
             if self.start_ns > 0:
                 video_reader.seek(self.start_ns)
 

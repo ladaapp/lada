@@ -13,7 +13,7 @@ from torchvision.utils import make_grid
 from lada.lib import Image, Pad
 
 
-def pad_image(img, max_height, max_width, mode='zero'):
+def pad_image(img: Image|torch.Tensor, max_height, max_width, mode='zero') -> tuple[Image|torch.Tensor, Pad]:
     height, width = img.shape[:2]
     if height == max_height and width == max_width:
         return img, (0, 0, 0, 0)
@@ -24,7 +24,11 @@ def pad_image(img, max_height, max_width, mode='zero'):
     pad_w_l = math.ceil(pad_w / 2)
     pad_w_r = math.floor(pad_w / 2)
     pad = (pad_h_t, pad_h_b,pad_w_l, pad_w_r)
-    padded_image =  pad_image_by_pad(img, pad, mode)
+    if isinstance(img, torch.Tensor):
+        mode = 'constant' if mode == 'zero' else 'reflect'
+        padded_image = F.pad(img.permute(2, 0, 1), (pad_w_l, pad_w_r, pad_h_t, pad_h_b), mode=mode).permute(1, 2, 0)
+    else:
+        padded_image =  pad_image_by_pad(img, pad, mode)
     assert padded_image.shape[:2] == (max_height, max_width)
     return padded_image, pad
 
@@ -161,7 +165,7 @@ def tensor2img(tensor, rgb2bgr=True, out_type=np.uint8, min_max=(0, 1)):
         result.append(img_np)
     return result
 
-def resize(img: Image, size: int|tuple[int, int], interpolation=cv2.INTER_LINEAR):
+def resize(img: Image|torch.Tensor, size: int|tuple[int, int], interpolation=cv2.INTER_LINEAR) -> Image|torch.Tensor:
     if type(size) == int:
         h, w = img.shape[:2]
         if max(w, h) == size:
@@ -178,7 +182,26 @@ def resize(img: Image, size: int|tuple[int, int], interpolation=cv2.INTER_LINEAR
         if img.shape[:2] == size:
             return img
         new_h, new_w = size
-    resized_img = cv2.resize(img, (new_w, new_h), interpolation=interpolation)
+
+    if isinstance(img, torch.Tensor):
+        if interpolation == cv2.INTER_LINEAR:
+            interpolation = 'bilinear'
+        elif interpolation == cv2.INTER_NEAREST:
+            interpolation = 'nearest'
+        else:
+            raise NotImplementedError(f"Interpolation {interpolation} not supported")
+
+        source_dtype = None
+        if img.dtype == torch.uint8 and interpolation == 'bilinear':
+            source_dtype = img.dtype
+            img = img.float()
+        img = img.permute(2, 0, 1)
+        resized_img = F.interpolate(img.unsqueeze(0), size=(new_h, new_w), mode=interpolation).squeeze(0)
+        if source_dtype is not None:
+            resized_img = resized_img.round_().clamp_(0, 255).to(source_dtype)
+        resized_img = resized_img.permute(1, 2, 0)
+    else:
+        resized_img = cv2.resize(img, (new_w, new_h), interpolation=interpolation)
     assert size == max(resized_img.shape[:2]) if type(size) == int else size == resized_img.shape[:2]
     return resized_img
 

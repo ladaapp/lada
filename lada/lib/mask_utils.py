@@ -4,7 +4,9 @@
 import cv2
 import math
 import numpy as np
-
+import torch
+import torch.nn.functional as F
+from torchvision.transforms.functional import gaussian_blur as tv_gaussian_blur
 from lada.lib import Box, Mask
 from lada.lib import image_utils
 
@@ -58,21 +60,28 @@ def get_mask_area(mask: Mask) -> float:
 
 
 def create_blend_mask(crop_mask):
-    crop_mask = np.squeeze(crop_mask)>0
-    h, w = crop_mask.shape
+    mask = crop_mask.squeeze().float()
+    h, w = mask.shape
     border_ratio = 0.05
-    h_inner, w_inner = int(h * (1.0-border_ratio)), int(w * (1.-border_ratio))
+    h_inner, w_inner = int(h * (1.0 - border_ratio)), int(w * (1.0 - border_ratio))
     h_outer, w_outer = h - h_inner, w - w_inner
     border_size = min(h_outer, w_outer)
     if border_size < 5:
-        return np.ones(crop_mask.shape)
-    blur_size = border_size
-    blend_mask = np.ones((h_inner, w_inner))
-    blend_mask = np.pad(blend_mask, ((math.floor(h_outer / 2), math.ceil(h_outer / 2)), (math.floor(w_outer / 2), math.ceil(w_outer / 2))), mode='constant', constant_values=0)
-    blend_mask = np.maximum(crop_mask, blend_mask)
-    blend_mask = cv2.blur(blend_mask, (blur_size, blur_size))
-    assert blend_mask.shape == crop_mask.shape
-    return blend_mask
+        return torch.ones_like(mask)
+    blur_size = int(border_size)
+    if blur_size % 2 == 0:
+        blur_size += 1
+    inner = torch.ones_like(mask)[:h_inner, :w_inner]
+    pad_top = h_outer // 2
+    pad_bottom = h_outer - pad_top
+    pad_left = w_outer // 2
+    pad_right = w_outer - pad_left
+    blend = F.pad(inner.unsqueeze(0).unsqueeze(0), (pad_left, pad_right, pad_top, pad_bottom), value=0.0)
+    mask4 = (mask > 0).unsqueeze(0).unsqueeze(0)
+    blend = torch.maximum(mask4, blend)
+    blend = tv_gaussian_blur(blend, [blur_size, blur_size]).squeeze(0).squeeze(0)
+    assert blend.shape == mask.shape
+    return blend
 
 def apply_random_mask_extensions(mask: Mask) -> Mask:
     value = np.random.choice([0, 0, 1, 1, 2])

@@ -18,7 +18,7 @@ from lada.lib.mosaic_detection_model import MosaicDetectionModel
 from lada.lib.scene_utils import crop_to_box_v3
 from lada.lib import video_utils
 from lada import LOG_LEVEL
-from lada.lib.ultralytics_utils import convert_yolo_box, convert_yolo_mask
+from lada.lib.ultralytics_utils import convert_yolo_box_tensor, convert_yolo_mask_tensor
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
@@ -55,7 +55,7 @@ class Scene:
         new_box = (t, l, b, r)
 
         current_mask = self.data[-1][1]
-        new_mask = np.maximum(current_mask, mask)
+        new_mask = torch.maximum(current_mask, mask)
 
         self.data[-1] = self.data[-1][0], new_mask, new_box
 
@@ -305,11 +305,11 @@ class MosaicDetector:
             return
         for i in range(len(results.boxes)):
             if self.model.is_segmentation_model:
-                mask = convert_yolo_mask(results.masks[i], results.orig_shape)
+                mask = convert_yolo_mask_tensor(results.masks[i], results.orig_shape)
             else:
                 # TODO: we currently don't use mosaic masks in the restoration pipeline, so we could also remove it
-                mask = np.zeros(results.orig_shape, dtype=np.uint8)
-            box = convert_yolo_box(results.boxes[i], results.orig_shape)
+                mask = torch.zeros(results.orig_shape, dtype=torch.uint8, device=self.device)
+            box = convert_yolo_box_tensor(results.boxes[i], results.orig_shape)
 
             current_scene = None
             for scene in scenes:
@@ -328,7 +328,7 @@ class MosaicDetector:
 
     def _frame_feeder_worker(self):
         logger.debug("frame feeder: started")
-        with video_utils.VideoReader(self.video_file) as video_reader:
+        with video_utils.VideoReader(self.video_file, self.device) as video_reader:
             if self.start_ns > 0:
                 video_reader.seek(self.start_ns)
             video_frames_generator = video_reader.frames()

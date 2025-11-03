@@ -50,29 +50,31 @@ def load_model(config: str | dict | None, checkpoint_path, device):
     return model
 
 
-def inference(model, video: list, device, max_frames=-1):
+def inference(model, video: list[torch.Tensor], max_frames=-1):
     input_frame_count = len(video)
     input_frame_shape = video[0].shape
-    if device and type(device) == str:
-        device = torch.device(device)
     with torch.no_grad():
         result = []
-        input = torch.stack(img2tensor(video, bgr2rgb=False, float32=True), dim=0)
-        input = torch.unsqueeze(input, dim=0)  # TCHW -> BTCHW
+
+        # (H, W, C[BGR]) uint8 images to (B, T, C, H, W) float in [0,1]
+        input = torch.stack([x.permute(2, 0, 1).float().div(255.0) for x in video])
+        input =     input.unsqueeze(0)
         if max_frames > 0:
             for i in range(0, input.shape[1], max_frames):
-                output = model(inputs=input[:, i:i + max_frames].to(device))
+                output = model(inputs=input[:, i:i + max_frames])
                 result.append(output)
             result = torch.cat(result, dim=1)
         else:
-            result = model(inputs=input.to(device))
-        result = torch.squeeze(result, dim=0)  # BTCHW -> TCHW
-        result = list(torch.unbind(result, 0))
-        output = tensor2img(result, rgb2bgr=False, out_type=np.uint8, min_max=(0, 1))
-        output_frame_count = len(output)
-        output_frame_shape = output[0].shape
+            result = model(inputs=input)
+
+        # (H, W, C[BGR]) uint8 images to (B, T, C, H, W) float in [0,1]
+        result = result.squeeze(0) # -> (T, C, H, W)
+        result = result.mul(255.0).round().clamp(0, 255).to(dtype=torch.uint8).permute(0, 2, 3, 1) # (T, H, W, C)
+        result = list(torch.unbind(result, 0)) # (T, H, W, C) to list of (H, W, C)
+        output_frame_count = len(result)
+        output_frame_shape = result[0].shape
         assert input_frame_count == output_frame_count and input_frame_shape == output_frame_shape
-        return output
+        return result
 
 
 def test():
@@ -81,10 +83,10 @@ def test():
     model = load_model("configs/basicvsrpp/mosaic_restoration_generic_stage2.py",
                        "experiments/basicvsrpp/mosaic_restoration_generic_stage2/iter_100000.pth", device)
 
-    frame1 = np.random.randint(0, 255, (256, 256, 3), dtype=np.uint8)
-    frame2 = np.random.randint(0, 255, (256, 256, 3), dtype=np.uint8)
-    frame3 = np.random.randint(0, 255, (256, 256, 3), dtype=np.uint8)
-    frame4 = np.random.randint(0, 255, (256, 256, 3), dtype=np.uint8)
+    frame1 = torch.randint(0, 255, (256, 256, 3), dtype=torch.uint8, device=device)
+    frame2 = torch.randint(0, 255, (256, 256, 3), dtype=torch.uint8, device=device)
+    frame3 = torch.randint(0, 255, (256, 256, 3), dtype=torch.uint8, device=device)
+    frame4 = torch.randint(0, 255, (256, 256, 3), dtype=torch.uint8, device=device)
     video = [frame1, frame2, frame3, frame4]
     result = inference(model, video, device)
     print(len(result), result[0].shape)

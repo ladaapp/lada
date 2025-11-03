@@ -5,7 +5,7 @@ import logging
 import threading
 import time
 
-import numpy as np
+import torch
 from gi.repository import Gst, GstApp
 
 from lada import LOG_LEVEL
@@ -20,6 +20,7 @@ class FrameRestorerAppSrc:
     def __init__(self, video_metadata: VideoMetadata, frame_restorer_provider: FrameRestorerProvider, eos_callback):
         self.video_metadata: VideoMetadata = video_metadata
         self.eos_callback = eos_callback
+        self.cpu_frame: torch.Tensor | None = None
 
         self.frame_restorer: FrameRestorer | None = None
         self.frame_restorer_provider: FrameRestorerProvider = frame_restorer_provider
@@ -195,8 +196,14 @@ class FrameRestorerAppSrc:
 
         frame_timestamp_ns = int((frame_pts * self.video_metadata.time_base) * Gst.SECOND)
         frame = GstPaddingHelpers.pad_frame(frame)
-
-        data = frame.tobytes()
+        if frame.device.type == 'cuda':
+            if self.cpu_frame is None or frame.shape != self.cpu_frame.shape:
+                self.cpu_frame = torch.empty((frame.shape[0], frame.shape[1], frame.shape[2]), dtype=frame.dtype, device='cpu', pin_memory=True)
+            self.cpu_frame.copy_(frame, non_blocking=True)
+            torch.cuda.synchronize()
+            data = self.cpu_frame.numpy().tobytes()
+        else:
+            data = frame.numpy().tobytes()
 
         buf = Gst.Buffer.new_allocate(None, len(data), None)
         buf.fill(0, data)
@@ -217,11 +224,13 @@ class GstPaddingHelpers:
     # For now let's just add some zero padding. Maybe there are ways to explicitly set the stride size or tell GStreamer about our zero padding but couldn't find anything...
 
     @staticmethod
-    def pad_frame(frame: np.ndarray):
+    def pad_frame(frame: torch.Tensor):
         width = frame.shape[1]
         # TODO: see reasoning for this zero padding in TODO where we specify appsrc Caps
         if width % 4 != 0:
-            return np.pad(frame, ((0, 0), (0, width % 4), (0, 0)), mode='constant', constant_values=0)
+            pad_w = width % 4
+            pad_tensor = torch.zeros((frame.shape[0], pad_w, frame.shape[2]), dtype=frame.dtype, device=frame.device)
+            return torch.cat((frame, pad_tensor), dim=1)
         return frame
 
     @staticmethod

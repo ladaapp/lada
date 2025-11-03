@@ -1,19 +1,16 @@
 # SPDX-FileCopyrightText: Lada Authors
 # SPDX-License-Identifier: AGPL-3.0
 
-import threading
-
 import torch
 from ultralytics.utils.checks import check_imgsz
-import numpy as np
-from ultralytics.data.augment import LetterBox
 from ultralytics.utils import nms, ops
 from ultralytics.engine.results import Results
 from ultralytics.nn.autobackend import AutoBackend
 from ultralytics.cfg import get_cfg
 from ultralytics.utils import DEFAULT_CFG
 from ultralytics import YOLO
-from lada.lib import Image
+from lada.lib.torch_letterbox import PyTorchLetterBox
+from typing import List
 
 class MosaicDetectionModel:
     def __init__(self, model_path: str, device, imgsz=640, **kwargs):
@@ -21,11 +18,7 @@ class MosaicDetectionModel:
         assert yolo_model.task == 'segment'
         self.stride = 32
         self.imgsz = check_imgsz(imgsz, stride=self.stride, min_dim=2)
-        self.letterbox = LetterBox(
-            self.imgsz,
-            auto=True,
-            stride=self.stride
-        )
+        self.letterbox = PyTorchLetterBox(self.imgsz, stride=self.stride)
 
         custom = {"conf": 0.25, "batch": 1, "save": False, "mode": "predict", "device": device}
         args = {**yolo_model.overrides, **custom, **kwargs}  # highest priority args on the right
@@ -46,23 +39,15 @@ class MosaicDetectionModel:
         self.model.warmup(imgsz=(1, 3, *self.imgsz))
 
         self.is_segmentation_model = yolo_model.task == 'segment'
-        self._lock = threading.Lock()
 
-    def preprocess(self, imgs):
-        im = np.stack([self.letterbox(image=x) for x in imgs])
-        im = im.transpose((0, 3, 1, 2))  # BHWC to BCHW, (n, 3, h, w)
-        im = np.ascontiguousarray(im)  # contiguous
-        im = torch.from_numpy(im)
-        im = im.to(self.device)
-        im = im.float()  # uint8 to fp16/32
-        im /= 255  # 0 - 255 to 0.0 - 1.0
-        return im
+    def preprocess(self, imgs: list[torch.Tensor]) -> torch.Tensor:
+        im = torch.stack([x.permute(2, 0, 1).float().div(255.0) for x in imgs])# (H, W, C) to (C, H, W)
+        return self.letterbox(im)
 
     def inference(self, image_batch: torch.Tensor):
-        with self._lock:
-            return self.model(image_batch, augment=False, visualize=False, embed=None)
+        return self.model(image_batch, augment=False, visualize=False, embed=None)
 
-    def postprocess(self, preds, img, orig_imgs):
+    def postprocess(self, preds, img, orig_imgs: List[torch.Tensor]) -> List[Results]:
         protos = preds[1][-1]
         preds = nms.non_max_suppression(
             preds,
@@ -76,7 +61,7 @@ class MosaicDetectionModel:
         )
         return [self.construct_result(pred, img, orig_img, proto) for pred, orig_img, proto in zip(preds, orig_imgs, protos)]
 
-    def construct_result(self, preds: torch.tensor, img: torch.tensor, orig_img: list[Image], proto: torch.tensor):
+    def construct_result(self, preds: torch.tensor, img: torch.tensor, orig_img: torch.Tensor, proto: torch.tensor):
         if not len(preds):  # save empty boxes
             masks = None
         else:

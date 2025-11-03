@@ -15,6 +15,7 @@ def validate(in_dir, out_dir, config_path, model_path, device):
         for video_path in glob.glob(os.path.join(in_dir, '*')):
             video_metadata = get_video_meta_data(video_path)
             orig_images = read_video_frames(video_path, float32=False)
+            orig_images = [torch.from_numpy(image) for image in orig_images]
 
             if orig_images[0].shape[:2] != (256, 256):
                 size = 256
@@ -22,7 +23,8 @@ def validate(in_dir, out_dir, config_path, model_path, device):
                     orig_images[i] = resize(orig_images[i], size, interpolation=cv2.INTER_LINEAR)
                     orig_images[i], _ = pad_image(orig_images[i], size, size, mode='zero')
 
-            restored_images = inference(model, orig_images, device)
+            restored_images = inference(model, orig_images)
+            restored_images = [image.cpu().numpy() for image in restored_images]
             filename = os.path.basename(video_path)
             out_path = os.path.join(out_dir, filename)
             fps = video_metadata.video_fps
