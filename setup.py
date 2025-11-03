@@ -16,7 +16,7 @@ setup(
         'gui': ['pycairo', 'PyGObject'],
         'gui-dev': ['pygobject-stubs'],
         'training': ['torchvision', 'albumentations', 'tensorboard', 'standard-imghdr'],
-        'dataset-creation': ['lap>=0.5.12', 'timm', 'einops', 'torchvision', 'pillow']
+        'dataset-creation': ['lap>=0.5.12', 'timm', 'einops', 'torchvision', 'pillow', 'onnx', 'onnxruntime-gpu']
     },
     include_package_data=True,
     package_data={

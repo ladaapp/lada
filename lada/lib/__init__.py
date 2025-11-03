@@ -44,3 +44,12 @@ class VideoMetadata:
     duration: float
     time_base: Fraction
     start_pts: int
+
+"""
+Detection result containing bounding box and segmentation mask of the detected object within the frame
+"""
+@dataclass
+class Detection:
+    frame: Image
+    box: Box
+    mask: Mask

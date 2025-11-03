@@ -10,8 +10,12 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 
+from lada.centerface.centerface import CenterFace
+import lada.bpjdet.inference as bpjdet
 from lada.lib import visualization_utils, image_utils, transforms as lada_transforms
-from lada.lib.nsfw_frame_detector import NsfwImageDetector, NsfwFrame
+from lada.lib.face_detector import FaceDetector
+from lada.lib.head_detector import HeadDetector
+from lada.lib.nsfw_frame_detector import NsfwImageDetector
 from lada.lib.threading_utils import clean_up_completed_futures
 from lada.lib.ultralytics_utils import convert_binary_mask_to_yolo_detection_labels, convert_segment_masks_to_yolo_segmentation_labels
 
@@ -81,16 +85,16 @@ def create_degradation_pipeline(hq_img, target_size, mosaic_size, device='cuda')
                                          bitrate_ranges={}),
     ])
 
-def process_image_file(file_path, output_root, nsfw_frame_generator: NsfwImageDetector, device='cpu', show=False, window_name="mosaic"):
-    nsfw_frame: NsfwFrame = nsfw_frame_generator.detect(file_path)
-    if not nsfw_frame:
+def process_image_file(file_path, output_root, detector: NsfwImageDetector | FaceDetector | HeadDetector, device='cpu', show=False, window_name="mosaic"):
+    detection = detector.detect(file_path)
+    if not detection:
         if not show:
             name = osp.splitext(os.path.basename(file_path))[0]
             shutil.copy(file_path, f"{output_root}/background_images/{name}.jpg")
         return
 
-    img = nsfw_frame.frame
-    mask = nsfw_frame.mask
+    img = detection.frame
+    mask = detection.mask
 
     target_size = 640 # size of images what we'll train mosaic detection model with
 
@@ -135,6 +139,9 @@ def parse_args():
     parser.add_argument('--workers', type=int, default=4, help="number of worker threads")
     parser.add_argument('--start-index', type=int, default=0, help="Can be used to continue a previous run. Note the index number next to last processed file name")
     parser.add_argument('--show', default=False, action=argparse.BooleanOptionalAction, help="show each sample")
+    parser.add_argument('--create-nsfw-mosaics', default=True, action=argparse.BooleanOptionalAction, help="Use Lada NSFW detection model to create NSFW mosaics")
+    parser.add_argument('--create-sfw-face-mosaics', default=False, action=argparse.BooleanOptionalAction, help="Use CenterFace human face detection model to create SFW mosaics")
+    parser.add_argument('--create-sfw-head-mosaics', default=False, action=argparse.BooleanOptionalAction, help="Use BPJDet human head detection model to create SFW mosaics")
     parser.add_argument('--max-file-limit', type=int, default=None, help="instead of processing all files found in input-root dir it will choose files randomly up to the given limit")
 
     args = parser.parse_args()
@@ -143,8 +150,23 @@ def parse_args():
 def main():
     args = parse_args()
 
-    model = YOLO(args.model)
-    nsfw_image_detector = NsfwImageDetector(model, args.device, random_extend_masks=True, conf=0.8)
+    detector = None
+    if args.create_nsfw_mosaics:
+        model = YOLO(args.model)
+        detector = NsfwImageDetector(model, args.device, random_extend_masks=True, conf=0.8)
+    elif args.create_sfw_face_mosaics:
+        raise NotImplementedError() # TODO. Comment this line out in order to test but note that the code is not yet ready, as class id and segmentation mask pixel values are not considered and would show up as NSFW mosaic detection.
+        model = CenterFace()
+        detector = FaceDetector(model, random_extend_masks=True, conf=0.9)
+    elif args.create_sfw_head_mosaics:
+        raise NotImplementedError() # TODO. Comment this line out in order to test but note that the code is not yet ready, as class id and segmentation mask pixel values are not considered and would show up as NSFW mosaic detection.
+        model = bpjdet.get_model(device=args.device, weights_path=args.model)
+        data = bpjdet.JointBP_CrowdHuman_head.DATA
+        data['conf_thres_part'] = 0.9
+        data['iou_thres_part'] = 0.7
+        data['match_iou_thres'] = 0.9
+        detector = HeadDetector(model, data=data, random_extend_masks=True, conf_thres=data['conf_thres_part'], iou_thres=data['iou_thres_part'])
+    assert detector is not None
 
     if not args.show:
         os.makedirs(f"{args.output_root}/masks", exist_ok=True)
@@ -166,9 +188,9 @@ def main():
                 continue
             print(f"{file_idx}, Processing {file_path.name}")
             if args.show:
-                process_image_file(file_path, args.output_root, nsfw_image_detector, device=args.device, show=True)
+                process_image_file(file_path, args.output_root, detector, device=args.device, show=True)
             else:
-                jobs.append(executor.submit(process_image_file, file_path, args.output_root, nsfw_image_detector, args.device))
+                jobs.append(executor.submit(process_image_file, file_path, args.output_root, detector, args.device))
                 clean_up_completed_futures(jobs)
     wait(jobs, return_when=ALL_COMPLETED)
     clean_up_completed_futures(jobs)

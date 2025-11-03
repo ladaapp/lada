@@ -70,3 +70,7 @@ def create_blend_mask(crop_mask):
     blend_mask = cv2.blur(blend_mask, (blur_size, blur_size))
     assert blend_mask.shape == crop_mask.shape
     return blend_mask
+
+def apply_random_mask_extensions(mask: Mask) -> Mask:
+    value = np.random.choice([0, 0, 1, 1, 2])
+    return extend_mask(mask, value)

@@ -200,4 +200,6 @@ This project builds upon work done by these fantastic individuals and projects:
 * [NudeNet](https://github.com/notAI-tech/NudeNet/): Used as an additional NSFW classifier to filter out false positives by our own NSFW segmentation model
 * [Twitter Emoji](https://github.com/twitter/twemoji): Provided eggplant emoji as base for the app icon.
 * [Real-ESRGAN](https://github.com/xinntao/Real-ESRGAN): Used their image degradation model design for our mosaic detection model degradation pipeline.
+* [BPJDet](https://github.com/hnuzhy/BPJDet): Model for detecting human body and head. Used for creating SFW mosaics so that mosaic detection model can be trained so skip such material. 
+* [CenterFace](https://github.com/Star-Clouds/CenterFace): Model for detecting human faces. Used for creating SFW mosaics so that mosaic detection model can be trained so skip such material. 
 * PyTorch, FFmpeg, GStreamer, GTK and [all other folks building our ecosystem](https://xkcd.com/2347/)

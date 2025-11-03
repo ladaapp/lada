@@ -22,3 +22,5 @@ fe7f40d374184270dffd1259955e3023  3rd_party/640m.pt
 5185d0677645416acd18928b1db9c1e0  3rd_party/spynet_20210409-c6c1bd09.pth
 7a4baf442e4dbe8db22c682fb3fff323  3rd_party/spynet_sintel_final-3d2a1287.pth
 92881fe292bd7d2408ecff58a101fd03  3rd_party/vgg19-dcbb9e9d.pth
+57f3d9de607bfb185fbf07d8b42fc125  3rd_party/centerface.onnx
+6a6bbeb282ee76604d1214529bd1f42d  3rd_party/ch_head_s_1536_e150_best_mMR.pt

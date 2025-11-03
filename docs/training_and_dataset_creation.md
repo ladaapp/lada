@@ -30,6 +30,8 @@ In order to work on the models and datasets you'll have to install the requireme
    wget -P model_weights/ 'https://huggingface.co/ladaapp/lada/resolve/main/lada_nsfw_detection_model_v1.3.pt?download=true'
    wget -P model_weights/ 'https://huggingface.co/ladaapp/lada/resolve/main/lada_watermark_detection_model_v1.3.pt?download=true'
    wget -P model_weights/3rd_party/ 'https://github.com/notAI-tech/NudeNet/releases/download/v3.4-weights/640m.pt'
+   wget -P model_weights/3rd_party/ 'https://github.com/ORB-HD/deface/raw/refs/tags/v1.5.0/deface/centerface.onnx'
+   wget -P model_weights/3rd_party/ 'https://huggingface.co/HoyerChou/BPJDet/resolve/main/ch_head_s_1536_e150_best_mMR.pt?download=true'
    ```
 
 > [!CAUTION]
