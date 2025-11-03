@@ -32,7 +32,7 @@ def get_default_gan_inference_config() -> dict:
         ))
 
 
-def load_model(config: str | dict | None, checkpoint_path, device):
+def load_model(config: str | dict | None, checkpoint_path, device, fp16):
     register_all_modules()
     if device and type(device) == str:
         device = torch.device(device)
@@ -45,19 +45,23 @@ def load_model(config: str | dict | None, checkpoint_path, device):
     model = MODELS.build(config)
     load_checkpoint(model, checkpoint_path, map_location='cpu', logger=logger)
     model.cfg = config
-    model.to(device)
-    model.eval()
+    model = model.to(device).eval()
+    if fp16:
+        model.dtype = torch.float16
+        model = model.half()
+    else:
+        model.dtype = torch.float32
     return model
 
 
 def inference(model, video: list[torch.Tensor], max_frames=-1):
     input_frame_count = len(video)
     input_frame_shape = video[0].shape
-    with torch.no_grad():
+    with torch.inference_mode():
         result = []
 
         # (H, W, C[BGR]) uint8 images to (B, T, C, H, W) float in [0,1]
-        input = torch.stack([x.permute(2, 0, 1).float().div(255.0) for x in video])
+        input = torch.stack([x.permute(2, 0, 1) for x in video]).to(dtype=model.dtype, memory_format=torch.channels_last).div(255.0)
         input =     input.unsqueeze(0)
         if max_frames > 0:
             for i in range(0, input.shape[1], max_frames):

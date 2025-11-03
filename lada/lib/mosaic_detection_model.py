@@ -13,14 +13,14 @@ from lada.lib.torch_letterbox import PyTorchLetterBox
 from typing import List
 
 class MosaicDetectionModel:
-    def __init__(self, model_path: str, device, imgsz=640, **kwargs):
+    def __init__(self, model_path: str, device, imgsz=640, fp16=False, **kwargs):
         yolo_model = YOLO(model_path)
         assert yolo_model.task == 'segment'
         self.stride = 32
         self.imgsz = check_imgsz(imgsz, stride=self.stride, min_dim=2)
         self.letterbox = PyTorchLetterBox(self.imgsz, stride=self.stride)
 
-        custom = {"conf": 0.25, "batch": 1, "save": False, "mode": "predict", "device": device}
+        custom = {"conf": 0.25, "batch": 1, "save": False, "mode": "predict", "device": device, "half": fp16}
         args = {**yolo_model.overrides, **custom, **kwargs}  # highest priority args on the right
         self.args = get_cfg(DEFAULT_CFG, args)
 
@@ -37,11 +37,12 @@ class MosaicDetectionModel:
         self.args.half = self.model.fp16
         self.model.eval()
         self.model.warmup(imgsz=(1, 3, *self.imgsz))
+        self.dtype = torch.float16 if fp16 else torch.float32
 
         self.is_segmentation_model = yolo_model.task == 'segment'
 
     def preprocess(self, imgs: list[torch.Tensor]) -> torch.Tensor:
-        im = torch.stack([x.permute(2, 0, 1).float().div(255.0) for x in imgs])# (H, W, C) to (C, H, W)
+        im = torch.stack([x.permute(2, 0, 1) for x in imgs]).to(dtype=self.dtype, memory_format=torch.channels_last).div(255.0) # (H, W, C) to (C, H, W)
         return self.letterbox(im)
 
     def inference(self, image_batch: torch.Tensor):

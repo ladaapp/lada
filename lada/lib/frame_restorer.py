@@ -20,7 +20,7 @@ from lada.lib.mosaic_detection_model import MosaicDetectionModel
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
 
-def load_models(device, mosaic_restoration_model_name, mosaic_restoration_model_path, mosaic_restoration_config_path, mosaic_detection_model_path):
+def load_models(device, mosaic_restoration_model_name, mosaic_restoration_model_path, mosaic_restoration_config_path, mosaic_detection_model_path, fp16):
     if mosaic_restoration_model_name.startswith("deepmosaics"):
         from lada.deepmosaics.models import loadmodel, model_util
         mosaic_restoration_model = loadmodel.video(model_util.device_to_gpu_id(device), mosaic_restoration_model_path)
@@ -31,12 +31,12 @@ def load_models(device, mosaic_restoration_model_name, mosaic_restoration_model_
             config = mosaic_restoration_config_path
         else:
             config = get_default_gan_inference_config()
-        mosaic_restoration_model = load_model(config, mosaic_restoration_model_path, device)
+        mosaic_restoration_model = load_model(config, mosaic_restoration_model_path, device, fp16)
         pad_mode = 'zero'
     else:
         raise NotImplementedError()
     # setting classes=[0] will consider only for class id = 0 as detections (nsfw mosaics) therefore filtering out sfw mosaics (heads, faces)
-    mosaic_detection_model = MosaicDetectionModel(mosaic_detection_model_path, device, classes=[0], conf=0.2)
+    mosaic_detection_model = MosaicDetectionModel(mosaic_detection_model_path, device, classes=[0], conf=0.2, fp16=fp16)
     return mosaic_detection_model, mosaic_restoration_model, pad_mode
 
 
