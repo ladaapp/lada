@@ -1,11 +1,14 @@
 .venv/
 experiments/
+build/
+.idea/
+.flatpak-builder/
+torch_compile_debug/
+__pycache__/
 *.egg-info/
 *.pth
 *.pt
 *.onnx
 *.pyc
 *.mo
-.idea
-.flatpak-builder
-__pycache__
+*.ep
