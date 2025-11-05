@@ -142,6 +142,11 @@ docker pull ladaapp/lada:latest
 > docker run --rm --gpus all --mount type=bind,src=<input video path>,dst=/mnt ladaapp/lada:latest --input "/mnt/<input video file>"
 > ```
 
+> [!TIP]
+> If you want to use hardware encoders like `hevc_nvenc` you have to provide the container with `video` capability.
+> 
+> With docker run you can use `--gpus 'all,"capabilities=compute,video"'`. Learn more [here](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html).
+
 ### Using Windows
 
 For Windows users, the app (CLI and GUI) is packaged as a standalone .7z archive file.
