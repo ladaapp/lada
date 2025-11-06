@@ -3,6 +3,7 @@ experiments/
 *.egg-info/
 *.pth
 *.pt
+*.onnx
 *.pyc
 *.mo
 .idea

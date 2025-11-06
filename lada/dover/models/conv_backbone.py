@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2022 NTU Visual Quality Assessment Group
+# SPDX-License-Identifier: MIT AND AGPL-3.0
+# Code vendored from: https://github.com/VQAssessment/DOVER
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F

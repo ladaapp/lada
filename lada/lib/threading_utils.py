@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Lada Authors
+# SPDX-License-Identifier: AGPL-3.0
+
 import logging
 from queue import Queue, Full, Empty
 import concurrent.futures as concurrent_futures

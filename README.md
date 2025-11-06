@@ -194,6 +194,10 @@ For instructions on training your own models and datasets, refer to [Training an
 
 If you want to help translating the app you can contribute to existing translations or set up a new language over at [Codeberg Translate](https://translate.codeberg.org/projects/lada/lada/).
 
+## License
+
+Source code and models are licensed under AGPL-3.0. See the [LICENSE.md](LICENSE.md) file for full details.
+
 ## Acknowledgement
 This project builds upon work done by these fantastic individuals and projects:
 

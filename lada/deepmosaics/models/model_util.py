@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: DeepMosaics Authors
+# SPDX-License-Identifier: GPL-3.0 AND AGPL-3.0
+# Code vendored from: https://github.com/HypoX64/DeepMosaics/
+
 import functools
 from math import exp
 

@@ -1,4 +1,3 @@
-2280555c932f5de6a3f248d67c954e48  checksums_sha256.txt
 d5ae43e5e5b1671fc966ecc908ac371a  lada_mosaic_detection_model_v2.pt
 5a5d8892cdacc5a6acff09acf9d0b2cc  lada_mosaic_detection_model_v3.1_accurate.pt
 b98975fcbb8d7dfe9e84837af7e37da5  lada_mosaic_detection_model_v3.1_fast.pt
@@ -15,12 +14,10 @@ db114bfd9b1dcb34df17cfc3e22cf759  lada_nsfw_detection_model_v1.1.pt
 311a1844e137d5cc17176bfb11865925  lada_watermark_detection_model_v1.1.pt
 1a2e043ffc53d26f8a03fffdc6f582b2  lada_watermark_detection_model_v1.2.pt
 1dc0ab0f60c5bf573281d0f1f66d117e  lada_watermark_detection_model_v1.3.pt
-4a255351b64b386d603e36552587b30a  3rd_party/320n.pt
 fe7f40d374184270dffd1259955e3023  3rd_party/640m.pt
 986074d38e050e75139193058b60ff51  3rd_party/clean_youknow_video.pth
 5595c0a1f378117fe4acb83a417b6377  3rd_party/DOVER.pth
 5185d0677645416acd18928b1db9c1e0  3rd_party/spynet_20210409-c6c1bd09.pth
-7a4baf442e4dbe8db22c682fb3fff323  3rd_party/spynet_sintel_final-3d2a1287.pth
 92881fe292bd7d2408ecff58a101fd03  3rd_party/vgg19-dcbb9e9d.pth
 57f3d9de607bfb185fbf07d8b42fc125  3rd_party/centerface.onnx
 6a6bbeb282ee76604d1214529bd1f42d  3rd_party/ch_head_s_1536_e150_best_mMR.pt

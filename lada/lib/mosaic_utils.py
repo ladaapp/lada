@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: Lada Authors
+# SPDX-FileCopyrightText: DeepMosaics Authors
+# SPDX-License-Identifier: GPL-3.0 AND AGPL-3.0
+
 import math
 import random
 

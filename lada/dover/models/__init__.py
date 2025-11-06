@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2022 NTU Visual Quality Assessment Group
+# SPDX-License-Identifier: MIT AND AGPL-3.0
+# Code vendored from: https://github.com/VQAssessment/DOVER
+
 from .conv_backbone import convnext_3d_small, convnext_3d_tiny
 from .evaluator import DOVER, BaseEvaluator, BaseImageEvaluator
 from .head import IQAHead, VARHead, VQAHead

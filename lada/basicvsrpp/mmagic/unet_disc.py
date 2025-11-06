@@ -1,4 +1,7 @@
-# Copyright (c) OpenMMLab. All rights reserved.
+# SPDX-FileCopyrightText: OpenMMLab. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0 AND AGPL-3.0
+# Code vendored from: https://github.com/open-mmlab/mmagic
+
 import torch.nn as nn
 from mmengine.model import BaseModule
 from torch.nn.utils import spectral_norm

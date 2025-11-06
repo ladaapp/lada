@@ -1,4 +1,7 @@
-# Copyright (c) OpenMMLab. All rights reserved.
+# SPDX-FileCopyrightText: OpenMMLab. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0 AND AGPL-3.0
+# Code vendored from: https://github.com/open-mmlab/mmagic
+
 """Registries and utilities in MMagic.
 
 MMagic provides 17 registry nodes to support using modules across projects.

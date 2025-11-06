@@ -1,4 +1,7 @@
-# https://raw.githubusercontent.com/turian/DOVER-video-quality-assessment-replicate/main/predict.py
+# SPDX-FileCopyrightText: DOVER-video-quality-assessment-replicate Authors
+# SPDX-License-Identifier: Apache-2.0 AND AGPL-3.0
+# Code vendored from: https://github.com/turian/DOVER-video-quality-assessment-replicate
+
 import os
 import pathlib
 import random

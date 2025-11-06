@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Lada Authors
+# SPDX-License-Identifier: AGPL-3.0
+
 from gi.repository import GObject, Gio
 
 class ExportItemState(GObject.GEnum):

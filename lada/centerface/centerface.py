@@ -1,5 +1,7 @@
-# Source: https://github.com/ORB-HD/deface
-# License: MIT
+# SPDX-FileCopyrightText: deface Authors
+# SPDX-FileCopyrightText: CenterFace Authors
+# SPDX-License-Identifier: MIT AND AGPL-3.0
+# Code vendored from: https://github.com/ORB-HD/deface
 
 import os
 

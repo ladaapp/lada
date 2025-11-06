@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Lada Authors
+# SPDX-License-Identifier: AGPL-3.0
+
 import pathlib
 import concurrent.futures as concurrent_futures
 from dataclasses import dataclass

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Lada Authors
+# SPDX-License-Identifier: AGPL-3.0
+
 $translationsDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 if ((Get-Location).Path -ne $translationsDir) {
     Set-Location $translationsDir

@@ -1,5 +1,8 @@
 #!/usr/bin/env sh
 
+# SPDX-FileCopyrightText: Lada Authors
+# SPDX-License-Identifier: AGPL-3.0
+
 translations_dir=$(dirname -- "$0")
 if [ "$(pwd)" != "$translations_dir" ] ; then
   cd "$translations_dir"

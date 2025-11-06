@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Lada Authors
+# SPDX-License-Identifier: AGPL-3.0
+
 import ultralytics.models
 from lada.lib import Mask, Detection
 from lada.lib import mask_utils

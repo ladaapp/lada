@@ -1,4 +1,7 @@
-# Copyright (c) OpenMMLab. All rights reserved.
+# SPDX-FileCopyrightText: OpenMMLab. All rights reserved.
+# SPDX-License-Identifier: Apache-2.0 AND AGPL-3.0
+# Code vendored from: https://github.com/open-mmlab/mmagic
+
 """Evaluation metrics based on each sample."""
 
 from typing import List, Optional, Sequence

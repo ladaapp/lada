@@ -1,4 +1,8 @@
-# YOLOv5 🚀 by Ultralytics, GPL-3.0 license
+# SPDX-FileCopyrightText: BPJDet Authors
+# SPDX-FileCopyrightText: YOLOv5 🚀 by Ultralytics
+# SPDX-License-Identifier: GPL-3.0 AND AGPL-3.0
+# Code vendored from: https://github.com/hnuzhy/BPJDet
+
 """
 Experimental modules
 """

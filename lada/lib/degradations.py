@@ -1,4 +1,6 @@
-# source; https://github.com/XPixelGroup/BasicSR/blob/master/basicsr/data/degradations.py
+# SPDX-FileCopyrightText: BasicSR Authors
+# SPDX-License-Identifier: Apache2.0 AND AGPL-3.0
+# Code vendored from: https://github.com/XPixelGroup/BasicSR/blob/master/basicsr/data/degradations.py
 
 import math
 

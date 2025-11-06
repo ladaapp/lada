@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+SPDX-FileCopyrightText: Lada Authors
+SPDX-License-Identifier: AGPL-3.0
+-->
+
 <gresources>
     <gresource prefix="/io/github/ladaapp/lada/icons/scalable/actions">
         <file alias="arrow-pointing-away-from-line-right-symbolic.svg">icons/arrow-pointing-away-from-line-right-symbolic.svg</file>

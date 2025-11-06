@@ -1,4 +1,5 @@
-# source: https://github.com/sczhou/ProPainter/commit/c92d603c9f233532554e80855a004f6434c71a56
+# SPDX-FileCopyrightText: Lada Authors
+# SPDX-License-Identifier: AGPL-3.0
 
 import torch
 import torch.nn as nn

@@ -1,3 +1,8 @@
+# SPDX-FileCopyrightText: BPJDet Authors
+# SPDX-FileCopyrightText: YOLOv5 🚀 by Ultralytics
+# SPDX-License-Identifier: GPL-3.0 AND AGPL-3.0
+# Code vendored from: https://github.com/hnuzhy/BPJDet
+
 DATA = dict(
     nc=2,  # number of classes (two class: human body, human head)
     num_offsets=2,  # number of coordinates introduced by the body part, e.g., (head_x, head_y)
