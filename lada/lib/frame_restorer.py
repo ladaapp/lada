@@ -9,6 +9,7 @@ import time
 from typing import Optional
 
 import cv2
+import torch
 import numpy as np
 
 from lada import LOG_LEVEL
@@ -16,6 +17,7 @@ from lada.lib import image_utils, video_utils, threading_utils, mask_utils
 from lada.lib import visualization_utils
 from lada.lib.mosaic_detector import MosaicDetector
 from lada.lib.mosaic_detection_model import MosaicDetectionModel
+from lada.lib.mosaic_detector import Clip
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
@@ -44,7 +46,7 @@ class FrameRestorer:
     def __init__(self, device, video_file, max_clip_length, mosaic_restoration_model_name,
                  mosaic_detection_model, mosaic_restoration_model, preferred_pad_mode,
                  mosaic_detection=False):
-        self.device = device
+        self.device = torch.device(device)
         self.mosaic_restoration_model_name = mosaic_restoration_model_name
         self.max_clip_length = max_clip_length
         self.video_meta_data = video_utils.get_video_meta_data(video_file)
@@ -188,7 +190,7 @@ class FrameRestorer:
         if self.mosaic_restoration_model_name.startswith("deepmosaics"):
             from lada.deepmosaics.inference import restore_video_frames
             from lada.deepmosaics.models import model_util
-            restored_clip_images = restore_video_frames(model_util.device_to_gpu_id(self.device), self.mosaic_restoration_model, images)
+            restored_clip_images = restore_video_frames(self.device.index, self.mosaic_restoration_model, images)
         elif self.mosaic_restoration_model_name.startswith("basicvsrpp"):
             from lada.basicvsrpp.inference import inference
             restored_clip_images = inference(self.mosaic_restoration_model, images)
@@ -211,14 +213,15 @@ class FrameRestorer:
             blend_mask = mask_utils.create_blend_mask(clip_mask)
 
             frame_roi = frame[t:b + 1, l:r + 1, :]
-            roi_f = frame_roi.float()
-            temp = clip_img.float()
-            temp = temp.sub(roi_f)
-            temp = temp.mul(blend_mask.unsqueeze(-1))
-            temp = temp.add(roi_f)
-            frame_roi[:] = temp.round().clamp_(0, 255).to(dtype=frame_roi.dtype)
+            roi_f = frame_roi.to(self.mosaic_restoration_model.dtype)
+            temp = clip_img.to(self.mosaic_restoration_model.dtype)
+            temp.sub_(roi_f)
+            temp.mul_(blend_mask.unsqueeze(-1))
+            temp.add_(roi_f)
+            temp.round_().clamp_(0, 255)
+            frame_roi[:] = temp
 
-    def _restore_clip(self, clip):
+    def _restore_clip(self, clip: Clip):
         """
         Restores each contained from of the mosaic clip. If self.mosaic_detection is True will instead draw mosaic detection
         boundaries on each frame.
@@ -226,18 +229,21 @@ class FrameRestorer:
         if self.mosaic_detection:
             restored_clip_images = visualization_utils.draw_mosaic_detections(clip)
         else:
-            images = clip.get_clip_images()
-            restored_clip_images = self._restore_clip_frames(images)
-        assert len(restored_clip_images) == len(clip.get_clip_images())
+            restored_clip_images = self._restore_clip_frames(clip.frames)
+        assert len(restored_clip_images) == len(clip.frames)
 
         for i in range(len(restored_clip_images)):
-            assert clip.data[i][0].shape == restored_clip_images[i].shape
-            clip.data[i] = restored_clip_images[i], clip.data[i][1], clip.data[i][2], clip.data[i][3], clip.data[i][4]
+            assert clip.frames[i].shape == restored_clip_images[i].shape
+            clip.frames[i] = restored_clip_images[i]
 
     def _collect_garbage(self, clip_buffer):
         processed_clips = list(filter(lambda _clip: len(_clip) == 0, clip_buffer))
+        has_processed_clips = len(processed_clips) > 0
         for processed_clip in processed_clips:
             clip_buffer.remove(processed_clip)
+
+        if has_processed_clips and self.device.type == 'cuda':
+            torch.cuda.empty_cache()
 
     def _contains_at_least_one_clip_starting_after_frame_num(self, frame_num, clip_buffer):
         return len(clip_buffer) > 0 and frame_num < max(clip_buffer, key=lambda c: c.frame_start).frame_start

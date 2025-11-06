@@ -42,7 +42,7 @@ class MosaicDetectionModel:
         self.is_segmentation_model = yolo_model.task == 'segment'
 
     def preprocess(self, imgs: list[torch.Tensor]) -> torch.Tensor:
-        im = torch.stack([x.permute(2, 0, 1) for x in imgs]).to(dtype=self.dtype, memory_format=torch.channels_last).div(255.0) # (H, W, C) to (C, H, W)
+        im = torch.stack([x.permute(2, 0, 1) for x in imgs]).to(dtype=self.dtype, memory_format=torch.channels_last).div_(255.0) # (H, W, C) to (C, H, W)
         return self.letterbox(im)
 
     def inference(self, image_batch: torch.Tensor):
@@ -71,4 +71,4 @@ class MosaicDetectionModel:
         if masks is not None:
             keep = masks.sum((-2, -1)) > 0  # only keep predictions with masks
             preds, masks = preds[keep], masks[keep]
-        return Results(orig_img, path='', names=self.model.names, boxes=preds[:, :6], masks=masks)
+        return Results(orig_img, path='', names=self.model.names, boxes=preds[:, :6].cpu(), masks=masks)

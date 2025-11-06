@@ -61,8 +61,8 @@ def inference(model, video: list[torch.Tensor], max_frames=-1):
         result = []
 
         # (H, W, C[BGR]) uint8 images to (B, T, C, H, W) float in [0,1]
-        input = torch.stack([x.permute(2, 0, 1) for x in video]).to(dtype=model.dtype, memory_format=torch.channels_last).div(255.0)
-        input =     input.unsqueeze(0)
+        input = torch.stack([x.permute(2, 0, 1) for x in video]).to(dtype=model.dtype, memory_format=torch.channels_last).div_(255.0)
+        input = input.unsqueeze(0)
         if max_frames > 0:
             for i in range(0, input.shape[1], max_frames):
                 output = model(inputs=input[:, i:i + max_frames])
@@ -73,7 +73,7 @@ def inference(model, video: list[torch.Tensor], max_frames=-1):
 
         # (H, W, C[BGR]) uint8 images to (B, T, C, H, W) float in [0,1]
         result = result.squeeze(0) # -> (T, C, H, W)
-        result = result.mul(255.0).round().clamp(0, 255).to(dtype=torch.uint8).permute(0, 2, 3, 1) # (T, H, W, C)
+        result = result.mul_(255.0).round_().clamp_(0, 255).to(dtype=torch.uint8).permute(0, 2, 3, 1) # (T, H, W, C)
         result = list(torch.unbind(result, 0)) # (T, H, W, C) to list of (H, W, C)
         output_frame_count = len(result)
         output_frame_shape = result[0].shape

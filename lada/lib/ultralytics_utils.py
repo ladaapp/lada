@@ -24,14 +24,6 @@ def convert_yolo_box(yolo_box: ultralytics.engine.results.Boxes, img_shape) -> B
     b = int(torch.clip(_box[3], 0, img_shape[0]).item())
     return t, l, b, r
 
-def convert_yolo_box_tensor(yolo_box: ultralytics.engine.results.Boxes, img_shape) -> torch.Tensor:
-    _box = yolo_box.xyxy[0]
-    l = torch.clip(_box[0], 0, img_shape[1]).to(torch.int64)
-    t = torch.clip(_box[1], 0, img_shape[0]).to(torch.int64)
-    r = torch.clip(_box[2], 0, img_shape[1]).to(torch.int64)
-    b = torch.clip(_box[3], 0, img_shape[0]).to(torch.int64)
-    return torch.stack((t, l, b, r))
-
 def convert_yolo_boxes(yolo_box: ultralytics.engine.results.Boxes, img_shape) -> list[Box]:
     _boxes = yolo_box.xyxy
     boxes = []
@@ -55,7 +47,7 @@ def scale_and_unpad_image(masks, im0_shape):
     b, r = h1 - round(ph + 0.1), w1 - round(pw + 0.1)
     x = masks[t:b, l:r].permute(2, 0, 1).unsqueeze(0).float()
     y = F.interpolate(x, size=(h0, w0), mode='bilinear', align_corners=False)
-    return y.squeeze(0).permute(1, 2, 0).round().clamp(0, 255).to(masks.dtype)
+    return y.squeeze(0).permute(1, 2, 0).round_().clamp_(0, 255).to(masks.dtype)
 
 def convert_yolo_mask_tensor(yolo_mask: ultralytics.engine.results.Masks, img_shape) -> torch.Tensor:
     mask_img = _to_mask_img_tensor(yolo_mask.data)
