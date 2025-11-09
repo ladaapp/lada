@@ -13,6 +13,7 @@ import torch
 from ultralytics.engine.results import Results
 from lada.lib import Box, Mask, Image, VideoMetadata, threading_utils
 from lada.lib import image_utils
+from lada.lib.box_utils import box_overlap
 from lada.lib.mosaic_detection_model import MosaicDetectionModel
 from lada.lib.scene_utils import crop_to_box_v3
 from lada.lib import video_utils
@@ -67,16 +68,11 @@ class Scene:
     def get_boxes(self):
         return [box for _, _, box in self.data]
 
-    def box_overlaps(self, box1: Box, box2: Box) -> bool:
-        y_overlaps = (box1[0] <= box2[0] <= box1[2] or box1[0] <= box2[2] <= box1[2]) or (box2[0] <= box1[0] <= box2[2] or box2[0] <= box1[2] <= box2[2])
-        x_overlaps = (box1[1] <= box2[1] <= box1[3] or box1[1] <= box2[3] <= box1[3]) or (box2[1] <= box1[1] <= box2[3] or box2[1] <= box1[3] <= box2[3])
-        return y_overlaps and x_overlaps
-
     def belongs(self, box: Box):
         if len(self.data) == 0:
             return False
         last_scene_box = self.data[-1][2]
-        return self.box_overlaps(last_scene_box, box)
+        return box_overlap(last_scene_box, box)
 
     def __iter__(self):
         return self

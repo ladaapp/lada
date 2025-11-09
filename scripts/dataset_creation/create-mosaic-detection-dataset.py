@@ -13,11 +13,12 @@ from ultralytics import YOLO
 from lada.centerface.centerface import CenterFace
 import lada.bpjdet.inference as bpjdet
 from lada.lib import visualization_utils, image_utils, transforms as lada_transforms, Detections, DETECTION_CLASSES
+from lada.lib.box_utils import box_overlap
 from lada.lib.face_detector import FaceDetector
 from lada.lib.head_detector import HeadDetector
 from lada.lib.nsfw_frame_detector import NsfwImageDetector
 from lada.lib.threading_utils import clean_up_completed_futures
-from lada.lib.ultralytics_utils import convert_binary_mask_to_yolo_detection_labels, convert_segment_masks_to_yolo_segmentation_labels
+from lada.lib.ultralytics_utils import convert_segment_masks_to_yolo_labels
 
 from torchvision.transforms import transforms as torchvision_transforms
 
@@ -85,8 +86,68 @@ def create_degradation_pipeline(hq_img, target_size, mosaic_size, device='cuda')
                                          bitrate_ranges={}),
     ])
 
-def process_image_file(file_path, output_root, detector: NsfwImageDetector | FaceDetector | HeadDetector, device='cpu', show=False, window_name="mosaic"):
-    detections: Detections = detector.detect(file_path)
+def get_detections(file_path, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector]) -> Detections:
+    detections = []
+    nsfw_detections = []
+    sfw_detections = []
+    frame = None
+
+    for detector in detectors:
+        _detections = detector.detect(file_path)
+        if _detections is None:
+            continue
+        if frame is None:
+            frame = _detections.frame
+        if isinstance(detector, NsfwImageDetector):
+            nsfw_detections.extend(_detections.detections)
+        else:
+            sfw_detections.extend(_detections.detections)
+
+    skip = []
+    def get_non_skipped(detections):
+        non_skipped = []
+        for det in detections:
+            skip_det = False
+            for skipped_det in skip:
+                if skipped_det is det:
+                    skip_det = True
+                    break
+            if not skip_det:
+                non_skipped.append(det)
+        return non_skipped
+
+    for sfw_detection in sfw_detections:
+        should_skip = False
+        for nsfw_detection in nsfw_detections:
+            if box_overlap(sfw_detection.box, nsfw_detection.box):
+                skip.append(sfw_detection)
+                should_skip = True
+                break
+        if should_skip: continue
+        for _sfw_detection in get_non_skipped(sfw_detections):
+            if _sfw_detection is sfw_detection:
+                continue
+            if box_overlap(sfw_detection.box, _sfw_detection.box):
+                skip.append(sfw_detection)
+                should_skip = True
+                break
+        if should_skip: continue
+        detections.append(sfw_detection)
+    for nsfw_detection in nsfw_detections:
+        should_skip = False
+        for _nsfw_detection in get_non_skipped(nsfw_detections):
+            if _nsfw_detection is nsfw_detection:
+                continue
+            if box_overlap(nsfw_detection.box, _nsfw_detection.box):
+                skip.append(nsfw_detection)
+                should_skip = True
+                break
+        if should_skip: continue
+        detections.append(nsfw_detection)
+    return Detections(frame, detections)
+
+def process_image_file(file_path, output_root, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], device='cpu', show=False, window_name="mosaic"):
+    detections: Detections = get_detections(file_path, detectors)
     if not detections or len(detections.detections) == 0:
         if not show:
             name = osp.splitext(os.path.basename(file_path))[0]
@@ -144,7 +205,7 @@ def parse_args():
     parser.add_argument('--output-root', type=Path, help="directory where resulting images/masks are saved")
     parser.add_argument('--input-root', type=Path, help="directory containing image files")
     parser.add_argument('--device', type=str, default="cuda:0")
-    parser.add_argument('--model', type=str, default="model_weights/lada_nsfw_detection_model_v1.3.pt", help="path to YOLO model")
+    parser.add_argument('--model', type=str, default="model_weights/lada_nsfw_detection_model_v1.3.pt", help="path to NSFW detection model")
     parser.add_argument('--workers', type=int, default=4, help="number of worker threads")
     parser.add_argument('--start-index', type=int, default=0, help="Can be used to continue a previous run. Note the index number next to last processed file name")
     parser.add_argument('--show', default=False, action=argparse.BooleanOptionalAction, help="show each sample")
@@ -159,21 +220,21 @@ def parse_args():
 def main():
     args = parse_args()
 
-    detector = None
+    detectors = []
     if args.create_nsfw_mosaics:
         model = YOLO(args.model)
-        detector = NsfwImageDetector(model, args.device, random_extend_masks=True, conf=0.8)
-    elif args.create_sfw_face_mosaics:
+        detectors.append(NsfwImageDetector(model, args.device, random_extend_masks=True, conf=0.8))
+    if args.create_sfw_face_mosaics:
         model = CenterFace()
-        detector = FaceDetector(model, random_extend_masks=True, conf=0.8)
-    elif args.create_sfw_head_mosaics:
-        model = bpjdet.get_model(device=args.device, weights_path=args.model)
+        detectors.append(FaceDetector(model, random_extend_masks=True, conf=0.8))
+    if args.create_sfw_head_mosaics:
+        model = bpjdet.get_model(device=args.device)
         data = bpjdet.JointBP_CrowdHuman_head.DATA
         data['conf_thres_part'] = 0.7
         data['iou_thres_part'] = 0.7
         data['match_iou_thres'] = 0.7
-        detector = HeadDetector(model, data=data, random_extend_masks=True, conf_thres=data['conf_thres_part'], iou_thres=data['iou_thres_part'])
-    assert detector is not None
+        detectors.append(HeadDetector(model, data=data, random_extend_masks=True, conf_thres=data['conf_thres_part'], iou_thres=data['iou_thres_part']))
+    assert len(detectors) > 0
 
     if not args.show:
         os.makedirs(f"{args.output_root}/masks", exist_ok=True)
@@ -195,9 +256,9 @@ def main():
                 continue
             print(f"{file_idx}, Processing {file_path.name}")
             if args.show:
-                process_image_file(file_path, args.output_root, detector, device=args.device, show=True)
+                process_image_file(file_path, args.output_root, detectors, device=args.device, show=True)
             else:
-                jobs.append(executor.submit(process_image_file, file_path, args.output_root, detector, args.device))
+                jobs.append(executor.submit(process_image_file, file_path, args.output_root, detectors, args.device))
                 clean_up_completed_futures(jobs)
     wait(jobs, return_when=ALL_COMPLETED)
     clean_up_completed_futures(jobs)
@@ -211,8 +272,7 @@ def main():
             DETECTION_CLASSES["sfw_face"]["mask_value"]: 1,
             DETECTION_CLASSES["sfw_head"]["mask_value"]: 1
         }
-        convert_segment_masks_to_yolo_segmentation_labels(f"{args.output_root}/masks", f"{args.output_root}/segmentation_labels", pixel_to_class_mapping)
-        convert_binary_mask_to_yolo_detection_labels(f"{args.output_root}/masks", f"{args.output_root}/detection_labels", pixel_to_class_mapping)
+        convert_segment_masks_to_yolo_labels(f"{args.output_root}/masks", f"{args.output_root}/segmentation_labels", f"{args.output_root}/detection_labels", pixel_to_class_mapping)
 
     if args.show:
         cv2.destroyAllWindows()

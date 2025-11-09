@@ -77,85 +77,66 @@ def choose_biggest_detection(result: ultralytics.engine.results.Results, trackin
                 mask = yolo_mask
     return box, mask
 
-def convert_segment_masks_to_yolo_segmentation_labels(masks_dir, output_dir, pixel_to_class_mapping):
+def _get_unique_pixel_values(mask: Mask) -> list[int]:
+    # get unique values except background (0)
+    unique_values = np.unique(mask).tolist()
+    if 0 in unique_values: unique_values.remove(0)  # remove background class
+    return unique_values
+
+def convert_segment_masks_to_yolo_labels(masks_dir, output_dir_segmentation_labels, output_dir_detection_labels, pixel_to_class_mapping):
     """
     pixel_to_class_mapping is a dict providing a mapping from pixel value to class id.
     e.g. if you only have a single class with id 0 and binary masks use pixel value 255 then this would be:
     pixel_to_class_mapping = {255: 0}
 
-    source: ultralytics.data.converter.convert_segment_masks_to_yolo_seg
+    Based of: ultralytics.data.converter.convert_segment_masks_to_yolo_seg
     """
+    def get_yolo_box(contour) -> tuple[float]:
+        x, y, w, h = cv2.boundingRect(contour)
+        h, w = mask.shape[:2]
+        center_x = x + w / 2
+        center_y = y + h / 2
+        yolo_box = center_x / w, center_y / h, w / w, h / h
+        return yolo_box
+
     for mask_path in Path(masks_dir).iterdir():
         if mask_path.suffix in {".png", ".jpg"}:
             mask = cv2.imread(str(mask_path), cv2.IMREAD_GRAYSCALE)
             img_height, img_width = mask.shape
 
-            unique_values = np.unique(mask)  # Get unique pixel values representing different classes
-            yolo_format_data = []
+            unique_values = _get_unique_pixel_values(mask)
+            yolo_segmentation_format_data = []
+            yolo_detection_format_data = []
 
             for value in unique_values:
-                if value == 0:
-                    continue  # Skip background
                 class_index = pixel_to_class_mapping.get(value, -1)
                 if class_index == -1:
                     print(f"Unknown class for pixel value {value} in file {mask_path}, skipping.")
                     continue
 
                 # Create a binary mask for the current class and find contours
-                contours, _ = cv2.findContours(
-                    (mask == value).astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
-                )  # Find contours
+                binary_mask_for_current_class = (mask == value).astype(np.uint8)
+                contours, _ = cv2.findContours(binary_mask_for_current_class, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
                 for contour in contours:
                     if len(contour) >= 3:  # YOLO requires at least 3 points for a valid segmentation
                         contour = contour.squeeze()  # Remove single-dimensional entries
-                        yolo_format = [class_index]
+                        yolo_segmentation_format = [class_index]
                         for point in contour:
                             # Normalize the coordinates
-                            yolo_format.append(round(point[0] / img_width, 6))  # Rounding to 6 decimal places
-                            yolo_format.append(round(point[1] / img_height, 6))
-                        yolo_format_data.append(yolo_format)
+                            yolo_segmentation_format.append(round(point[0] / img_width, 6))  # Rounding to 6 decimal places
+                            yolo_segmentation_format.append(round(point[1] / img_height, 6))
+                        yolo_segmentation_format_data.append(yolo_segmentation_format)
+                        yolo_detection_format_data.append(get_yolo_box(contour))
+
             # Save Ultralytics YOLO format data to file
-            output_path = Path(output_dir) / f"{mask_path.stem}.txt"
+            output_path = Path(output_dir_segmentation_labels) / f"{mask_path.stem}.txt"
             with open(output_path, "w", encoding="utf-8") as file:
-                for item in yolo_format_data:
+                for item in yolo_segmentation_format_data:
                     line = " ".join(map(str, item))
                     file.write(line + "\n")
-
-
-def convert_binary_mask_to_yolo_detection_labels(masks_dir, output_dir, pixel_to_class_mapping):
-    """
-    pixel_to_class_mapping is a dict providing a mapping from pixel value to class id.
-    e.g. if you only have a single class with id 0 and binary masks use pixel value 255 then this would be:
-    pixel_to_class_mapping = {255: 0}
-
-    """
-
-    def _convert_binary_mask_to_yolo_detection_labels(mask: Mask) -> tuple[float]:
-        t, l, b, r = mask_utils.get_box(mask)
-        h, w = mask.shape[:2]
-        box_width = r - l
-        box_height = b - t
-        box_center_x = l + box_width / 2
-        box_center_y = t + box_height / 2
-        yolo_box = box_center_x / w, box_center_y / h, box_width / w, box_height / h
-        return yolo_box
-
-    def _get_class_id(mask: Mask) -> int:
-        unique_values = np.unique(mask).tolist()
-        if 0 in unique_values: unique_values.remove(0)  # remove background class
-        assert len(unique_values) == 1, f"only single class / binary segmentation mask supported but found these values: {unique_values}"
-        mask_val = unique_values[0]
-
-        class_id = pixel_to_class_mapping.get(mask_val, -1)
-        assert class_id != -1, f"Unknown class for pixel value {mask_val} in file {mask_path}"
-        return class_id
-
-    for mask_path in Path(masks_dir).iterdir():
-        if mask_path.suffix in {".png", ".jpg"}:
-            mask = cv2.imread(str(mask_path), cv2.IMREAD_GRAYSCALE)
-            class_id = _get_class_id(mask)
-            yolo_box = _convert_binary_mask_to_yolo_detection_labels(mask)
-            label_file_path = Path(output_dir).joinpath(Path(mask_path).with_suffix('.txt').name)
-            with open(label_file_path, 'a') as file:
-                file.write(f"{class_id} {yolo_box[0]} {yolo_box[1]} {yolo_box[2]} {yolo_box[3]}")
+            output_path = Path(output_dir_detection_labels) / f"{mask_path.stem}.txt"
+            with open(output_path, "w", encoding="utf-8") as file:
+                for item in yolo_detection_format_data:
+                    line = " ".join(map(str, item))
+                    file.write(line + "\n")

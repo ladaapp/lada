@@ -112,8 +112,9 @@ def _post_process_batch(data, imgs, paths, shapes, body_dets, part_dets):
 
     return batch_bboxes, batch_points, batch_scores, batch_imgids, batch_parts_dict, img_indexs
 
-def get_model(device: str, weights_path: str):
+def get_model(device: str):
     torch_device = torch.device(device)
+    weights_path = os.path.join(MODEL_WEIGHTS_DIR, '3rd_party', 'ch_head_s_1536_e150_best_mMR.pt')
     return attempt_load(weights_path, map_location=torch_device)
 
 def inference(model, image_path, imgz, data, conf_thres=0.45, iou_thres=0.75) -> list[Box]:

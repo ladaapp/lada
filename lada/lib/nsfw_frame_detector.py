@@ -39,5 +39,5 @@ class NsfwImageDetector:
         self.conf = conf
 
     def detect(self, file_path: str) -> Detections | None:
-        for results in self.model.predict(source=file_path, stream=False, verbose=False, device=self.device, conf=0.4, iou=0.):
+        for results in self.model.predict(source=file_path, stream=False, verbose=False, device=self.device, conf=self.conf, iou=0.):
             return get_nsfw_frames(results, self.random_extend_masks)
