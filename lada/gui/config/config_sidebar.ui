@@ -181,6 +181,19 @@ SPDX-License-Identifier: AGPL-3.0
                                     </object>
                                 </child>
                                 <child>
+                                    <object class="AdwActionRow" id="action_row_temp_directory">
+                                        <property name="title" translatable="true">Temporary directory</property>
+                                        <property name="subtitle" translatable="true">Directory for temporary video files during restoration process</property>
+                                        <child type="suffix">
+                                            <object class="GtkButton">
+                                                <property name="icon-name">folder-open-symbolic</property>
+                                                <property name="valign">3</property>
+                                                <signal name="clicked" handler="toggle_button_temp_directory_filepicker_callback"/>
+                                            </object>
+                                        </child>
+                                    </object>
+                                </child>
+                                <child>
                                     <object class="AdwEntryRow" id="entry_row_file_name_pattern">
                                         <property name="title" translatable="true">File name pattern for restored files.&#xA;Must include placeholder &lt;span background=&quot;#D3D3D350&quot;&gt;&lt;tt&gt;{orig_file_name}&lt;/tt&gt;&lt;/span&gt;.</property>
                                         <signal name="changed" handler="entry_row_file_name_pattern_changed_callback"/>

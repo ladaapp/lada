@@ -408,7 +408,8 @@ class ExportView(Gtk.Widget):
 
             progress_update_step_size = 100
             success = True
-            video_tmp_file_output_path = os.path.join(tempfile.gettempdir(),f"{os.path.basename(os.path.splitext(restore_file_path)[0])}.tmp{os.path.splitext(restore_file_path)[1]}")
+            temp_dir = self._config.temp_directory
+            video_tmp_file_output_path = os.path.join(temp_dir, f"{os.path.basename(os.path.splitext(restore_file_path)[0])}.tmp{os.path.splitext(restore_file_path)[1]}")
             try:
                 if self.resume_info:
                     start_ns = self.resume_info.get_resume_timestamp_ns()
