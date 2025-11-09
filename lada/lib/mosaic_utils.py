@@ -41,7 +41,7 @@ def _mosaic_get_block_data_fun(model):
     raise Exception()
 
 
-def addmosaic_base(img, mask, n, model='squa_avg', rect_ratio=1.6, feather=0, return_mosaic_edges=False):
+def addmosaic_base(img, mask, n, model='squa_avg', rect_ratio=1.6, feather=0, return_mosaic_edges=False, reuse_input_mask_value=False):
     '''
     img: input image
     mask: input mask
@@ -49,6 +49,7 @@ def addmosaic_base(img, mask, n, model='squa_avg', rect_ratio=1.6, feather=0, re
     model : squa_avg squa_mid squa_random squa_avg_circle_edge rect_avg
     rect_ratio: if model==rect_avg , mosaic w/h=rect_ratio
     feather : feather size, -1->no 0->auto
+    reuse_input_mask_value: if False mosaic mask value will be 255, otherwise the value from (input) mask is used
     '''
     n = int(n)
     rect_ratio = 1.0 if model != 'rect_avg' else rect_ratio
@@ -68,12 +69,12 @@ def addmosaic_base(img, mask, n, model='squa_avg', rect_ratio=1.6, feather=0, re
     mask_padded = np.pad(mask,((0,pad),(0,pad),(0,0)), mode='constant', constant_values=0)
     img_mosaic = img.copy()
     mask_mosaic = np.zeros_like(mask, dtype=mask.dtype)
-    mask_val = 255
 
     block_corner_points = []
     for i in range(h_step):
         for j in range(w_step):
-            if mask_padded[i * n_h + pix_mid_h, j * n_w + pix_mid_w]:
+            if mask_val := mask_padded[i * n_h + pix_mid_h, j * n_w + pix_mid_w]:
+                if not reuse_input_mask_value: mask_val = 255
                 y_start = i * n_h + h_start
                 y_end = (i + 1) * n_h + h_start
                 x_start = j * n_w + w_start

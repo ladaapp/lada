@@ -282,7 +282,8 @@ class Mosaic(torch.nn.Module):
                  block_shape_probs=[0.25, 0.3, 0.45],
                  rectangular_block_ratio_range=[1.1, 1.8],
                  feather_prob=0.7,
-                 feather_size_range=[0., 2.5]
+                 feather_size_range=[0., 2.5],
+                 reuse_input_mask_value=False
                  ):
         super().__init__()
 
@@ -293,6 +294,7 @@ class Mosaic(torch.nn.Module):
         self.mosaic_block_size_scale_factor = np.random.uniform(base_block_size_scale_factor_range[0], base_block_size_scale_factor_range[1])
         self.feather_size_scale_factor = random.uniform(feather_size_range[0], feather_size_range[1])
         self.should_apply_feathering =  random.random() < feather_prob
+        self.reuse_input_mask_value = reuse_input_mask_value
 
     def _crop_to_box(self, img, box):
         t, l, b, r = box
@@ -329,7 +331,8 @@ class Mosaic(torch.nn.Module):
                                                           mosaic_size,
                                                           model=self.mosaic_mod,
                                                           rect_ratio=self.mosaic_rectangle_ratio,
-                                                          feather=mosaic_feather_size)
+                                                          feather=mosaic_feather_size,
+                                                          reuse_input_mask_value=self.reuse_input_mask_value)
             img_lqs.append(img_lq)
             mask_lqs.append(mask_lq)
 

@@ -129,11 +129,7 @@ def convert_binary_mask_to_yolo_detection_labels(masks_dir, output_dir, pixel_to
     e.g. if you only have a single class with id 0 and binary masks use pixel value 255 then this would be:
     pixel_to_class_mapping = {255: 0}
 
-    currently only binary masks are supported so single key-value pair in pixel_to_class_mapping
-
     """
-    assert len(pixel_to_class_mapping.keys()) == 1, 'only single class / mapping currently supported'
-    class_id = list(pixel_to_class_mapping.values())[0]
 
     def _convert_binary_mask_to_yolo_detection_labels(mask: Mask) -> tuple[float]:
         t, l, b, r = mask_utils.get_box(mask)
@@ -145,9 +141,20 @@ def convert_binary_mask_to_yolo_detection_labels(masks_dir, output_dir, pixel_to
         yolo_box = box_center_x / w, box_center_y / h, box_width / w, box_height / h
         return yolo_box
 
+    def _get_class_id(mask: Mask) -> int:
+        unique_values = np.unique(mask).tolist()
+        if 0 in unique_values: unique_values.remove(0)  # remove background class
+        assert len(unique_values) == 1, f"only single class / binary segmentation mask supported but found these values: {unique_values}"
+        mask_val = unique_values[0]
+
+        class_id = pixel_to_class_mapping.get(mask_val, -1)
+        assert class_id != -1, f"Unknown class for pixel value {mask_val} in file {mask_path}"
+        return class_id
+
     for mask_path in Path(masks_dir).iterdir():
         if mask_path.suffix in {".png", ".jpg"}:
             mask = cv2.imread(str(mask_path), cv2.IMREAD_GRAYSCALE)
+            class_id = _get_class_id(mask)
             yolo_box = _convert_binary_mask_to_yolo_detection_labels(mask)
             label_file_path = Path(output_dir).joinpath(Path(mask_path).with_suffix('.txt').name)
             with open(label_file_path, 'a') as file:

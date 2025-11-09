@@ -12,7 +12,7 @@ from ultralytics import YOLO
 
 from lada.centerface.centerface import CenterFace
 import lada.bpjdet.inference as bpjdet
-from lada.lib import visualization_utils, image_utils, transforms as lada_transforms
+from lada.lib import visualization_utils, image_utils, transforms as lada_transforms, Detections, DETECTION_CLASSES
 from lada.lib.face_detector import FaceDetector
 from lada.lib.head_detector import HeadDetector
 from lada.lib.nsfw_frame_detector import NsfwImageDetector
@@ -86,19 +86,28 @@ def create_degradation_pipeline(hq_img, target_size, mosaic_size, device='cuda')
     ])
 
 def process_image_file(file_path, output_root, detector: NsfwImageDetector | FaceDetector | HeadDetector, device='cpu', show=False, window_name="mosaic"):
-    detection = detector.detect(file_path)
-    if not detection:
+    detections: Detections = detector.detect(file_path)
+    if not detections or len(detections.detections) == 0:
         if not show:
             name = osp.splitext(os.path.basename(file_path))[0]
             shutil.copy(file_path, f"{output_root}/background_images/{name}.jpg")
         return
 
-    img = detection.frame
-    mask = detection.mask
-
+    img = detections.frame
     target_size = 640 # size of images what we'll train mosaic detection model with
+    mask, img_mosaic, mask_mosaic, mosaic_size = None, None, None, None
+    for detection in detections.detections:
+        if mask is None:
+            mask = detection.mask
+        else:
+            mask = mask | detection.mask
+        if img_mosaic is None:
+            img_mosaic, mask_mosaic, mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img, mask)
+        else:
+            img_mosaic, _mask_mosaic, _mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img_mosaic, mask)
+            mask_mosaic = mask_mosaic | _mask_mosaic
+            mosaic_size = min(_mosaic_size, mosaic_size)
 
-    img_mosaic, mask_mosaic, mosaic_size = lada_transforms.Mosaic()(img, mask)
     degrade = create_degradation_pipeline(img, target_size=target_size, device=device, mosaic_size=mosaic_size)
 
     degraded_mosaic = degrade(img_mosaic)
@@ -155,16 +164,14 @@ def main():
         model = YOLO(args.model)
         detector = NsfwImageDetector(model, args.device, random_extend_masks=True, conf=0.8)
     elif args.create_sfw_face_mosaics:
-        raise NotImplementedError() # TODO. Comment this line out in order to test but note that the code is not yet ready, as class id and segmentation mask pixel values are not considered and would show up as NSFW mosaic detection.
         model = CenterFace()
-        detector = FaceDetector(model, random_extend_masks=True, conf=0.9)
+        detector = FaceDetector(model, random_extend_masks=True, conf=0.8)
     elif args.create_sfw_head_mosaics:
-        raise NotImplementedError() # TODO. Comment this line out in order to test but note that the code is not yet ready, as class id and segmentation mask pixel values are not considered and would show up as NSFW mosaic detection.
         model = bpjdet.get_model(device=args.device, weights_path=args.model)
         data = bpjdet.JointBP_CrowdHuman_head.DATA
-        data['conf_thres_part'] = 0.9
+        data['conf_thres_part'] = 0.7
         data['iou_thres_part'] = 0.7
-        data['match_iou_thres'] = 0.9
+        data['match_iou_thres'] = 0.7
         detector = HeadDetector(model, data=data, random_extend_masks=True, conf_thres=data['conf_thres_part'], iou_thres=data['iou_thres_part'])
     assert detector is not None
 
@@ -198,7 +205,12 @@ def main():
     print("Finished processing images. Now converting dataset to YOLO format...")
 
     if not args.show:
-        pixel_to_class_mapping = {255: 0}
+        # Remap to classes we want to train with. Must match mosaic_detection_dataset_config.yaml
+        pixel_to_class_mapping = {
+            DETECTION_CLASSES["nsfw"]["mask_value"]: 0,
+            DETECTION_CLASSES["sfw_face"]["mask_value"]: 1,
+            DETECTION_CLASSES["sfw_head"]["mask_value"]: 1
+        }
         convert_segment_masks_to_yolo_segmentation_labels(f"{args.output_root}/masks", f"{args.output_root}/segmentation_labels", pixel_to_class_mapping)
         convert_binary_mask_to_yolo_detection_labels(f"{args.output_root}/masks", f"{args.output_root}/detection_labels", pixel_to_class_mapping)
 

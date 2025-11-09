@@ -48,11 +48,26 @@ class VideoMetadata:
     time_base: Fraction
     start_pts: int
 
+@dataclass
+class Detection:
+    cls: str
+    box: Box
+    mask: Mask # Binary segmentation mask. Values can be either 0 (background) or mask_val
+
 """
 Detection result containing bounding box and segmentation mask of the detected object within the frame
 """
 @dataclass
-class Detection:
+class Detections:
     frame: Image
-    box: Box
-    mask: Mask
+    detections: list[Detection]
+
+"""
+Mapping for class ids and mask values.
+Mask value is anon-zero value used in binary mask (Mask) to indicate if pixel belongs to the class
+"""
+DETECTION_CLASSES = {
+    "nsfw": dict(class_id=0, mask_value=255),
+    "sfw_head": dict(class_id=1, mask_value=127),
+    "sfw_face": dict(class_id=2, mask_value=192),
+}

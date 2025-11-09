@@ -3,20 +3,9 @@
 
 import cv2
 import numpy as np
-from lada.lib import Mask, Box, Image, Detection
+from lada.lib import Mask, Box, Image, Detections, Detection, DETECTION_CLASSES
 from lada.lib import mask_utils
-from lada.bpjdet.inference import get_model, inference
-
-def _choose_biggest_detection(dets: list[Box]) -> Box | None:
-    max_area = -1
-    max_box: Box | None = None
-    for i, box in enumerate(dets):
-        t, l, b, r = box
-        area = (r - l) * (b - t)
-        if area > max_area:
-            max_area = area
-            max_box = box
-    return max_box
+from lada.bpjdet.inference import inference
 
 def _create_mask(frame: Image, box: Box) -> Mask:
     t, l, b, r = box
@@ -34,7 +23,7 @@ def _create_mask(frame: Image, box: Box) -> Mask:
     start_angle = 0
     end_angle = 360
 
-    color = 255
+    color = DETECTION_CLASSES["sfw_head"]["mask_value"]
     thickness = -1
 
     cv2.ellipse(mask, center, axes, angle, start_angle, end_angle, color, thickness)
@@ -43,24 +32,24 @@ def _create_mask(frame: Image, box: Box) -> Mask:
 
     return mask
 
-def _get_detection(dets: list[Box], frame, random_extend_masks: bool) -> Detection | None:
-    box = _choose_biggest_detection(dets)
-    object_detected = box is not None
-    if not object_detected:
+def _get_detection(dets: list[Box], frame, random_extend_masks: bool) -> Detections | None:
+    if len(dets) == 0:
         return None
-    mask = _create_mask(frame, box)
+    detections = []
+    for box in dets:
+        mask = _create_mask(frame, box)
 
-    if random_extend_masks:
-        mask = mask_utils.apply_random_mask_extensions(mask)
-        box = mask_utils.get_box(mask)
+        if random_extend_masks:
+            mask = mask_utils.apply_random_mask_extensions(mask)
+            box = mask_utils.get_box(mask)
 
-    t, l, b, r = box
-    width, height = r - l + 1, b - t + 1
-    if min(width, height) < 40:
-        # skip tiny detections
-        return None
-
-    return Detection(frame, box, mask)
+        t, l, b, r = box
+        width, height = r - l + 1, b - t + 1
+        if min(width, height) < 40:
+            # skip tiny detections
+            return None
+        detections.append(Detection("sfw_head", box, mask))
+    return Detections(frame, detections)
 
 class HeadDetector:
     def __init__(self, model, data, conf_thres,  iou_thres, imgz=1024, random_extend_masks=False):
@@ -71,7 +60,7 @@ class HeadDetector:
         self.iou_thres = iou_thres
         self.imgz = imgz
 
-    def detect(self, file_path: str) -> Detection | None:
+    def detect(self, file_path: str) -> Detections | None:
         image = cv2.imread(file_path, cv2.IMREAD_COLOR_RGB)
         dets = inference(self.model, file_path, data=self.data, conf_thres=self.conf_thres, iou_thres=self.iou_thres, imgz=self.imgz)
         return _get_detection(dets, cv2.cvtColor(image, cv2.COLOR_RGB2BGR), random_extend_masks=self.random_extend_masks)
