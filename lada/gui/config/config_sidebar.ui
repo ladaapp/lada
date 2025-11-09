@@ -188,6 +188,56 @@ SPDX-License-Identifier: AGPL-3.0
                                         <signal name="notify::css-classes" handler="entry_row_file_name_pattern_focused_callback"/>
                                     </object>
                                 </child>
+                                 <child>
+                                     <object class="AdwExpanderRow">
+                                         <property name="title" translatable="true">Post-Export Action</property>
+                                         <property name="show-enable-switch">false</property>
+                                         <property name="expanded">true</property>
+                                         <child>
+                                             <object class="AdwActionRow">
+                                                 <property name="title" translatable="true">No action</property>
+                                                 <property name="subtitle" translatable="true">Do nothing after export is completed.</property>
+                                                 <child type="prefix">
+                                                     <object class="GtkCheckButton" id="check_button_post_export_none">
+                                                         <property name="active">true</property>
+                                                         <signal name="toggled" handler="check_button_post_export_none_callback"/>
+                                                     </object>
+                                                 </child>
+                                             </object>
+                                         </child>
+                                         <child>
+                                             <object class="AdwActionRow">
+                                                 <property name="title" translatable="true">Shutdown system</property>
+                                                 <property name="subtitle" translatable="true">Automatically shutdown the system after export is completed.</property>
+                                                 <child type="prefix">
+                                                     <object class="GtkCheckButton" id="check_button_post_export_shutdown">
+                                                         <property name="group">check_button_post_export_none</property>
+                                                         <signal name="toggled" handler="check_button_post_export_shutdown_callback"/>
+                                                     </object>
+                                                 </child>
+                                             </object>
+                                         </child>
+                                         <child>
+                                             <object class="AdwActionRow">
+                                                 <property name="title" translatable="true">Execute custom command</property>
+                                                 <property name="subtitle" translatable="true">Run a custom shell command after export is completed.</property>
+                                                 <child type="prefix">
+                                                     <object class="GtkCheckButton" id="check_button_post_export_custom_command">
+                                                         <property name="group">check_button_post_export_none</property>
+                                                         <signal name="toggled" handler="check_button_post_export_custom_command_callback"/>
+                                                     </object>
+                                                 </child>
+                                             </object>
+                                         </child>
+                                         <child>
+                                             <object class="AdwEntryRow" id="entry_row_post_export_custom_command">
+                                                 <property name="title" translatable="true">Custom command</property>
+                                                 <property name="visible">false</property>
+                                                 <signal name="changed" handler="entry_row_post_export_custom_command_changed_callback"/>
+                                             </object>
+                                         </child>
+                                     </object>
+                                 </child>
                             </object>
                         </child>
                         <child>

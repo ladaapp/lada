@@ -21,6 +21,11 @@ class ColorScheme(Enum):
     LIGHT = 'light'
     DARK = 'dark'
 
+class PostExportAction(Enum):
+    NONE = 'none'
+    SHUTDOWN = 'shutdown'
+    CUSTOM_COMMAND = 'custom_command'
+
 class Config(GObject.Object):
     _defaults = {
         'color_scheme': ColorScheme.SYSTEM,
@@ -35,6 +40,8 @@ class Config(GObject.Object):
         'mosaic_detection_model': 'v3.1-fast',
         'mosaic_restoration_model': 'basicvsrpp-v1.2',
         'mute_audio': False,
+        'post_export_action': PostExportAction.NONE.value,
+        'post_export_custom_command': '',
         'preview_buffer_duration': 0,
         'show_mosaic_detections': False,
     }
@@ -55,6 +62,8 @@ class Config(GObject.Object):
         self._mute_audio = self._defaults['mute_audio']
         self._preview_buffer_duration = self._defaults['preview_buffer_duration']
         self._show_mosaic_detections = self._defaults['show_mosaic_detections']
+        self._post_export_action = PostExportAction.NONE
+        self._post_export_custom_command = self._defaults['post_export_custom_command']
 
         self.save_lock = threading.Lock()
         self._style_manager = style_manager
@@ -214,6 +223,28 @@ class Config(GObject.Object):
         self._custom_ffmpeg_encoder_options = value
         self.save()
 
+    @GObject.Property()
+    def post_export_action(self):
+        return self._post_export_action
+
+    @post_export_action.setter
+    def post_export_action(self, value):
+        if value == self._post_export_action:
+            return
+        self._post_export_action = value
+        self.save()
+
+    @GObject.Property()
+    def post_export_custom_command(self):
+        return self._post_export_custom_command
+
+    @post_export_custom_command.setter
+    def post_export_custom_command(self, value):
+        if value == self._post_export_custom_command:
+            return
+        self._post_export_custom_command = value
+        self.save()
+
     def save(self):
         self.save_lock.acquire_lock()
         config_file_path = self.get_config_file_path()
@@ -239,6 +270,11 @@ class Config(GObject.Object):
                 config_dict = json.load(f)
                 self._from_dict(config_dict)
                 logger.info(f"Loaded config file {config_file_path}: {config_dict}")
+                # Set defaults for new config keys if not present
+                if 'post_export_action' not in config_dict:
+                    self.post_export_action = PostExportAction.NONE.value
+                if 'post_export_custom_command' not in config_dict:
+                    self.post_export_custom_command = self._defaults['post_export_custom_command']
         except Exception as e:
             logger.error(f"Error loading config file {config_file_path}, falling back to defaults: {e}")
         # The config might have changed in case of new or invalid values. Let's save it.
@@ -257,6 +293,8 @@ class Config(GObject.Object):
         self.mosaic_detection_model = self._defaults['mosaic_detection_model']
         self.mosaic_restoration_model = self._defaults['mosaic_restoration_model']
         self.mute_audio = self._defaults['mute_audio']
+        self.post_export_action = self._defaults['post_export_action']
+        self.post_export_custom_command = self._defaults['post_export_custom_command']
         self.preview_buffer_duration = self._defaults['preview_buffer_duration']
         self.show_mosaic_detections = self._defaults['show_mosaic_detections']
         self.validate_and_set_device(self._defaults['device'])
@@ -283,6 +321,8 @@ class Config(GObject.Object):
             'mosaic_detection_model': self._mosaic_detection_model,
             'mosaic_restoration_model': self._mosaic_restoration_model,
             'mute_audio': self._mute_audio,
+            'post_export_action': self._post_export_action,
+            'post_export_custom_command': self._post_export_custom_command,
             'preview_buffer_duration': self._preview_buffer_duration,
             'show_mosaic_detections': self._show_mosaic_detections,
         }
@@ -301,6 +341,18 @@ class Config(GObject.Object):
                     self.validate_and_set_detection_model(dict[key])
                 elif key == 'color_scheme':
                     self._color_scheme = ColorScheme(dict[key])
+                elif key == 'post_export_action':
+                    # Handle both old string values and new enum values
+                    if isinstance(dict[key], str):
+                        # Convert old string to enum
+                        for enum_value in PostExportAction:
+                            if enum_value.value == dict[key]:
+                                self._post_export_action = enum_value.value
+                                break
+                        else:
+                            self._post_export_action = PostExportAction.NONE.value
+                    else:
+                        self._post_export_action = PostExportAction.NONE.value
                 elif key == 'export_codec':
                     self.validate_and_set_export_codec(dict[key])
                 elif key == 'export_directory':
