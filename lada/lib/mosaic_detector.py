@@ -329,7 +329,7 @@ class MosaicDetector:
 
     def _frame_feeder_worker(self):
         logger.debug("frame feeder: started")
-        with video_utils.VideoReader(self.video_file, self.device) as video_reader:
+        with video_utils.VideoReader(self.video_file) as video_reader:
             if self.start_ns > 0:
                 video_reader.seek(self.start_ns)
             video_frames_generator = video_reader.frames()
@@ -385,10 +385,12 @@ class MosaicDetector:
                     logger.debug("inference worker: inference_queue producer unblocked")
                 break
             frames_batch, frames, frame_num = frames_data
-            inference_results = self.model.inference(frames_batch) if frames_batch is not None else None
+
+            batch_prediction_results = self.model.inference_and_postprocess(frames_batch, frames)
+
             self.queue_stats["inference_queue_max_size"] = max(self.inference_queue.qsize()+1, self.queue_stats["inference_queue_max_size"])
             s = time.time()
-            self.inference_queue.put((inference_results, frames_batch, frames, frame_num))
+            self.inference_queue.put((batch_prediction_results, frames_batch, frame_num))
             self.queue_stats["inference_queue_wait_time_put"] += time.time() - s
             if self.stop_requested:
                 logger.debug("inference worker: inference_queue producer unblocked")
@@ -424,10 +426,9 @@ class MosaicDetector:
                     logger.debug("frame detector worker: mosaic_clip_queue producer unblocked")
                 self.frame_detector_thread_should_be_running = False
             else:
-                inference_results, preprocessed_frames, orig_frames, _frame_num = inference_data
+                batch_prediction_results, preprocessed_frames, _frame_num = inference_data
                 assert frame_num == _frame_num, "frame detector worker out of sync with frame reader"
-                batch_prediction_results = self.model.postprocess(inference_results, preprocessed_frames, orig_frames)
-                assert preprocessed_frames.shape[0] == len(batch_prediction_results)
+                assert len(preprocessed_frames) == len(batch_prediction_results)
                 for i, results in enumerate(batch_prediction_results):
                     self._create_or_append_scenes_based_on_prediction_result(results, scenes, frame_num)
                     self._create_clips_for_completed_scenes(scenes, frame_num, eof=False)

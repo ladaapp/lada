@@ -70,13 +70,9 @@ def VideoReaderOpenCV(*args, **kwargs):
         cap.release()
 
 class VideoReader:
-    def __init__(self, file, device: Optional[Union[str, torch.device]] = None):
+    def __init__(self, file):
         self.file = file
         self.container = None
-        if device is None:
-            self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-        else:
-            self.device = torch.device(device)
 
     def __enter__(self):
         # We currently do not pass through metadata to the output file so let's just ignore potential errors. Fixes #127
@@ -89,10 +85,11 @@ class VideoReader:
         self.container.close()
 
     def frames(self) -> Iterator[Tuple[torch.Tensor, int]]:
+        self.container.streams.video[0].thread_type = 'AUTO'
+        
         for frame in self.container.decode(video=0):
             nd_frame = frame.to_ndarray(format='bgr24')
             torch_frame = torch.from_numpy(nd_frame)
-            torch_frame = torch_frame.to(device=self.device, non_blocking=False)
             yield torch_frame, frame.pts
 
     def seek(self, offset_ns):

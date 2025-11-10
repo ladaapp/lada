@@ -71,15 +71,15 @@ def create_blend_mask(crop_mask):
     blur_size = int(border_size)
     if blur_size % 2 == 0:
         blur_size += 1
-    inner = torch.ones_like(mask)[:h_inner, :w_inner]
+    inner = torch.ones((h_inner, w_inner), device=mask.device, dtype=mask.dtype)
     pad_top = h_outer // 2
     pad_bottom = h_outer - pad_top
     pad_left = w_outer // 2
     pad_right = w_outer - pad_left
-    blend = F.pad(inner.unsqueeze(0).unsqueeze(0), (pad_left, pad_right, pad_top, pad_bottom), value=0.0)
-    mask4 = (mask > 0).unsqueeze(0).unsqueeze(0)
+    blend = F.pad(inner, (pad_left, pad_right, pad_top, pad_bottom), value=0.0)
+    mask4 = (mask > 0)
     blend = torch.maximum(mask4, blend)
-    blend = tv_gaussian_blur(blend, [blur_size, blur_size]).squeeze(0).squeeze(0)
+    blend = tv_gaussian_blur(blend.unsqueeze(0), [blur_size, blur_size]).squeeze(0)
     assert blend.shape == mask.shape
     return blend
 

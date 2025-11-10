@@ -38,15 +38,33 @@ class MosaicDetectionModel:
         self.model.eval()
         self.model.warmup(imgsz=(1, 3, *self.imgsz))
         self.dtype = torch.float16 if fp16 else torch.float32
+        self.cpu_buffer = None
 
         self.is_segmentation_model = yolo_model.task == 'segment'
 
-    def preprocess(self, imgs: list[torch.Tensor]) -> torch.Tensor:
-        im = torch.stack([x.permute(2, 0, 1) for x in imgs]).to(dtype=self.dtype, memory_format=torch.channels_last).div_(255.0) # (H, W, C) to (C, H, W)
-        return self.letterbox(im)
+    def preallocate_buffers(self, batch_size: int, img_shape: tuple[int, int]):
+        self.cpu_buffer = torch.empty(batch_size, 3, *img_shape, dtype=torch.uint8, device='cpu', pin_memory=True)
+        self.inference_buffer = torch.empty(batch_size, 3, *img_shape, dtype=self.dtype, device=self.device, memory_format=torch.channels_last)
+
+    def preprocess(self, imgs: list[torch.Tensor]) -> list[torch.Tensor]:
+        return [self.letterbox(im.permute(2, 0, 1).unsqueeze(0)).squeeze(0) for im in imgs]
 
     def inference(self, image_batch: torch.Tensor):
         return self.model(image_batch, augment=False, visualize=False, embed=None)
+
+    def inference_and_postprocess(self, imgs: list[torch.Tensor], orig_imgs: list[torch.Tensor]) -> list[Results]:
+        if self.cpu_buffer is None:
+            self.preallocate_buffers(len(imgs), imgs[0].shape[1:])
+
+        with torch.inference_mode():
+            cpu_buffer_view = self.cpu_buffer[:len(imgs)]
+            inference_view = self.inference_buffer[:len(imgs)]
+            torch.stack(imgs, dim=0, out=cpu_buffer_view)
+            inference_view.copy_(cpu_buffer_view, non_blocking=True)
+            inference_view.div_(255.0)
+
+            preds = self.inference(inference_view)
+            return self.postprocess(preds, inference_view, orig_imgs)
 
     def postprocess(self, preds, img, orig_imgs: List[torch.Tensor]) -> List[Results]:
         protos = preds[1][-1]

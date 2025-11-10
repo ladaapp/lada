@@ -192,7 +192,7 @@ def resize(img: Image|torch.Tensor, size: int|tuple[int, int], interpolation=cv2
             raise NotImplementedError(f"Interpolation {interpolation} not supported")
 
         source_dtype = None
-        if img.dtype == torch.uint8 and interpolation == 'bilinear':
+        if img.dtype == torch.uint8 and interpolation == 'bilinear' and img.device.type == 'cuda':
             source_dtype = img.dtype
             img = img.float()
         img = img.permute(2, 0, 1)
