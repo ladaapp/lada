@@ -10,9 +10,9 @@ RUN pip install --no-deps --no-cache-dir --requirement https://codeberg.org/lada
 RUN curl -Ls https://codeberg.org/ladaapp/lada/archive/main.tar.gz | tar -zx \
     && sh lada/translations/compile_po.sh --release \
     && pip install --no-deps --no-cache-dir './lada[basicvsrpp]' \
-    && patch -u -p4 -d /usr/local/lib/python3.13 < lada/patches/increase_mms_time_limit.patch \
-    && patch -u -p4 -d /usr/local/lib/python3.13 < lada/patches/remove_ultralytics_telemetry.patch \
-    && patch -u -p4 -d /usr/local/lib/python3.13 < lada/patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff \
+    && patch -u -p1 -d /usr/local/lib/python3.13/site-packages < lada/patches/increase_mms_time_limit.patch \
+    && patch -u -p1 -d /usr/local/lib/python3.13/site-packages < lada/patches/remove_ultralytics_telemetry.patch \
+    && patch -u -p1 -d /usr/local/lib/python3.13/site-packages < lada/patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff \
     && rm -r lada
 RUN mkdir -p /home/lada/.config/Ultralytics \
     && echo '{"settings_version":"0.0.6","datasets_dir":"datasets","weights_dir":"weights","runs_dir":"experiments","uuid":"dummy","sync":false,"api_key":"","openai_api_key":"","clearml":false,"comet":false,"dvc":false,"hub":false,"mlflow":false,"neptune":false,"raytune":false,"tensorboard":false,"wandb":false,"vscode_msg":false,"openvino_msg":false}' > /home/lada/.config/Ultralytics/settings.json \

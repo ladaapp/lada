@@ -1,5 +1,5 @@
---- old/.venv/lib/python3.13/site-packages/mmengine/runner/loops.py	2025-06-19 00:00:00.0.0
-+++ new/.venv/lib/python3.13/site-packages/mmengine/runner/loops.py	2025-06-19 00:00:00.0.0
+--- old/mmengine/runner/loops.py	2025-06-19 00:00:00.0.0
++++ new/mmengine/runner/loops.py	2025-06-19 00:00:00.0.0
 @@ -274,14 +274,6 @@
          # In iteration-based training loop, we treat the whole training process
          # as a big epoch and execute the corresponding hook.

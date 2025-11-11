@@ -16,31 +16,59 @@ This section describes how to install the app (CLI and GUI) from source.
    winget install --id Rustlang.Rustup -e --source winget
    winget install --id Microsoft.VCRedist.2013.x64  -e --source winget
    winget install --id Microsoft.VCRedist.2013.x86  -e --source winget
-   winget install --id GnuWin32.Patch  -e --source winget
    set-ExecutionPolicy RemoteSigned
    ```
    Then restart your computer
 
-2) Build system dependencies via gvsbuild
+2) Get the source
+
+   Open a PowerShell as a regular user. You will not need an Administrator Shell for any of the remaining steps.
    
-   Open a PowerShell as regular user and prepare the build environment. You may want to adjust the `$project` and point to another directory of your choice.
-   In the following it will be used to build and install system dependencies, and we'll download and install Lada it in this location.
+   Create project directory
    ```Powershell
    $project = "C:\project"
    mkdir $project
+   ```
+> [!NOTE]
+> You may want to adjust `$project` and point to another directory of your choice.
+> In the following it will be used to build and install system dependencies, and we'll download and install Lada in this location.
+
+   Get the source
+   ```Powershell
+   cd $project
+   git clone https://codeberg.org/ladaapp/lada.git
+   ```
+
+3) Build system dependencies via gvsbuild
+   
+   Prepare build environment
+   ```Powershell
    cd $project
    py -m venv venv_gvsbuild
    .\venv_gvsbuild\Scripts\Activate.ps1
-   pip install gvsbuild pip-system-certs
+   pip install gvsbuild==2025.10
+   pip install patch
+   python -m patch -p1 -d venv_gvsbuild/lib/site-packages lada/patches/gvsbuild_gstreamer_gtk4_plugin.patch
+   pip uninstall patch
    ```
    
-   Now that the `gvsbuild` build environment is set up we can build the remaining system dependencies which we couldn't install via winget.
+   Now we can start building the remaining system dependencies with `gvsbuild` which we couldn't install via `winget`.
+   
    Grab a coffee, this will take a while...
    ```Powershell
-   gvsbuild build --configuration=release --build-dir='./build' --enable-gi --py-wheel gtk4 adwaita-icon-theme pygobject libadwaita gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav gst-rtsp-server gst-python gettext
+   gvsbuild build --configuration=release --build-dir='./build' --enable-gi --py-wheel gtk4 adwaita-icon-theme pygobject libadwaita gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-plugin-gtk4 gst-libav gst-python gettext
    ```
    
-   Once the build is done prepare your environment variables to include the build artifacts of gvsbuild
+   Congrats! If this command finished successfully you've set up all system dependencies so we can now continue installing Lada and it's python dependencies.
+   
+   Let's exit the gvsbuild build environment
+   ```Powershell
+   deactivate
+   ```
+
+4) Setup environment variables   
+
+   Prepare your environment variables so the build artifacts can be found and used
    ```Powershell
    $env:Path = $project + "\build\gtk\x64\release\bin;" + $env:Path
    $env:LIB = $project + "\build\gtk\x64\release\lib;" + $env:LIB
@@ -48,36 +76,26 @@ This section describes how to install the app (CLI and GUI) from source.
    ```
 
 > [!NOTE]
-> These variables need to be set for the next steps but also whenever you start `lada`.
+> These variables need to be set for the next steps but also whenever you start `lada`!
 
-3) Build remaining system dependencies
-   
-   We need to build the Gstreamer GTK4 plugin (needed for the GUI video player) ourselves as it cannot be built with gvsbuild yet
-   ```Powershell
-   # Get GStreamer version we built earlier with gvsbuild to make sure we build a compatible version of the gst rust plugins
-   $env:gstreamer_version = (gvsbuild.exe list --json | ConvertFrom-Json).psobject.Properties.Where({ $_.Name -eq "gstreamer" }).Value.version
-   git clone https://gitlab.freedesktop.org/gstreamer/gst-plugins-rs.git -b gstreamer-$env:gstreamer_version
-   cd gst-plugins-rs
-   cargo install cargo-c
-   cargo cinstall -p gst-plugin-gtk4 --prefix ($project + "\build\gtk\x64\release") --libdir ($project + "\build\gtk\x64\release\lib") 
-   ```
-   If `gst-inspect-1.0.exe gtk4paintablesink` does not return an error everything went fine.
-   
-   Congrats! You've setup up all system dependencies at this point so we can now install Lada (and it's python dependencies) itself.
+> [!TIP]
+> You may want to set these environment variables permanently via `Start | Edit environment variables for your account | Environment variables...`
 
-4) Get the source
+> [!TIP]
+> Before continuing check if the variables are set up correctly
+> ```Powershell
+> gst-inspect-1.0.exe gtk4paintablesink
+> ```
+> If this does not return an error but prints *Plugin Details* then we're good.
+
+5) Create a virtual environment to install python dependencies
    
    ```Powershell
    cd $project
-   git clone https://codeberg.org/ladaapp/lada.git
    cd lada
+   py -m venv .venv
+   .\.venv\Scripts\Activate.ps1
    ```
-5) Create a virtual environment to install python dependencies
-   
-    ```Powershell
-    py -m venv .venv
-    .\.venv\Scripts\Activate.ps1
-    ```
 
 6) [Install PyTorch](https://pytorch.org/get-started/locally)
 
@@ -86,32 +104,40 @@ This section describes how to install the app (CLI and GUI) from source.
     ```Powershell
     pip install -e '.[basicvsrpp]'
     ````
-   For the GUI we'll need to install the Python wheels we've built earlier with gvsbuild:
+   
+   For the GUI we'll need to install the Python wheels we've built earlier with gvsbuild
     ```Powershell
     pip install --force-reinstall (Resolve-Path ($project + "\build\gtk\x64\release\python\pygobject*.whl"))
     pip install --force-reinstall (Resolve-Path ($project + "\build\gtk\x64\release\python\pycairo*.whl"))
     ````
 
 8) Apply patches
+
+    ```Powershell
+    pip install patch
+    ````
    
    On low-end hardware running mosaic detection model could run into a timeout defined in ultralytics library and the scene would not be restored. The following patch increases this time limit:
     ```shell
-    patch -u .venv/lib/site-packages/ultralytics/utils/ops.py patches/increase_mms_time_limit.patch
+    python -m patch -p1 -d .venv/lib/site-packages patches/increase_mms_time_limit.patch
     ```
    
    Disable crash-reporting / telemetry of one of our dependencies (ultralytics):
    ```shell
-   patch -u .venv/lib/site-packages/ultralytics/utils/__init__.py  patches/remove_ultralytics_telemetry.patch
+   python -m patch -p1 -d .venv/lib/site-packages patches/remove_ultralytics_telemetry.patch
    ```
    
    Compatibility fix for using mmengine (restoration model dependency) with latest PyTorch:
    ```shell
-   patch -u .venv/lib/site-packages/mmengine/runner/checkpoint.py  patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
+   python -m patch -p1 -d .venv/lib/site-packages patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
    ```
+    ```Powershell
+    pip uninstall patch
+    ````
 
 9) Download model weights
    
-   Download the models from the GitHub Releases page into the `model_weights` directory. The following commands do just that
+   Download the models from HuggingFace into the `model_weights` directory. The following commands do just that
    ```Powershell
    Invoke-WebRequest 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v3.1_accurate.pt?download=true' -OutFile ".\model_weights\lada_mosaic_detection_model_v3.1_accurate.pt"
    Invoke-WebRequest 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v3.1_fast.pt?download=true' -OutFile ".\model_weights\lada_mosaic_detection_model_v3.1_fast.pt"
@@ -126,6 +152,20 @@ This section describes how to install the app (CLI and GUI) from source.
 
     Now you should be able to run the CLI by calling `lada-cli`, and the GUI by `lada`.
 
+> [!TIP]
+> As mentioned earlier, make sure the environment variables are set up correctly and that you're in the right directory.
+> For later use, here is a snippet to start the GUI:
+> ```Powershell
+> $project = "C:\project"
+> cd $project
+> cd lada
+> $env:Path = $project + "\build\gtk\x64\release\bin;" + $env:Path
+> $env:LIB = $project + "\build\gtk\x64\release\lib;" + $env:LIB
+> $env:INCLUDE = $project + "\build\gtk\x64\release\include;" + $project + "\build\gtk\x64\release\include\cairo;" + $project + "\build\gtk\x64\release\include\glib-2.0;" + $project + "\build\gtk\x64\release\include\gobject-introspection-1.0;" + $project + "\build\gtk\x64\release\lib\glib-2.0\include;" + $env:INCLUDE
+> lada.exe
+> ```
+
+
 10) Install translations (optional)
 
     If we have a translation file for your language you might want to use Lada in your preferred language instead of English.
@@ -136,6 +176,6 @@ This section describes how to install the app (CLI and GUI) from source.
     .\translations/compile_po.ps1
     ```
     
-    GUI and CLI should now show translations (if available) based on your system language settings. If not then check that Windows display language is correct (*Time & language | Language & region | Windows display languag*).
+    GUI and CLI should now show translations (if available) based on your system language settings (*Time & language | Language & region | Windows display language*).
 
-    Alternatively you can set the environment variable `LANGUAGE` to your preferred language e.g. `$env:LANGUAGE = "zh_TW"`. Using Windows settings is the  preferred method though as only setting the environment variable may miss to set up the correct fonts.
+    Alternatively, you can set the environment variable `LANGUAGE` to your preferred language e.g. `$env:LANGUAGE = "zh_CN"`. Using Windows settings is the  preferred method though as just setting the environment variable may miss to set up the correct fonts.

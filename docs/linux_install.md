@@ -48,17 +48,17 @@ This section describes how to install the app (CLI and GUI) from source.
    
    On low-end hardware running mosaic detection model could run into a timeout defined in ultralytics library and the scene would not be restored. The following patch increases this time limit:
     ```bash
-    patch -u .venv/lib/python3.1[23]/site-packages/ultralytics/utils/nms.py patches/increase_mms_time_limit.patch
+    patch -u -p1 -d .venv/lib/python3.1[23]/site-packages < patches/increase_mms_time_limit.patch
     ```
    
    Disable crash-reporting / telemetry of one of our dependencies (ultralytics):
    ```bash
-   patch -u .venv/lib/python3.1[23]/site-packages/ultralytics/utils/__init__.py  patches/remove_ultralytics_telemetry.patch
+   patch -u -p1 -d .venv/lib/python3.1[23]/site-packages < patches/remove_ultralytics_telemetry.patch
    ```
    
    Compatibility fix for using mmengine (restoration model dependency) with latest PyTorch:
    ```bash
-   patch -u .venv/lib/python3.1[23]/site-packages/mmengine/runner/checkpoint.py  patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
+   patch -u -p1 -d .venv/lib/python3.1[23]/site-packages < patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
    ```
 
 7) Download model weights

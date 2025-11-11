@@ -1,5 +1,5 @@
---- old/.venv/lib/python3.13/site-packages/mmengine/runner/checkpoint.py	2025-06-19 00:00:00.0.0
-+++ new/.venv/lib/python3.13/site-packages/mmengine/runner/checkpoint.py	2025-06-19 00:00:00.0.0
+--- old/mmengine/runner/checkpoint.py	2025-06-19 00:00:00.0.0
++++ new/mmengine/runner/checkpoint.py	2025-06-19 00:00:00.0.0
 @@ -344,7 +344,7 @@
      filename = osp.expanduser(filename)
      if not osp.isfile(filename):

@@ -1,5 +1,5 @@
---- old/.venv/lib/python3.13/site-packages/ultralytics/utils/__init__.py	2025-06-19 00:00:00.0.0
-+++ new/.venv/lib/python3.13/site-packages/ultralytics/utils/__init__.py	2025-06-19 00:00:00.0.0
+--- old/ultralytics/utils/__init__.py	2025-06-19 00:00:00.0.0
++++ new/ultralytics/utils/__init__.py	2025-06-19 00:00:00.0.0
 @@ -762,16 +762,7 @@
      Returns:
          (bool): True if connection is successful, False otherwise.
