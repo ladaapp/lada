@@ -40,24 +40,6 @@ This section describes how to install the app (CLI and GUI) from source.
    gvsbuild build --configuration=release --build-dir='./build' --enable-gi --py-wheel gtk4 adwaita-icon-theme pygobject libadwaita gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav gst-rtsp-server gst-python --extra-opts ogg:-DCMAKE_POLICY_VERSION_MINIMUM=3.5;
    ```
    
-> [!TIP]
-> If the build fails with
-> 
-> > AttributeError: module 'distutils' has no attribute 'ccompiler'. Did you mean: 'compilers'?
-> 
-> add the following line as a workaround
-> 
-> ```
-> import distutils.ccompiler
-> ```
-> 
-> at the beginning of the file
-> ```
-> .\build\build\x64\release\gobject-introspection\_gvsbuild-meson\giscanner\ccompiler.py
-> ```
-> 
-> then re-run the gvsbuild command again.
-   
    Once the build is done prepare your environment variables to include the build artifacts of gvsbuild
    ```Powershell
    $env:Path = $project + "\build\gtk\x64\release\bin;" + $env:Path
