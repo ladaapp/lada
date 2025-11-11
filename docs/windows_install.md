@@ -37,7 +37,7 @@ This section describes how to install the app (CLI and GUI) from source.
    Now that the `gvsbuild` build environment is set up we can build the remaining system dependencies which we couldn't install via winget.
    Grab a coffee, this will take a while...
    ```Powershell
-   gvsbuild build --configuration=release --build-dir='./build' --enable-gi --py-wheel gtk4 adwaita-icon-theme pygobject libadwaita gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav gst-rtsp-server gst-python
+   gvsbuild build --configuration=release --build-dir='./build' --enable-gi --py-wheel gtk4 adwaita-icon-theme pygobject libadwaita gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav gst-rtsp-server gst-python gettext
    ```
    
    Once the build is done prepare your environment variables to include the build artifacts of gvsbuild
@@ -130,16 +130,12 @@ This section describes how to install the app (CLI and GUI) from source.
 
     If we have a translation file for your language you might want to use Lada in your preferred language instead of English.
     
-    First, we need to install `gettext`:
-    * Go to [GNU gettext tools for Windows](https://github.com/vslavik/gettext-tools-windows/releases) and download the latest release .zip file.
-    * Extract it into your `$project` directory to a subdirectory named `gettext`
-    * Add it to the $PATH environment variable: `$env:Path = "$project" + \gettext\bin;" + $env:Path`
+    For this, we'll need to compile the translation files so the app can use them:
     
-    Now compile the translations:
     ```Powershell
     .\translations/compile_po.ps1
     ```
     
-    The app should now use the translations and be shown in your system language. If not then check that Windows display language is correct (*Time & language | Language & region | Windows display languag*).
+    GUI and CLI should now show translations (if available) based on your system language settings. If not then check that Windows display language is correct (*Time & language | Language & region | Windows display languag*).
 
     Alternatively you can set the environment variable `LANGUAGE` to your preferred language e.g. `$env:LANGUAGE = "zh_TW"`. Using Windows settings is the  preferred method though as only setting the environment variable may miss to set up the correct fonts.
