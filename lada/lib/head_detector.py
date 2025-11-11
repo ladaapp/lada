@@ -4,7 +4,7 @@
 import cv2
 import numpy as np
 from lada.lib import Mask, Box, Image, Detections, Detection, DETECTION_CLASSES
-from lada.lib import mask_utils
+from lada.lib import box_utils
 from lada.bpjdet.inference import inference
 
 def _create_mask(frame: Image, box: Box) -> Mask:
@@ -37,11 +37,9 @@ def _get_detection(dets: list[Box], frame, random_extend_masks: bool) -> Detecti
         return None
     detections = []
     for box in dets:
-        mask = _create_mask(frame, box)
-
         if random_extend_masks:
-            mask = mask_utils.apply_random_mask_extensions(mask)
-            box = mask_utils.get_box(mask)
+            box = box_utils.random_scale_box(frame, box, scale_range=(0.9, 1.2))
+        mask = _create_mask(frame, box)
 
         t, l, b, r = box
         width, height = r - l + 1, b - t + 1
@@ -52,7 +50,7 @@ def _get_detection(dets: list[Box], frame, random_extend_masks: bool) -> Detecti
     return Detections(frame, detections)
 
 class HeadDetector:
-    def __init__(self, model, data, conf_thres,  iou_thres, imgz=1024, random_extend_masks=False):
+    def __init__(self, model, data, conf_thres,  iou_thres, imgz=1536, random_extend_masks=False):
         self.model = model
         self.data = data
         self.random_extend_masks = random_extend_masks
