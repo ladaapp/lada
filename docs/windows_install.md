@@ -37,7 +37,7 @@ This section describes how to install the app (CLI and GUI) from source.
    Now that the `gvsbuild` build environment is set up we can build the remaining system dependencies which we couldn't install via winget.
    Grab a coffee, this will take a while...
    ```Powershell
-   gvsbuild build --configuration=release --build-dir='./build' --enable-gi --py-wheel gtk4 adwaita-icon-theme pygobject libadwaita gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav gst-rtsp-server gst-python --extra-opts ogg:-DCMAKE_POLICY_VERSION_MINIMUM=3.5;
+   gvsbuild build --configuration=release --build-dir='./build' --enable-gi --py-wheel gtk4 adwaita-icon-theme pygobject libadwaita gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-libav gst-rtsp-server gst-python
    ```
    
    Once the build is done prepare your environment variables to include the build artifacts of gvsbuild
