@@ -3,7 +3,6 @@ This section describes how to install the app (CLI and GUI) from source.
 
 > [!NOTE]
 > This is the Windows guide. If you're on Linux (or want to use WSL) follow the [Linux Installation](linux_install.md).
-> There is no native Windows pacakge yet, but you may be interested in the [Docker Image](../README.md#installation).
 
 1) Download and install system dependencies
    

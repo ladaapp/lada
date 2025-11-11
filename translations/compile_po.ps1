@@ -6,13 +6,64 @@ if ((Get-Location).Path -ne $translationsDir) {
     Set-Location $translationsDir
 }
 
+$global:lang_filter = ""
+if ($args -contains "--release") {
+    $global:lang_filter = (Get-Content .\release_ready_translations.txt -Raw).Trim()
+    if ($global:lang_filter -eq "") {
+        Write-Host "No translations in .\release_ready_translations.txt"
+        return
+    }
+}
+
+function should_compile_po {
+    param (
+        [string]$lang
+    )
+
+    if (-not $global:lang_filter) {
+        return $true
+    }
+
+    foreach ($filter_lang in $global:lang_filter) {
+        if ($filter_lang -eq $lang) {
+            return $true
+        }
+    }
+
+    return $false
+}
+
+# Clean up compiled translations if there is no corresponding .po file anymore (deleted translations)
+Get-ChildItem -Directory -Path ..\lada\locale | ForEach-Object {
+    $langDir = $_.FullName
+    $lang = $_.Name
+
+    $poFile = "$lang.po"
+    if (-not (Test-Path $poFile)) {
+        $lcMessagesDir = Join-Path $langDir "LC_MESSAGES"
+        if (Test-Path $lcMessagesDir) {
+            Write-Host "Removing outdated compiled translations for language '$lang' at '$langDir'"
+            Remove-Item -Path $langDir -Recurse -Force
+        }
+    }
+}
+
+# Compile .po files
 Get-ChildItem -File -Filter "*.po" | ForEach-Object {
     $poFile = $_.Name
     $lang = $poFile -replace "\.po$"
 
+    if (-not (should_compile_po $lang)) {
+        $_langDir = "..\lada\locale\$lang"
+        if (Test-Path $_langDir) {
+            Remove-Item -Path $_langDir -Recurse -Force
+        }
+        return # actually a continue in a ForEach-Object loop
+    }
+
     $langDir = "..\lada\locale\$lang\LC_MESSAGES"
     if (-not (Test-Path -Path $langDir)) {
-        New-Item -ItemType Directory -Path $langDir -Force
+        New-Item -ItemType Directory -Path $langDir -Force | Out-Null
     }
 
     Write-Host "Compiling language '$lang' .po file into .mo file"

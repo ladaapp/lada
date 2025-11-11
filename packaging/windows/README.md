@@ -38,7 +38,7 @@ Invoke-WebRequest 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_
 Invoke-WebRequest 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_restoration_model_generic_v1.2.pth?download=true' -OutFile ".\model_weights\lada_mosaic_restoration_model_generic_v1.2.pth"
 Invoke-WebRequest 'https://drive.usercontent.google.com/download?id=1ulct4RhRxQp1v5xwEmUH7xz7AK42Oqlw&export=download&confirm=t' -OutFile ".\model_weights\3rd_party\clean_youknow_video.pth"
 
-powershell .\translations/compile_po.ps1
+powershell .\translations/compile_po.ps1 --release
 ```
 
 Just do a quick test `lada`, drop in a video and see if it loads. If all looks good lets continue and create a package:

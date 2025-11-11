@@ -8,7 +8,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-deps --no-cache-dir --requirement https://codeberg.org/ladaapp/lada/raw/main/packaging/requirements-cli.txt
 RUN curl -Ls https://codeberg.org/ladaapp/lada/archive/main.tar.gz | tar -zx \
-    && sh lada/translations/compile_po.sh zh_CN \
+    && sh lada/translations/compile_po.sh --release \
     && pip install --no-deps --no-cache-dir './lada[basicvsrpp]' \
     && patch -u -p4 -d /usr/local/lib/python3.13 < lada/patches/increase_mms_time_limit.patch \
     && patch -u -p4 -d /usr/local/lib/python3.13 < lada/patches/remove_ultralytics_telemetry.patch \
