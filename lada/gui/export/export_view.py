@@ -579,7 +579,7 @@ class ExportView(Gtk.Widget):
                     heading=_("Shutdown Failed"),
                     body=_("Failed to initiate system shutdown. Please check system permissions."),
                 )
-                error_dialog.add_response("ok", _("OK"))
+                error_dialog.add_response("ok", _("Okay"))
                 error_dialog.choose(self, None, lambda *_: None)
 
         def on_response_selected(_dialog, response):

@@ -182,8 +182,8 @@ SPDX-License-Identifier: AGPL-3.0
                                 </child>
                                 <child>
                                     <object class="AdwActionRow" id="action_row_temp_directory">
-                                        <property name="title" translatable="true">Temporary directory</property>
-                                        <property name="subtitle" translatable="true">Directory for temporary video files during restoration process</property>
+                                        <property name="title" translatable="true">Temporary Directory</property>
+                                        <property name="tooltip-text" translatable="true">Directory for temporary video files during restoration process</property>
                                         <child type="suffix">
                                             <object class="GtkButton">
                                                 <property name="icon-name">folder-open-symbolic</property>
@@ -204,6 +204,7 @@ SPDX-License-Identifier: AGPL-3.0
                                  <child>
                                      <object class="AdwExpanderRow">
                                          <property name="title" translatable="true">Post-Export Action</property>
+                                        <property name="tooltip-text" translatable="true">Action to be run after all queued files have been restored</property>
                                          <property name="show-enable-switch">false</property>
                                          <property name="expanded">true</property>
                                          <child>
