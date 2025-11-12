@@ -1,0 +1,10 @@
+--- old/gvsbuild/patches/ffmpeg/build/build.sh	2025-11-12 13:00:0.0 +0000
++++ new/gvsbuild/patches/ffmpeg/build/build.sh	2025-11-12 13:00:0.0 +0000
+@@ -41,6 +41,7 @@
+ configure_cmd[idx++]="--disable-programs"
+ configure_cmd[idx++]="--disable-avdevice"
+ configure_cmd[idx++]="--disable-swresample"
++configure_cmd[idx++]="--enable-decoder=mp2float"
+ 
+ if [ "$build_type" = "debug" ]; then
+     configure_cmd[idx++]="--enable-debug"

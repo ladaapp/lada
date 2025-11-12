@@ -32,7 +32,7 @@ This section describes how to install the app (CLI and GUI) from source.
 > [!NOTE]
 > You may want to adjust `$project` and point to another directory of your choice.
 > In the following it will be used to build and install system dependencies, and we'll download and install Lada in this location.
-
+   
    Get the source
    ```Powershell
    cd $project
@@ -49,6 +49,7 @@ This section describes how to install the app (CLI and GUI) from source.
    pip install gvsbuild==2025.10
    pip install patch
    python -m patch -p1 -d venv_gvsbuild/lib/site-packages lada/patches/gvsbuild_gstreamer_gtk4_plugin.patch
+   python -m patch -p1 -d venv_gvsbuild/lib/site-packages lada/patches/gvsbuild_ffmpeg.patch
    pip uninstall patch
    ```
    
@@ -86,7 +87,7 @@ This section describes how to install the app (CLI and GUI) from source.
 > ```Powershell
 > gst-inspect-1.0.exe gtk4paintablesink
 > ```
-> If this does not return an error but prints *Plugin Details* then we're good.
+> If this does not return an error but prints *Plugin Details* (lots of text) then we're good.
 
 5) Create a virtual environment to install python dependencies
    
@@ -154,7 +155,8 @@ This section describes how to install the app (CLI and GUI) from source.
 
 > [!TIP]
 > As mentioned earlier, make sure the environment variables are set up correctly and that you're in the right directory.
-> For later use, here is a snippet to start the GUI:
+> 
+> For quick access, here is a snippet to start the GUI:
 > ```Powershell
 > $project = "C:\project"
 > cd $project
@@ -162,6 +164,7 @@ This section describes how to install the app (CLI and GUI) from source.
 > $env:Path = $project + "\build\gtk\x64\release\bin;" + $env:Path
 > $env:LIB = $project + "\build\gtk\x64\release\lib;" + $env:LIB
 > $env:INCLUDE = $project + "\build\gtk\x64\release\include;" + $project + "\build\gtk\x64\release\include\cairo;" + $project + "\build\gtk\x64\release\include\glib-2.0;" + $project + "\build\gtk\x64\release\include\gobject-introspection-1.0;" + $project + "\build\gtk\x64\release\lib\glib-2.0\include;" + $env:INCLUDE
+> .\.venv\Scripts\Activate.ps1
 > lada.exe
 > ```
 
