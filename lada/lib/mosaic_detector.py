@@ -338,7 +338,7 @@ class MosaicDetector:
                 try:
                     frames = []
                     for i in range(self.batch_size):
-                        frame, _ = next(video_frames_generator)
+                        frame, _, _ = next(video_frames_generator)
                         frames.append(frame)
                 except StopIteration:
                     eof = True

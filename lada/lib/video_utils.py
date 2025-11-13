@@ -86,7 +86,7 @@ class VideoReader:
     def frames(self):
         for frame in self.container.decode(video=0):
             frame_img = frame.to_ndarray(format='bgr24')
-            yield frame_img, frame.pts
+            yield frame_img, frame.pts, frame.dts
 
     def seek(self, offset_ns):
         offset = int((offset_ns / 1_000_000_000) * av.time_base)
@@ -296,12 +296,16 @@ class VideoWriter:
     def __exit__(self, exc_type, exc_value, traceback):
         self.release()
 
-    def write(self, frame, frame_pts=None, bgr2rgb=False):
+    def write(self, frame, original_pts = None, original_dts = None, bgr2rgb=False):
         if bgr2rgb:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         out_frame = av.VideoFrame.from_ndarray(frame, format='rgb24')
-        if frame_pts:
-            out_frame.pts = frame_pts
+
+        if original_pts is not None:
+            out_frame.pts = original_pts
+        if original_dts is not None:
+            out_frame.dts = original_dts
+
         out_packet = self.video_stream.encode(out_frame)
         self.output_container.mux(out_packet)
 

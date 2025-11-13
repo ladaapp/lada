@@ -95,8 +95,8 @@ def process_video_file(input_path: str, output_path: str, device, mosaic_restora
                     success = False
                     print("Error on export: frame restorer stopped prematurely")
                     break
-                (restored_frame, restored_frame_pts) = elem
-                video_writer.write(restored_frame, restored_frame_pts, bgr2rgb=True)
+                restored_frame, pts, dts = elem
+                video_writer.write(restored_frame, original_pts=pts, original_dts=dts, bgr2rgb=True)
                 frame_restorer_progressbar.update()
                 frame_restorer_progressbar.update_time_remaining_and_speed()
     except (Exception, KeyboardInterrupt) as e:
