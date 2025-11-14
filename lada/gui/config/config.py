@@ -64,7 +64,7 @@ class Config(GObject.Object):
         self._mute_audio = self._defaults['mute_audio']
         self._preview_buffer_duration = self._defaults['preview_buffer_duration']
         self._show_mosaic_detections = self._defaults['show_mosaic_detections']
-        self._post_export_action = PostExportAction.NONE
+        self._post_export_action = self._defaults['post_export_action']
         self._post_export_custom_command = self._defaults['post_export_custom_command']
         self._temp_directory = self._defaults['temp_directory']
 
