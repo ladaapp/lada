@@ -9,9 +9,24 @@ import numpy as np
 import torch
 from torch.nn import functional as F
 from torchvision.utils import make_grid
+from typing import Sequence
 
 from lada.lib import Image, Pad
 
+# pad image with reflect mode even if pad size is greater than image size
+def torch_pad_reflect(image: torch.Tensor, paddings: Sequence[int]) -> torch.Tensor:
+    paddings = np.array(paddings, dtype=int)
+
+    assert np.all(np.array(image.shape[-2:]) > 1),  "Image shape should be more than 1 pixel"
+    assert np.all(paddings >= 0), "Negative paddings not supported"
+
+    while np.any(paddings):
+        image_limits = np.repeat(image.shape[::-1][:len(paddings)//2], 2) - 1
+        possible_paddings = np.minimum(paddings, image_limits)
+        image = torch.nn.functional.pad(image, tuple(possible_paddings), mode='reflect')
+        paddings = paddings - possible_paddings
+
+    return image
 
 def pad_image(img: Image|torch.Tensor, max_height, max_width, mode='zero') -> tuple[Image|torch.Tensor, Pad]:
     height, width = img.shape[:2]
@@ -25,8 +40,10 @@ def pad_image(img: Image|torch.Tensor, max_height, max_width, mode='zero') -> tu
     pad_w_r = math.floor(pad_w / 2)
     pad = (pad_h_t, pad_h_b,pad_w_l, pad_w_r)
     if isinstance(img, torch.Tensor):
-        mode = 'constant' if mode == 'zero' else 'reflect'
-        padded_image = F.pad(img.permute(2, 0, 1), (pad_w_l, pad_w_r, pad_h_t, pad_h_b), mode=mode).permute(1, 2, 0)
+        if mode == 'reflect':
+            padded_image = torch_pad_reflect(img.permute(2, 0, 1), (pad_w_l, pad_w_r, pad_h_t, pad_h_b)).permute(1, 2, 0)
+        else:
+            padded_image = F.pad(img.permute(2, 0, 1), (pad_w_l, pad_w_r, pad_h_t, pad_h_b), mode='constant').permute(1, 2, 0)
     else:
         padded_image =  pad_image_by_pad(img, pad, mode)
     assert padded_image.shape[:2] == (max_height, max_width)

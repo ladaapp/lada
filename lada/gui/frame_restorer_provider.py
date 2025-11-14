@@ -81,7 +81,7 @@ class FrameRestorerProvider:
             mosaic_restoration_model_path = RESTORATION_MODEL_NAMES_TO_FILES[self.options.mosaic_restoration_model_name]
             mosaic_detection_path = DETECTION_MODEL_NAMES_TO_FILES[self.options.mosaic_detection_model_name]
             mosaic_detection_model, mosaic_restoration_model, mosaic_restoration_model_preferred_pad_mode = load_models(
-                self.options.device, self.options.mosaic_restoration_model_name, mosaic_restoration_model_path, None,
+                torch.device(self.options.device), self.options.mosaic_restoration_model_name, mosaic_restoration_model_path, None,
                 mosaic_detection_path, fp16=torch.cuda.is_available(), clip_length=self.options.max_clip_length
             )
 

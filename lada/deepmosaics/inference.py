@@ -7,7 +7,7 @@ import torch
 
 from lada.deepmosaics.util import data
 
-def restore_video_frames(gpu_id,netG, frames) -> list[np.ndarray[np.uint8]]:
+def restore_video_frames(gpu_id,netG, frames: list[torch.Tensor]) -> list[torch.Tensor]:
     """
     T is numer of frames processed in a single step (center frame + N previous/next frames that come before/after it):
      T = 2N + 1. The paper authors use N = 2 in their network (T = 5).
@@ -23,6 +23,7 @@ def restore_video_frames(gpu_id,netG, frames) -> list[np.ndarray[np.uint8]]:
     img_pool = []
     previous_frame = None
     init_flag = True
+    frames = [x.contiguous().numpy() for x in frames]
 
     restored_clip_frames = []
 
@@ -41,14 +42,16 @@ def restore_video_frames(gpu_id,netG, frames) -> list[np.ndarray[np.uint8]]:
         if init_flag:
             init_flag = False
             previous_frame = input_stream[N]
-            previous_frame = data.im2tensor(previous_frame,bgr2rgb=True,gpu_id=gpu_id)
+            previous_frame = data.im2tensor(previous_frame,bgr2rgb=True,gpu_id=gpu_id,dtype=netG.dtype)
 
         input_stream = np.array(input_stream).reshape(1,T,INPUT_SIZE,INPUT_SIZE,3).transpose((0,4,1,2,3))
-        input_stream = data.to_tensor(data.normalize(input_stream),gpu_id=gpu_id)
+        input_stream = data.to_tensor(data.normalize(input_stream),gpu_id=gpu_id,dtype=netG.dtype)
 
-        with torch.no_grad():
+        with torch.inference_mode():
             unmosaic_pred = netG(input_stream,previous_frame)
         img_fake = data.tensor2im(unmosaic_pred,rgb2bgr = True)
         previous_frame = unmosaic_pred
         restored_clip_frames.append(img_fake.copy())
+
+    restored_clip_frames = [torch.from_numpy(x) for x in restored_clip_frames]
     return restored_clip_frames

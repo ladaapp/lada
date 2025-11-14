@@ -74,7 +74,7 @@ def setup_argparser() -> argparse.ArgumentParser:
 
     return parser
 
-def process_video_file(input_path: str, output_path: str, device, mosaic_restoration_model, mosaic_detection_model,
+def process_video_file(input_path: str, output_path: str, device: torch.device, mosaic_restoration_model, mosaic_detection_model,
                        mosaic_restoration_model_name, preferred_pad_mode, max_clip_length, codec, crf, moov_front, preset, custom_encoder_options):
     video_metadata = get_video_meta_data(input_path)
 
@@ -150,9 +150,10 @@ def main():
         print(_("Invalid input. No file or directory at {input_path}").format(input_path=args.input))
         sys.exit(1)
 
+    device = torch.device(args.device)
     mosaic_detection_model, mosaic_restoration_model, preferred_pad_mode = load_models(
-        args.device, args.mosaic_restoration_model, args.mosaic_restoration_model_path, args.mosaic_restoration_config_path,
-        args.mosaic_detection_model_path, args.fp16
+        device, args.mosaic_restoration_model, args.mosaic_restoration_model_path, args.mosaic_restoration_config_path,
+        args.mosaic_detection_model_path, args.fp16, args.max_clip_length
     )
 
     input_files, output_files = utils.setup_input_and_output_paths(args.input, args.output, args.output_file_pattern)
@@ -163,7 +164,7 @@ def main():
         if not single_file_input:
             print(f"{os.path.basename(input_path)}:")
         try:
-            process_video_file(input_path=input_path, output_path=output_path, device=args.device, mosaic_restoration_model=mosaic_restoration_model, mosaic_detection_model=mosaic_detection_model,
+            process_video_file(input_path=input_path, output_path=output_path, device=device, mosaic_restoration_model=mosaic_restoration_model, mosaic_detection_model=mosaic_detection_model,
                                mosaic_restoration_model_name=args.mosaic_restoration_model, preferred_pad_mode=preferred_pad_mode, max_clip_length=args.max_clip_length,
                                codec=args.codec, crf=args.crf, moov_front=args.moov_front, preset=args.preset, custom_encoder_options=args.custom_encoder_options)
         except KeyboardInterrupt:
