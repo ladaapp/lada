@@ -207,7 +207,7 @@ class ConfigSidebar(Gtk.Box):
     @Gtk.Template.Callback()
     @skip_if_uninitialized
     def spin_row_clip_max_duration_selected_callback(self, spin_row, value):
-        self._config.max_clip_duration = spin_row.get_property("value")
+        self._config.max_clip_duration = int(spin_row.get_property("value"))
 
     @Gtk.Template.Callback()
     @skip_if_uninitialized

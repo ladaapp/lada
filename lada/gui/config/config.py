@@ -58,7 +58,7 @@ class Config(GObject.Object):
         self._export_directory = self._defaults['export_directory']
         self._file_name_pattern = self._defaults['file_name_pattern']
         self._initial_view = self._defaults['initial_view']
-        self._max_clip_duration = self._defaults['max_clip_duration']
+        self._max_clip_duration: int = self._defaults['max_clip_duration']
         self._mosaic_detection_model = self._defaults['mosaic_detection_model']
         self._mosaic_restoration_model = self._defaults['mosaic_restoration_model']
         self._mute_audio = self._defaults['mute_audio']
@@ -127,8 +127,8 @@ class Config(GObject.Object):
         self.save()
 
     @GObject.Property()
-    def max_clip_duration(self):
-        return self._max_clip_duration
+    def max_clip_duration(self) -> int:
+        return int(self._max_clip_duration)
 
     @max_clip_duration.setter
     def max_clip_duration(self, value):
