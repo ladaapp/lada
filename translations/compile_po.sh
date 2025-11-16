@@ -9,21 +9,25 @@ if [ "$(pwd)" != "$translations_dir" ] ; then
 fi
 
 lang_filter=""
-if [[ "$@" =~ "--release" ]]; then
-    lang_filter=$(cat release_ready_translations.txt | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-    if [[ -z "$lang filter" ]]; then
-        echo "No translations in release_ready_translations.txt"
-        exit 1
-    fi
-fi
+for arg in "$@"; do
+  case "$arg" in
+    --release)
+      lang_filter=$(cat release_ready_translations.txt | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+      if [ -z "$lang filter" ]; then
+          echo "No translations in release_ready_translations.txt"
+          exit 1
+      fi
+      ;;
+  esac
+done
 
-function should_compile_po() {
+should_compile_po() {
   lang="$1"
   if [ -z "$lang_filter" ]; then
     return 0
   fi
   for filter_lang in $lang_filter; do
-    if [ "$filter_lang" == "$lang" ] ; then
+    if [ "$filter_lang" = "$lang" ] ; then
       return 0
     fi
   done
