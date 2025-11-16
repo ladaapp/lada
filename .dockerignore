@@ -1,0 +1,8 @@
+.venv/
+experiments/
+build/
+model_weights/
+datasets/
+lada/locale/*/
+*.pt
+*.pth

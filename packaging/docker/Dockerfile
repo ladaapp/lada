@@ -1,19 +1,26 @@
-FROM python:3.13-slim-trixie
+FROM python:3.13-slim-trixie as build
 RUN useradd --create-home lada
-WORKDIR /home/lada
-ENV PIP_ROOT_USER_ACTION=ignore
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends ffmpeg curl gettext patch \
+    && apt-get install -y --no-install-recommends gettext patch curl xz-utils \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-RUN pip install --no-deps --no-cache-dir --requirement https://codeberg.org/ladaapp/lada/raw/main/packaging/requirements-cli.txt
-RUN curl -Ls https://codeberg.org/ladaapp/lada/archive/main.tar.gz | tar -zx \
-    && sh lada/translations/compile_po.sh --release \
-    && pip install --no-deps --no-cache-dir './lada[basicvsrpp]' \
-    && patch -u -p1 -d /usr/local/lib/python3.13/site-packages < lada/patches/increase_mms_time_limit.patch \
-    && patch -u -p1 -d /usr/local/lib/python3.13/site-packages < lada/patches/remove_ultralytics_telemetry.patch \
-    && patch -u -p1 -d /usr/local/lib/python3.13/site-packages < lada/patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff \
-    && rm -r lada
+RUN mkdir -p /root/.local/bin \
+    && curl -L 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.0-latest-linux64-gpl-8.0.tar.xz' \
+        | tar xJf - -C /root/.local/bin --strip-components 2 ffmpeg-n8.0-latest-linux64-gpl-8.0/bin/ffmpeg \
+    && chmod -R 555 /root/.local/bin/ffmpeg
+COPY packaging/requirements-cli.txt packaging/requirements-cli.txt
+RUN pip install --user --no-deps --no-cache-dir --requirement packaging/requirements-cli.txt
+COPY patches patches
+RUN    patch -u -p1 -d /root/.local/lib/python3.13/site-packages < patches/increase_mms_time_limit.patch \
+    && patch -u -p1 -d /root/.local/lib/python3.13/site-packages < patches/remove_ultralytics_telemetry.patch \
+    && patch -u -p1 -d /root/.local/lib/python3.13/site-packages < patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
+COPY . .
+RUN sh translations/compile_po.sh --release
+RUN pip install --user --no-deps --no-cache-dir '.[basicvsrpp]'
+
+
+FROM python:3.13-slim-trixie
+RUN useradd --create-home lada
 RUN mkdir -p /home/lada/.config/Ultralytics \
     && echo '{"settings_version":"0.0.6","datasets_dir":"datasets","weights_dir":"weights","runs_dir":"experiments","uuid":"dummy","sync":false,"api_key":"","openai_api_key":"","clearml":false,"comet":false,"dvc":false,"hub":false,"mlflow":false,"neptune":false,"raytune":false,"tensorboard":false,"wandb":false,"vscode_msg":false,"openvino_msg":false}' > /home/lada/.config/Ultralytics/settings.json \
     && chown -R lada:lada /home/lada/.config
@@ -29,7 +36,9 @@ ADD --checksum=sha256:d404152576ce64fb5b2f315c03062709dac4f5f8548934866cd01c823c
 ADD --checksum=sha256:5643ca297c13920b8ffd39a0d85296e494683a69e5e8204d662653d24c582766 \
     https://drive.usercontent.google.com/download?id=1ulct4RhRxQp1v5xwEmUH7xz7AK42Oqlw&export=download&confirm=t model_weights/3rd_party/clean_youknow_video.pth
 RUN chmod 444 model_weights/*\.pt* model_weights/3rd_party/*\.pt*
+COPY --from=build --chown=lada:lada /root/.local /home/lada/.local
 USER lada
+ENV PATH=/home/lada/.local/bin:$PATH
 
 ENTRYPOINT ["lada-cli"]
 CMD ["--help"]
