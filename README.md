@@ -182,6 +182,18 @@ All packages currently only work with Nvidia cards (or CPU) but there have been 
 
 Reach out if you can support packaging the app for other operating systems or hardware.
 
+## Contribute
+
+You can find the Lada project [on GitHub](https://github.com/ladaapp/lada) and [on Codeberg](https://codeberg.org/ladaapp/lada).
+
+The home of the project is on Codeberg. GitHub is set up only as a mirror so it's code will stay in sync with the main branch on Codeberg.
+
+For contributing code, ideas or bug reports use [Pull requests](https://codeberg.org/ladaapp/lada/pulls) and the [Issue tracker](https://codeberg.org/ladaapp/lada/issues) on Codeberg.
+
+If you want to help translating the app you can contribute to existing translations or set up a new language over at [Codeberg Translate](https://translate.codeberg.org/projects/lada/lada/).
+
+New releases are published on both [GitHub Releases](https://github.com/ladaapp/lada/releases) and [Codeberg Releases](https://codeberg.org/ladaapp/lada/releases). You should get a notification about new releases if you star the project on either platform.
+
 ## Build
 
 If you want to start hacking on this project you'll need to install the app from source. Check out the detailed installation guides for [Linux](docs/linux_install.md) and [Windows](docs/windows_install.md).
@@ -189,10 +201,6 @@ If you want to start hacking on this project you'll need to install the app from
 ## Training and dataset creation
 
 For instructions on training your own models and datasets, refer to [Training and dataset creation](docs/training_and_dataset_creation.md).
-
-## Translations
-
-If you want to help translating the app you can contribute to existing translations or set up a new language over at [Codeberg Translate](https://translate.codeberg.org/projects/lada/lada/).
 
 ## License
 
