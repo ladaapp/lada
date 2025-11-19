@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: AGPL-3.0
 
 translations_dir=$(dirname -- "$0")
+cwd_back="$(pwd)"
 if [ "$(pwd)" != "$translations_dir" ] ; then
   cd "$translations_dir"
 fi
@@ -58,3 +59,5 @@ find . -mindepth 1 -maxdepth 1 -type f -name "*.po" -printf '%f\n' | while read 
   echo "Compiling language $lang .po file into .mo file"
   msgfmt "$po_file" -o "$lang_dir/lada.mo"
 done
+
+cd "$cwd_back"

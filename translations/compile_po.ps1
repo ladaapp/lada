@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: Lada Authors
 # SPDX-License-Identifier: AGPL-3.0
 
+$cwd_backup = (Get-Location).Path
 $translationsDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 if ((Get-Location).Path -ne $translationsDir) {
     Set-Location $translationsDir
@@ -69,3 +70,5 @@ Get-ChildItem -File -Filter "*.po" | ForEach-Object {
     Write-Host "Compiling language '$lang' .po file into .mo file"
     & msgfmt $poFile -o "$langDir\lada.mo"
 }
+
+Set-Location $cwd_backup

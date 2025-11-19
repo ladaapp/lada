@@ -1,23 +1,26 @@
 # Requirements
 In order to work on the models and datasets you'll have to install the requirements:
 
-1) Install everything mentioned in [Install CLI](../README.md#install-cli)
+1) Install everything mentioned in [Linux Install](linux_install.md)
 
 2) Install python dependencies
-    ```bash
-    python -m pip install -e '.[training,dataset-creation]'
-    ````
-
-> [!CAUTION]
-> When installing the dataset-creating extra dependencies `albuminations` will be installed. There seems to be an issue with its dependency management as albumentations will install opencv headless even though opencv is already available and you'll end up with both (you can check via `pip freeze | grep opencv`). 
-> 
-> If you run into conflicts related to OpenCV then uninstall both `opencv-python-headless` and `opencv-python` and install only `opencv-python`. (Noticed on version `albumentations==1.4.24`).
+   
+   ```bash
+   pip install -e '.' --group dev
+   ````
+   Fix dependency conflict
+   
+   albumentations pulls in opencv-python-headless but we depend on opencv-python. Both cannot be used at the same time.
+   ```bash
+   pip uninstall opencv-python-headless opencv-python 
+   pip install -e '.'
+   ````
 
 3) Apply patches
 
-    In order to fix resume training of the mosaic restoration model apply the following patch (tested with `mmengine==0.10.7`):
+    In order to fix resume training of the mosaic restoration model apply the following patch:
     ```bash
-    patch -u ./.venv/lib/python3.1[23]/site-packages/mmengine/runner/loops.py -i patches/adjust_mmengine_resume_dataloader.patch
+    patch -u -p1 -d .venv/lib/python3.1[23]/site-packages < patches/adjust_mmengine_resume_dataloader.patch
     ```
 
 4) Download model weights

@@ -33,33 +33,24 @@ This section describes how to install the app (CLI and GUI) from source.
 4) [Install PyTorch](https://pytorch.org/get-started/locally)
 
 > [!TIP]
-> Before continuing check if the PyTorch installation was successful by checking if your GPU is detected (Skip this step if you're running on CPU)
+> Before continuing let's test if the PyTorch installation was successful by checking if your GPU is detected (Skip this step if you're running on CPU)
 > ```bash
-> python -c "import torch ; print(torch.cuda.is_available())"`
+> python -c "import torch ; print(torch.cuda.is_available())"
 > ```
 > If this prints *True* then you're good. It will display *False* if the GPU is not available to PyTorch. Check your GPU drivers and that you chose the correct PyTorch Installation method for your hardware.
 
 5) Install python dependencies
     ```bash
-    python -m pip install -e '.[basicvsrpp]'
+    python -m pip install -e '.'
     ````
 
 6) Apply patches
    
-   On low-end hardware running mosaic detection model could run into a timeout defined in ultralytics library and the scene would not be restored. The following patch increases this time limit:
     ```bash
     patch -u -p1 -d .venv/lib/python3.1[23]/site-packages < patches/increase_mms_time_limit.patch
+    patch -u -p1 -d .venv/lib/python3.1[23]/site-packages < patches/remove_ultralytics_telemetry.patch
+    patch -u -p1 -d .venv/lib/python3.1[23]/site-packages < patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
     ```
-   
-   Disable crash-reporting / telemetry of one of our dependencies (ultralytics):
-   ```bash
-   patch -u -p1 -d .venv/lib/python3.1[23]/site-packages < patches/remove_ultralytics_telemetry.patch
-   ```
-   
-   Compatibility fix for using mmengine (restoration model dependency) with latest PyTorch:
-   ```bash
-   patch -u -p1 -d .venv/lib/python3.1[23]/site-packages < patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
-   ```
 
 7) Download model weights
    
@@ -77,6 +68,12 @@ This section describes how to install the app (CLI and GUI) from source.
    ```
 
 Now you should be able to run the CLI by calling `lada-cli`.
+
+> [!TIP]
+> Remember: To start Lada always make sure to:
+> * `cd` into the project root directory
+> * Activate the virtual environment via `source .venv/bin/activate`
+> * Run `lada` to start the CLI
 
 ### Install GUI
 
@@ -131,13 +128,19 @@ Now you should be able to run the CLI by calling `lada-cli`.
     ````
 
 > [!TIP]
-> If you intend to hack on the GUI code install also `gui-dev` extra: `python -m pip install -e '.[gui-dev]'`
+> If you intend to hack on the GUI code install the `gui-dev` extra: `pip install -e '.[gui-dev]'`
 
 Now you should be able to run the GUI by calling `lada`.
 
+> [!TIP]
+> Remember: To start Lada always make sure to:
+> * `cd` into the project root directory
+> * Activate the virtual environment via `source .venv/bin/activate`
+> * Run `lada` to start the GUI
+
 ### Install Translations (optional)
 
-If we have a translation file for your language you might want to use Lada in your preferred language instead of English.
+If we have a translation file for your language you might want to use it instead of using the app in English.
 
 1) Install system dependencies
 

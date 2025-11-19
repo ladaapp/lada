@@ -8,15 +8,15 @@ RUN mkdir -p /root/.local/bin \
     && curl -L 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.0-latest-linux64-gpl-8.0.tar.xz' \
         | tar xJf - -C /root/.local/bin --strip-components 2 ffmpeg-n8.0-latest-linux64-gpl-8.0/bin/ffmpeg \
     && chmod -R 555 /root/.local/bin/ffmpeg
-COPY packaging/requirements-cli.txt packaging/requirements-cli.txt
-RUN pip install --user --no-deps --no-cache-dir --requirement packaging/requirements-cli.txt
+COPY packaging/docker/requirements.txt packaging/docker/requirements.txt
+RUN pip install --user --no-deps --no-cache-dir --requirement packaging/docker/requirements.txt --extra-index-url https://download.pytorch.org/whl/cu128
 COPY patches patches
 RUN    patch -u -p1 -d /root/.local/lib/python3.13/site-packages < patches/increase_mms_time_limit.patch \
     && patch -u -p1 -d /root/.local/lib/python3.13/site-packages < patches/remove_ultralytics_telemetry.patch \
     && patch -u -p1 -d /root/.local/lib/python3.13/site-packages < patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
 COPY . .
 RUN sh translations/compile_po.sh --release
-RUN pip install --user --no-deps --no-cache-dir '.[basicvsrpp]'
+RUN pip install --user --no-deps --no-cache-dir '.'
 
 
 FROM python:3.13-slim-trixie

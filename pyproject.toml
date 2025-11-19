@@ -1,0 +1,85 @@
+# SPDX-FileCopyrightText: Lada Authors
+# SPDX-License-Identifier: AGPL-3.0
+
+[project]
+name = "lada"
+description = "Remove and recover pixelated areas in adult videos"
+dynamic = ["version"]
+requires-python = ">=3.12.0"
+license = "AGPL-3.0"
+license-files = ["LICENSE.md", "LICENSES/*.txt"]
+readme = "README.md"
+dependencies = [
+    "ultralytics==8.3.203", # Pinned as we apply a patch
+    "numpy",
+    "opencv-python",
+    "av>=15.0.0", # Binary wheels before 15.0.0 had either no nvidia encoders or libx265 was broken/missing.
+    "mmengine==0.10.7", # Pinned as we apply a patch
+    "tqdm",
+    "torch",
+    "torchvision",
+]
+
+[project.urls]
+homepage = "https://codeberg.org/ladaapp/lada"
+source = "https://codeberg.org/ladaapp/lada"
+documentation = "https://codeberg.org/ladaapp/lada/blob/main/README.md"
+issues = "https://codeberg.org/ladaapp/lada/issues"
+changelog = "https://codeberg.org/ladaapp/lada/releases"
+
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+lada = "lada.gui.main:main"
+lada-cli = "lada.cli.main:main"
+
+[tool.setuptools]
+packages = { find = { where = ["."], include = ["lada", "lada.*"] } }
+[tool.setuptools.package-data]
+"*" = ['*.ui']
+"lada.gui" = ['style.css', 'resources.gresource']
+"lada.locale" = ['*.mo']
+
+[tool.setuptools.dynamic]
+version = { attr = "lada.VERSION" }
+
+[project.optional-dependencies]
+cu128 = ["torch==2.8.0", "torchvision==0.23.0"]
+gui = ["pycairo", "PyGObject"]
+
+[dependency-groups]
+dev = [
+    { include-group = "training" },
+    { include-group = "dataset-creation" }
+]
+gui-dev = [
+    { include-group = "dev" },
+    "pygobject-stubs",
+]
+training = ["albumentations", "tensorboard", "standard-imghdr"]
+dataset-creation = ["lap>=0.5.12", "timm", "einops", "pillow", "scipy", "onnx", "onnxruntime-gpu"]
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv]
+conflicts = [
+    [
+        { package = "torch", extra = "cu128" },
+        { package = "torchvision", extra = "cu128" },
+        { package = "torch" },
+        { package = "torchvision" },
+    ],
+]
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cu128", extra = "cu128" },
+]
+torchvision = [
+    { index = "pytorch-cu128", extra = "cu128" },
+]

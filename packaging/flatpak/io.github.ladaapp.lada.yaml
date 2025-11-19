@@ -1,0 +1,58 @@
+id: io.github.ladaapp.lada
+runtime: org.gnome.Platform
+runtime-version: '49'
+desktop-file-name-suffix: " (dev)"
+default-branch: "main"
+sdk: org.gnome.Sdk
+command: lada
+finish-args:
+  - "--socket=wayland"
+  - "--socket=fallback-x11"
+  - "--device=dri"
+  - "--share=ipc"
+  - "--socket=pulseaudio"
+  - "--env=LADA_MODEL_WEIGHTS_DIR=/app/model_weights"
+  - "--env=YOLO_CONFIG_DIR=/var/config/yolo"
+modules:
+  - lada-python-dependencies.yaml
+  - name: lada-model-weights
+    buildsystem: simple
+    build-commands:
+      - |
+        mkdir -p /app/model_weights/3rd_party
+        mv lada_*.pt{,h} /app/model_weights/
+        mv clean_youknow_video.pth /app/model_weights/3rd_party/
+    sources:
+      - type: file
+        url: "https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v3.1_accurate.pt?download=true"
+        sha256: 2b6e5d6cd5a795a4dcc1205b817a7323a4bd3725cef1a7de3a172cb5689f0368
+      - type: file
+        url: "https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v3.1_fast.pt?download=true"
+        sha256: 25d62894c16bba00468f3bcc160360bb84726b2f92751b5e235578bf2f9b0820
+      - type: file
+        url: "https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v2.pt?download=true"
+        sha256: 056756fcab250bcdf0833e75aac33e2197b8809b0ab8c16e14722dcec94269b5
+      - type: file
+        url: "https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_restoration_model_generic_v1.2.pth?download=true"
+        sha256: d404152576ce64fb5b2f315c03062709dac4f5f8548934866cd01c823c8104ee
+      - type: file
+        url: "https://drive.usercontent.google.com/download?id=1ulct4RhRxQp1v5xwEmUH7xz7AK42Oqlw&export=download&confirm=t"
+        sha256: 5643ca297c13920b8ffd39a0d85296e494683a69e5e8204d662653d24c582766
+        dest-filename: clean_youknow_video.pth
+  - name: lada
+    buildsystem: simple
+    build-commands:
+      - sh translations/compile_po.sh --release
+      - python3 -m pip install --prefix=/app --no-deps --no-build-isolation '.[gui]'
+      - |
+        mkdir -p /app/share/applications /app/share/metainfo /app/share/icons/hicolor/128x128/apps
+        install -m 644 packaging/flatpak/share/io.github.ladaapp.lada.desktop /app/share/applications
+        install -m 644 packaging/flatpak/share/io.github.ladaapp.lada.metainfo.xml /app/share/metainfo
+        install -m 644 packaging/flatpak/share/io.github.ladaapp.lada.png /app/share/icons/hicolor/128x128/apps
+      - |
+        patch -u -p1 -d /app/lib/python3.13/site-packages < $FLATPAK_BUILDER_BUILDDIR/patches/increase_mms_time_limit.patch
+        patch -u -p1 -d /app/lib/python3.13/site-packages < $FLATPAK_BUILDER_BUILDDIR/patches/remove_ultralytics_telemetry.patch
+        patch -u -p1 -d /app/lib/python3.13/site-packages < $FLATPAK_BUILDER_BUILDDIR/patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
+    sources:
+      - type: dir
+        path: "../.."

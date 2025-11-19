@@ -1,8 +1,14 @@
 .venv/
+venv_gtk/
+venv_gtk_release/
+venv_release_win/
 experiments/
 build/
 .idea/
 .flatpak-builder/
+build_flatpak/
+build_gtk/
+build_gtk_release/
 torch_compile_debug/
 __pycache__/
 *.egg-info/
