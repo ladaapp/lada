@@ -5,15 +5,16 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
 "POT-Creation-Date: 2025-11-12 13:59+0000\n"
-"PO-Revision-Date: 2025-10-22 23:37+0000\n"
-"Last-Translator: xl <xl@noreply.codeberg.org>\n"
-"Language-Team: Chinese (Simplified Han script) <https://translate.codeberg.org/projects/lada/lada/zh_Hans/>\n"
+"PO-Revision-Date: 2025-11-13 01:54+0000\n"
+"Last-Translator: dragonSoul <dragonsoul@noreply.codeberg.org>\n"
+"Language-Team: Chinese (Simplified Han script) <https://"
+"translate.codeberg.org/projects/lada/lada/zh_Hans/>\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.13.3\n"
+"X-Generator: Weblate 5.14\n"
 
 #: lada/gui/export/export_multiple_files_row.ui:67
 #: lada/gui/export/export_single_file_page.ui:116
@@ -149,23 +150,23 @@ msgstr "保存修复后的视频文件"
 
 #: lada/gui/export/export_view.py:552
 msgid "Shutdown System"
-msgstr ""
+msgstr "关闭系统"
 
 #: lada/gui/export/export_view.py:553
 msgid "Export has finished. The system will shutdown in 30 seconds."
-msgstr ""
+msgstr "导出已完成.系统将在30秒后关闭."
 
 #: lada/gui/export/export_view.py:579
 msgid "Shutdown Failed"
-msgstr ""
+msgstr "关机失败"
 
 #: lada/gui/export/export_view.py:580
 msgid "Failed to initiate system shutdown. Please check system permissions."
-msgstr ""
+msgstr "无法启动系统关机.请检查系统权限."
 
 #: lada/gui/export/export_view.py:601
 msgid "Shutdown now"
-msgstr ""
+msgstr "立即关机"
 
 #: lada/gui/config/no_gpu_banner.ui:17
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
@@ -182,7 +183,7 @@ msgstr "选择修复后视频的保存位置"
 
 #: lada/gui/config/config_sidebar.py:337
 msgid "Select a folder for temporary files"
-msgstr ""
+msgstr "请选择一个用于临时文件的文件夹"
 
 #: lada/gui/config/config_sidebar.ui:22
 msgid "Mosaic Removal"
@@ -291,11 +292,11 @@ msgstr "使用此目录"
 
 #: lada/gui/config/config_sidebar.ui:185
 msgid "Temporary Directory"
-msgstr ""
+msgstr "临时目录"
 
 #: lada/gui/config/config_sidebar.ui:186
 msgid "Directory for temporary video file during restoration process"
-msgstr ""
+msgstr "恢复过程中用于临时视频文件的目录"
 
 #: lada/gui/config/config_sidebar.ui:198
 msgid ""
@@ -307,39 +308,39 @@ msgstr ""
 
 #: lada/gui/config/config_sidebar.ui:206
 msgid "Post-Export Action"
-msgstr ""
+msgstr "导出后操作"
 
 #: lada/gui/config/config_sidebar.ui:207
 msgid "Action to be run after all queued files have been restored"
-msgstr ""
+msgstr "在所有排队的文件恢复完成后要执行的操作"
 
 #: lada/gui/config/config_sidebar.ui:212
 msgid "No action"
-msgstr ""
+msgstr "无操作"
 
 #: lada/gui/config/config_sidebar.ui:213
 msgid "Do nothing after export is completed."
-msgstr ""
+msgstr "导出完成后无后续操作."
 
 #: lada/gui/config/config_sidebar.ui:224
 msgid "Shutdown system"
-msgstr ""
+msgstr "关闭系统"
 
 #: lada/gui/config/config_sidebar.ui:225
 msgid "Automatically shutdown the system after export is completed."
-msgstr ""
+msgstr "导出完成后自动关闭系统."
 
 #: lada/gui/config/config_sidebar.ui:236
 msgid "Execute custom command"
-msgstr ""
+msgstr "执行自定义命令"
 
 #: lada/gui/config/config_sidebar.ui:237
 msgid "Run a custom shell command after export is completed."
-msgstr ""
+msgstr "导出完成后执行自定义 Shell 命令。"
 
 #: lada/gui/config/config_sidebar.ui:248
 msgid "Custom command"
-msgstr ""
+msgstr "自定义命令"
 
 #: lada/gui/config/config_sidebar.ui:259
 msgid "Troubleshooting"
