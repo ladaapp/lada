@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="packaging/flatpak/share/icons/hicolor/128x128/apps/io.github.ladaapp.lada.png" alt="Lada Icon" style="display: block; width: 64px; height: 64px;">
+  <img src="packaging/flatpak/share/io.github.ladaapp.lada.png" alt="Lada Icon" style="display: block; width: 64px; height: 64px;">
   <br>
   Lada
 </h1>
