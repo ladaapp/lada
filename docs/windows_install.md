@@ -110,8 +110,8 @@ Now you should be able to run the CLI by calling `lada-cli`.
    .\venv_gtk\Scripts\Activate.ps1
    pip install gvsbuild==2025.10
    pip install patch
-   python -m patch -p1 -d .venv/lib/site-packages lada/patches/gvsbuild_gstreamer_gtk4_plugin.patch
-   python -m patch -p1 -d .venv/lib/site-packages lada/patches/gvsbuild_ffmpeg.patch
+   python -m patch -p1 -d venv_gtk/lib/site-packages lada/patches/gvsbuild_gstreamer_gtk4_plugin.patch
+   python -m patch -p1 -d venv_gtk/lib/site-packages lada/patches/gvsbuild_ffmpeg.patch
    pip uninstall patch
    ```
    
