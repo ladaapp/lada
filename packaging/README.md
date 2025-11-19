@@ -1,16 +1,14 @@
-## Creating `requirements.txt`
+## Update dependencies
+
+After updating release dependencies by adjusting `uv.lock` we need to update dependencies for each release distribution as well.
 
 ```shell
-python -m venv .venv_requirements_cli
-source .venv_requirements_cli/bin/activate
-pip install pip-tools
-test -f packaging/requirements-cli.txt && rm packaging/requirements-cli.txt 
-pip-compile --extra basicvsrpp -o packaging/requirements-cli.txt setup.py
-sed -i 's#opencv-python#opencv-python-headless#' packaging/requirements-cli.txt
-test -f packaging/requirements-gui.txt && rm packaging/requirements-gui.txt 
-pip-compile --extra basicvsrpp,gui -o packaging/requirements-gui.txt setup.py
-deactivate
-rm -r .venv_requirements_cli
+# No need for gui extra as pycairo and pygobject dependencies are available in flatpak gnome runtime
+uv export --no-default-groups --no-emit-local --format pylock.toml --extra cu128 --frozen | uv run  packaging/flatpak/convert-pylock-to-flatpak.py
+# No need for gui extra as the docker image will only offer Lada CLI
+uv export --no-default-groups --no-emit-local --format requirements.txt --extra cu128 --frozen > packaging/docker/requirements.txt
+# No need for gui extra as pycairo and pygobject dependencies will be built locally via gvsbuild
+uv export --no-default-groups --no-emit-local --format requirements.txt --extra cu128 --frozen > packaging/windows/requirements.txt
 ```
 
 TODO: Revise this process now that Windows is also part of the release train
