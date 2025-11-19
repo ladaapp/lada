@@ -1,0 +1,735 @@
+# SPDX-FileCopyrightText: Lada Authors
+# SPDX-License-Identifier: AGPL-3.0
+msgid ""
+msgstr ""
+"Project-Id-Version: lada\n"
+"Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
+"POT-Creation-Date: 2025-11-12 14:07+0000\n"
+"PO-Revision-Date: 2025-11-19 11:06+0000\n"
+"Last-Translator: Vistaus <vistaus@noreply.codeberg.org>\n"
+"Language-Team: Dutch <https://translate.codeberg.org/projects/lada/lada/nl/>"
+"\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.14\n"
+
+#: lada/gui/export/export_multiple_files_row.ui:67
+#: lada/gui/export/export_single_file_page.ui:116
+msgid "Open in External Program…"
+msgstr "Openen in extern programma…"
+
+#: lada/gui/export/export_multiple_files_row.ui:79
+#: lada/gui/export/export_single_file_page.ui:132
+msgid "Show Error"
+msgstr "Foutmelding tonen"
+
+#: lada/gui/export/export_multiple_files_row.ui:92
+msgid "Remove"
+msgstr "Verwijderen"
+
+#: lada/gui/export/export_single_file_page.py:94
+#: lada/gui/export/export_single_file_page.py:155
+msgid "Restoring video…"
+msgstr "Bezig met herstellen…"
+
+#: lada/gui/export/export_single_file_page.py:112
+msgid "Finished video restoration!"
+msgstr "De video is hersteld!"
+
+#: lada/gui/export/export_single_file_page.py:120
+#: lada/gui/export/export_utils.py:53
+msgid "Restoration failed"
+msgstr "Het herstellen is mislukt"
+
+#: lada/gui/export/export_single_file_page.py:129
+#: lada/gui/export/export_single_file_page.py:171
+#: lada/gui/export/export_single_file_page.ui:19
+msgid "Export video"
+msgstr "Video exporteren"
+
+#: lada/gui/export/export_single_file_page.py:144
+msgid "Restoration paused"
+msgstr "Het herstellen is onderbroken"
+
+#: lada/gui/export/export_single_file_page.ui:71
+#: lada/gui/export/export_view.ui:73 lada/gui/export/export_view.py:241
+msgid "Restore"
+msgstr "Herstellen"
+
+#: lada/gui/export/export_single_file_page.ui:83
+#: lada/gui/export/export_view.ui:66
+msgid "Resume"
+msgstr "Hervatten"
+
+#: lada/gui/export/export_single_file_page.ui:93
+#: lada/gui/export/export_view.ui:59
+msgid "Pause"
+msgstr "Onderbreken"
+
+#: lada/gui/export/export_single_file_page.ui:103
+#: lada/gui/export/export_view.ui:49 lada/gui/export/export_view.py:600
+msgid "Cancel"
+msgstr "Annuleren"
+
+#: lada/gui/export/export_single_file_page.ui:120
+msgid "Open File"
+msgstr "Bestand openen"
+
+#: lada/gui/export/export_utils.py:29
+#, python-brace-format
+msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
+msgstr "Duur: {duration} — Resolutie: {resolution} — Framesnelheid: {fps} fps"
+
+#: lada/gui/export/export_utils.py:54
+#, python-brace-format
+msgid "Error while processing <span><tt>{filename}</tt></span>"
+msgstr ""
+"Er is een fout opgetreden tijdens het verwerken van "
+"<span><tt>{filename}</tt></span>"
+
+#: lada/gui/export/export_utils.py:63 lada/gui/export/export_view.py:582
+msgid "Okay"
+msgstr "Oké"
+
+#: lada/gui/export/export_utils.py:69
+msgid "Failed"
+msgstr "Mislukt"
+
+#: lada/gui/export/export_utils.py:74
+#, python-brace-format
+msgid "Finished  |  Processed: {time_done} ({frames_done} frames)"
+msgstr "Afgerond  |  Verwerkt: {time_done} ({frames_done} frames)"
+
+#: lada/gui/export/export_utils.py:82
+#, python-brace-format
+msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: {time_remaining} ({frames_remaining} frames)  |  Speed: {speed_fps} FPS"
+msgstr ""
+"Bezig met verwerken… {done_percent}%  |  Verwerkt: {time_done} "
+"({frames_done} frames)  |  Resterend: {time_remaining} "
+"({frames_remaining} frames)  |  Snelheid: {speed_fps} fps"
+
+#: lada/gui/export/export_utils.py:90
+#, python-brace-format
+msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: Estimating… |  Speed: Estimating…"
+msgstr ""
+"Bezig met verwerken… {done_percent}%  |  Verwerkt: {time_done} "
+"({frames_done} frames)  |  Resterend: bezig met berekenen… | Snelheid: bezig "
+"met berekenen…"
+
+#: lada/gui/export/export_utils.py:96
+#, python-brace-format
+msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
+msgstr "Onderbroken  |  Verwerkt: {time_done} ({frames_done} frames)"
+
+#: lada/gui/export/export_view.ui:36 lada/gui/preview/preview_view.ui:47
+msgid "Settings"
+msgstr "Instellingen"
+
+#: lada/gui/export/export_view.ui:43
+msgid "Add Files…"
+msgstr "Bestanden toevoegen…"
+
+#: lada/gui/export/export_view.ui:140
+#: lada/gui/fileselection/file_selection_view.ui:60
+#: lada/gui/preview/preview_view.ui:220
+msgid "Keyboard Shortcuts"
+msgstr "Sneltoetsen"
+
+#: lada/gui/export/export_view.ui:144
+#: lada/gui/fileselection/file_selection_view.ui:64
+#: lada/gui/preview/preview_view.ui:224
+msgid "About Lada"
+msgstr "Over Lada"
+
+#: lada/gui/export/export_view.py:241
+msgid "Restore…"
+msgstr "Herstellen…"
+
+#: lada/gui/export/export_view.py:515
+msgid "Save restored video file"
+msgstr "Hersteld videobestand opslaan"
+
+#: lada/gui/export/export_view.py:522
+msgid "Save restored video files"
+msgstr "Herstelde videobestanden opslaan"
+
+#: lada/gui/export/export_view.py:552
+msgid "Shutdown System"
+msgstr "Computer afsluiten"
+
+#: lada/gui/export/export_view.py:553
+msgid "Export has finished. The system will shutdown in 30 seconds."
+msgstr ""
+"Het exporteren is voltooid - de computer wordt over 30 seconden afgesloten."
+
+#: lada/gui/export/export_view.py:579
+msgid "Shutdown Failed"
+msgstr "Afsluiten mislukt"
+
+#: lada/gui/export/export_view.py:580
+msgid "Failed to initiate system shutdown. Please check system permissions."
+msgstr "Het afsluiten is mislukt - controleer de bevoegdheden."
+
+#: lada/gui/export/export_view.py:601
+msgid "Shutdown now"
+msgstr "Nu afsluiten"
+
+#: lada/gui/config/no_gpu_banner.ui:17
+msgid "No GPU detected! Running the app on CPU will be painfully slow."
+msgstr ""
+"Er is geen videokaart aangetroffen. Het programma zal daardoor erg traag "
+"zijn."
+
+#: lada/gui/config/config_sidebar.py:116 lada/gui/config/config_sidebar.py:244
+#: lada/gui/config/config_sidebar.ui:164
+msgid "Click the folder button to choose a default"
+msgstr "Klik op de mapknop om een standaardmap te kiezen"
+
+#: lada/gui/config/config_sidebar.py:317
+msgid "Select a folder where restored videos should be saved"
+msgstr "Kies de map waarin herstelde videobestanden moeten worden opgeslagen"
+
+#: lada/gui/config/config_sidebar.py:337
+msgid "Select a folder for temporary files"
+msgstr "Kies de map met tijdelijke bestanden"
+
+#: lada/gui/config/config_sidebar.ui:22
+msgid "Mosaic Removal"
+msgstr "Mozaïeken verwijderen"
+
+#: lada/gui/config/config_sidebar.ui:25
+msgid "Detection model"
+msgstr "Detectiemodel"
+
+#: lada/gui/config/config_sidebar.ui:26
+msgid "Model used for detecting mosaic areas."
+msgstr "Het model waarmee mozaïeken worden vastgesteld."
+
+#: lada/gui/config/config_sidebar.ui:36
+msgid "Restoration model"
+msgstr "Herstelmodel"
+
+#: lada/gui/config/config_sidebar.ui:37
+msgid "Model used for restoring mosaic areas."
+msgstr "Het model waarmee mozaïeken worden hersteld."
+
+#: lada/gui/config/config_sidebar.ui:47
+msgid "Maximum clip duration"
+msgstr "Maximale clipduur"
+
+#: lada/gui/config/config_sidebar.ui:48
+msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint."
+msgstr ""
+"Het maximale aantal te herstellen frames. Hogere waarden vergroten de "
+"stabiliteit; lagere waarden verkleinen het geheugengebruik."
+
+#: lada/gui/config/config_sidebar.ui:63
+msgid "GPU"
+msgstr "Videokaart"
+
+#: lada/gui/config/config_sidebar.ui:64
+msgid "Selected GPU for model processing."
+msgstr "Kies de te gebruiken videokaart."
+
+#: lada/gui/config/config_sidebar.ui:79
+msgid "Playback"
+msgstr "Afspelen"
+
+#: lada/gui/config/config_sidebar.ui:83
+msgid "Buffer duration"
+msgstr "Bufferduur"
+
+#: lada/gui/config/config_sidebar.ui:84
+msgid "How much video is pre-loaded for playback, measured in seconds. If set to 0 this value will be chosen automatically."
+msgstr ""
+"Hoeveel seconden van de video vooraf wordt ingeladen. Stel in op 0 om "
+"automatisch te kiezen."
+
+#: lada/gui/config/config_sidebar.ui:98
+msgid "Mute audio by default"
+msgstr "Geluid standaard dempen"
+
+#: lada/gui/config/config_sidebar.ui:99
+msgid "When enabled, audio will be muted automatically when a new file is opened."
+msgstr ""
+"Schakel in om het geluid automatisch te dempen na het openen van een bestand."
+
+#: lada/gui/config/config_sidebar.ui:108 lada/gui/config/config_sidebar.ui:343
+#: lada/gui/window.ui:54
+msgid "Export"
+msgstr "Exporteren"
+
+#: lada/gui/config/config_sidebar.ui:112
+msgid "Codec"
+msgstr "Codec"
+
+#: lada/gui/config/config_sidebar.ui:113
+msgid "Video Codec used for encoding the restored video."
+msgstr "De te gebruiken videocodec voor het herstellen van de video."
+
+#: lada/gui/config/config_sidebar.ui:125
+msgid "CRF (Constant Rate Factor)"
+msgstr "CRF (Constant Rate Factor)"
+
+#: lada/gui/config/config_sidebar.ui:126
+msgid "Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes."
+msgstr ""
+"De kwaliteitsinstelling van de video-encodering. Lagere waarden leiden tot "
+"hogere kwaliteit, maar ook tot grotere bestanden."
+
+#: lada/gui/config/config_sidebar.ui:140
+msgid ""
+"Custom FFmpeg encoder options (Optional).\n"
+"Example: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</tt></span>"
+msgstr ""
+"Aangepaste FFmpeg-encoderingsopties (optioneel).\n"
+"Voorbeeld: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc "
+"vbr_hq</tt></span>"
+
+#: lada/gui/config/config_sidebar.ui:141
+msgid ""
+"FFmpeg Codecs Documentation:\n"
+"https://ffmpeg.org/ffmpeg-codecs.html"
+msgstr ""
+"FFmpeg-codecsdocumentatie:\n"
+"https://ffmpeg.org/ffmpeg-codecs.html"
+
+#: lada/gui/config/config_sidebar.ui:147
+msgid "Output Directory"
+msgstr "Resultaatmap"
+
+#: lada/gui/config/config_sidebar.ui:152
+msgid "Always ask"
+msgstr "Altijd vragen"
+
+#: lada/gui/config/config_sidebar.ui:163
+msgid "Use this folder"
+msgstr "Deze map gebruiken"
+
+#: lada/gui/config/config_sidebar.ui:185
+msgid "Temporary Directory"
+msgstr "Tijdelijke map"
+
+#: lada/gui/config/config_sidebar.ui:186
+msgid "Directory for temporary video files during restoration process"
+msgstr ""
+"De map waarin tijdelijke bestanden worden opgeslagen tijdens het "
+"herstelproces"
+
+#: lada/gui/config/config_sidebar.ui:198
+msgid ""
+"File name pattern for restored files.\n"
+"Must include placeholder <span background=\"#D3D3D350\"><tt>{orig_file_name}</tt></span>."
+msgstr ""
+"Het bestandsnaampatroon voor herstelde bestanden.\n"
+"De opvultekst <span background=\"#D3D3D350\"><tt>{orig_file_name}</tt></"
+"span> is vereist."
+
+#: lada/gui/config/config_sidebar.ui:206
+msgid "Post-Export Action"
+msgstr "Naverwerkingsactie"
+
+#: lada/gui/config/config_sidebar.ui:207
+msgid "Action to be run after all queued files have been restored"
+msgstr "De actie die moet worden uitgevoerd nadat alle bestanden zijn hersteld"
+
+#: lada/gui/config/config_sidebar.ui:212
+msgid "No action"
+msgstr "Geen actie"
+
+#: lada/gui/config/config_sidebar.ui:213
+msgid "Do nothing after export is completed."
+msgstr "Doe niets nadat het exporteren is voltooid."
+
+#: lada/gui/config/config_sidebar.ui:224
+msgid "Shutdown system"
+msgstr "Computer afsluiten"
+
+#: lada/gui/config/config_sidebar.ui:225
+msgid "Automatically shutdown the system after export is completed."
+msgstr "Sluit de computer automatisch af nadat het exporteren is voltooid."
+
+#: lada/gui/config/config_sidebar.ui:236
+msgid "Execute custom command"
+msgstr "Opdracht uitvoeren"
+
+#: lada/gui/config/config_sidebar.ui:237
+msgid "Run a custom shell command after export is completed."
+msgstr "Voer een shellopdracht uit nadat het exporteren is voltooid."
+
+#: lada/gui/config/config_sidebar.ui:248
+msgid "Custom command"
+msgstr "Opdracht"
+
+#: lada/gui/config/config_sidebar.ui:259
+msgid "Troubleshooting"
+msgstr "Probleemoplossing"
+
+#: lada/gui/config/config_sidebar.ui:263
+msgid "Show mosaic detections"
+msgstr "Mozaïekdetecties tonen"
+
+#: lada/gui/config/config_sidebar.ui:264
+msgid "Show detected mosaic areas. Useful to evaluate quality of detection model."
+msgstr ""
+"Toon vastgestelde mozaïekgebieden. Handig voor het evalueren van de "
+"kwaliteit van het detectiemodel."
+
+#: lada/gui/config/config_sidebar.ui:277
+msgid "UI"
+msgstr "Vormgeving"
+
+#: lada/gui/config/config_sidebar.ui:280
+msgid "Color Scheme"
+msgstr "Thema"
+
+#: lada/gui/config/config_sidebar.ui:284
+msgid "Follow System style"
+msgstr "Systeemthema gebruiken"
+
+#: lada/gui/config/config_sidebar.ui:296
+msgid "Light style"
+msgstr "Licht thema"
+
+#: lada/gui/config/config_sidebar.ui:308
+msgid "Dark style"
+msgstr "Donker thema"
+
+#: lada/gui/config/config_sidebar.ui:320
+msgid "Default View"
+msgstr "Standaardscherm"
+
+#: lada/gui/config/config_sidebar.ui:321
+msgid "View shown after opening files"
+msgstr "Het te tonen scherm na het openen van bestanden"
+
+#: lada/gui/config/config_sidebar.ui:328 lada/gui/preview/preview_view.py:497
+#: lada/gui/window.ui:44
+msgid "Watch"
+msgstr "Bekijken"
+
+#: lada/gui/config/config_sidebar.ui:367
+msgid "Reset to factory settings"
+msgstr "Standaardwaarden herstellen"
+
+#: lada/gui/fileselection/file_selection_view.ui:37
+msgid "Restore pixelated adult videos"
+msgstr "Herstel gepixelde 18+-video's"
+
+#: lada/gui/fileselection/file_selection_view.ui:38
+msgid "Drop one or more videos here"
+msgstr "Sleep een of meerdere bestanden hierheen"
+
+#: lada/gui/fileselection/file_selection_view.ui:41
+#: lada/gui/preview/preview_view.ui:54
+msgid "Open Files…"
+msgstr "Bestanden openen…"
+
+#: lada/gui/preview/preview_view.py:498
+msgid "Mute/Unmute"
+msgstr "Dempen/Ontdempen"
+
+#: lada/gui/preview/preview_view.py:499
+msgid "Play/Pause"
+msgstr "Afspelen/Pauzeren"
+
+#: lada/gui/preview/preview_view.py:500
+msgid "Enable/Disable fullscreen"
+msgstr "Schermvullende weergave aan/uit"
+
+#: lada/gui/preview/preview_view.ui:35
+msgid "Toggle Fullscreen"
+msgstr "Schermvullende weergave"
+
+#: lada/gui/utils.py:81
+msgid "Select one or multiple video files"
+msgstr "Kies een of meerdere videobestanden"
+
+#: lada/gui/window.py:107
+msgid "Switch to Export View"
+msgstr "Exportscherm tonen"
+
+#: lada/gui/window.py:108
+msgid "Switch to Watch View"
+msgstr "Afspeelscherm tonen"
+
+#: lada/cli/utils.py:50
+msgid "No video files found"
+msgstr "Er zijn geen videobestanden aangetroffen"
+
+#: lada/cli/utils.py:77
+msgid "PyAV version:"
+msgstr "PyAV-versie:"
+
+#: lada/cli/utils.py:81
+msgid "Available video encoders:"
+msgstr "Beschikbare video-encoderingen:"
+
+#: lada/cli/utils.py:87
+msgid "Encoders with support for hardware acceleration (GPU):"
+msgstr "Encoderingssoftware met ondersteuning voor hardwareversnelling (gpu):"
+
+#: lada/cli/utils.py:100
+msgid "Device"
+msgstr "Apparaat"
+
+#: lada/cli/utils.py:101
+msgid "Description"
+msgstr "Beschrijving"
+
+#: lada/cli/utils.py:102
+msgid "Available devices:"
+msgstr "Beschikbare apparaten:"
+
+#: lada/cli/utils.py:112
+msgid "Available detection models:"
+msgstr "Beschikbare detectiemodellen:"
+
+#: lada/cli/utils.py:115 lada/cli/utils.py:129
+msgid "None!"
+msgstr "Geen!"
+
+#: lada/cli/utils.py:117 lada/cli/utils.py:131
+msgid "Name"
+msgstr "Naam"
+
+#: lada/cli/utils.py:118 lada/cli/utils.py:132
+msgid "Path"
+msgstr "Locatie"
+
+#: lada/cli/utils.py:126
+msgid "Available restoration models:"
+msgstr "Beschikbaar herstelmodellen:"
+
+#: lada/cli/utils.py:144
+msgid "Usage: "
+msgstr "Gebruik: "
+
+#: lada/cli/utils.py:156
+#, python-brace-format
+msgid "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}"
+msgstr ""
+"Videoverwerking: {done_percent}%|{bar}|Verwerkt: {time_done} ({frames_done}f)"
+"{bar_suffix}"
+
+#: lada/cli/utils.py:158
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | Resterend: ? | Snelheid: ?"
+
+#: lada/cli/utils.py:198
+#, python-brace-format
+msgid " | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr ""
+" | Resterend: {time_remaining} ({frames_remaining}f) | Snelheid: "
+"{speed_fps}fps"
+
+#: lada/cli/main.py:20
+msgid "Examples:"
+msgstr "Voorbeelden:"
+
+#: lada/cli/main.py:22
+msgid "Restore video with default settings:"
+msgstr "Herstel een video met de standaardinstellingen:"
+
+#: lada/cli/main.py:23
+#, python-format
+msgid "%(prog)s --input input.mp4"
+msgstr "%(prog)s --input bestand.mp4"
+
+#: lada/cli/main.py:25
+msgid "Restore all videos found in the specified directory and save them to a different folder:"
+msgstr ""
+"Herstel alle video's in de opgegeven map en bewaar ze in een andere map:"
+
+#: lada/cli/main.py:26
+#, python-format
+msgid "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
+msgstr ""
+"%(prog)s --input locatie/van/bronmap/ --output /locatie/van/resultaatmap/"
+
+#: lada/cli/main.py:28
+msgid "Use a GPU-accelerated codec for encoding the restored video:"
+msgstr "Gebruik hardwareversnelling om een herstelde video te encoderen:"
+
+#: lada/cli/main.py:29
+#, python-format
+msgid "%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20"
+msgstr "%(prog)s --input bestand.mp4 --codec hevc_nvenc --crf 20"
+
+#: lada/cli/main.py:32
+#, python-format
+msgid "%(prog)s [options]"
+msgstr "%(prog)s [opties]"
+
+#: lada/cli/main.py:33
+msgid "Restore pixelated adult videos (JAV)"
+msgstr "Gepixelde 18+-video's herstellen (JAV)"
+
+#: lada/cli/main.py:46
+msgid "General"
+msgstr "Algemeen"
+
+#: lada/cli/main.py:47
+msgid "Path to pixelated video file or directory containing video files"
+msgstr "Locatie van gepixelde video of map met videobestanden"
+
+#: lada/cli/main.py:48
+msgid "Path used to save output file(s). If path is a directory then file name will be chosen automatically (see --output-file-pattern). If no output path was given then the directory of the input file will be used"
+msgstr ""
+"De locatie waarin de resultaatbestanden moeten worden opgeslagen. Als de "
+"locatie een map is, dan worden bestandsnamen automatisch gekozen "
+"(zie --output-file-pattern). Zonder resultaatmap wordt de bronmap gebruikt."
+
+#: lada/cli/main.py:49
+msgid "Pattern used to determine output file name(s). Used when input is a directory or a file with no output path specified"
+msgstr ""
+"Het patroon waarmee de resultaatbestanden moeten worden bepaald. Wordt "
+"gebruikt als de bron een map of bestand is, zonder resultaatmap."
+
+#: lada/cli/main.py:50
+#, python-format
+msgid "Device used for running Restoration and Detection models. Use \"cpu\" or \"cuda\". If you have multiple GPUs you can select a specific one via index e.g. \"cuda:0\" (default: %(default)s)"
+msgstr ""
+"Het te gebruiken apparaat voor herstel- en detectiemodellen. Kies uit ‘cpu’ "
+"of ‘cuda’. Als je computer over meerdere videokaarten beschikt, kies dan de "
+"gewenste, bijvoorbeeld ‘cuda:0’. (standaard: %(default)s)"
+
+#: lada/cli/main.py:51
+msgid "List available devices and exit"
+msgstr "Toon de beschikbare apparaten en sluit af"
+
+#: lada/cli/main.py:52
+msgid "Display version and exit"
+msgstr "Toon het versienummer en sluit af"
+
+#: lada/cli/main.py:53
+msgid "Show this help message and exit"
+msgstr "Toon dit hulpbericht en sluit af"
+
+#: lada/cli/main.py:55
+msgid "Export (Encoder settings)"
+msgstr "Exporteren (encoderingsinstellingen)"
+
+#: lada/cli/main.py:56
+#, python-format
+msgid "FFmpeg video codec. E.g. \"h264, \"hevc\" or \"hevc_nvenc\". Use \"--list-codecs\" to see whats available. (default: %(default)s)"
+msgstr ""
+"De te gebruiken FFmpeg-videocodec, bijv. ‘h264’, ‘hevc’ of ‘hevc_nvenc’. "
+"Bekijk alle beschikbare codecs met ‘--list-codecs’. (standaard: %(default)s)"
+
+#: lada/cli/main.py:57
+msgid "List available codecs and hardware devices / GPUs for hardware-accelerated video encoding"
+msgstr ""
+"Toon alle beschikbare coders en hardwareapparaten/videokaarten voor "
+"hardwareversnelde encodering"
+
+#: lada/cli/main.py:58
+#, python-format
+msgid "Constant rate factor (CRF). Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes. If you have selected GPU codecs \"h264_nvenc\" or \"hevc_nvenc\" then the option \"qp\" will be used instead as those encoders don't support the \"crf\" option. (default: %(default)s)"
+msgstr ""
+"De constante snelheidsfactor (CRF), oftewel de kwaliteitsinstelling van de "
+"video-encodering. Lagere waarden leiden tot hogere kwaliteit, maar grotere "
+"bestanden. Als je gekozen hebt voor de codecs ‘h264_nvenc’ of ‘hevc_nvenc’, "
+"dan wordt de optie ‘qp’ gebruikt, daar die codecs geen ondersteuning hebben "
+"voor ‘crf’. (standaard: %(default)s)"
+
+#: lada/cli/main.py:59
+#, python-format
+msgid "Encoder preset. Mostly affects file-size and speed. (default: %(default)s)"
+msgstr ""
+"Het encoderingsprofiel, met name van toepassing op snelheid en "
+"bestandsgrootte. (standaard: %(default)s)"
+
+#: lada/cli/main.py:60
+#, python-format
+msgid "Sets ffmpeg mov flags 'frag_keyframe+empty_moov+faststart'. Enables playing the output video while it's being written (default: %(default)s)"
+msgstr ""
+"Stel de ffmpeg mov-opties in op ‘frag_keyframe+empty_moov+faststart’. "
+"Schakelt het afspelen van de resulterende video in terwijl deze nog wordn "
+"verwerkt. (standaard: %(default)s)"
+
+#: lada/cli/main.py:61
+msgid "Pass arbitrary encoder options. Pass it like you'd specify them using ffmpeg. For example: --custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\". Official FFmpeg Codecs Documentation: https://ffmpeg.org/ffmpeg-codecs.html"
+msgstr ""
+"Stuur arbitraire encoderingsopties door, zoals je bij ffmpeg zou doen. "
+"Voorbeeld: --custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\". "
+"Officiële FFmpeg-codecdocumentatie: https://ffmpeg.org/ffmpeg-codecs.html"
+
+#: lada/cli/main.py:63
+msgid "Mosaic Restoration"
+msgstr "Mozaïekherstel"
+
+#: lada/cli/main.py:64
+#, python-format
+msgid "Model used to restore mosaic clips (default: %(default)s)"
+msgstr "Het te gebruiken model voor mozaïekclips (standaard: %(default)s)"
+
+#: lada/cli/main.py:65
+msgid "List available restoration model weights found in MODEL_WEIGHTS_DIR and exit (default location is './model_weights' if not overwritten by environment variable MODEL_WEIGHTS_DIR)"
+msgstr ""
+"Toon de beschikbare modelafwegingen uit MODEL_WEIGHTS_DIR en sluit af "
+"(standaardlocatie: ‘./model_weights’, indien niet afgedwongen door de "
+"omgevingsvariabele MODEL_WEIGHTS_DIR)"
+
+#: lada/cli/main.py:66 lada/cli/main.py:71
+#, python-format
+msgid "Path to restoration model weights file (default: %(default)s)"
+msgstr "Locatie van herstelmodel-afwegingsbestand (standaard: %(default)s)"
+
+#: lada/cli/main.py:67
+msgid "Path to restoration model configuration file"
+msgstr "Locatie van herstelmodel-instellingenbestand"
+
+#: lada/cli/main.py:68
+#, python-format
+msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint. If set too low flickering could appear (default: %(default)s)"
+msgstr ""
+"Het maximumaantal te herstellen frames. Hogere waarden verhogen de "
+"stabiliteit; lagere waarden verlagen het geheugengebruik. Let op: een te "
+"lage waarde kan flikkeringen veroorzaken. (standaard: %(default)s)"
+
+#: lada/cli/main.py:70
+msgid "Mosaic Detection"
+msgstr "Mozaïekdetectie"
+
+#: lada/cli/main.py:72
+msgid "List available detection model weights found in MODEL_WEIGHTS_DIR and exit (default location is './model_weights' if not overwritten by environment variable MODEL_WEIGHTS_DIR)"
+msgstr ""
+"Toon de beschikbare modelafwegingen uit MODEL_WEIGHTS_DIR en sluit af "
+"(standaardlocatie: ‘./model_weights’, indien niet afgedwongen door de "
+"omgevingsvariabele MODEL_WEIGHTS_DIR)"
+
+#: lada/cli/main.py:112
+msgid "Processing audio"
+msgstr "Audioverwerking"
+
+#: lada/cli/main.py:140
+#, python-brace-format
+msgid "GPU {device} selected but CUDA is not available"
+msgstr ""
+"Er is gekozen voor de videokaart ‘{device}’, maar CUDA is niet beschikbaar"
+
+#: lada/cli/main.py:143
+#, python-brace-format
+msgid "Invalid file name pattern. It must include the template string '{orig_file_name}' and a file extension"
+msgstr ""
+"Het naampatroon is ongeldig. Het patroon dient de sjabloontekenreeks "
+"‘{orig_file_name}’ en een bestandsextensie te bevatten."
+
+#: lada/cli/main.py:146
+msgid "Invalid output directory. If input is a directory then --output must also be set to a directory"
+msgstr ""
+"De resultaatmap is ongeldig. Als de invoer een map betreft, dan dient --"
+"output eveneens een map te zijn."
+
+#: lada/cli/main.py:149
+#, python-brace-format
+msgid "Invalid input. No file or directory at {input_path}"
+msgstr "Ongeldige invoer: geen bestand of map in {input_path}"
+
+#: lada/cli/main.py:169
+msgid "Received Ctrl-C, stopping restoration."
+msgstr "Ctrl+C gedetecteerd — het herstel wordt afgebroken."
