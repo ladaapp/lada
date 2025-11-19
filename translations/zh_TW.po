@@ -5,13 +5,16 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
 "POT-Creation-Date: 2025-11-12 13:59+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2025-11-14 12:53+0000\n"
+"Last-Translator: tetsukasinobu <tetsukasinobu@noreply.codeberg.org>\n"
+"Language-Team: Chinese (Traditional Han script) <https://"
+"translate.codeberg.org/projects/lada/lada/zh_Hant/>\n"
+"Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.14\n"
 
 #: lada/gui/export/export_multiple_files_row.ui:67
 #: lada/gui/export/export_single_file_page.ui:116
@@ -21,11 +24,11 @@ msgstr "開啟於外部程式…"
 #: lada/gui/export/export_multiple_files_row.ui:79
 #: lada/gui/export/export_single_file_page.ui:132
 msgid "Show Error"
-msgstr ""
+msgstr "顯示錯誤訊息"
 
 #: lada/gui/export/export_multiple_files_row.ui:92
 msgid "Remove"
-msgstr ""
+msgstr "移除"
 
 #: lada/gui/export/export_single_file_page.py:94
 #: lada/gui/export/export_single_file_page.py:155
@@ -34,14 +37,12 @@ msgstr "正在修復影片…"
 
 #: lada/gui/export/export_single_file_page.py:112
 msgid "Finished video restoration!"
-msgstr "影片修復完成"
+msgstr "影片修復完成!"
 
 #: lada/gui/export/export_single_file_page.py:120
 #: lada/gui/export/export_utils.py:53
-#, fuzzy
-#| msgid "Restoration model"
 msgid "Restoration failed"
-msgstr "修復模型"
+msgstr "修復失敗"
 
 #: lada/gui/export/export_single_file_page.py:129
 #: lada/gui/export/export_single_file_page.py:171
@@ -50,10 +51,8 @@ msgid "Export video"
 msgstr "輸出影片"
 
 #: lada/gui/export/export_single_file_page.py:144
-#, fuzzy
-#| msgid "Restoration model"
 msgid "Restoration paused"
-msgstr "修復模型"
+msgstr "修復暫停"
 
 #: lada/gui/export/export_single_file_page.ui:71
 #: lada/gui/export/export_view.ui:73 lada/gui/export/export_view.py:241
@@ -63,62 +62,63 @@ msgstr "修復"
 #: lada/gui/export/export_single_file_page.ui:83
 #: lada/gui/export/export_view.ui:66
 msgid "Resume"
-msgstr ""
+msgstr "繼續"
 
 #: lada/gui/export/export_single_file_page.ui:93
 #: lada/gui/export/export_view.ui:59
-#, fuzzy
-#| msgid "Play/Pause"
 msgid "Pause"
-msgstr "播放/暫停"
+msgstr "暫停"
 
 #: lada/gui/export/export_single_file_page.ui:103
 #: lada/gui/export/export_view.ui:49 lada/gui/export/export_view.py:600
 msgid "Cancel"
-msgstr ""
+msgstr "取消"
 
 #: lada/gui/export/export_single_file_page.ui:120
 msgid "Open File"
 msgstr "開啟檔案"
 
 #: lada/gui/export/export_utils.py:29
-#, fuzzy, python-brace-format
-#| msgid "Duration: {duration}, Resolution: {resolution}, FPS: {fps}"
+#, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
-msgstr "持續時間：{duration}, 解析度：{resolution}, FPS：{fps}"
+msgstr "持續時間: {duration}, 解析度: {resolution}, Frame rate: {fps} FPS"
 
 #: lada/gui/export/export_utils.py:54
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
-msgstr ""
+msgstr "處理過程中出錯 <span><tt>{filename}</tt></span>"
 
 #: lada/gui/export/export_utils.py:63 lada/gui/export/export_view.py:582
 msgid "Okay"
-msgstr ""
+msgstr "完成"
 
 #: lada/gui/export/export_utils.py:69
 msgid "Failed"
-msgstr ""
+msgstr "失敗"
 
 #: lada/gui/export/export_utils.py:74
 #, python-brace-format
 msgid "Finished  |  Processed: {time_done} ({frames_done} frames)"
-msgstr ""
+msgstr "已完成  |  已處理: {time_done} ({frames_done} frames)"
 
 #: lada/gui/export/export_utils.py:82
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: {time_remaining} ({frames_remaining} frames)  |  Speed: {speed_fps} FPS"
 msgstr ""
+"處理中… {done_percent}%  |  已處理: {time_done} ({frames_done} frames)  |  剩"
+"餘: {time_remaining} ({frames_remaining} frames)  |  速度: {speed_fps} FPS"
 
 #: lada/gui/export/export_utils.py:90
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: Estimating… |  Speed: Estimating…"
 msgstr ""
+"處理中… {done_percent}%  |  已處理: {time_done} ({frames_done} frames)  |  剩"
+"餘: 估計… |  速度: 估計…"
 
 #: lada/gui/export/export_utils.py:96
 #, python-brace-format
 msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
-msgstr ""
+msgstr "已暫停  |  已處理: {time_done} ({frames_done} frames)"
 
 #: lada/gui/export/export_view.ui:36 lada/gui/preview/preview_view.ui:47
 msgid "Settings"
@@ -154,27 +154,27 @@ msgstr "保存修復影片檔"
 
 #: lada/gui/export/export_view.py:552
 msgid "Shutdown System"
-msgstr ""
+msgstr "系統關機"
 
 #: lada/gui/export/export_view.py:553
 msgid "Export has finished. The system will shutdown in 30 seconds."
-msgstr ""
+msgstr "匯出已完成. 系統將在30 秒內關機."
 
 #: lada/gui/export/export_view.py:579
 msgid "Shutdown Failed"
-msgstr ""
+msgstr "關機失敗"
 
 #: lada/gui/export/export_view.py:580
 msgid "Failed to initiate system shutdown. Please check system permissions."
-msgstr ""
+msgstr "無法啟動系統關機. 請檢查系統權限."
 
 #: lada/gui/export/export_view.py:601
 msgid "Shutdown now"
-msgstr ""
+msgstr "立即關機"
 
 #: lada/gui/config/no_gpu_banner.ui:17
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
-msgstr "偵測不到GPU!使用CPU運行此軟體將會非常緩慢"
+msgstr "偵測不到GPU! 使用CPU運行此軟體將會非常緩慢."
 
 #: lada/gui/config/config_sidebar.py:116 lada/gui/config/config_sidebar.py:244
 #: lada/gui/config/config_sidebar.ui:164
@@ -187,7 +187,7 @@ msgstr "選擇修復影片檔儲存資料夾"
 
 #: lada/gui/config/config_sidebar.py:337
 msgid "Select a folder for temporary files"
-msgstr ""
+msgstr "選擇暫存用資料夾"
 
 #: lada/gui/config/config_sidebar.ui:22
 msgid "Mosaic Removal"
@@ -199,7 +199,7 @@ msgstr "偵測模型"
 
 #: lada/gui/config/config_sidebar.ui:26
 msgid "Model used for detecting mosaic areas."
-msgstr "模型用來進行馬賽克偵測"
+msgstr "模型用來進行馬賽克偵測."
 
 #: lada/gui/config/config_sidebar.ui:36
 msgid "Restoration model"
@@ -207,7 +207,7 @@ msgstr "修復模型"
 
 #: lada/gui/config/config_sidebar.ui:37
 msgid "Model used for restoring mosaic areas."
-msgstr "模型用來進行馬賽克區塊修復"
+msgstr "模型用來進行馬賽克區塊修復."
 
 #: lada/gui/config/config_sidebar.ui:47
 msgid "Maximum clip duration"
@@ -223,7 +223,7 @@ msgstr "GPU"
 
 #: lada/gui/config/config_sidebar.ui:64
 msgid "Selected GPU for model processing."
-msgstr "選擇模型處理使用的GPU"
+msgstr "選擇模型處理使用的GPU."
 
 #: lada/gui/config/config_sidebar.ui:79
 msgid "Playback"
@@ -235,7 +235,7 @@ msgstr "緩衝時間"
 
 #: lada/gui/config/config_sidebar.ui:84
 msgid "How much video is pre-loaded for playback, measured in seconds. If set to 0 this value will be chosen automatically."
-msgstr "以秒為單位設置預載入時間，如果設定為 0 則會自動設置此值"
+msgstr "以秒為單位設置預載入時間，如果設定為 0 則會自動設置此值."
 
 #: lada/gui/config/config_sidebar.ui:98
 msgid "Mute audio by default"
@@ -243,7 +243,7 @@ msgstr "預設靜音"
 
 #: lada/gui/config/config_sidebar.ui:99
 msgid "When enabled, audio will be muted automatically when a new file is opened."
-msgstr "啟用時，新檔案開啟時將自動靜音"
+msgstr "啟用時，當新檔案開啟時將自動靜音."
 
 #: lada/gui/config/config_sidebar.ui:108 lada/gui/config/config_sidebar.ui:343
 #: lada/gui/window.ui:54
@@ -256,7 +256,7 @@ msgstr "編解碼器"
 
 #: lada/gui/config/config_sidebar.ui:113
 msgid "Video Codec used for encoding the restored video."
-msgstr "用於對修復的影片進行編碼時的影片編解碼器"
+msgstr "用於對修復的影片進行編碼時的影片編解碼器."
 
 #: lada/gui/config/config_sidebar.ui:125
 msgid "CRF (Constant Rate Factor)"
@@ -264,7 +264,7 @@ msgstr "CRF (Constant Rate Factor;恆定品質因數)"
 
 #: lada/gui/config/config_sidebar.ui:126
 msgid "Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes."
-msgstr "影片編碼品質設置。更低的數值會有更高的影片品質，但檔案大小更大"
+msgstr "影片編碼品質設置。更低的數值會有更高的影片品質，但檔案大小更大."
 
 #: lada/gui/config/config_sidebar.ui:140
 msgid ""
@@ -296,53 +296,56 @@ msgstr "使用此資料夾"
 
 #: lada/gui/config/config_sidebar.ui:185
 msgid "Temporary Directory"
-msgstr ""
+msgstr "暫存目錄"
 
 #: lada/gui/config/config_sidebar.ui:186
 msgid "Directory for temporary video file during restoration process"
-msgstr ""
+msgstr "修復處理時的影片檔暫存目錄"
 
 #: lada/gui/config/config_sidebar.ui:198
 msgid ""
 "File name pattern for restored files.\n"
 "Must include placeholder <span background=\"#D3D3D350\"><tt>{orig_file_name}</tt></span>."
-msgstr "已修復檔案的命名方式必須包含佔位符 <span background=\"#D3D3D350\"><tt>{orig_file_name}</tt></span>"
+msgstr ""
+"已修復檔案的命名方式.\n"
+"必須包含佔位符 <span background=\"#D3D3D350\""
+"><tt>{orig_file_name}</tt></span>."
 
 #: lada/gui/config/config_sidebar.ui:206
 msgid "Post-Export Action"
-msgstr ""
+msgstr "匯出後動作"
 
 #: lada/gui/config/config_sidebar.ui:207
 msgid "Action to be run after all queued files have been restored"
-msgstr ""
+msgstr "在修復所有佇列檔案之後要執行的動作"
 
 #: lada/gui/config/config_sidebar.ui:212
 msgid "No action"
-msgstr ""
+msgstr "無動作"
 
 #: lada/gui/config/config_sidebar.ui:213
 msgid "Do nothing after export is completed."
-msgstr ""
+msgstr "匯出完成後不執行任何動作."
 
 #: lada/gui/config/config_sidebar.ui:224
 msgid "Shutdown system"
-msgstr ""
+msgstr "系統關機"
 
 #: lada/gui/config/config_sidebar.ui:225
 msgid "Automatically shutdown the system after export is completed."
-msgstr ""
+msgstr "匯出完成後自動關閉系統."
 
 #: lada/gui/config/config_sidebar.ui:236
 msgid "Execute custom command"
-msgstr ""
+msgstr "執行自訂指令"
 
 #: lada/gui/config/config_sidebar.ui:237
 msgid "Run a custom shell command after export is completed."
-msgstr ""
+msgstr "匯出完成後執行自訂shell指令."
 
 #: lada/gui/config/config_sidebar.ui:248
 msgid "Custom command"
-msgstr ""
+msgstr "自訂指令"
 
 #: lada/gui/config/config_sidebar.ui:259
 msgid "Troubleshooting"
@@ -354,7 +357,7 @@ msgstr "顯示馬賽克偵測"
 
 #: lada/gui/config/config_sidebar.ui:264
 msgid "Show detected mosaic areas. Useful to evaluate quality of detection model."
-msgstr "顯示馬賽克偵測區域。對馬賽克偵測模型品質評估有幫助"
+msgstr "顯示馬賽克偵測區域. 對馬賽克偵測模型品質評估有幫助."
 
 #: lada/gui/config/config_sidebar.ui:277
 msgid "UI"
@@ -431,8 +434,6 @@ msgid "Switch to Export View"
 msgstr "切換至輸出畫面"
 
 #: lada/gui/window.py:108
-#, fuzzy
-#| msgid "Switch to Export View"
 msgid "Switch to Watch View"
 msgstr "切換至輸出畫面"
 
@@ -442,7 +443,7 @@ msgstr "找不到影片檔"
 
 #: lada/cli/utils.py:77
 msgid "PyAV version:"
-msgstr "PyAV 版本"
+msgstr "PyAV 版本:"
 
 #: lada/cli/utils.py:81
 msgid "Available video encoders:"
@@ -450,7 +451,7 @@ msgstr "可用的影片編碼器："
 
 #: lada/cli/utils.py:87
 msgid "Encoders with support for hardware acceleration (GPU):"
-msgstr "支援硬體加速（GPU）的編碼器"
+msgstr "支援硬體加速(GPU)的編碼器:"
 
 #: lada/cli/utils.py:100
 msgid "Device"
@@ -462,11 +463,11 @@ msgstr "描述"
 
 #: lada/cli/utils.py:102
 msgid "Available devices:"
-msgstr "可用設備"
+msgstr "可用設備:"
 
 #: lada/cli/utils.py:112
 msgid "Available detection models:"
-msgstr "可用偵測模型"
+msgstr "可用偵測模型:"
 
 #: lada/cli/utils.py:115 lada/cli/utils.py:129
 msgid "None!"
@@ -482,25 +483,27 @@ msgstr "路徑"
 
 #: lada/cli/utils.py:126
 msgid "Available restoration models:"
-msgstr "可用修復模型"
+msgstr "可用修復模型:"
 
 #: lada/cli/utils.py:144
 msgid "Usage: "
-msgstr "用量:"
+msgstr "用量: "
 
 #: lada/cli/utils.py:156
 #, python-brace-format
 msgid "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}"
 msgstr ""
+"處理中影片: {done_percent}%|{bar}|已處理: {time_done} ({frames_done}f)"
+"{bar_suffix}"
 
 #: lada/cli/utils.py:158
 msgid " | Remaining: ? | Speed: ?"
-msgstr ""
+msgstr " | 剩餘的: ? | 速度: ?"
 
 #: lada/cli/utils.py:198
 #, python-brace-format
 msgid " | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
+msgstr " | 剩餘的: {time_remaining} ({frames_remaining}f) | 速度: {speed_fps}fps"
 
 #: lada/cli/main.py:20
 msgid "Examples:"
@@ -526,7 +529,7 @@ msgstr "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
 
 #: lada/cli/main.py:28
 msgid "Use a GPU-accelerated codec for encoding the restored video:"
-msgstr "使用 GPU 對修復的影片進行編碼加速"
+msgstr "使用 GPU 對修復的影片進行編碼加速:"
 
 #: lada/cli/main.py:29
 #, python-format
@@ -667,7 +670,7 @@ msgstr "無效輸入。沒有檔案或目錄在{input_path}"
 
 #: lada/cli/main.py:169
 msgid "Received Ctrl-C, stopping restoration."
-msgstr "接收到Ctrl-C及停止修復"
+msgstr "接收到Ctrl-C及停止修復."
 
 #~ msgid "Switch to Preview View"
 #~ msgstr "切換至觀看畫面"
