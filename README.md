@@ -154,7 +154,7 @@ You'll need [7-zip](https://7-zip.org/) to unpack the files. It is recommended t
 
 Get the latest release from the [Releases Page](https://codeberg.org/ladaapp/lada/releases).
 
-You'll find ´lada.exe´ and ´lada-cli.exe´ after extracting the archive.
+You'll find `lada.exe` and `lada-cli.exe` after extracting the archive.
 
 > [!NOTE]
 > The Windows release only works with x86_64 CPUs and Nvidia/CUDA GPUs (Turing or newer: RTX 20xx up to including RTX 50xx). Ensure your NVIDIA GPU driver is up-to-date.
@@ -192,7 +192,11 @@ For contributing code, ideas or bug reports use [Pull requests](https://codeberg
 
 If you want to help translating the app you can contribute to existing translations or set up a new language over at [Codeberg Translate](https://translate.codeberg.org/projects/lada/lada/).
 
-New releases are published on both [GitHub Releases](https://github.com/ladaapp/lada/releases) and [Codeberg Releases](https://codeberg.org/ladaapp/lada/releases). You should get a notification about new releases if you star the project on either platform.
+[![Translation status](https://translate.codeberg.org/widget/lada/lada/multi-auto.svg)](https://translate.codeberg.org/engage/lada/)
+
+## Releases
+
+New releases will be published on both [GitHub Releases](https://github.com/ladaapp/lada/releases) and [Codeberg Releases](https://codeberg.org/ladaapp/lada/releases). You should get a notification about new releases if you star the project on either platform.
 
 ## Build
 
