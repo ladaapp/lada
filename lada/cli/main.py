@@ -46,15 +46,15 @@ def setup_argparser() -> argparse.ArgumentParser:
     group_general = parser.add_argument_group(_('General'))
     group_general.add_argument('--input', type=str, help=_('Path to pixelated video file or directory containing video files'))
     group_general.add_argument('--output', type=str, help=_('Path used to save output file(s). If path is a directory then file name will be chosen automatically (see --output-file-pattern). If no output path was given then the directory of the input file will be used'))
-    group_general.add_argument('--output-file-pattern', type=str, default="{orig_file_name}.restored.mp4", help=_("Pattern used to determine output file name(s). Used when input is a directory or a file with no output path specified"))
+    group_general.add_argument('--output-file-pattern', type=str, default="{orig_file_name}.restored.mp4", help=_("Pattern used to determine output file name(s). Used when input is a directory, or a file but no output path was specified. Must include the placeholder '{orig_file_name}'. (default: %(default)s)"))
     group_general.add_argument('--device', type=str, default="cuda:0", help=_('Device used for running Restoration and Detection models. Use "cpu" or "cuda". If you have multiple GPUs you can select a specific one via index e.g. "cuda:0" (default: %(default)s)'))
-    group_general.add_argument('--fp16', action=argparse.BooleanOptionalAction, default=torch.cuda.is_available(), help=_("Use FP16 precision for restoration and detection models. Reduces memory usage, defaults to true if CUDA is available"))
+    group_general.add_argument('--fp16', action=argparse.BooleanOptionalAction, default=torch.cuda.is_available(), help=_("Use FP16 precision for restoration and detection models. Reduces memory usage. (default: True if CUDA is available"))
     group_general.add_argument('--list-devices', action='store_true', help=_("List available devices and exit"))
     group_general.add_argument('--version', action='store_true', help=_("Display version and exit"))
     group_general.add_argument('--help', action='store_true', help=_("Show this help message and exit"))
 
     export = parser.add_argument_group(_('Export (Encoder settings)'))
-    export.add_argument('--codec', type=str, default="h264", help=_('FFmpeg video codec. E.g. "h264, "hevc" or "hevc_nvenc". Use "--list-codecs" to see whats available. (default: %(default)s)'))
+    export.add_argument('--codec', type=str, default="h264", help=_('FFmpeg video codec. E.g. "h264, "hevc" or "hevc_nvenc". Use "--list-codecs" to see what\'s available. (default: %(default)s)'))
     export.add_argument('--list-codecs', action='store_true', help=_("List available codecs and hardware devices / GPUs for hardware-accelerated video encoding"))
     export.add_argument('--crf', type=int, default=None, help=_('Constant rate factor (CRF). Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes. If you have selected GPU codecs "h264_nvenc" or "hevc_nvenc" then the option "qp" will be used instead as those encoders don\'t support the "crf" option. (default: %(default)s)'))
     export.add_argument('--preset', type=str, default=None, help=_('Encoder preset. Mostly affects file-size and speed. (default: %(default)s)'))
@@ -63,14 +63,14 @@ def setup_argparser() -> argparse.ArgumentParser:
 
     group_restoration = parser.add_argument_group(_('Mosaic Restoration'))
     group_restoration.add_argument('--mosaic-restoration-model', type=str, default="basicvsrpp", help=_("Model used to restore mosaic clips (default: %(default)s)"))
-    group_restoration.add_argument('--list-mosaic-restoration-models', action='store_true', help=_("List available restoration model weights found in MODEL_WEIGHTS_DIR and exit (default location is './model_weights' if not overwritten by environment variable MODEL_WEIGHTS_DIR)"))
+    group_restoration.add_argument('--list-mosaic-restoration-models', action='store_true', help=_("List available restoration models found in model weights directory and exit (default location is './model_weights' if not overwritten by environment variable LADA_MODEL_WEIGHTS_DIR)"))
     group_restoration.add_argument('--mosaic-restoration-model-path', type=str, default=os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_restoration_model_generic_v1.2.pth'), help=_("Path to restoration model weights file (default: %(default)s)"))
-    group_restoration.add_argument('--mosaic-restoration-config-path', type=str, default=None, help=_("Path to restoration model configuration file"))
+    group_restoration.add_argument('--mosaic-restoration-config-path', type=str, default=None, help=_("Path to restoration model configuration file. You'll not have to set this unless you're training your own custom models"))
     group_restoration.add_argument('--max-clip-length', type=int, default=180, help=_('Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint. If set too low flickering could appear (default: %(default)s)'))
 
     group_detection = parser.add_argument_group(_('Mosaic Detection'))
     group_detection.add_argument('--mosaic-detection-model-path', type=str, default=os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v3.1_fast.pt'), help=_("Path to restoration model weights file (default: %(default)s)"))
-    group_detection.add_argument('--list-mosaic-detection-models', action='store_true', help=_("List available detection model weights found in MODEL_WEIGHTS_DIR and exit (default location is './model_weights' if not overwritten by environment variable MODEL_WEIGHTS_DIR)"))
+    group_detection.add_argument('--list-mosaic-detection-models', action='store_true', help=_("List available detection models found in model weights directory and exit (default location is './model_weights' if not overwritten by environment variable LADA_MODEL_WEIGHTS_DIR)"))
 
     return parser
 
