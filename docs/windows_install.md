@@ -3,6 +3,8 @@ This section describes how to install the app (CLI and GUI) from source.
 
 > [!NOTE]
 > This is the Windows guide. If you're on Linux (or want to use WSL) follow the [Linux Installation](linux_install.md).
+> 
+> Standalone .exe files are available [here](../README.md#using-windows)
 
 ### Install CLI
 

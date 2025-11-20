@@ -3,7 +3,8 @@ This section describes how to install the app (CLI and GUI) from source.
 
 > [!NOTE]
 > This is the Linux guide. If you're on Windows (and don't want to use WSL) follow the [Windows Installation](windows_install.md).
-> Native packages for Flatpack and Docker are described in the [README](../README.md#installation)
+> 
+> Flatpak and Docker Images are available [here](../README.md#using-flatpak)
 
 ### Install CLI
 
@@ -56,15 +57,15 @@ This section describes how to install the app (CLI and GUI) from source.
    
    Download the models from the GitHub Releases page into the `model_weights` directory. The following commands do just that
    ```shell
-   wget -P model_weights/ 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v3.1_accurate.pt?download=true'
-   wget -P model_weights/ 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v3.1_fast.pt?download=true'
-   wget -P model_weights/ 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v2.pt?download=true'
-   wget -P model_weights/ 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_restoration_model_generic_v1.2.pth?download=true'
+   wget 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v3.1_accurate.pt?download=true' -O model_weights/lada_mosaic_detection_model_v3.1_accurate.pt
+   wget 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v3.1_fast.pt?download=true' -O model_weights/lada_mosaic_detection_model_v3.1_fast.pt
+   wget 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v2.pt?download=true' -O model_weights/lada_mosaic_detection_model_v2.pt
+   wget 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_restoration_model_generic_v1.2.pth?download=true' -O model_weights/lada_mosaic_restoration_model_generic_v1.2.pth
    ```
 
    If you're interested in running DeepMosaics' restoration model you can also download their pretrained model `clean_youknow_video.pth`
    ```shell
-   wget -O model_weights/3rd_party/clean_youknow_video.pth 'https://drive.usercontent.google.com/download?id=1ulct4RhRxQp1v5xwEmUH7xz7AK42Oqlw&export=download&confirm=t'
+   wget 'https://drive.usercontent.google.com/download?id=1ulct4RhRxQp1v5xwEmUH7xz7AK42Oqlw&export=download&confirm=t' -O model_weights/3rd_party/clean_youknow_video.pth
    ```
 
 Now you should be able to run the CLI by calling `lada-cli`.
