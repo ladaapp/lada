@@ -46,7 +46,7 @@ function Build-SystemDependencies {
     uv pip install patch
     uv run --no-project python -m patch -p1 -d venv_gtk_release/lib/site-packages patches/gvsbuild_gstreamer_gtk4_plugin.patch
     uv run --no-project python -m patch -p1 -d venv_gtk_release/lib/site-packages patches/gvsbuild_ffmpeg.patch
-    uv run --no-project python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_fix_svg_icons_not_showing.patch
+    uv run --no-project python -m patch -p1 -d venv_gtk_release/lib/site-packages patches/gvsbuild_fix_svg_icons_not_showing.patch
     uv pip uninstall patch
 
     $cleanArgument = if ($clean) { '--clean' } else { '' }
