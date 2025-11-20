@@ -112,8 +112,8 @@ Now you should be able to run the CLI by calling `lada-cli`.
    .\venv_gtk\Scripts\Activate.ps1
    pip install gvsbuild==2025.10
    pip install patch
-   python -m patch -p1 -d venv_gtk/lib/site-packages lada/patches/gvsbuild_gstreamer_gtk4_plugin.patch
-   python -m patch -p1 -d venv_gtk/lib/site-packages lada/patches/gvsbuild_ffmpeg.patch
+   python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_gstreamer_gtk4_plugin.patch
+   python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_ffmpeg.patch
    pip uninstall patch
    ```
    
@@ -132,7 +132,7 @@ Now you should be able to run the CLI by calling `lada-cli`.
    ```
 
 > [!TIP]
-> Do not change `--build-dir` param of the gvsbuild command. The app expects this exact directory name and location so it can find these build artifacts.
+> Do not change `--build-dir` parameter of the gvsbuild command. The app expects this exact directory name and location so it can find these build artifacts.
 
 4) Install python dependencies
 
