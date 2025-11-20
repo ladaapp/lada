@@ -13,7 +13,8 @@ import torch
 from tqdm import tqdm
 
 from lada import DETECTION_MODEL_NAMES_TO_FILES, RESTORATION_MODEL_NAMES_TO_FILES, \
-    get_available_restoration_models, get_available_detection_models
+    get_available_restoration_models, get_available_detection_models, DETECTION_MODEL_FILES_TO_NAMES, \
+    RESTORATION_MODEL_FILES_TO_NAMES
 from lada.lib import VideoMetadata
 from lada.lib.frame_restorer import FrameRestorer
 
@@ -97,15 +98,18 @@ def dump_pyav_codecs():
         print("Unable to list hwdevice configs, ImportError")
 
 def dump_torch_devices():
+    cuda_device_count = torch.cuda.device_count()
+    devices = ["cpu"] + [f"cuda:{i}" for i in range(cuda_device_count)]
+    descriptions = ["CPU"] + [torch.cuda.get_device_properties(i).name for i in range(cuda_device_count)]
     device_header = _("Device")
     description_header = _("Description")
+    device_header_width = max([len(item) for item in devices + [device_header]])
+    description_header_width = max([len(item) for item in descriptions + [description_header]])
     s = _("Available devices:")
-    s += f"\n\t{device_header}\t{description_header}"
-    s += f"\n\t{len(device_header)*"-"}\t{len(description_header)*"-"}"
-    s += "\n\tcpu\tCPU"
-    for i in range(torch.cuda.device_count()):
-        gpu_name = torch.cuda.get_device_properties(i).name
-        s += f"\n\tcuda:{i}\t{gpu_name}"
+    s += f"\n\t{device_header.ljust(device_header_width)}\t{description_header}"
+    s += f"\n\t{device_header_width*"-"}\t{description_header_width*"-"}"
+    for device, description in zip(devices, descriptions):
+        s += f"\n\t{device.ljust(device_header_width)}\t{description}"
     print(s)
 
 def dump_available_detection_models():
@@ -116,10 +120,12 @@ def dump_available_detection_models():
     else:
         model_name_header = _("Name")
         model_path_header = _("Path")
-        s += f"\n\t{model_name_header}\t{model_path_header}"
-        s += f"\n\t{len(model_name_header) * "-"}\t{len(model_path_header) * "-"}"
+        model_name_column_with = max([len(item) for item in detection_model_names + [model_name_header]])
+        model_path_column_with = max([len(item) for item in list(DETECTION_MODEL_FILES_TO_NAMES.keys()) + [model_path_header]])
+        s += f"\n\t{model_name_header.ljust(model_name_column_with)}\t{model_path_header}"
+        s += f"\n\t{model_name_column_with * "-"}\t{model_path_column_with * "-"}"
         for name in detection_model_names:
-            s += f"\n\t{name}\t{DETECTION_MODEL_NAMES_TO_FILES[name]}"
+            s += f"\n\t{name.ljust(model_name_column_with)}\t{DETECTION_MODEL_NAMES_TO_FILES[name]}"
     print(s)
 
 def dump_available_restoration_models():
@@ -130,10 +136,12 @@ def dump_available_restoration_models():
     else:
         model_name_header = _("Name")
         model_path_header = _("Path")
-        s += f"\n\t{model_name_header}\t{model_path_header}"
-        s += f"\n\t{len(model_name_header) * "-"}\t{len(model_path_header) * "-"}"
+        model_name_column_with = max([len(item) for item in restoration_model_names + [model_name_header]])
+        model_path_column_with = max([len(item) for item in list(RESTORATION_MODEL_FILES_TO_NAMES.keys()) + [model_path_header]])
+        s += f"\n\t{model_name_header.ljust(model_name_column_with)}\t{model_path_header}"
+        s += f"\n\t{model_name_column_with * "-"}\t{model_path_column_with * "-"}"
         for name in restoration_model_names:
-            s += f"\n\t{name}\t{RESTORATION_MODEL_NAMES_TO_FILES[name]}"
+            s += f"\n\t{name.ljust(model_name_column_with)}\t{RESTORATION_MODEL_NAMES_TO_FILES[name]}"
     print(s)
 
 class TranslatableHelpFormatter(argparse.RawDescriptionHelpFormatter):
