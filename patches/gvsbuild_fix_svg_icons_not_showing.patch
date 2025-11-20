@@ -1,0 +1,10 @@
+--- old/gvsbuild/projects/librsvg.py 2025-11-20 10:00:0.0 +0000
++++ new/gvsbuild/projects/librsvg.py 2025-11-20 10:00:0.0 +0000
+@@ -48,6 +48,7 @@ def __init__(self):
+         self.add_param("-Ddocs=disabled")
+         self.add_param("-Dtests=false")
+         self.add_param("-Dvala=disabled")
++        self.add_param("-Dpixbuf-loader=enabled")
+
+     def build(self):
+         self.builder.exec_cargo("install cargo-c --locked")

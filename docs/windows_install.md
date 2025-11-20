@@ -114,6 +114,7 @@ Now you should be able to run the CLI by calling `lada-cli`.
    pip install patch
    python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_gstreamer_gtk4_plugin.patch
    python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_ffmpeg.patch
+   python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_fix_svg_icons_not_showing.patch
    pip uninstall patch
    ```
    
