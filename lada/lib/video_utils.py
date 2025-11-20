@@ -7,7 +7,9 @@ import re
 import subprocess
 from contextlib import contextmanager
 from fractions import Fraction
-from typing import Callable, Iterator, Tuple, Optional, Union
+from typing import Callable, Iterator, Tuple
+from collections import deque
+import heapq
 
 import av
 import cv2
@@ -86,7 +88,7 @@ class VideoReader:
 
     def frames(self) -> Iterator[Tuple[torch.Tensor, int]]:
         self.container.streams.video[0].thread_type = 'AUTO'
-        
+
         for frame in self.container.decode(video=0):
             nd_frame = frame.to_ndarray(format='bgr24')
             torch_frame = torch.from_numpy(nd_frame)
@@ -294,26 +296,60 @@ class VideoWriter:
         self.output_container = output_container
         self.video_stream = video_stream_out
 
+        # Buffers for reordering frames
+        self.BUFFER_MAX_SIZE = 30
+        self.pts_heap = []
+        self.frame_queue = deque()
+        self.pts_set = set()
+
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         self.release()
 
+    def _process_buffer(self, flush_all=False):
+        """Processes the buffer to encode frames."""
+        if len(self.frame_queue) > (self.BUFFER_MAX_SIZE / 2) or (flush_all and self.frame_queue):
+            frame_to_encode = self.frame_queue.popleft()
+            pts_to_assign = heapq.heappop(self.pts_heap)
+            self.pts_set.remove(pts_to_assign)
+
+            out_frame = av.VideoFrame.from_ndarray(frame_to_encode, format='rgb24')
+            out_frame.pts = pts_to_assign
+            out_packet = self.video_stream.encode(out_frame)
+            if out_packet:
+                self.output_container.mux(out_packet)
+
+
     def write(self, frame, frame_pts=None, bgr2rgb=False):
+        # We add the frame and its pts given by PyAV (FFmpeg) to a FIFO queue and a min heap, respectively.
+        # Upon a call to write(), if the buffer is full, we pop the head of the queue and the smallest PTS and pair
+        # those together. This operation is a no-op for "nicely behaved" videos, where frames and PTS are decoded
+        # in linear order. However, it appears several problematic videos exist such that the frames are given in
+        # linear order, but the PTS associated with the frames are not. This strategy is used to avoid prompting
+        # the user to identify a framerate ahead of time, and uses the timing of the existing PTS, but reorders the PTS.
+        #
+        # See https://codeberg.org/ladaapp/lada/pulls/33 for more information/discussion.
         if isinstance(frame, torch.Tensor):
             frame = frame.cpu().numpy()
         if bgr2rgb:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        out_frame = av.VideoFrame.from_ndarray(frame, format='rgb24')
-        if frame_pts:
-            out_frame.pts = frame_pts
-        out_packet = self.video_stream.encode(out_frame)
-        self.output_container.mux(out_packet)
+
+        if frame_pts not in self.pts_set:
+            heapq.heappush(self.pts_heap, frame_pts)
+            self.frame_queue.append(frame)
+            self.pts_set.add(frame_pts)
+
+        self._process_buffer()
 
     def release(self):
+        while len(self.frame_queue) > 0:
+            self._process_buffer(flush_all=True)
+        # Flush the encoder
         out_packet = self.video_stream.encode(None)
-        self.output_container.mux(out_packet)
+        if out_packet:
+            self.output_container.mux(out_packet)
         self.output_container.close()
 
 def is_video_file(file_path):
