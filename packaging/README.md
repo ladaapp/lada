@@ -35,7 +35,7 @@ uv export --no-default-groups --no-emit-local --format requirements.txt --extra 
 > [!TIP]
 > Read README.md within the subfolder for each packaging method for specific steps how to build and package each variant
 
-- [ ] Make sure there is no pending translations PR and `release_ready_translations.txt` is up-to-date ([documentation](../translations/README.md))
+- [ ] Make sure there is no pending translations PR and `release_ready_translations.txt` is up-to-date ([documentation](../translations/README.md)). Also check `Operations | Repository Maintenance` for pending changes.
 - [ ] Bump version in `lada/__init__.py` (no push to origin yet)
 - [ ] Write Flatpak release notes in `packaging/flatpak/share/io.github.ladaapp.lada.metainfo.xml` (no push to origin yet)
 - [ ] Create Draft Release on GitHub and write release notes

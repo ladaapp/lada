@@ -79,9 +79,9 @@ This section describes how to install the app (CLI and GUI) from source.
 > At the time of writing this, neither the latest stable/preview build 6.4 nor the latest daily build 7.1 includes support for `torch.dist`
 > 
 > One of our dependencies (mmengine) uses it internally and will crash if `torch.dist` is not available. You can use the following patch to work around that and make Lada work regardless:
-> 
+> ```Powershell
 > python -m patch -p1 -d .venv/lib/site-packages patches/remove_use_of_torch_dist_in_mmengine.patch
-> 
+> ```
 > If you're reading this and AMD included `torch.dist` in their builds please create a Pull Request or create an issue to update this tip.
 
 7) Download model weights
@@ -167,7 +167,7 @@ Now you should be able to run the CLI by calling `lada-cli`.
     ````
 
 > [!TIP]
-> If you intend to hack on the GUI code install the `gui-dev` extra: `pip install -e '.[gui-dev]'`
+> If you intend to hack on the GUI code install also the `gui-dev` group (`--group gui-dev`).
 
 Now you should be able to run the GUI by calling `lada`.
 

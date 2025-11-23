@@ -129,7 +129,7 @@ Now you should be able to run the CLI by calling `lada-cli`.
     ````
 
 > [!TIP]
-> If you intend to hack on the GUI code install the `gui-dev` extra: `pip install -e '.[gui-dev]'`
+> If you intend to hack on the GUI code install also the `gui-dev` group (`--group gui-dev`).
 
 Now you should be able to run the GUI by calling `lada`.
 
