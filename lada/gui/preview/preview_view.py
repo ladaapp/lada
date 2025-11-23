@@ -5,7 +5,7 @@ import logging
 import pathlib
 import threading
 
-from gi.repository import Gtk, GObject, GLib, Gio, Gst, Adw, Gdk
+from gi.repository import Gtk, GObject, GLib, Gio, Gst, Adw, Gdk, Graphene
 
 from lada import LOG_LEVEL
 from lada.gui import utils
@@ -16,6 +16,7 @@ from lada.gui.frame_restorer_provider import FrameRestorerProvider, FrameRestore
 from lada.gui.preview.fullscreen_mouse_activity_controller import FullscreenMouseActivityController
 from lada.gui.preview.gstreamer_pipeline_manager import PipelineManager, PipelineState
 from lada.gui.preview.headerbar_files_drop_down import HeaderbarFilesDropDown
+from lada.gui.preview.seek_preview_popover import SeekPreviewPopover
 from lada.gui.preview.timeline import Timeline
 from lada.gui.shortcuts import ShortcutsManager
 from lada.lib import audio_utils, video_utils
@@ -60,6 +61,16 @@ class PreviewView(Gtk.Widget):
         self._buffer_queue_min_thresh_time_auto = self._buffer_queue_min_thresh_time_auto_min
         self._shortcuts_manager: ShortcutsManager | None = None
 
+        self.seek_preview_popover = SeekPreviewPopover()
+        self.seek_preview_popover.set_parent(self.box_playback_controls)
+        self._last_seek_preview_timestamp_ns = 0
+        self._last_seek_preview_mouse_x = 0.0
+        self._video_thumbnailer: video_utils.VideoThumbnailer | None = None
+        self._thumbnailer_lock = threading.Lock()
+        self._thread_counter = 0
+        self._thread_counter_lock = threading.Lock()
+        self._thumbnail_size = (220, 124)
+
         self.eos = False
 
         self.frame_restorer_provider: FrameRestorerProvider = FRAME_RESTORER_PROVIDER
@@ -76,7 +87,7 @@ class PreviewView(Gtk.Widget):
         self._config: Config | None = None
 
         self.widget_timeline.connect('seek_requested', lambda widget, seek_position: self.seek_video(seek_position))
-        self.widget_timeline.connect('cursor_position_changed', lambda widget, cursor_position: self.show_cursor_position(cursor_position))
+        self.widget_timeline.connect('cursor_position_changed', lambda widget, cursor_position, x: self.show_cursor_position(cursor_position if cursor_position >= 0 else None, x if x >= 0 else None))
 
         self.fullscreen_mouse_activity_controller = None
 
@@ -294,13 +305,94 @@ class PreviewView(Gtk.Widget):
         if not self.waiting_for_data:
             self.spinner_overlay.set_visible(False)
 
-    def show_cursor_position(self, cursor_position_ns):
-        if cursor_position_ns > 0:
-            self.label_cursor_time.set_visible(True)
-            label_text = self.get_time_label_text(cursor_position_ns)
-            self.label_cursor_time.set_text(label_text)
+    def show_cursor_position(self, cursor_position_ns: int | None, x: float | None):
+        if x is not None and cursor_position_ns is not None:
+            if self._config.seek_preview_enabled:
+                self.label_cursor_time.set_visible(False)
+                if self._should_update_seek_preview(cursor_position_ns, x):
+                    self.update_seek_preview(cursor_position_ns, x)
+            else:
+                self.label_cursor_time.set_visible(True)
+                label_text = self.get_time_label_text(cursor_position_ns)
+                self.label_cursor_time.set_text(label_text)
+                self.seek_preview_popover.popdown()
         else:
+            # Hide both cursor time label and seek preview when mouse leaves
             self.label_cursor_time.set_visible(False)
+            self.seek_preview_popover.popdown()
+
+    def _get_seek_preview_popover_pointing_rect(self, mouse_x_in_timeline: float) -> Gdk.Rectangle | None:
+        # Position popover above the timeline, centered on mouse cursor
+        # Transform mouse coordinates from timeline to playback controls coordinate space
+        success, transformed_point = self.widget_timeline.compute_point(self.box_playback_controls, Graphene.Point().init(mouse_x_in_timeline, 0))
+        if success:
+            mouse_x_in_controls = transformed_point.x
+        else:
+            logger.error(f"Couldn't convert cursor coordinates from timeline to controls box: x: {mouse_x_in_timeline}")
+            return None
+
+        # Calculate popover dimensions with space for time label below thumbnail
+        controls_width = self.box_playback_controls.get_allocated_width()
+        # popover_width, _, _, _ = self.seek_preview_popover.measure(Gtk.Orientation.HORIZONTAL, controls_width)
+        popover_width = self._thumbnail_size[0] + 18 # TODO: Workaround as measuring the Gtk.Popover does not return the expected value
+
+        pointing_rect = Gdk.Rectangle()
+        # Center the popover horizontally on mouse cursor
+        pointing_rect.x = int(mouse_x_in_controls - popover_width // 2)
+        # Ensure popover stays within horizontal controls area
+        pointing_rect.x = max(0, min(pointing_rect.x, controls_width - popover_width))
+
+        # Vertical Position slightly above the timeline
+        timeline_allocation = self.widget_timeline.get_allocation()
+        y_offset = 5
+        pointing_rect.y = timeline_allocation.y - y_offset
+
+        pointing_rect.width = popover_width
+        pointing_rect.height = 1
+
+        return pointing_rect
+
+    def _should_update_seek_preview(self, timestamp_ns: int, mouse_x: float):
+        # Calculate movement deltas
+        time_delta_ns = abs(timestamp_ns - self._last_seek_preview_timestamp_ns)
+        position_delta = abs(mouse_x - self._last_seek_preview_mouse_x)
+
+        # Only update if movement is significant (>2 seconds or >10 pixels)
+        time_threshold_ns = 2 * Gst.SECOND  # 2 seconds
+        position_threshold = 10  # 10 pixels
+
+        return time_delta_ns > time_threshold_ns or position_delta > position_threshold
+
+    def update_seek_preview(self, timestamp_ns: int, mouse_x: float):
+        self._last_seek_preview_timestamp_ns = timestamp_ns
+        self._last_seek_preview_mouse_x = mouse_x
+
+        time_text = self.get_time_label_text(timestamp_ns)
+        self.seek_preview_popover.set_text(time_text)
+        self.seek_preview_popover.show_spinner()
+        pointing_rect = self._get_seek_preview_popover_pointing_rect(mouse_x)
+        if pointing_rect is None:
+            return
+        self.seek_preview_popover.set_pointing_to(pointing_rect)
+        self.seek_preview_popover.popup()
+
+        def generate_thumbnail(current_thread_id):
+            with self._thumbnailer_lock:
+                with self._thread_counter_lock:
+                    if current_thread_id < self._thread_counter:
+                        # This thread / thumbnail request has been outdated by a newer thread. Do not request thumb generation.
+                        return
+
+                if self._video_thumbnailer is None:
+                    self._video_thumbnailer = video_utils.VideoThumbnailer(self.video_metadata.video_file, thumb_width=self._thumbnail_size[0], thumb_height=self._thumbnail_size[1])
+                    self._video_thumbnailer.open()
+
+                thumbnail = self._video_thumbnailer.get_thumbnail(timestamp_ns)
+                self.seek_preview_popover.set_thumbnail(thumbnail)
+
+        with self._thread_counter_lock:
+            self._thread_counter += 1
+            threading.Thread(target=generate_thumbnail, args=(self._thread_counter,), daemon=True).start()
 
     def play_file(self, idx):
         self._show_spinner()
@@ -328,6 +420,7 @@ class PreviewView(Gtk.Widget):
             GLib.idle_add(lambda: self._open_file(file))
 
         threading.Thread(target=run).start()
+
 
     def _open_file(self, file: Gio.File):
         self.frame_restorer_options = FrameRestorerOptions(self.config.mosaic_restoration_model, self.config.mosaic_detection_model, video_utils.get_video_meta_data(file.get_path()), self.config.device, self.config.max_clip_duration, self.config.show_mosaic_detections, False)
@@ -503,6 +596,11 @@ class PreviewView(Gtk.Widget):
         if not self.pipeline_manager:
             return
         self._video_preview_init_done = False
+        with self._thumbnailer_lock:
+            self._thread_counter += 1 # Invalidate potentially scheduled thread
+            if self._video_thumbnailer:
+                self._video_thumbnailer.close()
+                self._video_thumbnailer = None
         if block:
             self.pipeline_manager.close_video_file()
         else:

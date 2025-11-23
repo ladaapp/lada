@@ -44,6 +44,7 @@ class Config(GObject.Object):
         'post_export_action': PostExportAction.NONE.value,
         'post_export_custom_command': '',
         'preview_buffer_duration': 0,
+        'seek_preview_enabled': True,
         'show_mosaic_detections': False,
         'temp_directory': tempfile.gettempdir(),
     }
@@ -63,6 +64,7 @@ class Config(GObject.Object):
         self._mosaic_restoration_model = self._defaults['mosaic_restoration_model']
         self._mute_audio = self._defaults['mute_audio']
         self._preview_buffer_duration = self._defaults['preview_buffer_duration']
+        self._seek_preview_enabled = self._defaults['seek_preview_enabled']
         self._show_mosaic_detections = self._defaults['show_mosaic_detections']
         self._post_export_action = self._defaults['post_export_action']
         self._post_export_custom_command = self._defaults['post_export_custom_command']
@@ -70,6 +72,19 @@ class Config(GObject.Object):
 
         self.save_lock = threading.Lock()
         self._style_manager = style_manager
+
+    @GObject.Property()
+    def seek_preview_enabled(self):
+        return self._seek_preview_enabled
+
+    @seek_preview_enabled.setter
+    def seek_preview_enabled(self, value):
+        if value == self._seek_preview_enabled:
+            return
+        self._seek_preview_enabled = value
+        self.save()
+
+    # Removed seek_preview_size property - now auto-scaled
 
     @GObject.Property()
     def show_mosaic_detections(self):
@@ -310,6 +325,7 @@ class Config(GObject.Object):
         self.post_export_action = self._defaults['post_export_action']
         self.post_export_custom_command = self._defaults['post_export_custom_command']
         self.preview_buffer_duration = self._defaults['preview_buffer_duration']
+        self.seek_preview_enabled = self._defaults['seek_preview_enabled']
         self.show_mosaic_detections = self._defaults['show_mosaic_detections']
         self.temp_directory = self._defaults['temp_directory']
         self.validate_and_set_device(self._defaults['device'])
@@ -339,6 +355,7 @@ class Config(GObject.Object):
             'post_export_action': self._post_export_action,
             'post_export_custom_command': self._post_export_custom_command,
             'preview_buffer_duration': self._preview_buffer_duration,
+            'seek_preview_enabled': self._seek_preview_enabled,
             'show_mosaic_detections': self._show_mosaic_detections,
             'temp_directory': self._temp_directory,
         }
@@ -379,6 +396,8 @@ class Config(GObject.Object):
                     self.validate_and_set_file_name_pattern(dict[key])
                 elif key == 'initial_view':
                     self.validate_and_set_initial_view(dict[key])
+                elif key == 'seek_preview_enabled':
+                    self._seek_preview_enabled = dict[key]
                 else:
                     setattr(self, f"_{key}", dict[key])
 

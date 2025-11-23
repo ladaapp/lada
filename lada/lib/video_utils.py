@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0
 
 import json
+import logging
 import os
 import re
 import subprocess
@@ -18,6 +19,7 @@ import numpy as np
 
 from lada.lib import Image, Mask, VideoMetadata, os_utils
 
+logger = logging.getLogger(__name__)
 
 def read_video_frames(path: str, float32: bool = True, start_idx: int = 0, end_idx: int | None = None, normalize_neg1_pos1 = False, binary_frames=False) -> list[np.ndarray]:
     with VideoReaderOpenCV(path) as video_reader:
@@ -370,3 +372,93 @@ def get_available_video_encoder_codecs():
             continue
         codecs.add((e_codec.name, e_codec.long_name))
     return sorted(list(codecs))
+
+
+class VideoThumbnailer:
+
+    def __init__(self, video_path: str, thumb_width: int, thumb_height: int):
+        self.video_path = video_path
+        self.cap = None
+        self.thumb_width = thumb_width
+        self.thumb_height = thumb_height
+        self._frame_cache = {} # LRU cache for recently accessed frames to avoid re-seeking for nearby timestamps
+        self._cache_max_size = 60
+        self._cache_access_order = []  # Track access order for LRU
+
+    def __enter__(self):
+        self.open()
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+    def open(self):
+        if self.cap is None:
+            self.cap = cv2.VideoCapture(self.video_path)
+            if not self.cap.isOpened():
+                raise Exception(f"Unable to open video file: {self.video_path}")
+
+    def close(self):
+        if self.cap:
+            self.cap.release()
+            self.cap = None
+        self._frame_cache.clear()
+        self._cache_access_order.clear()
+
+    def _get_fallback_thumbnail(self):
+        return np.zeros(shape=(self.thumb_height, self.thumb_width, 3), dtype=np.uint8)
+
+    def _get_cached_thumbnail(self, timestamp_ms: float) -> np.ndarray | None:
+        """Get frame from cache if available and recent enough"""
+        # Round to nearest 100ms for caching (avoids too many cache entries)
+        cache_key = round(timestamp_ms / 100) * 100
+
+        if cache_key in self._frame_cache:
+            # Move to end of access order (most recently used)
+            if cache_key in self._cache_access_order:
+                self._cache_access_order.remove(cache_key)
+            self._cache_access_order.append(cache_key)
+            return self._frame_cache[cache_key].copy()
+        return None
+
+    def _cache_thumbnail(self, timestamp_ms: float, frame: np.ndarray):
+        """Add frame to cache with LRU eviction"""
+        cache_key = round(timestamp_ms / 100) * 100
+
+        # Remove from access order if already exists
+        if cache_key in self._cache_access_order:
+            self._cache_access_order.remove(cache_key)
+
+        # Add to cache
+        self._frame_cache[cache_key] = frame.copy()
+        self._cache_access_order.append(cache_key)
+
+        # Evict least recently used if cache is full
+        if len(self._frame_cache) > self._cache_max_size:
+            oldest_key = self._cache_access_order.pop(0)
+            del self._frame_cache[oldest_key]
+
+    def get_thumbnail(self, timestamp_ns: int) -> np.ndarray:
+        try:
+            # Convert nanoseconds to milliseconds for OpenCV
+            timestamp_ms = timestamp_ns / 1_000_000
+
+            cached_thumbnail = self._get_cached_thumbnail(timestamp_ms)
+            if cached_thumbnail is not None:
+                return cached_thumbnail
+
+            self.cap.set(cv2.CAP_PROP_POS_MSEC, timestamp_ms)
+
+            ret, frame = self.cap.read()
+
+            if ret and frame is not None:
+                thumbnail = cv2.resize(frame, (self.thumb_width, self.thumb_height), interpolation=cv2.INTER_LINEAR)
+                self._cache_thumbnail(timestamp_ms, thumbnail)
+
+                return thumbnail
+
+            return self._get_fallback_thumbnail()
+
+        except Exception as e:
+            logger.error(f"Error generating thumbnail at {timestamp_ns}: {e}")
+            return self._get_fallback_thumbnail()

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+SPDX-FileCopyrightText: Lada Authors
+SPDX-License-Identifier: AGPL-3.0
+-->
+
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+
+    <template class="SeekPreviewPopover" parent="GtkPopover">
+        <property name="position">top</property>
+        <property name="autohide">false</property>
+        <property name="child">
+            <object class="GtkBox">
+                <property name="orientation">vertical</property>
+
+                <child>
+                    <object class="GtkOverlay">
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <child>
+                            <object class="GtkPicture" id="picture">
+                                <property name="width-request">220</property>
+                                <property name="height-request">124</property>
+                            </object>
+                        </child>
+                        <child type="overlay">
+                            <object class="GtkSpinner" id="spinner">
+                                <property name="width-request">48</property>
+                                <property name="height-request">48</property>
+                                <property name="halign">center</property>
+                                <property name="valign">center</property>
+                                <property name="spinning">true</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+
+                <child>
+                    <object class="GtkLabel" id="label">
+                        <property name="label">Time code</property>
+                        <property name="halign">center</property>
+                        <property name="valign">center</property>
+                        <property name="margin-top">2</property>
+                    </object>
+                </child>
+
+            </object>
+        </property>
+    </template>
+</interface>

@@ -49,8 +49,8 @@ class Timeline(Gtk.Widget):
     def seek_requested_signal(self, position: int):
         pass
 
-    @GObject.Signal(name="cursor_position_changed", arg_types=(GObject.TYPE_INT64,))
-    def cursor_position(self, position: int | None):
+    @GObject.Signal(name="cursor_position_changed", arg_types=(GObject.TYPE_INT64, GObject.TYPE_DOUBLE))
+    def cursor_position(self, position: int, x: float):
         pass
 
     def __init__(self, **kwargs):
@@ -105,8 +105,9 @@ class Timeline(Gtk.Widget):
             cursor_position = int((x / width) * self._duration)
         else:
             cursor_position = -1
+            x = -1
         self.queue_draw()
-        self.emit('cursor_position_changed', cursor_position)
+        self.emit('cursor_position_changed', cursor_position, x)
 
     def do_snapshot(self, s: Gtk.Snapshot):
         """

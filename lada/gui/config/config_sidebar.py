@@ -45,6 +45,7 @@ class ConfigSidebar(Gtk.Box):
     check_button_post_export_custom_command: Gtk.CheckButton = Gtk.Template.Child()
     entry_row_post_export_custom_command: Adw.EntryRow = Gtk.Template.Child()
     check_button_show_mosaic_detections: Gtk.CheckButton = Gtk.Template.Child()
+    switch_row_seek_preview = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -102,6 +103,8 @@ class ConfigSidebar(Gtk.Box):
         self.spin_row_preview_buffer_duration.set_value(config.preview_buffer_duration)
         self.spin_row_clip_max_duration.set_value(config.max_clip_duration)
         self.switch_row_mute_audio.set_active(config.mute_audio)
+
+        self.switch_row_seek_preview.set_active(config.seek_preview_enabled)
 
         # init color scheme
         if config.color_scheme == ColorScheme.LIGHT: self.light_color_scheme_button.set_property("active", True)
@@ -383,3 +386,8 @@ class ConfigSidebar(Gtk.Box):
     @skip_if_uninitialized
     def entry_row_post_export_custom_command_changed_callback(self, entry_row):
         self._config.post_export_custom_command = self.entry_row_post_export_custom_command.get_text()
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def switch_row_seek_preview_active_callback(self, switch_row, active):
+        self._config.seek_preview_enabled = switch_row.get_property("active")

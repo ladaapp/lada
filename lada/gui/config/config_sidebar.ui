@@ -101,6 +101,14 @@ SPDX-License-Identifier: AGPL-3.0
                                                 handler="switch_row_mute_audio_active_callback"/>
                                     </object>
                                 </child>
+                                <child>
+                                    <object class="AdwSwitchRow" id="switch_row_seek_preview">
+                                        <property name="title" translatable="true">Enable seek preview</property>
+                                        <property name="subtitle" translatable="true">Show a preview of the video frame when hovering over the timeline.</property>
+                                        <signal name="notify::active"
+                                                handler="switch_row_seek_preview_active_callback"/>
+                                    </object>
+                                </child>
                             </object>
                         </child>
                         <child>
