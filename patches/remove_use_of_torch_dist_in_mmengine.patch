@@ -1,0 +1,46 @@
+--- old/mmengine/dist/dist.py	2025-11-18 17:52:31.052601500 +0800
++++ new/mmengine/dist/dist.py	2025-11-19 14:04:52.456769400 +0800
+@@ -23,6 +23,12 @@
+ from mmengine.device import is_npu_available
+ 
+ 
++if not hasattr(torch.distributed, "ReduceOp"):
++    class DummyReduceOp:
++        SUM = None
++        MEAN = None
++    torch.distributed.ReduceOp = DummyReduceOp
++
+ def _get_reduce_op(name: str) -> torch_dist.ReduceOp:
+     op_mappings = {
+         'sum': torch_dist.ReduceOp.SUM,
+
+--- old/mmengine/model/wrappers/__init__.py	2025-11-18 17:52:31.114603600 +0800
++++ new/mmengine/model/wrappers/__init__.py	2025-11-22 02:19:08.124080097 +0800
+@@ -1,4 +1,11 @@
+ # Copyright (c) OpenMMLab. All rights reserved.
++import torch, types
++if not hasattr(torch, "distributed") or not hasattr(torch.distributed, "fsdp"):
++    torch.distributed = types.SimpleNamespace()
++    torch.distributed.fsdp = types.SimpleNamespace()
++    torch.distributed.fsdp.fully_sharded_data_parallel = types.SimpleNamespace()
++
++
+ from mmengine.utils.dl_utils import TORCH_VERSION
+ from mmengine.utils.version_utils import digit_version
+ from .distributed import MMDistributedDataParallel
+@@ -11,6 +18,12 @@
+ ]
+ 
+ if digit_version(TORCH_VERSION) >= digit_version('2.0.0'):
+-    from .fully_sharded_distributed import \
+-        MMFullyShardedDataParallel  # noqa:F401
+-    __all__.append('MMFullyShardedDataParallel')
++    try:
++        from .fully_sharded_distributed import MMFullyShardedDataParallel  # noqa:F401
++    except Exception as e:
++        import warnings
++        warnings.warn(f"FSDP disabled: {e}")
++        MMFullyShardedDataParallel = None
++        
++        
++    __all__.append('MMFullyShardedDataParallel')

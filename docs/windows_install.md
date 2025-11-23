@@ -45,6 +45,18 @@ This section describes how to install the app (CLI and GUI) from source.
 > If this prints *True* then you're good. It will display *False* if the GPU is not available to PyTorch. Check your GPU drivers and that you chose the correct PyTorch Installation method for your hardware.
 
 
+> [!TIP]
+> For AMD Radeon users only:
+> 
+> At the time of writing this, there are currently no official torch builds offered by PyTorch but AMD offers their own torch builds for Windows that you can use.
+> 
+> Note that using ROCm on Radeon cards on Windows is still in preview and there are known issues.
+> You can find which cards are compatible and how to install PyTorch [here](https://rocm.docs.amd.com/projects/radeon-ryzen/en/latest/index.html).
+> 
+> You might also want to read about and try the latest nightly/experimental PyTorch builds from AMD [here](https://github.com/ROCm/TheRock/blob/main/RELEASES.md).
+> 
+> You might want to consider using Linux or WSL as PyTorch on ROCm is supposedly more stable there at the moment.
+
 5) Install python dependencies
    
     ```Powershell
@@ -60,6 +72,17 @@ This section describes how to install the app (CLI and GUI) from source.
     python -m patch -p1 -d .venv/lib/site-packages patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
     pip uninstall patch
     ````
+
+> [!TIP]
+> For AMD Radeon users only:
+> 
+> At the time of writing this, neither the latest stable/preview build 6.4 nor the latest daily build 7.1 includes support for `torch.dist`
+> 
+> One of our dependencies (mmengine) uses it internally and will crash if `torch.dist` is not available. You can use the following patch to work around that and make Lada work regardless:
+> 
+> python -m patch -p1 -d .venv/lib/site-packages patches/remove_use_of_torch_dist_in_mmengine.patch
+> 
+> If you're reading this and AMD included `torch.dist` in their builds please create a Pull Request or create an issue to update this tip.
 
 7) Download model weights
    
