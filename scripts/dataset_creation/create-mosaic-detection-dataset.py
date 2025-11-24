@@ -146,16 +146,62 @@ def get_detections(file_path, detectors: list[NsfwImageDetector | FaceDetector |
         detections.append(nsfw_detection)
     return Detections(frame, detections)
 
-def process_image_file(file_path, output_root, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], device='cpu', show=False, window_name="mosaic"):
+def wait_until_key_press(accepted_keys: list[str]) -> str:
+    _accepted_keys = [ord(key) for key in accepted_keys]
+    while True:
+        key_pressed = cv2.waitKey(1)
+        _key_pressed = key_pressed & 0xFF
+        if _key_pressed in _accepted_keys:
+            return accepted_keys[_accepted_keys.index(_key_pressed)]
+
+def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], device='cpu', window_name="mosaic", target_size=640) -> bool:
     detections: Detections = get_detections(file_path, detectors)
     if not detections or len(detections.detections) == 0:
-        if not show:
-            name = osp.splitext(os.path.basename(file_path))[0]
-            shutil.copy(file_path, f"{output_root}/background_images/{name}.jpg")
+        return True
+
+    img = detections.frame
+
+    while True:
+        mask, img_mosaic, mask_mosaic, mosaic_size = None, None, None, None
+        for detection in detections.detections:
+            if mask is None:
+                mask = detection.mask
+            else:
+                mask = mask | detection.mask
+            if img_mosaic is None:
+                img_mosaic, mask_mosaic, mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img, mask)
+            else:
+                img_mosaic, _mask_mosaic, _mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img_mosaic, mask)
+                mask_mosaic = mask_mosaic | _mask_mosaic
+                mosaic_size = min(_mosaic_size, mosaic_size)
+
+        degrade = create_degradation_pipeline(img, target_size=target_size, device=device, mosaic_size=mosaic_size)
+
+        degraded_mosaic = degrade(img_mosaic)
+        mask_mosaic = image_utils.resize(mask_mosaic, degraded_mosaic.shape[:2], interpolation=cv2.INTER_NEAREST)
+
+        show_img = visualization_utils.overlay_mask_boundary(degraded_mosaic, mask_mosaic, color=(0, 255, 0))
+        mask = image_utils.resize(mask, degraded_mosaic.shape[:2], interpolation=cv2.INTER_NEAREST)
+        show_img = visualization_utils.overlay_mask_boundary(show_img, mask, color=(255, 0, 0))
+
+        cv2.imshow(window_name, show_img)
+        pressed_key = wait_until_key_press(["n", "r", "q"])
+        if pressed_key == "n":
+            break
+        elif pressed_key == "r":
+            continue
+        elif pressed_key == "q":
+            return False
+    return True
+
+def process_image_file(file_path, output_root, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], device='cpu', target_size=640):
+    detections: Detections = get_detections(file_path, detectors)
+    if not detections or len(detections.detections) == 0:
+        name = osp.splitext(os.path.basename(file_path))[0]
+        shutil.copy(file_path, f"{output_root}/background_images/{name}.jpg")
         return
 
     img = detections.frame
-    target_size = 640 # size of images what we'll train mosaic detection model with
     mask, img_mosaic, mask_mosaic, mosaic_size = None, None, None, None
     for detection in detections.detections:
         if mask is None:
@@ -174,22 +220,10 @@ def process_image_file(file_path, output_root, detectors: list[NsfwImageDetector
     degraded_mosaic = degrade(img_mosaic)
     mask_mosaic = image_utils.resize(mask_mosaic, degraded_mosaic.shape[:2], interpolation=cv2.INTER_NEAREST)
 
-    if show:
-        show_img = visualization_utils.overlay_mask_boundary(degraded_mosaic, mask_mosaic, color=(0, 255, 0))
-        mask = image_utils.resize(mask, degraded_mosaic.shape[:2], interpolation=cv2.INTER_NEAREST)
-        show_img = visualization_utils.overlay_mask_boundary(show_img, mask, color=(255, 0, 0))
-
-        cv2.imshow(window_name, show_img)
-
-        while True:
-            key_pressed = cv2.waitKey(1)
-            if key_pressed & 0xFF == ord("n"):
-                break
-    else:
-        name = osp.splitext(os.path.basename(file_path))[0]
-        cv2.imwrite(f"{output_root}/images/{name}.jpg", degraded_mosaic, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
-        cv2.imwrite(f"{output_root}/images_hq/{name}.jpg", img_mosaic, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
-        cv2.imwrite(f"{output_root}/masks/{name}.png", mask_mosaic)
+    name = osp.splitext(os.path.basename(file_path))[0]
+    cv2.imwrite(f"{output_root}/images/{name}.jpg", degraded_mosaic, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
+    cv2.imwrite(f"{output_root}/images_hq/{name}.jpg", img_mosaic, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
+    cv2.imwrite(f"{output_root}/masks/{name}.png", mask_mosaic)
 
 def get_files(dir, filter_func):
     file_list = []
@@ -213,6 +247,7 @@ def parse_args():
     parser.add_argument('--create-sfw-face-mosaics', default=False, action=argparse.BooleanOptionalAction, help="Use CenterFace human face detection model to create SFW mosaics")
     parser.add_argument('--create-sfw-head-mosaics', default=False, action=argparse.BooleanOptionalAction, help="Use BPJDet human head detection model to create SFW mosaics")
     parser.add_argument('--max-file-limit', type=int, default=None, help="instead of processing all files found in input-root dir it will choose files randomly up to the given limit")
+    parser.add_argument('--target-size', type=int, default=640, help="output size of images. should match imgsz param of YOLO")
 
     args = parser.parse_args()
     return args
@@ -236,7 +271,17 @@ def main():
         detectors.append(HeadDetector(model, data=data, random_extend_masks=True, conf_thres=data['conf_thres_part'], iou_thres=data['iou_thres_part']))
     assert len(detectors) > 0
 
-    if not args.show:
+    selected_files = get_files(args.input_root, image_utils.is_image_file)
+    if args.max_file_limit and len(selected_files) > args.max_file_limit:
+        selected_files = random.choices(selected_files, k=args.max_file_limit)
+
+    if args.show:
+        for file_idx, file_path in enumerate(selected_files):
+            print(f"{file_idx}, Processing {file_path.name}")
+            should_continue = show_image_file(file_path, detectors, device=args.device, target_size=args.target_size)
+            if not should_continue: break
+        cv2.destroyAllWindows()
+    else:
         os.makedirs(f"{args.output_root}/masks", exist_ok=True)
         os.makedirs(f"{args.output_root}/images", exist_ok=True)
         os.makedirs(f"{args.output_root}/images_hq", exist_ok=True)
@@ -245,27 +290,19 @@ def main():
         os.makedirs(f"{args.output_root}/segmentation_labels", exist_ok=True)
         jobs = []
 
-    selected_files = get_files(args.input_root, image_utils.is_image_file)
-    if args.max_file_limit and len(selected_files) > args.max_file_limit:
-        selected_files = random.choices(selected_files, k=args.max_file_limit)
-
-    with ThreadPoolExecutor(max_workers=args.workers) as executor:
-        for file_idx, file_path in enumerate(selected_files):
-            if file_idx < args.start_index or len(list(args.output_root.glob(f"*/{file_path.name}*"))) > 0:
-                print(f"{file_idx}, Skipping {file_path.name}: Already processed")
-                continue
-            print(f"{file_idx}, Processing {file_path.name}")
-            if args.show:
-                process_image_file(file_path, args.output_root, detectors, device=args.device, show=True)
-            else:
-                jobs.append(executor.submit(process_image_file, file_path, args.output_root, detectors, args.device))
+        with ThreadPoolExecutor(max_workers=args.workers) as executor:
+            for file_idx, file_path in enumerate(selected_files):
+                if file_idx < args.start_index or len(list(args.output_root.glob(f"*/{file_path.name}*"))) > 0:
+                    print(f"{file_idx}, Skipping {file_path.name}: Already processed")
+                    continue
+                print(f"{file_idx}, Processing {file_path.name}")
+                jobs.append(executor.submit(process_image_file, file_path, args.output_root, detectors, args.device, args.target_size))
                 clean_up_completed_futures(jobs)
-    wait(jobs, return_when=ALL_COMPLETED)
-    clean_up_completed_futures(jobs)
+        wait(jobs, return_when=ALL_COMPLETED)
+        clean_up_completed_futures(jobs)
 
-    print("Finished processing images. Now converting dataset to YOLO format...")
+        print("Finished processing images. Now converting dataset to YOLO format...")
 
-    if not args.show:
         # Remap to classes we want to train with. Must match mosaic_detection_dataset_config.yaml
         pixel_to_class_mapping = {
             DETECTION_CLASSES["nsfw"]["mask_value"]: 0,
@@ -273,10 +310,6 @@ def main():
             DETECTION_CLASSES["sfw_head"]["mask_value"]: 1
         }
         convert_segment_masks_to_yolo_labels(f"{args.output_root}/masks", f"{args.output_root}/segmentation_labels", f"{args.output_root}/detection_labels", pixel_to_class_mapping)
-
-    if args.show:
-        cv2.destroyAllWindows()
-
 
 if __name__ == '__main__':
     main()
