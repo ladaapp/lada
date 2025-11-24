@@ -84,10 +84,15 @@ def addmosaic_base(img, mask, n, model='squa_avg', rect_ratio=1.6, feather=0, re
                 block_corner_points.append(((x_start,y_start),(x_end,y_end)))
 
     if feather != -1:
-        if feather == 0:
-            blurred_mask = (cv2.blur(mask, (n, n)))
+        if reuse_input_mask_value:
+            _mask = mask.copy()
+            _mask[_mask > 0] = 255
         else:
-            blurred_mask = (cv2.blur(mask, (feather, feather)))
+            _mask = mask
+        if feather == 0:
+            blurred_mask = (cv2.blur(_mask, (n, n)))
+        else:
+            blurred_mask = (cv2.blur(_mask, (feather, feather)))
         blurred_mask = blurred_mask / 255.0
         for i in range(3):
             img_mosaic[:, :, i] = (img[:, :, i] * (1 - blurred_mask) + img_mosaic[:, :, i] * blurred_mask)
