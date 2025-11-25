@@ -15,7 +15,7 @@ from tqdm import tqdm
 
 from PIL import Image
 
-from lada.lib.watermark_creation_utils import add_logo_watermark, add_text_watermark, load_fonts, convert_to_yolo
+from lada.utils.watermark_creation_utils import add_logo_watermark, add_text_watermark, load_fonts, convert_to_yolo
 
 logger = getLogger(__name__)
 

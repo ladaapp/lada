@@ -7,15 +7,14 @@ import queue
 from pathlib import Path
 from time import sleep
 
-from ultralytics import YOLO
-
-from lada.dover.evaluate import VideoQualityEvaluator
-from lada.lib.mosaic_classifier import MosaicClassifier
-from lada.lib.nsfw_scene_detector import NsfwDetector, FileProcessingOptions
-from lada.lib.nsfw_scene_processor import SceneProcessingOptions, SceneProcessor
-from lada.lib.nudenet_nsfw_detector import NudeNetNsfwDetector
-from lada.lib.threading_utils import wait_until_completed, clean_up_completed_futures
-from lada.lib.watermark_detector import WatermarkDetector
+from lada.models.dover.evaluate import VideoQualityEvaluator
+from lada.datasetcreation.detectors.mosaic_classifier import MosaicClassifier
+from lada.datasetcreation.nsfw_scene_detector import NsfwDetector, FileProcessingOptions
+from lada.datasetcreation.nsfw_scene_processor import SceneProcessingOptions, SceneProcessor
+from lada.datasetcreation.detectors.nudenet_nsfw_detector import NudeNetNsfwDetector
+from lada.utils.threading_utils import wait_until_completed, clean_up_completed_futures
+from lada.datasetcreation.detectors.watermark_detector import WatermarkDetector
+from lada.models.yolo.yolo import Yolo
 
 def parse_args():
     parser = argparse.ArgumentParser("Create mosaic restoration dataset")
@@ -99,12 +98,12 @@ def main():
 
     scenes_executor = concurrent_futures.ThreadPoolExecutor(max_workers=args.workers)
 
-    nsfw_detection_model = YOLO(args.model)
+    nsfw_detection_model = Yolo(args.model)
 
     video_quality_evaluator = VideoQualityEvaluator(device=args.video_quality_model_device) if args.add_video_quality_metadata or args.enable_video_quality_filter else None
-    watermark_detector = WatermarkDetector(YOLO(args.watermark_model_path), device=args.model_device) if args.add_watermark_metadata or args.enable_watermark_filter else None
-    nudenet_nsfw_detector = NudeNetNsfwDetector(YOLO(args.nudenet_nsfw_model_path), device=args.model_device) if args.add_nudenet_nsfw_metadata or args.enable_nudenet_nsfw_filter else None
-    censor_detector = MosaicClassifier(YOLO(args.censor_model_path), device=args.model_device) if args.add_censor_metadata or args.enable_censor_filter else None
+    watermark_detector = WatermarkDetector(Yolo(args.watermark_model_path), device=args.model_device) if args.add_watermark_metadata or args.enable_watermark_filter else None
+    nudenet_nsfw_detector = NudeNetNsfwDetector(Yolo(args.nudenet_nsfw_model_path), device=args.model_device) if args.add_nudenet_nsfw_metadata or args.enable_nudenet_nsfw_filter else None
+    censor_detector = MosaicClassifier(Yolo(args.censor_model_path), device=args.model_device) if args.add_censor_metadata or args.enable_censor_filter else None
 
     output_dir = args.output_root
     if not output_dir.exists():

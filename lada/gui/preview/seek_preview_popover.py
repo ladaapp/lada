@@ -7,7 +7,7 @@ import cv2
 from gi.repository import Gtk, GObject, Gdk, Graphene, Gsk, Adw, GLib, GdkPixbuf
 
 from lada.gui import utils
-from lada.lib import Image
+from lada.utils import Image
 
 here = pathlib.Path(__file__).parent.resolve()
 

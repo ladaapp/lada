@@ -5,11 +5,10 @@ import os.path
 
 import cv2
 from pathlib import Path
-from ultralytics import YOLO
 import argparse
 
-from lada.lib.video_utils import process_video_v3
-
+from lada.utils.video_utils import process_video_v3
+from lada.models.yolo.yolo import Yolo
 
 def process_frame(in_frame, model, threshold, classes, negate=False):
     result = model.predict(in_frame, conf=threshold, imgsz=640, verbose=False, classes=classes)
@@ -64,7 +63,7 @@ def get_files(dir):
     return file_list
 
 args = parse_args()
-model = YOLO(args.model_path)
+model = Yolo(args.model_path)
 
 input_path = Path(args.input)
 if input_path.is_file():

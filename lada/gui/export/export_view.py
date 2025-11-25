@@ -21,7 +21,7 @@ from lada.gui.export.export_single_file_page import ExportSingleFileStatusPage
 from lada.gui.export.export_utils import ResumeInformation
 from lada.gui.export.spinner_button import SpinnerButton
 from lada.gui.frame_restorer_provider import FrameRestorerOptions, FRAME_RESTORER_PROVIDER
-from lada.lib import audio_utils, video_utils
+from lada.utils import audio_utils, video_utils
 
 here = pathlib.Path(__file__).parent.resolve()
 

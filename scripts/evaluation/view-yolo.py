@@ -4,14 +4,14 @@
 import cv2
 import os
 import hashlib
-from ultralytics import YOLO
 import argparse
 
+from lada.models.yolo.yolo import Yolo
 
 class InferenceViewer:
     def __init__(self, args):
         self.args = args
-        self.net = YOLO(args.model_path)
+        self.net = Yolo(args.model_path)
         self.videomode = True
         self.frame_num = 0
         self.window_name = 'img'

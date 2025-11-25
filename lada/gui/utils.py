@@ -12,7 +12,7 @@ from gi.repository import Gio
 from gi.repository import Gtk, GLib, Gdk
 
 from lada import LOG_LEVEL
-from lada.lib import video_utils
+from lada.utils import video_utils
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)

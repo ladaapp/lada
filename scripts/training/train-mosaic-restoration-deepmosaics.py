@@ -10,12 +10,12 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
-from lada.deepmosaics.util import data
-from lada.deepmosaics.util import image_processing as impro
-from lada.deepmosaics.models import BVDNet,model_util
+from lada.models.deepmosaics.util import data
+from lada.models.deepmosaics.util import image_processing as impro
+from lada.models.deepmosaics.models import BVDNet,model_util
 from skimage.metrics import structural_similarity
 from torch.utils.tensorboard import SummaryWriter
-from lada.deepmosaics.mosaic_video_dataset import MosaicVideoDataset
+from lada.models.deepmosaics.mosaic_video_dataset import MosaicVideoDataset
 
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)

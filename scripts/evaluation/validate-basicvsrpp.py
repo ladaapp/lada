@@ -8,9 +8,9 @@ import os.path
 import torch
 import cv2
 
-from lada.basicvsrpp.inference import load_model, inference
-from lada.lib.image_utils import pad_image, resize
-from lada.lib.video_utils import read_video_frames, get_video_meta_data, write_frames_to_video_file
+from lada.models.basicvsrpp.inference import load_model, inference
+from lada.utils.image_utils import pad_image, resize
+from lada.utils.video_utils import read_video_frames, get_video_meta_data, write_frames_to_video_file
 
 def validate(in_dir, out_dir, config_path, model_path, device):
     model = load_model(config_path, model_path, device)
@@ -18,7 +18,6 @@ def validate(in_dir, out_dir, config_path, model_path, device):
         for video_path in glob.glob(os.path.join(in_dir, '*')):
             video_metadata = get_video_meta_data(video_path)
             orig_images = read_video_frames(video_path, float32=False)
-            orig_images = [torch.from_numpy(image) for image in orig_images]
 
             if orig_images[0].shape[:2] != (256, 256):
                 size = 256
@@ -26,8 +25,7 @@ def validate(in_dir, out_dir, config_path, model_path, device):
                     orig_images[i] = resize(orig_images[i], size, interpolation=cv2.INTER_LINEAR)
                     orig_images[i], _ = pad_image(orig_images[i], size, size, mode='zero')
 
-            restored_images = inference(model, orig_images)
-            restored_images = [image.cpu().numpy() for image in restored_images]
+            restored_images = inference(model, orig_images, device)
             filename = os.path.basename(video_path)
             out_path = os.path.join(out_dir, filename)
             fps = video_metadata.video_fps

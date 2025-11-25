@@ -6,8 +6,8 @@ import json
 import cv2
 import os
 import argparse
-from ultralytics import YOLO
 
+from lada.models.yolo.yolo import Yolo
 
 class PolygonSaver:
     """
@@ -112,7 +112,7 @@ def main():
     polygon_saver = PolygonSaver()
 
     # Load the YOLO model
-    yolo_model = YOLO(args.model)
+    yolo_model = Yolo(args.model)
 
     # Get results from YOLO model predictions
     results = yolo_model.predict(args.input, save=False, conf=args.conf)

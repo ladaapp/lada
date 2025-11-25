@@ -9,7 +9,7 @@ import torch
 from torchvision import transforms
 from torchvision.models import resnet50
 
-from lada.lib.video_utils import read_video_frames
+from lada.utils.video_utils import read_video_frames
 
 transform = transforms.Compose([
     transforms.ToTensor(),

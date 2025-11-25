@@ -12,7 +12,7 @@ from multiprocessing import Pool
 import hashlib
 import random
 
-from lada.lib import video_utils
+from lada.utils import video_utils
 
 class FrameExtractor:
     def __init__(self, video_file, output_dir, sampling=-1, skip_start=None, skip_end=None):

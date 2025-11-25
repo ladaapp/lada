@@ -7,7 +7,7 @@ import os
 import os.path as osp
 from mmengine.config import Config, DictAction
 from mmengine.runner import Runner
-from lada.basicvsrpp import register_all_modules
+from lada.models.basicvsrpp import register_all_modules
 
 register_all_modules()
 

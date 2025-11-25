@@ -15,8 +15,8 @@ from tqdm import tqdm
 from lada import DETECTION_MODEL_NAMES_TO_FILES, RESTORATION_MODEL_NAMES_TO_FILES, \
     get_available_restoration_models, get_available_detection_models, DETECTION_MODEL_FILES_TO_NAMES, \
     RESTORATION_MODEL_FILES_TO_NAMES
-from lada.lib import VideoMetadata
-from lada.lib.frame_restorer import FrameRestorer
+from lada.utils import VideoMetadata
+from lada.restorationpipeline.frame_restorer import FrameRestorer
 
 def _filter_video_files(directory_path: str):
     video_files = []
@@ -78,7 +78,7 @@ def dump_pyav_codecs():
     print(_("PyAV version:"))
     print(f"\t{av.__version__}")
 
-    from lada.lib.video_utils import get_available_video_encoder_codecs
+    from lada.utils.video_utils import get_available_video_encoder_codecs
     print(_("Available video encoders:"))
     for short_name, long_name in get_available_video_encoder_codecs():
         print("\t%-18s %s" % (short_name, long_name))

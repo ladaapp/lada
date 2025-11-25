@@ -19,7 +19,7 @@ from lada.gui.preview.headerbar_files_drop_down import HeaderbarFilesDropDown
 from lada.gui.preview.seek_preview_popover import SeekPreviewPopover
 from lada.gui.preview.timeline import Timeline
 from lada.gui.shortcuts import ShortcutsManager
-from lada.lib import audio_utils, video_utils
+from lada.utils import audio_utils, video_utils
 
 here = pathlib.Path(__file__).parent.resolve()
 

@@ -4,9 +4,9 @@
 from mmengine.runner import load_checkpoint
 import torch
 
-from lada.basicvsrpp.basicvsrpp_gan import BasicVSRPlusPlusGan
-from lada.basicvsrpp.mmagic.basicvsr import BasicVSR
-from lada.basicvsrpp import register_all_modules
+from lada.models.basicvsrpp.basicvsrpp_gan import BasicVSRPlusPlusGan
+from lada.models.basicvsrpp.mmagic.basicvsr import BasicVSR
+from lada.models.basicvsrpp import register_all_modules
 
 register_all_modules()
 
