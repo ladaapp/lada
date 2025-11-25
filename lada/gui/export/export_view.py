@@ -4,7 +4,6 @@
 import logging
 import os
 import pathlib
-import tempfile
 import threading
 import time
 import traceback
@@ -13,7 +12,7 @@ from gi.repository import Gtk, GObject, Gio, Adw, GLib
 
 from lada import LOG_LEVEL
 from lada.gui import utils
-from lada.gui.config.config import Config
+from lada.gui.config.config import Config, PostExportAction
 from lada.gui.config.no_gpu_banner import NoGpuBanner
 from lada.gui.export import export_utils
 from lada.gui.export.export_item_data import ExportItemData, ExportItemDataProgress, ExportItemState
@@ -530,14 +529,13 @@ class ExportView(Gtk.Widget):
         return Gio.File.new_build_filenamev([output_dir, restored_file_name])
 
     def execute_post_export_action(self):
-        from lada.gui.config.config import PostExportAction
         action = self._config.post_export_action
-        if action == PostExportAction.NONE.value:
+        if action == PostExportAction.NONE:
             return
-        elif action == PostExportAction.SHUTDOWN.value:
+        elif action == PostExportAction.SHUTDOWN:
             logger.info("Post-export action: Shutting down PC - showing confirmation dialog")
             self.show_shutdown_confirmation_dialog()
-        elif action == PostExportAction.CUSTOM_COMMAND.value:
+        elif action == PostExportAction.CUSTOM_COMMAND:
             command = self._config.post_export_custom_command.strip()
             if command:
                 logger.info(f"Post-export action: Executing custom command: {command}")

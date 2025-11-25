@@ -8,7 +8,7 @@ from gi.repository import Gtk, GObject, Adw, Gio, GLib
 
 from lada import get_available_restoration_models, get_available_detection_models, LOG_LEVEL
 from lada.gui import utils
-from lada.gui.config.config import Config, ColorScheme
+from lada.gui.config.config import Config, ColorScheme, PostExportAction
 from lada.gui.utils import skip_if_uninitialized, get_available_video_codecs, validate_file_name_pattern
 
 here = pathlib.Path(__file__).parent.resolve()
@@ -40,7 +40,7 @@ class ConfigSidebar(Gtk.Box):
     toggle_button_initial_view_preview: Gtk.ToggleButton = Gtk.Template.Child()
     toggle_button_initial_view_export: Gtk.ToggleButton = Gtk.Template.Child()
     entry_row_custom_ffmpeg_encoder_options: Adw.EntryRow = Gtk.Template.Child()
-    check_button_post_export_none: Gtk.CheckButton = Gtk.Template.Child()
+    expander_row_post_export_action: Adw.ExpanderRow = Gtk.Template.Child()
     check_button_post_export_shutdown: Gtk.CheckButton = Gtk.Template.Child()
     check_button_post_export_custom_command: Gtk.CheckButton = Gtk.Template.Child()
     entry_row_post_export_custom_command: Adw.EntryRow = Gtk.Template.Child()
@@ -130,11 +130,10 @@ class ConfigSidebar(Gtk.Box):
         self.entry_row_custom_ffmpeg_encoder_options.set_text(config.custom_ffmpeg_encoder_options)
 
         # init post-export action
-        from lada.gui.config.config import PostExportAction
-        self.check_button_post_export_shutdown.set_active(config.post_export_action == PostExportAction.SHUTDOWN.value)
-        self.check_button_post_export_custom_command.set_active(config.post_export_action == PostExportAction.CUSTOM_COMMAND.value)
-        # Set none as active if neither shutdown nor custom command is selected
-        self.check_button_post_export_none.set_active(config.post_export_action not in [PostExportAction.SHUTDOWN.value, PostExportAction.CUSTOM_COMMAND.value])
+        self.check_button_post_export_shutdown.set_active(config.post_export_action == PostExportAction.SHUTDOWN)
+        self.check_button_post_export_custom_command.set_active(config.post_export_action == PostExportAction.CUSTOM_COMMAND)
+        self.expander_row_post_export_action.set_enable_expansion(config.post_export_action != PostExportAction.NONE)
+        self.expander_row_post_export_action.set_expanded(config.post_export_action != PostExportAction.NONE)
         self.entry_row_post_export_custom_command.set_text(config.post_export_custom_command)
         self.update_custom_command_visibility(config.post_export_action)
 
@@ -294,6 +293,41 @@ class ConfigSidebar(Gtk.Box):
     def check_button_show_mosaic_detections_callback(self, check_button):
         self._config.show_mosaic_detections = self.check_button_show_mosaic_detections.props.active
 
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def expander_row_post_export_action_enable_callback(self, expander_row: Adw.ExpanderRow, param_spec):
+        enabled: bool = expander_row.get_property(param_spec.name)
+        if enabled:
+            self.check_button_post_export_shutdown.set_active(True)
+            self._config.post_export_action = PostExportAction.SHUTDOWN
+        else:
+            self._config.post_export_action = PostExportAction.NONE
+        self.update_custom_command_visibility(self._config.post_export_action)
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def check_button_post_export_shutdown_callback(self, check_button):
+        if check_button.get_active():
+            self._config.post_export_action = PostExportAction.SHUTDOWN
+        self.update_custom_command_visibility(self._config.post_export_action)
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def check_button_post_export_custom_command_callback(self, check_button):
+        if check_button.get_active():
+            self._config.post_export_action = PostExportAction.CUSTOM_COMMAND
+        self.update_custom_command_visibility(self._config.post_export_action)
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def entry_row_post_export_custom_command_changed_callback(self, entry_row):
+        self._config.post_export_custom_command = self.entry_row_post_export_custom_command.get_text()
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def switch_row_seek_preview_active_callback(self, switch_row, active):
+        self._config.seek_preview_enabled = switch_row.get_property("active")
+
     def set_file_name_pattern_row_styles(self):
         is_valid = validate_file_name_pattern(self.entry_row_file_name_pattern.get_text())
         focused = "focused" in self.entry_row_file_name_pattern.get_css_classes()
@@ -353,41 +387,5 @@ class ConfigSidebar(Gtk.Box):
                     raise error
         file_dialog.select_folder(callback=on_select_temp_folder)
 
-    def update_custom_command_visibility(self, action):
-        self.entry_row_post_export_custom_command.set_visible(action == "custom_command")
-
-    @Gtk.Template.Callback()
-    @skip_if_uninitialized
-    def check_button_post_export_none_callback(self, check_button):
-        from lada.gui.config.config import PostExportAction
-        if check_button.get_active():
-            self._config.post_export_action = PostExportAction.NONE.value
-        self.update_custom_command_visibility(self._config.post_export_action)
-
-    @Gtk.Template.Callback()
-    @skip_if_uninitialized
-    def check_button_post_export_shutdown_callback(self, check_button):
-        from lada.gui.config.config import PostExportAction
-        if check_button.get_active():
-            self._config.post_export_action = PostExportAction.SHUTDOWN.value
-        self.update_custom_command_visibility(self._config.post_export_action)
-
-    @Gtk.Template.Callback()
-    @skip_if_uninitialized
-    def check_button_post_export_custom_command_callback(self, check_button):
-        from lada.gui.config.config import PostExportAction
-        if check_button.get_active():
-            self._config.post_export_action = PostExportAction.CUSTOM_COMMAND.value
-        else:
-            self._config.post_export_action = PostExportAction.NONE.value
-        self.update_custom_command_visibility(self._config.post_export_action)
-
-    @Gtk.Template.Callback()
-    @skip_if_uninitialized
-    def entry_row_post_export_custom_command_changed_callback(self, entry_row):
-        self._config.post_export_custom_command = self.entry_row_post_export_custom_command.get_text()
-
-    @Gtk.Template.Callback()
-    @skip_if_uninitialized
-    def switch_row_seek_preview_active_callback(self, switch_row, active):
-        self._config.seek_preview_enabled = switch_row.get_property("active")
+    def update_custom_command_visibility(self, action: PostExportAction):
+        self.entry_row_post_export_custom_command.set_visible(action == PostExportAction.CUSTOM_COMMAND)

@@ -41,7 +41,7 @@ class Config(GObject.Object):
         'mosaic_detection_model': 'v3.1-fast',
         'mosaic_restoration_model': 'basicvsrpp-v1.2',
         'mute_audio': False,
-        'post_export_action': PostExportAction.NONE.value,
+        'post_export_action': PostExportAction.NONE,
         'post_export_custom_command': '',
         'preview_buffer_duration': 0,
         'seek_preview_enabled': True,
@@ -299,11 +299,6 @@ class Config(GObject.Object):
                 config_dict = json.load(f)
                 self._from_dict(config_dict)
                 logger.info(f"Loaded config file {config_file_path}: {config_dict}")
-                # Set defaults for new config keys if not present
-                if 'post_export_action' not in config_dict:
-                    self.post_export_action = PostExportAction.NONE.value
-                if 'post_export_custom_command' not in config_dict:
-                    self.post_export_custom_command = self._defaults['post_export_custom_command']
         except Exception as e:
             logger.error(f"Error loading config file {config_file_path}, falling back to defaults: {e}")
         # The config might have changed in case of new or invalid values. Let's save it.
@@ -352,7 +347,7 @@ class Config(GObject.Object):
             'mosaic_detection_model': self._mosaic_detection_model,
             'mosaic_restoration_model': self._mosaic_restoration_model,
             'mute_audio': self._mute_audio,
-            'post_export_action': self._post_export_action,
+            'post_export_action': self._post_export_action.value,
             'post_export_custom_command': self._post_export_custom_command,
             'preview_buffer_duration': self._preview_buffer_duration,
             'seek_preview_enabled': self._seek_preview_enabled,
@@ -375,17 +370,7 @@ class Config(GObject.Object):
                 elif key == 'color_scheme':
                     self._color_scheme = ColorScheme(dict[key])
                 elif key == 'post_export_action':
-                    # Handle both old string values and new enum values
-                    if isinstance(dict[key], str):
-                        # Convert old string to enum
-                        for enum_value in PostExportAction:
-                            if enum_value.value == dict[key]:
-                                self._post_export_action = enum_value.value
-                                break
-                        else:
-                            self._post_export_action = PostExportAction.NONE.value
-                    else:
-                        self._post_export_action = PostExportAction.NONE.value
+                    self._post_export_action = PostExportAction(dict[key])
                 elif key == 'export_codec':
                     self.validate_and_set_export_codec(dict[key])
                 elif key == 'export_directory':
