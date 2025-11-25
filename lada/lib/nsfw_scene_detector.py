@@ -51,7 +51,7 @@ class NsfwFrame:
     @property
     def mask(self) -> Mask:
         mask = convert_yolo_mask(self._mask, self.frame.shape)
-        mask = mask_utils.fill_holes(mask)
+        # TODO: use mask_utils.clean_mask()
         return mask
 
     @property

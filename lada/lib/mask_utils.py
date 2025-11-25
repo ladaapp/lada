@@ -7,16 +7,13 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from torchvision.transforms.functional import gaussian_blur as tv_gaussian_blur
-from lada.lib import Box, Mask
+from lada.lib import Box, Mask, box_utils
 from lada.lib import image_utils
 
 
 def get_box(mask: Mask) -> Box:
     points = cv2.findNonZero(mask)
-    x, y, w, h = cv2.boundingRect(points)
-    t, l, b, r = y, x, y+h, x+w
-    box = t, l, b, r
-    return box
+    return box_utils.convert_from_opencv(cv2.boundingRect(points))
 
 def morph(mask: Mask, iterations=1) -> Mask:
     if get_mask_area(mask) < 0.01:
@@ -45,14 +42,25 @@ def extend_mask(mask: Mask, value) -> Mask:
 def clean_up_boundaries(mask: Mask, kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (19, 19))) -> Mask:
     return cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
 
-def fill_holes(mask: Mask) -> Mask:
+def clean_mask(mask: Mask, box: Box) -> tuple[Mask, Box]:
+    t, l, b, r = box
+    # Masks from YOLO prediction extend detection area in some cases. Let's crop
+    mask[:t + 1, :, :] = 0
+    mask[b:, :, :] = 0
+    mask[:, :l + 1, :] = 0
+    mask[:, r:, :] = 0
+
+    # Mask from YOLO prediction can sometimes contain additional disconnected (tiny) segments. Keep only the largest
     edited_mask = np.zeros_like(mask, dtype=mask.dtype)
-    contour, hier = cv2.findContours(mask, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
-
-    for cnt in contour:
-        cv2.drawContours(edited_mask, [cnt], 0, 255, -1)
-
-    return edited_mask
+    contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    assert len(contours) != 0
+    if len(contours) > 1:
+        contours = sorted(contours, key=lambda contour: cv2.contourArea(contour), reverse=True)[0]
+    largest_contour = contours[0]
+    cv_box = cv2.boundingRect(largest_contour)
+    box = box_utils.convert_from_opencv(cv_box)
+    cv2.drawContours(edited_mask, [largest_contour], 0, 255, thickness=cv2.FILLED)
+    return edited_mask, box
 
 def get_mask_area(mask: Mask) -> float:
     pixels = cv2.countNonZero(mask)

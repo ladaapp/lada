@@ -12,15 +12,12 @@ def get_nsfw_frames(yolo_results: ultralytics.engine.results.Results, random_ext
         return None
     for yolo_box, yolo_mask in zip(yolo_results.boxes, yolo_results.masks):
         mask = convert_yolo_mask(yolo_mask, yolo_results.orig_img.shape)
-        mask = mask_utils.fill_holes(mask)
-        # TODO: in a single yolo detection there could be multiple disconnected segments -> keep only the biggest area by contour and nuke the rest.
-        #  Most often these are tiny false positive detections by NSFW detection model
+        box = convert_yolo_box(yolo_box, yolo_results.orig_img.shape)
+        mask, box = mask_utils.clean_mask(mask, box)
 
         if random_extend_masks:
             mask = mask_utils.apply_random_mask_extensions(mask)
             box = mask_utils.get_box(mask)
-        else:
-            box = convert_yolo_box(yolo_box, yolo_results.orig_img.shape)
 
         t, l, b, r = box
         width, height = r - l + 1, b - t + 1

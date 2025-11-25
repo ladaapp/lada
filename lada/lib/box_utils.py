@@ -25,3 +25,8 @@ def scale_box(img: Image, box: Box, mask_scale=1.0) -> Box:
 def random_scale_box(img: Image, box: Box, scale_range=(1.0, 1.5)) -> Box:
     scale = random.uniform(scale_range[0], scale_range[1])
     return scale_box(img, box, scale)
+
+def convert_from_opencv(opencv_box: tuple[int, int, int, int]) -> Box:
+    x, y, w, h = opencv_box
+    t, l, b, r = y, x, y + h, x + w
+    return t, l, b, r
