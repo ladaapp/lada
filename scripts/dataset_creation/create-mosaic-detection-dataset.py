@@ -28,13 +28,13 @@ from torchvision.transforms import transforms as torchvision_transforms
 from lada.lib.image_utils import UnsharpMaskingSharpener
 from lada.lib.jpeg_utils import DiffJPEG
 
-def get_target_shape(img, target_size: int):
-    h, w = img.shape[:2]
+def get_target_shape(img_shape, target_size: int):
+    h, w = img_shape[:2]
     new_w, new_h = (int(target_size * w / h), target_size) if h > w else (target_size, int(target_size * h / w))
     return new_h, new_w
 
-def _create_realesrgan_degradation_pipeline(img, target_size, mosaic_size, device, p:float):
-    target_h, target_w = get_target_shape(img, target_size)
+def _create_realesrgan_degradation_pipeline(img_shape, target_size: int, mosaic_size: int, device: str, p:float):
+    target_h, target_w = get_target_shape(img_shape, target_size)
 
     if not np.random.uniform() < p:
         return torchvision_transforms.Resize(size=(target_h, target_w))
@@ -43,8 +43,8 @@ def _create_realesrgan_degradation_pipeline(img, target_size, mosaic_size, devic
     jpeger = DiffJPEG(differentiable=False).to(device)
     kernel_range = [2 * v + 1 for v in range(3, 5)]
 
-    small_mosaic_blocks = mosaic_size < min(img.shape[:2]) * 14 / 1000
-    low_resolution_image = min(img.shape[:2]) < 700
+    small_mosaic_blocks = mosaic_size < min(img_shape[:2]) * 14 / 1000
+    low_resolution_image = min(img_shape[:2]) < 700
     if small_mosaic_blocks or low_resolution_image:
         # skip heavy degradations
         first_pass = lambda img: img
@@ -79,10 +79,10 @@ def _create_realesrgan_degradation_pipeline(img, target_size, mosaic_size, devic
         ], p=[0.5, 0.5]),
     ])
 
-def create_degradation_pipeline(hq_img, target_size, mosaic_size, device='cuda'):
+def create_degradation_pipeline(img_shape: tuple[int, int, int], target_size: int, mosaic_size: int, device='cuda'):
     return torchvision_transforms.Compose([
         lada_transforms.Image2Tensor(bgr2rgb=False, unsqueeze=True, device=device),
-        _create_realesrgan_degradation_pipeline(hq_img, target_size=target_size, mosaic_size=mosaic_size, device=device, p=0.8),
+        _create_realesrgan_degradation_pipeline(img_shape, target_size=target_size, mosaic_size=mosaic_size, device=device, p=0.8),
         lada_transforms.Tensor2Image(rgb2bgr=False, squeeze=True),
         lada_transforms.VideoCompression(p=0.3, codecs=['libx264', 'libx265'], codec_probs=[0.5, 0.5],
                                          crf_ranges={'libx264': (26, 32), 'libx265': (28, 34)},
@@ -172,13 +172,13 @@ def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector 
             else:
                 mask = mask | detection.mask
             if img_mosaic is None:
-                img_mosaic, mask_mosaic, mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img, mask)
+                img_mosaic, mask_mosaic, mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img, detection.mask)
             else:
-                img_mosaic, _mask_mosaic, _mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img_mosaic, mask)
+                img_mosaic, _mask_mosaic, _mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img_mosaic, detection.mask)
                 mask_mosaic = mask_mosaic | _mask_mosaic
                 mosaic_size = min(_mosaic_size, mosaic_size)
 
-        degrade = create_degradation_pipeline(img, target_size=target_size, device=device, mosaic_size=mosaic_size)
+        degrade = create_degradation_pipeline(img.shape, target_size=target_size, device=device, mosaic_size=mosaic_size)
 
         degraded_mosaic = degrade(img_mosaic)
         mask_mosaic = image_utils.resize(mask_mosaic, degraded_mosaic.shape[:2], interpolation=cv2.INTER_NEAREST)
@@ -212,13 +212,13 @@ def process_image_file(file_path, output_root, detectors: list[NsfwImageDetector
         else:
             mask = mask | detection.mask
         if img_mosaic is None:
-            img_mosaic, mask_mosaic, mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img, mask)
+            img_mosaic, mask_mosaic, mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img, detection.mask)
         else:
-            img_mosaic, _mask_mosaic, _mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img_mosaic, mask)
+            img_mosaic, _mask_mosaic, _mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img_mosaic, detection.mask)
             mask_mosaic = mask_mosaic | _mask_mosaic
             mosaic_size = min(_mosaic_size, mosaic_size)
 
-    degrade = create_degradation_pipeline(img, target_size=target_size, device=device, mosaic_size=mosaic_size)
+    degrade = create_degradation_pipeline(img.shape, target_size=target_size, device=device, mosaic_size=mosaic_size)
 
     degraded_mosaic = degrade(img_mosaic)
     mask_mosaic = image_utils.resize(mask_mosaic, degraded_mosaic.shape[:2], interpolation=cv2.INTER_NEAREST)
