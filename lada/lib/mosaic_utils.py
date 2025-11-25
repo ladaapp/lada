@@ -70,11 +70,16 @@ def addmosaic_base(img, mask, n, model='squa_avg', rect_ratio=1.6, feather=0, re
     img_mosaic = img.copy()
     mask_mosaic = np.zeros_like(mask, dtype=mask.dtype)
 
+    min_h, max_h = img.shape[1], 0
+    min_w, max_w = img.shape[0], 0
+
     block_corner_points = []
     for i in range(h_step):
         for j in range(w_step):
             if mask_val := mask_padded[i * n_h + pix_mid_h, j * n_w + pix_mid_w]:
                 if not reuse_input_mask_value: mask_val = 255
+                min_h, max_h = min(min_h, i), max(max_h, i)
+                min_w, max_w = min(min_w, j), max(max_w, j)
                 y_start = i * n_h + h_start
                 y_end = (i + 1) * n_h + h_start
                 x_start = j * n_w + w_start
@@ -83,7 +88,11 @@ def addmosaic_base(img, mask, n, model='squa_avg', rect_ratio=1.6, feather=0, re
                 mask_mosaic[y_start:y_end, x_start:x_end,:] = mask_val
                 block_corner_points.append(((x_start,y_start),(x_end,y_end)))
 
-    if feather != -1:
+    row_count = max_h - min_h + 1
+    col_count = max_w - min_w + 1
+    min_block_count = 4
+
+    if feather != -1 and row_count > min_block_count and col_count > min_block_count:
         if reuse_input_mask_value:
             _mask = mask.copy()
             _mask[_mask > 0] = 255
