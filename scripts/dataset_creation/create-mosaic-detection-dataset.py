@@ -34,8 +34,8 @@ def get_target_shape(img_shape, target_size: int):
     new_w, new_h = (int(target_size * w / h), target_size) if h > w else (target_size, int(target_size * h / w))
     return new_h, new_w
 
-def _create_realesrgan_degradation_pipeline(img_shape, target_size: int, mosaic_size: int, device: str, p:float):
-    target_h, target_w = get_target_shape(img_shape, target_size)
+def _create_realesrgan_degradation_pipeline(img_shape, mosaic_size: int, device: str, p:float):
+    target_h, target_w = img_shape[:2]
 
     if not np.random.uniform() < p:
         return torchvision_transforms.Resize(size=(target_h, target_w))
@@ -44,9 +44,9 @@ def _create_realesrgan_degradation_pipeline(img_shape, target_size: int, mosaic_
     jpeger = DiffJPEG(differentiable=False).to(device)
     kernel_range = [2 * v + 1 for v in range(3, 5)]
 
+    # TODO: adjust small mosaic logic, probably should pass this down from creation func
     small_mosaic_blocks = mosaic_size < min(img_shape[:2]) * 14 / 1000
-    low_resolution_image = min(img_shape[:2]) < 700
-    if small_mosaic_blocks or low_resolution_image:
+    if small_mosaic_blocks:
         # skip heavy degradations
         first_pass = lambda img: img
     else:
@@ -80,10 +80,10 @@ def _create_realesrgan_degradation_pipeline(img_shape, target_size: int, mosaic_
         ], p=[0.5, 0.5]),
     ])
 
-def create_degradation_pipeline(img_shape: tuple[int, int, int], target_size: int, mosaic_size: int, device='cuda'):
+def create_degradation_pipeline(img_shape: tuple[int, int, int], mosaic_size: int, device='cuda'):
     return torchvision_transforms.Compose([
         lada_transforms.Image2Tensor(bgr2rgb=False, unsqueeze=True, device=device),
-        _create_realesrgan_degradation_pipeline(img_shape, target_size=target_size, mosaic_size=mosaic_size, device=device, p=0.8),
+        _create_realesrgan_degradation_pipeline(img_shape, mosaic_size=mosaic_size, device=device, p=0.8),
         lada_transforms.Tensor2Image(rgb2bgr=False, squeeze=True),
         lada_transforms.VideoCompression(p=0.3, codecs=['libx264', 'libx265'], codec_probs=[0.5, 0.5],
                                          crf_ranges={'libx264': (26, 32), 'libx265': (28, 34)},
@@ -159,11 +159,13 @@ def wait_until_key_press(accepted_keys: list[str]) -> str:
             return accepted_keys[_accepted_keys.index(_key_pressed)]
 
 def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], device='cpu', window_name="mosaic", target_size=640) -> bool:
-    detections: Detections = get_detections(file_path, detectors)
+    img = cv2.imread(file_path)
+    target_shape = get_target_shape(img.shape, target_size)
+    img = image_utils.resize(img, size=target_shape)
+
+    detections: Detections = get_detections(img, detectors)
     if not detections or len(detections.detections) == 0:
         return True
-
-    img = detections.frame
 
     while True:
         mask, img_mosaic, mask_mosaic, mosaic_size = None, None, None, None
@@ -179,7 +181,7 @@ def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector 
                 mask_mosaic = mask_mosaic | _mask_mosaic
                 mosaic_size = min(_mosaic_size, mosaic_size)
 
-        degrade = create_degradation_pipeline(img.shape, target_size=target_size, device=device, mosaic_size=mosaic_size)
+        degrade = create_degradation_pipeline(img.shape, device=device, mosaic_size=mosaic_size)
 
         degraded_mosaic = degrade(img_mosaic)
         mask_mosaic = image_utils.resize(mask_mosaic, degraded_mosaic.shape[:2], interpolation=cv2.INTER_NEAREST)
@@ -199,13 +201,16 @@ def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector 
     return True
 
 def process_image_file(file_path, output_root, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], device='cpu', target_size=640):
-    detections: Detections = get_detections(file_path, detectors)
+    img = cv2.imread(file_path)
+    target_shape = get_target_shape(img.shape, target_size)
+    img = image_utils.resize(img, size=target_shape)
+
+    detections: Detections = get_detections(img, detectors)
     if not detections or len(detections.detections) == 0:
         name = osp.splitext(os.path.basename(file_path))[0]
         shutil.copy(file_path, f"{output_root}/background_images/{name}.jpg")
         return
 
-    img = detections.frame
     mask, img_mosaic, mask_mosaic, mosaic_size = None, None, None, None
     for detection in detections.detections:
         if mask is None:
@@ -219,7 +224,7 @@ def process_image_file(file_path, output_root, detectors: list[NsfwImageDetector
             mask_mosaic = mask_mosaic | _mask_mosaic
             mosaic_size = min(_mosaic_size, mosaic_size)
 
-    degrade = create_degradation_pipeline(img.shape, target_size=target_size, device=device, mosaic_size=mosaic_size)
+    degrade = create_degradation_pipeline(img.shape, device=device, mosaic_size=mosaic_size)
 
     degraded_mosaic = degrade(img_mosaic)
     mask_mosaic = image_utils.resize(mask_mosaic, degraded_mosaic.shape[:2], interpolation=cv2.INTER_NEAREST)
