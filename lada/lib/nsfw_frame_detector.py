@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0
 
 import ultralytics.models
-from lada.lib import Detections, Detection
+from lada.lib import Detections, Detection, Image
 from lada.lib import mask_utils
 from lada.lib.ultralytics_utils import convert_yolo_box, convert_yolo_mask
 
@@ -37,6 +37,6 @@ class NsfwImageDetector:
         self.random_extend_masks = random_extend_masks
         self.conf = conf
 
-    def detect(self, file_path: str) -> Detections | None:
-        for results in self.model.predict(source=file_path, stream=False, verbose=False, device=self.device, conf=self.conf, iou=0.):
+    def detect(self, source: str | Image) -> Detections | None:
+        for results in self.model.predict(source=source, stream=False, verbose=False, device=self.device, conf=self.conf, iou=0.):
             return get_nsfw_frames(results, self.random_extend_masks)

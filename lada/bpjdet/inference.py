@@ -33,8 +33,11 @@ _colors_list = [
         [255, 127, 255], [127, 255, 255], [255, 255, 127], [127, 127, 255], [255, 127, 127], [255, 127, 127],
     ]  # 27 colors
 
-def _load_image(file_path:str, device: torch.device, imgz: int, stride: int) -> torch.tensor:
-    img_orig = cv2.imread(file_path)  # BGR
+def _load_image(source: str | np.ndarray, device: torch.device, imgz: int, stride: int) -> torch.tensor:
+    if isinstance(source, str):
+        img_orig = cv2.imread(source)  # BGR
+    else:
+        img_orig = source
     img = letterbox(img_orig, imgz, stride=stride, auto=True)[0]
     img = img.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
     img = np.ascontiguousarray(img)
@@ -117,12 +120,12 @@ def get_model(device: str):
     weights_path = os.path.join(MODEL_WEIGHTS_DIR, '3rd_party', 'ch_head_s_1536_e150_best_mMR.pt')
     return attempt_load(weights_path, map_location=torch_device)
 
-def inference(model, image_path, imgz, data, conf_thres=0.45, iou_thres=0.75) -> list[Box]:
+def inference(model, source, imgz, data, conf_thres=0.45, iou_thres=0.75) -> list[Box]:
     stride = int(model.stride.max())
     imgz = check_img_size(imgz, s=stride)
     device = next(model.parameters()).device
 
-    img_orig, img = _load_image(image_path, device=device, stride=stride, imgz=imgz)
+    img_orig, img = _load_image(source, device=device, stride=stride, imgz=imgz)
 
     scales = [1]
     batch = torch.unsqueeze(img, 0)  # expand for batch dim

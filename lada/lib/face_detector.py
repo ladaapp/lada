@@ -65,8 +65,13 @@ class FaceDetector:
         self.random_extend_masks = random_extend_masks
         self.conf = conf
 
-    def detect(self, file_path: str) -> Detections | None:
-        image = cv2.imread(file_path, cv2.IMREAD_COLOR_RGB)
-        dets, _ = self.model(image, threshold=self.conf)
+    def detect(self, source: str | Image) -> Detections | None:
+        if isinstance(source, str):
+            bgr_image = cv2.imread(source)
+            rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
+        else:
+            bgr_image = source
+            rgb_image = cv2.cvtColor(source, cv2.COLOR_BGR2RGB)
+        dets, _ = self.model(rgb_image, threshold=self.conf)
         dets_boxes = convert_to_boxes(dets)
-        return get_nsfw_frame(dets_boxes, cv2.cvtColor(image, cv2.COLOR_RGB2BGR), random_extend_masks=self.random_extend_masks)
+        return get_nsfw_frame(dets_boxes, bgr_image, random_extend_masks=self.random_extend_masks)

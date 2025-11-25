@@ -58,7 +58,10 @@ class HeadDetector:
         self.iou_thres = iou_thres
         self.imgz = imgz
 
-    def detect(self, file_path: str) -> Detections | None:
-        image = cv2.imread(file_path, cv2.IMREAD_COLOR_RGB)
-        dets = inference(self.model, file_path, data=self.data, conf_thres=self.conf_thres, iou_thres=self.iou_thres, imgz=self.imgz)
-        return _get_detection(dets, cv2.cvtColor(image, cv2.COLOR_RGB2BGR), random_extend_masks=self.random_extend_masks)
+    def detect(self, source: str | Image) -> Detections | None:
+        if isinstance(source, str):
+            image = cv2.imread(source)
+        else:
+            image = source
+        dets = inference(self.model, source, data=self.data, conf_thres=self.conf_thres, iou_thres=self.iou_thres, imgz=self.imgz)
+        return _get_detection(dets, image, random_extend_masks=self.random_extend_masks)

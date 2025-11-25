@@ -15,7 +15,8 @@ from ultralytics import YOLO
 
 from lada.centerface.centerface import CenterFace
 import lada.bpjdet.inference as bpjdet
-from lada.lib import visualization_utils, image_utils, transforms as lada_transforms, Detections, DETECTION_CLASSES
+from lada.lib import visualization_utils, image_utils, transforms as lada_transforms, Detections, DETECTION_CLASSES, \
+    Image
 from lada.lib.box_utils import box_overlap
 from lada.lib.face_detector import FaceDetector
 from lada.lib.head_detector import HeadDetector
@@ -89,14 +90,14 @@ def create_degradation_pipeline(img_shape: tuple[int, int, int], target_size: in
                                          bitrate_ranges={}),
     ])
 
-def get_detections(file_path, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector]) -> Detections:
+def get_detections(source: str | Image, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector]) -> Detections:
     detections = []
     nsfw_detections = []
     sfw_detections = []
     frame = None
 
     for detector in detectors:
-        _detections = detector.detect(file_path)
+        _detections = detector.detect(source)
         if _detections is None:
             continue
         if frame is None:
