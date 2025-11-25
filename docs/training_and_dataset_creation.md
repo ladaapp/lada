@@ -60,6 +60,9 @@ If you're not interested in training specific models you can use the pretrained 
 > To find and remove duplicate files I can recommend the tools [Czkawka](https://github.com/qarmin/czkawka) and [cbird](https://github.com/scrubbbbs/cbird).
 
 > [!TIP]
+> The scripts `scripts/dataset_creation/extract-video-frames.py` can be useful for creating image datasets.
+
+> [!TIP]
 > In some scripts OpenCV QT-based GUI features are using for debugging purposes. 
 > OpenCV currently does not support wayland, you may want to force QT to use its X11 backend by setting the following environment variable
 > `export QT_QPA_PLATFORM=xcb`.
