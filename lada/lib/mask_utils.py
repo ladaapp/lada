@@ -15,12 +15,12 @@ def get_box(mask: Mask) -> Box:
     points = cv2.findNonZero(mask)
     return box_utils.convert_from_opencv(cv2.boundingRect(points))
 
-def morph(mask: Mask, iterations=1) -> Mask:
+def morph(mask: Mask, iterations=1, operator=cv2.MORPH_DILATE) -> Mask:
     if get_mask_area(mask) < 0.01:
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
     else:
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
-    return cv2.morphologyEx(mask, cv2.MORPH_DILATE, kernel, iterations=iterations)
+    return cv2.morphologyEx(mask, operator, kernel, iterations=iterations)
 
 def dilate_mask(mask: Mask, dilatation_size=11, iterations=2):
     if iterations == 0:
@@ -33,14 +33,15 @@ def extend_mask(mask: Mask, value) -> Mask:
     # value between 0 and 3 -> higher values mean more extension of mask area. 0 does not change mask at all
     if value == 0:
         return mask
-    target_size = 256
+
     # Dilations are slow when using huge kernels (which we would need for high-res masks). therefore we downscale mask to perform morph operations on much smaller pixel space with smaller kernels
-    extended_mask = clean_up_boundaries(image_utils.resize(morph(image_utils.resize(mask, target_size, interpolation=cv2.INTER_NEAREST), iterations=value), mask.shape[:2], interpolation=cv2.INTER_NEAREST)).reshape(mask.shape)
+    target_size = 256
+    extended_mask = image_utils.resize(mask, target_size, interpolation=cv2.INTER_NEAREST)
+    extended_mask = morph(extended_mask, iterations=value, operator=cv2.MORPH_DILATE)
+    extended_mask = image_utils.resize(extended_mask, mask.shape[:2], interpolation=cv2.INTER_NEAREST)
+    extended_mask = extended_mask.reshape(mask.shape)
     assert mask.shape == extended_mask.shape
     return extended_mask
-
-def clean_up_boundaries(mask: Mask, kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (19, 19))) -> Mask:
-    return cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
 
 def clean_mask(mask: Mask, box: Box) -> tuple[Mask, Box]:
     t, l, b, r = box
@@ -66,6 +67,8 @@ def get_mask_area(mask: Mask) -> float:
     pixels = cv2.countNonZero(mask)
     return pixels / (mask.shape[0] * mask.shape[1])
 
+def smooth_mask(mask: Mask, kernel_size: int) -> Mask:
+    return cv2.medianBlur(mask, kernel_size).reshape(mask.shape)
 
 def create_blend_mask(crop_mask):
     mask = crop_mask.squeeze().float()

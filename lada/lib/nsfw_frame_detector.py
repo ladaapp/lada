@@ -14,9 +14,11 @@ def get_nsfw_frames(yolo_results: ultralytics.engine.results.Results, random_ext
         mask = convert_yolo_mask(yolo_mask, yolo_results.orig_img.shape)
         box = convert_yolo_box(yolo_box, yolo_results.orig_img.shape)
         mask, box = mask_utils.clean_mask(mask, box)
+        mask = mask_utils.smooth_mask(mask, kernel_size=11)
 
         if random_extend_masks:
             mask = mask_utils.apply_random_mask_extensions(mask)
+            mask = mask_utils.smooth_mask(mask, kernel_size=15)
             box = mask_utils.get_box(mask)
 
         t, l, b, r = box
