@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: Lada Authors
+# SPDX-License-Identifier: AGPL-3.0
+
 import torch
 import torchvision
 from torchvision import transforms

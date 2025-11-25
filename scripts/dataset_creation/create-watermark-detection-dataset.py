@@ -1,6 +1,8 @@
-"""
-source: https://github.com/tgenlis83/dnn-watermark
-"""
+# SPDX-FileCopyrightText: Lada Authors
+# SPDX-FileCopyrightText: Watermarking Detection - DNN Authors
+# SPDX-License-Identifier: AGPL-3.0
+# Code vendored from: https://github.com/tgenlis83/dnn-watermark
+
 import argparse
 
 import glob

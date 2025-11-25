@@ -1,4 +1,6 @@
-# source: https://github.com/Abonia1/yolosegment2labelme
+# SPDX-FileCopyrightText: yolosegment2labelme Authors
+# SPDX-License-Identifier: MIT AND AGPL-3.0
+# Code vendored from: https://github.com/Abonia1/yolosegment2labelme
 
 import json
 import cv2
