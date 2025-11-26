@@ -133,11 +133,9 @@ Now you should be able to run the CLI by calling `lada-cli`.
    ```Powershell
    py -m venv venv_gtk
    .\venv_gtk\Scripts\Activate.ps1
-   pip install gvsbuild==2025.10
+   pip install gvsbuild==2025.11.1
    pip install patch
-   python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_gstreamer_gtk4_plugin.patch
    python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_ffmpeg.patch
-   python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_fix_svg_icons_not_showing.patch
    pip uninstall patch
    ```
    

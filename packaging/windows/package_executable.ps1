@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0
 
 $global:PYINSTALLER_VERSION = "6.16.0"
-$global:GVSBUILD_VERSION = "2025.10"
+$global:GVSBUILD_VERSION = "2025.11.1"
 $global:PYTHON_VERSION = "3.13"
 $global:UV_VERSION = "0.9.10"
 
@@ -44,9 +44,7 @@ function Build-SystemDependencies {
 
     uv pip install gvsbuild==$global:GVSBUILD_VERSION
     uv pip install patch
-    uv run --no-project python -m patch -p1 -d venv_gtk_release/lib/site-packages patches/gvsbuild_gstreamer_gtk4_plugin.patch
     uv run --no-project python -m patch -p1 -d venv_gtk_release/lib/site-packages patches/gvsbuild_ffmpeg.patch
-    uv run --no-project python -m patch -p1 -d venv_gtk_release/lib/site-packages patches/gvsbuild_fix_svg_icons_not_showing.patch
     uv pip uninstall patch
 
     $cleanArgument = if ($clean) { '--clean' } else { '' }
