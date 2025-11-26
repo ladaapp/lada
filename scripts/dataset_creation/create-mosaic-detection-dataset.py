@@ -186,9 +186,9 @@ def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector 
         degraded_mosaic = degrade(img_mosaic)
         mask_mosaic = image_utils.resize(mask_mosaic, degraded_mosaic.shape[:2], interpolation=cv2.INTER_NEAREST)
 
-        show_img = visualization_utils.overlay_mask_boundary(degraded_mosaic, mask_mosaic, color=(0, 255, 0))
+        show_img = visualization_utils.overlay_mask_boundary(degraded_mosaic, mask_mosaic, color=(0, 255, 0), thickness=1)
         mask = image_utils.resize(mask, degraded_mosaic.shape[:2], interpolation=cv2.INTER_NEAREST)
-        show_img = visualization_utils.overlay_mask_boundary(show_img, mask, color=(255, 0, 0))
+        show_img = visualization_utils.overlay_mask_boundary(show_img, mask, color=(255, 0, 0), thickness=1)
 
         cv2.imshow(window_name, show_img)
         pressed_key = wait_until_key_press(["n", "r", "q"])

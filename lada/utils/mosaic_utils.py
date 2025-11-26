@@ -41,7 +41,7 @@ def _mosaic_get_block_data_fun(model):
     raise Exception()
 
 
-def addmosaic_base(img, mask, n, model='squa_avg', rect_ratio=1.6, feather=0, return_mosaic_edges=False, reuse_input_mask_value=False):
+def addmosaic_base(img, mask, n, model='squa_avg', rect_ratio=1.6, feather=0, reuse_input_mask_value=False, incomplete_blocks=False):
     '''
     img: input image
     mask: input mask
@@ -73,7 +73,6 @@ def addmosaic_base(img, mask, n, model='squa_avg', rect_ratio=1.6, feather=0, re
     min_h, max_h = img.shape[1], 0
     min_w, max_w = img.shape[0], 0
 
-    block_corner_points = []
     for i in range(h_step):
         for j in range(w_step):
             if mask_val := mask_padded[i * n_h + pix_mid_h, j * n_w + pix_mid_w]:
@@ -84,9 +83,18 @@ def addmosaic_base(img, mask, n, model='squa_avg', rect_ratio=1.6, feather=0, re
                 y_end = (i + 1) * n_h + h_start
                 x_start = j * n_w + w_start
                 x_end = (j + 1) * n_w + w_start
-                img_mosaic[y_start:y_end, x_start:x_end,:] = get_block_data(img_padded, i, j, n_h, n_w, h_start, w_start)
-                mask_mosaic[y_start:y_end, x_start:x_end,:] = mask_val
-                block_corner_points.append(((x_start,y_start),(x_end,y_end)))
+                if incomplete_blocks:
+                    img_block = img[y_start:y_end, x_start:x_end,:]
+                    mask_block = mask[y_start:y_end, x_start:x_end,:]
+                    img_mosaic_block = get_block_data(img_padded, i, j, n_h, n_w, h_start, w_start)
+                    mask_block_indices = mask_block == 0
+                    img_mosaic_block = np.where(mask_block_indices, img_block, img_mosaic_block)
+                    mask_mosaic_block = np.where(mask_block_indices, 0, mask_val)
+                    img_mosaic[y_start:y_end, x_start:x_end,:] = img_mosaic_block
+                    mask_mosaic[y_start:y_end, x_start:x_end,:] = mask_mosaic_block
+                else:
+                    img_mosaic[y_start:y_end, x_start:x_end,:] = get_block_data(img_padded, i, j, n_h, n_w, h_start, w_start)
+                    mask_mosaic[y_start:y_end, x_start:x_end,:] = mask_val
 
     row_count = max_h - min_h + 1
     col_count = max_w - min_w + 1
@@ -107,7 +115,7 @@ def addmosaic_base(img, mask, n, model='squa_avg', rect_ratio=1.6, feather=0, re
             img_mosaic[:, :, i] = (img[:, :, i] * (1 - blurred_mask) + img_mosaic[:, :, i] * blurred_mask)
         img_mosaic = img_mosaic.astype(np.uint8)
 
-    return (img_mosaic, mask_mosaic, block_corner_points) if return_mosaic_edges else (img_mosaic, mask_mosaic)
+    return img_mosaic, mask_mosaic
 
 def get_mosaic_block_size_v1(mask_img, area_type ='normal'):
     h,w = mask_img.shape[:2]

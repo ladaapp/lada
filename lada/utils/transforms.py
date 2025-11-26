@@ -283,7 +283,8 @@ class Mosaic(torch.nn.Module):
                  rectangular_block_ratio_range=[1.1, 1.8],
                  feather_prob=0.7,
                  feather_size_range=[0., 2.5],
-                 reuse_input_mask_value=False
+                 reuse_input_mask_value=False,
+                 incomplete_blocks_prop=0.2,
                  ):
         super().__init__()
 
@@ -294,24 +295,8 @@ class Mosaic(torch.nn.Module):
         self.mosaic_block_size_scale_factor = np.random.uniform(base_block_size_scale_factor_range[0], base_block_size_scale_factor_range[1])
         self.feather_size_scale_factor = random.uniform(feather_size_range[0], feather_size_range[1])
         self.should_apply_feathering =  random.random() < feather_prob
+        self.should_enable_incomplete_blocks=  random.random() < incomplete_blocks_prop
         self.reuse_input_mask_value = reuse_input_mask_value
-
-    def _crop_to_box(self, img, box):
-        t, l, b, r = box
-        cropped_img = img[t:b + 1, l:r + 1]
-        return cropped_img
-
-    def _paste_img(self, outer_image, cropped_image, box):
-        img = outer_image.copy()
-        t, l, b, r = box
-        img[t:b + 1, l:r + 1, :] = cropped_image
-        return img
-
-    def _paste_mask(self, outer_mask, cropped_mask, box):
-        mask = np.zeros_like(outer_mask, dtype=outer_mask.dtype)
-        t, l, b, r = box
-        mask[t:b + 1, l:r + 1, :] = cropped_mask
-        return mask
 
     def forward(self, img: Image, mask: Mask):
         single_image = not isinstance(img, list)
@@ -332,7 +317,8 @@ class Mosaic(torch.nn.Module):
                                                           model=self.mosaic_mod,
                                                           rect_ratio=self.mosaic_rectangle_ratio,
                                                           feather=mosaic_feather_size,
-                                                          reuse_input_mask_value=self.reuse_input_mask_value)
+                                                          reuse_input_mask_value=self.reuse_input_mask_value,
+                                                          incomplete_blocks=self.should_enable_incomplete_blocks)
             img_lqs.append(img_lq)
             mask_lqs.append(mask_lq)
 

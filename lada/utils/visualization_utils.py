@@ -14,10 +14,10 @@ def overlay_mask(frame, mask):
     cv2.addWeighted(overlay, alpha, output, 1 - alpha, 0, output)
     return output
 
-def overlay_mask_boundary(frame, mask, color=(0, 255, 0)):
+def overlay_mask_boundary(frame, mask, color=(0, 255, 0), thickness=2):
     output = frame.copy()
     contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-    cv2.drawContours(output, contours, -1, color, 2)
+    cv2.drawContours(output, contours, -1, color, thickness)
     return output
 
 def draw_box(img, box, color=(255, 0, 0), thickness = 2):
