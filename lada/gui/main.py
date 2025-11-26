@@ -16,6 +16,8 @@ gi.require_version('GstApp', '1.0')
 
 from gi.repository import Gtk, Gio, Adw, Gdk, Gst, GObject
 
+Gst.init(None)
+
 here = pathlib.Path(__file__).parent.resolve()
 
 logger = logging.getLogger(__name__)
@@ -47,8 +49,6 @@ class LadaApplication(Adw.Application):
         self.window: MainWindow | None = None
 
         self.connect("shutdown", self.on_shutdown)
-
-        Gst.init(None)
 
     @GObject.Property(type=ShortcutsManager)
     def shortcuts_manager(self):

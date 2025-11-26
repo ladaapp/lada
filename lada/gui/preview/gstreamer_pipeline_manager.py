@@ -133,7 +133,6 @@ class PipelineManager(GObject.Object):
         self.pipeline.set_state(Gst.State.NULL)
         while not self.pipeline.get_state(Gst.CLOCK_TIME_NONE)[1] == Gst.State.NULL:
             sleep(0.05)
-        self.frame_restorer_app_src.stop()
         # self.pipeline.get_bus().remove_watch()
 
     def seek_async(self, seek_position_ns):
@@ -207,8 +206,14 @@ class PipelineManager(GObject.Object):
         self.audio_buffer_queue = audio_queue
 
     def pipeline_add_video(self):
-        self.frame_restorer_app_src = FrameRestorerAppSrc(self.video_metadata, self.frame_restorer_provider, lambda: GLib.idle_add(lambda: self.emit("waiting-for-data", False)))
-        appsrc = self.frame_restorer_app_src.appsrc
+        appsrc = FrameRestorerAppSrc()
+        appsrc.set_property('video-metadata', self.video_metadata)
+        appsrc.set_property('frame-restorer-provider', self.frame_restorer_provider)
+        def on_appsrc_end_of_stream(src):
+            logger.debug("appsource end-of-stream")
+            GLib.idle_add(lambda: self.emit("waiting-for-data", False))
+            return False
+        appsrc.connect("end-of-stream", on_appsrc_end_of_stream)
         self.pipeline.add(appsrc)
 
         buffer_queue = Gst.ElementFactory.make('queue', None)
@@ -241,6 +246,7 @@ class PipelineManager(GObject.Object):
         buffer_queue.link(video_sink)
 
         self.video_buffer_queue = buffer_queue
+        self.frame_restorer_app_src = appsrc
         self.paintable = paintable
         self.paintable.connect("invalidate-size", lambda obj: GLib.idle_add(lambda: self.emit("paintable-size-changed")))
 
@@ -254,7 +260,7 @@ class PipelineManager(GObject.Object):
 
     def adjust_pipeline_with_new_source_file(self, video_metadata: VideoMetadata):
         self.video_metadata = video_metadata
-        self.frame_restorer_app_src.reinit(self.video_metadata)
+        self.frame_restorer_app_src.set_property('video-metadata', self.video_metadata)
         audio_pipeline_already_added = self.has_audio
         self.has_audio = audio_utils.get_audio_codec(self.video_metadata.video_file) is not None
         if self.has_audio:
@@ -266,7 +272,7 @@ class PipelineManager(GObject.Object):
             self.pipeline_remove_audio()
 
     def reinit_appsrc(self):
-        self.frame_restorer_app_src.reinit(self.video_metadata)
+        self.frame_restorer_app_src.set_property('video-metadata', self.video_metadata)
 
         # seeking flush to flush pipeline / clean out buffers
         res, position = self.pipeline.query_position(Gst.Format.TIME)
