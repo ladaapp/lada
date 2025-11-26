@@ -2,20 +2,20 @@
 # SPDX-License-Identifier: AGPL-3.0
 
 import torch
-import torch.nn.functional as F
+from torchvision.transforms.v2 import Resize, Pad
+from torchvision.transforms.v2.functional import InterpolationMode
 
 class PyTorchLetterBox:
-    def __init__(self, imgsz: int | tuple[int, int], stride: int = 32) -> None:
+    def __init__(self, imgsz: int | tuple[int, int], original_shape: tuple[int, int], stride: int = 32) -> None:
         if isinstance(imgsz, int):
-            self.new_shape: tuple[int, int] = (imgsz, imgsz)
+            new_shape: tuple[int, int] = (imgsz, imgsz)
         else:
-            self.new_shape = imgsz
-        self.stride: int = stride
-        self.pad_value: float = 144.0/255.0
+            new_shape = imgsz
 
-    def __call__(self, image: torch.Tensor) -> torch.Tensor: # (B,C,H,W)
-        h, w = image.shape[-2:]
-        new_h, new_w = self.new_shape
+        self.original_shape = original_shape
+        pad_value: float = 114.0/255.0
+        h, w = original_shape
+        new_h, new_w = new_shape
 
         r = min(new_h / h, new_w / w)
         new_unpad_w = int(round(w * r))
@@ -23,17 +23,12 @@ class PyTorchLetterBox:
 
         dw = new_w - new_unpad_w
         dh = new_h - new_unpad_h
-        dw = int(dw % self.stride)
-        dh = int(dh % self.stride)
+        dw = int(dw % stride)
+        dh = int(dh % stride)
 
-        if (h, w) != (new_unpad_h, new_unpad_w):
-            image = F.interpolate(
-                image,
-                size=(new_unpad_h, new_unpad_w),
-                mode="bilinear",
-                align_corners=False,
-            )
+        resize = None if (h, w) == (new_unpad_h, new_unpad_w) else Resize(size=(new_unpad_h, new_unpad_w), interpolation=InterpolationMode.BILINEAR, antialias=False)
+        pad = Pad(padding=(dw // 2, dh // 2, dw - (dw // 2), dh - (dh // 2)), fill=pad_value)
+        self.transform = torch.nn.Sequential(resize, pad) if resize is not None else pad
 
-        image = F.pad(image, (dw // 2, dw - (dw // 2), dh // 2, dh - (dh // 2)), value=self.pad_value)
-
-        return image
+    def __call__(self, image: torch.Tensor) -> torch.Tensor: # (B,C,H,W)
+        return self.transform(image)

@@ -190,7 +190,7 @@ class FrameRestorer:
             clip_img = image_utils.resize(clip_img, orig_crop_shape[:2])
             clip_mask = image_utils.resize(clip_mask, orig_crop_shape[:2],interpolation=cv2.INTER_NEAREST)
             t, l, b, r = orig_clip_box
-            blend_mask = mask_utils.create_blend_mask(clip_mask).to(device=frame.device)
+            blend_mask = mask_utils.create_blend_mask(clip_mask, dtype=self.mosaic_restoration_model.dtype).to(device=frame.device)
 
             frame_roi = frame[t:b + 1, l:r + 1, :]
             roi_f = frame_roi.to(dtype=self.mosaic_restoration_model.dtype)

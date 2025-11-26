@@ -9,6 +9,7 @@ import numpy as np
 import torch
 from torch.nn import functional as F
 from torchvision.utils import make_grid
+from torchvision.transforms.v2 import Resize, InterpolationMode
 from typing import Sequence
 
 from lada.utils import Image, Pad
@@ -202,20 +203,14 @@ def resize(img: Image|torch.Tensor, size: int|tuple[int, int], interpolation=cv2
 
     if isinstance(img, torch.Tensor):
         if interpolation == cv2.INTER_LINEAR:
-            interpolation = 'bilinear'
+            interpolation = InterpolationMode.BILINEAR
         elif interpolation == cv2.INTER_NEAREST:
-            interpolation = 'nearest'
+            interpolation = InterpolationMode.NEAREST
         else:
             raise NotImplementedError(f"Interpolation {interpolation} not supported")
 
-        source_dtype = None
-        if img.dtype == torch.uint8 and interpolation == 'bilinear' and img.device.type == 'cuda':
-            source_dtype = img.dtype
-            img = img.float()
         img = img.permute(2, 0, 1)
-        resized_img = F.interpolate(img.unsqueeze(0), size=(new_h, new_w), mode=interpolation).squeeze(0)
-        if source_dtype is not None:
-            resized_img = resized_img.round_().clamp_(0, 255).to(source_dtype)
+        resized_img = Resize(size=(new_h, new_w), interpolation=interpolation, antialias=False)(img)
         resized_img = resized_img.permute(1, 2, 0)
     else:
         resized_img = cv2.resize(img, (new_w, new_h), interpolation=interpolation)

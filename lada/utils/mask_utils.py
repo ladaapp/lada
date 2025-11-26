@@ -2,14 +2,11 @@
 # SPDX-License-Identifier: AGPL-3.0
 
 import cv2
-import math
 import numpy as np
 import torch
 import torch.nn.functional as F
-from torchvision.transforms.functional import gaussian_blur as tv_gaussian_blur
 from lada.utils import Box, Mask, box_utils
 from lada.utils import image_utils
-
 
 def get_box(mask: Mask) -> Box:
     points = cv2.findNonZero(mask)
@@ -70,8 +67,8 @@ def get_mask_area(mask: Mask) -> float:
 def smooth_mask(mask: Mask, kernel_size: int) -> Mask:
     return cv2.medianBlur(mask, kernel_size).reshape(mask.shape)
 
-def create_blend_mask(crop_mask):
-    mask = crop_mask.squeeze().float()
+def create_blend_mask(crop_mask: torch.Tensor, dtype: torch.dtype):
+    mask = crop_mask.squeeze().to(dtype=dtype)
     h, w = mask.shape
     border_ratio = 0.05
     h_inner, w_inner = int(h * (1.0 - border_ratio)), int(w * (1.0 - border_ratio))
@@ -90,7 +87,8 @@ def create_blend_mask(crop_mask):
     blend = F.pad(inner, (pad_left, pad_right, pad_top, pad_bottom), value=0.0)
     mask4 = (mask > 0)
     blend = torch.maximum(mask4, blend)
-    blend = tv_gaussian_blur(blend.unsqueeze(0), [blur_size, blur_size]).squeeze(0)
+    kernel = torch.tensor(1.0 / (blur_size**2), device=blend.device, dtype=blend.dtype).expand(1, blur_size, blur_size)
+    blend = image_utils.filter2D(blend.unsqueeze(0).unsqueeze(0), kernel).squeeze(0).squeeze(0)
     assert blend.shape == mask.shape
     return blend
 

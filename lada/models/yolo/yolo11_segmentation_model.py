@@ -18,7 +18,7 @@ class Yolo11SegmentationModel:
         assert yolo_model.task == 'segment'
         self.stride = 32
         self.imgsz = check_imgsz(imgsz, stride=self.stride, min_dim=2)
-        self.letterbox = PyTorchLetterBox(self.imgsz, stride=self.stride)
+        self.letterbox: PyTorchLetterBox | None = None
 
         custom = {"conf": 0.25, "batch": 1, "save": False, "mode": "predict", "device": device, "half": fp16}
         args = {**yolo_model.overrides, **custom, **kwargs}  # highest priority args on the right
@@ -46,6 +46,8 @@ class Yolo11SegmentationModel:
         self.inference_buffer = torch.empty(batch_size, *img_shape, dtype=self.dtype, device=self.device, memory_format=torch.channels_last)
 
     def preprocess(self, imgs: list[torch.Tensor]) -> list[torch.Tensor]:
+        if self.letterbox is None or imgs[0].shape[:2] != self.letterbox.original_shape:
+            self.letterbox = PyTorchLetterBox(self.imgsz, imgs[0].shape[:2], stride=self.stride)
         return [self.letterbox(im.permute(2, 0, 1).unsqueeze(0)).squeeze(0) for im in imgs]
 
     def inference(self, image_batch: torch.Tensor):
