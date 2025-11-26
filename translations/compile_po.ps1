@@ -9,7 +9,7 @@ if ((Get-Location).Path -ne $translationsDir) {
 
 $global:lang_filter = ""
 if ($args -contains "--release") {
-    $global:lang_filter = (Get-Content .\release_ready_translations.txt -Raw).Trim()
+    $global:lang_filter = (Get-Content .\release_ready_translations.txt -Raw).Trim() -replace '\s+', ' '
     if ($global:lang_filter -eq "") {
         Write-Host "No translations in .\release_ready_translations.txt"
         return

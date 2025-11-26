@@ -27,7 +27,7 @@ should_compile_po() {
   if [ -z "$lang_filter" ]; then
     return 0
   fi
-  for filter_lang in $lang_filter; do
+  echo "$lang_filter" | tr " " "\n" | while read filter_lang ; do
     if [ "$filter_lang" = "$lang" ] ; then
       return 0
     fi
