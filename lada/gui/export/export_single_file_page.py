@@ -181,7 +181,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
             label = export_utils.get_video_metadata_string(self.item.original_file)
             GLib.idle_add(lambda: self.label_meta_data.set_label(label))
 
-        threading.Thread(target=update_label_with_video_metadata).start()
+        threading.Thread(target=update_label_with_video_metadata, daemon=True).start()
 
     def set_button_start_restore_label(self, value: str):
         self.button_start_export.set_label(value)

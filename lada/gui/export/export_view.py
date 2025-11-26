@@ -486,7 +486,7 @@ class ExportView(Gtk.Widget):
             if self.stop_requested:
                 GLib.idle_add(lambda: self.emit('video-export-stopped'))
 
-        exporter_thread = threading.Thread(target=run_export)
+        exporter_thread = threading.Thread(target=run_export, daemon=True)
         exporter_thread.start()
 
     def show_export_dialog(self, dismissed_callback):

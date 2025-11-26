@@ -92,8 +92,8 @@ class FrameRestorer:
         self.frame_restoration_thread_should_be_running = True
         self.clip_restoration_thread_should_be_running = True
 
-        self.frame_restoration_thread = threading.Thread(target=self._frame_restoration_worker)
-        self.clip_restoration_thread = threading.Thread(target=self._clip_restoration_worker)
+        self.frame_restoration_thread = threading.Thread(target=self._frame_restoration_worker, daemon=True)
+        self.clip_restoration_thread = threading.Thread(target=self._clip_restoration_worker, daemon=True)
 
         self.mosaic_detector.start(start_ns=start_ns)
         self.clip_restoration_thread.start()

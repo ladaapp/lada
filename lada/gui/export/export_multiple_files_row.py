@@ -42,7 +42,7 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
         def update_title_with_video_metadata():
             subtitle = get_video_metadata_string(original_file)
             GLib.idle_add(lambda: self.set_property("subtitle", subtitle))
-        threading.Thread(target=update_title_with_video_metadata).start()
+        threading.Thread(target=update_title_with_video_metadata, daemon=True).start()
 
     @GObject.Property(type=ExportItemDataProgress)
     def progress(self):

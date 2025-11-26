@@ -218,13 +218,13 @@ class MosaicDetector:
         self.frame_feeder_thread_should_be_running = True
         self.inference_worker_thread_should_be_running = True
 
-        self.frame_detector_thread = threading.Thread(target=self._frame_detector_worker)
+        self.frame_detector_thread = threading.Thread(target=self._frame_detector_worker, daemon=True)
         self.frame_detector_thread.start()
-        
-        self.inference_thread = threading.Thread(target=self._frame_inference_worker)
+
+        self.inference_thread = threading.Thread(target=self._frame_inference_worker, daemon=True)
         self.inference_thread.start()
 
-        self.frame_feeder_thread = threading.Thread(target=self._frame_feeder_worker)
+        self.frame_feeder_thread = threading.Thread(target=self._frame_feeder_worker, daemon=True)
         self.frame_feeder_thread.start()
 
     def stop(self):
