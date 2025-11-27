@@ -3,9 +3,11 @@ import torch
 from lada.models.basicvsrpp.basicvsrpp_gan import BasicVSRPlusPlusGan
 
 class BasicvsrppMosaicRestorer:
-    def __init__(self, model: BasicVSRPlusPlusGan, device, fp16, clip_length):
+    def __init__(self, model: BasicVSRPlusPlusGan, device: torch.device, fp16, clip_length):
         self.model = model
-        self.cpu_buffer = torch.empty(1, clip_length, 3, 256, 256, dtype=torch.uint8, device='cpu', pin_memory=True)
+        self.device: torch.device = torch.device(device)
+        is_cuda_device = device.type == 'cuda'
+        self.cpu_buffer = torch.empty(1, clip_length, 3, 256, 256, dtype=torch.uint8, device='cpu', pin_memory=is_cuda_device)
         self.dtype = torch.float16 if fp16 else torch.float32
         self.inference_buffer = torch.empty(1, clip_length, 3, 256, 256, dtype=self.dtype, device=device, memory_format=torch.channels_last_3d)
 

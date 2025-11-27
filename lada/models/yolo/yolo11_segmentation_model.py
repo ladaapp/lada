@@ -24,16 +24,17 @@ class Yolo11SegmentationModel:
         args = {**yolo_model.overrides, **custom, **kwargs}  # highest priority args on the right
         self.args = get_cfg(DEFAULT_CFG, args)
 
+        self.device: torch.device = torch.device(device)
+        self.is_cuda_device: bool = torch.device.type == 'cuda'
         self.model = AutoBackend(
             model=yolo_model.model,
-            device=torch.device(device),
+            device=self.device,
             dnn=self.args.dnn,
             data=self.args.data,
             fp16=self.args.half,
             fuse=True,
             verbose=False,
         )
-        self.device = self.model.device
         self.args.half = self.model.fp16
         self.model.eval()
         self.model.warmup(imgsz=(1, 3, *self.imgsz))
@@ -42,7 +43,7 @@ class Yolo11SegmentationModel:
         self.inference_buffer = None
 
     def preallocate_buffers(self, batch_size: int, img_shape: tuple[int, int, int]):
-        self.cpu_buffer = torch.empty(batch_size, *img_shape, dtype=torch.uint8, device='cpu', pin_memory=True)
+        self.cpu_buffer = torch.empty(batch_size, *img_shape, dtype=torch.uint8, device='cpu', pin_memory=self.is_cuda_device)
         self.inference_buffer = torch.empty(batch_size, *img_shape, dtype=self.dtype, device=self.device, memory_format=torch.channels_last)
 
     def preprocess(self, imgs: list[torch.Tensor]) -> list[torch.Tensor]:
