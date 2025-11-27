@@ -6,7 +6,6 @@ import pathlib
 import sys
 import threading
 from enum import Enum
-from time import sleep
 
 from gi.repository import GObject, GLib, Gst, GstApp, Gdk, Gio
 
@@ -115,8 +114,10 @@ class PipelineManager(GObject.Object):
 
     def init_pipeline(self, video_metadata: VideoMetadata):
         if self.video_metadata:
+            logger.debug("Reinit Gst pipeline with new source")
             self.adjust_pipeline_with_new_source_file(video_metadata)
         else:
+            logger.debug("Init Gst pipeline")
             self.video_metadata = video_metadata
             self.has_audio = audio_utils.get_audio_codec(self.video_metadata.video_file) is not None
 
@@ -130,10 +131,19 @@ class PipelineManager(GObject.Object):
     def close_video_file(self):
         if self.audio_volume:
             self.audio_volume.set_property("mute", True)
-        self.pipeline.set_state(Gst.State.NULL)
-        while not self.pipeline.get_state(Gst.CLOCK_TIME_NONE)[1] == Gst.State.NULL:
-            sleep(0.05)
-        # self.pipeline.get_bus().remove_watch()
+        resp: Gst.StateChangeReturn = self.pipeline.set_state(Gst.State.NULL)
+        if resp == Gst.StateChangeReturn.SUCCESS or resp == Gst.StateChangeReturn.NO_PREROLL:
+            logger.debug(f"Successfully closed video file: {resp.name}")
+            return
+        elif resp == Gst.StateChangeReturn.FAILURE:
+            logger.error("Error closing video file as Gst pipeline state change returned FAILURE")
+        elif resp == Gst.StateChangeReturn.ASYNC:
+            _, state, _ = self.pipeline.get_state(10 * Gst.SECOND) # Wait for up to 10 seconds for async state change to complete
+            if state == Gst.State.NULL:
+                return
+            logger.error(f"Error closing video file as Gst pipeline state didn't change to NULL but {state.name}")
+        else:
+            logger.error(f"Error closing video file as Gst pipeline returned unknown state {resp.name}")
 
     def seek_async(self, seek_position_ns):
         #  seek_simple() is blocking. As we're stopping/starting our appsrc on seek this could potentially take a few seconds.

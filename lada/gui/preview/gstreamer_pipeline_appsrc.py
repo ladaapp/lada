@@ -56,6 +56,7 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
         self.appsource_thread_should_be_running: bool = False # Variable controlling state of thread. False if stop or shutdown requested or EOF
         self.appsource_thread_stop_requested = False # Variable controlling state of thread. Set based on enough-data / need-data states to trigger start/stop.
         self.appsource_thread_shutdown_requested = False # Variable controlling state of thread. Forced shutdown which overwrites appsource_thread_stop_requested. Set if element set to NULL.
+        self.appsource_thread_eof = False # Variable controlling state of thread. Set if FrameRestorer gave out last frame / EOF. Unset if getting seek request.
 
         self.appsrc_lock: threading.Lock = threading.Lock()
 
@@ -84,6 +85,7 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
 
     def do_set_property(self, prop: GObject.GParamSpec, value):
         if prop.name == 'video-metadata':
+            self.appsource_thread_eof = False
             if self.video_metadata is None:
                 self._set_video_metadata(value)
             else:
@@ -109,6 +111,7 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
             f"video/x-raw,format=BGR,width={GstPaddingHelpers.get_padded_width(self.video_metadata.video_width)},height={self.video_metadata.video_height},framerate={self.video_metadata.video_fps_exact.numerator}/{self.video_metadata.video_fps_exact.denominator}")
         self.set_property('caps', caps)
         self.set_property('duration', int((self.video_metadata.frames_count * self.frame_duration_ns)))
+        logger.debug(f"appsource set video metadata: {video_metadata.video_file}")
 
     def _on_need_data(self, src, length):
         logger.debug("appsource need-data")
@@ -128,6 +131,7 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
             # nothing to do, we're already at the desired position in the file or already received this seek request
             logger.debug("appsource seek: skipped seek as we're already at the seek position")
             return True
+        self.appsource_thread_eof = False
         with self.appsrc_lock:
             self._stop_appsource_worker()
             self._start_appsource_worker(seek_position=offset_ns)
@@ -137,6 +141,9 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
         with self.frame_restorer_lock:
             if self.appsource_thread_shutdown_requested:
                 logger.debug(f"appsource worker: requested to start but shutdown was requested. Will not start")
+                return
+            if self.appsource_thread_eof:
+                logger.debug(f"appsource worker: requested to start but EOF. Will not start")
                 return
             self.appsource_thread_stop_requested = False
             self.appsource_thread_should_be_running = True
@@ -209,6 +216,7 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
         if result is None:
             self.appsource_thread_should_be_running = False
             if not self.appsource_thread_stop_requested:
+                self.appsource_thread_eof = True
                 self.emit("end-of-stream")
                 return True
             return False

@@ -419,8 +419,7 @@ class PreviewView(Gtk.Widget):
                 self.pipeline_manager.close_video_file()
             GLib.idle_add(lambda: self._open_file(file))
 
-        threading.Thread(target=run).start()
-
+        threading.Thread(target=run, daemon=True).start()
 
     def _open_file(self, file: Gio.File):
         self.frame_restorer_options = FrameRestorerOptions(self.config.mosaic_restoration_model, self.config.mosaic_detection_model, video_utils.get_video_meta_data(file.get_path()), self.config.device, self.config.max_clip_duration, self.config.show_mosaic_detections, False)
