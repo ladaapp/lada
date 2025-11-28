@@ -120,9 +120,9 @@ function Install-PythonDependencies {
     uv pip install pyinstaller==$global:PYINSTALLER_VERSION
 
     uv pip install patch
-    uv run --no-project python -m patch -p1 -d .venv/lib/site-packages patches/increase_mms_time_limit.patch
-    uv run --no-project python -m patch -p1 -d .venv/lib/site-packages patches/remove_ultralytics_telemetry.patch
-    uv run --no-project python -m patch -p1 -d .venv/lib/site-packages patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
+    uv run --no-project python -m patch -p1 -d venv_release_win/lib/site-packages patches/increase_mms_time_limit.patch
+    uv run --no-project python -m patch -p1 -d venv_release_win/lib/site-packages patches/remove_ultralytics_telemetry.patch
+    uv run --no-project python -m patch -p1 -d venv_release_win/lib/site-packages patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
     uv pip uninstall patch
 
     deactivate
@@ -165,10 +165,10 @@ function Create-7ZArchive {
     }
 
     # Create single-file .7z archive
-    7z.exe a $tmp_archive_path "./dist/lada/*"
+    7z.exe a $tmp_archive_path "./dist/lada"
 
     # Split .7z archive into 2GB chunks so they can be uploaded to GitHub Releases
-    7z.exe a -v1999m $archive_path "./dist/lada/*"
+    7z.exe a -v1999m $archive_path "./dist/lada"
 
     mv $tmp_archive_path $archive_path
 
@@ -199,7 +199,7 @@ if ($args -notcontains "--skip-winget") {
         exit 0
     }
 }
-if (($args -notcontains "--skip-gvsbuild") -Or ($args -notcontains "--cli-only")) {
+if (($args -notcontains "--skip-gvsbuild") -And ($args -notcontains "--cli-only")) {
     Build-SystemDependencies ($args -contains "--clean-gvsbuild")
 }
 Compile-Translations

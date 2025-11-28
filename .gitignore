@@ -4,6 +4,7 @@ venv_gtk_release/
 venv_release_win/
 experiments/
 build/
+dist/
 .idea/
 .flatpak-builder/
 build_flatpak/
