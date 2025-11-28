@@ -47,6 +47,7 @@ def get_gui_components(project_root_dir: str, common_datas: list, common_binarie
     ] + [
         (ospj(project_root_dir, 'lada/gui/style.css'), '.'),
         (ospj(project_root_dir, 'lada/gui/resources.gresource'), '.'),
+        (ospj(project_root_dir, 'packaging/flatpak/share/io.github.ladaapp.lada.png'), 'share/icons/hicolor/128x128/apps'),
     ]
 
     gtk_release_dir = pathlib.Path(project_root_dir) / "build_gtk_release" / "gtk" / "x64" / "release"
