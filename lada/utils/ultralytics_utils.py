@@ -6,17 +6,19 @@ from pathlib import Path
 import cv2
 import numpy as np
 import torch
-import ultralytics.engine
-from ultralytics.utils.ops import scale_image
 import torch.nn.functional as F
 from ultralytics import settings
+from ultralytics.engine.results import Boxes as UltralyticsBoxes
+from ultralytics.engine.results import Masks as UltralyticsMasks
+from ultralytics.engine.results import Results as UltralyticsResults
+from ultralytics.utils.ops import scale_image
 
-from lada.utils import Box, Mask, mask_utils
+from lada.utils import Box, Mask
 
 def set_default_settings():
     settings.update({'runs_dir': './experiments/yolo', 'datasets_dir': './datasets', 'tensorboard': True})
 
-def convert_yolo_box(yolo_box: ultralytics.engine.results.Boxes, img_shape) -> Box:
+def convert_yolo_box(yolo_box: UltralyticsBoxes, img_shape) -> Box:
     _box = yolo_box.xyxy[0]
     l = int(torch.clip(_box[0], 0, img_shape[1]).item())
     t = int(torch.clip(_box[1], 0, img_shape[0]).item())
@@ -24,7 +26,7 @@ def convert_yolo_box(yolo_box: ultralytics.engine.results.Boxes, img_shape) -> B
     b = int(torch.clip(_box[3], 0, img_shape[0]).item())
     return t, l, b, r
 
-def convert_yolo_boxes(yolo_box: ultralytics.engine.results.Boxes, img_shape) -> list[Box]:
+def convert_yolo_boxes(yolo_box: UltralyticsBoxes, img_shape) -> list[Box]:
     _boxes = yolo_box.xyxy
     boxes = []
     for _box in _boxes:
@@ -49,7 +51,7 @@ def scale_and_unpad_image(masks, im0_shape):
     y = F.interpolate(x, size=(h0, w0), mode='bilinear', align_corners=False)
     return y.squeeze(0).permute(1, 2, 0).round_().clamp_(0, 255).to(masks.dtype)
 
-def convert_yolo_mask_tensor(yolo_mask: ultralytics.engine.results.Masks, img_shape) -> torch.Tensor:
+def convert_yolo_mask_tensor(yolo_mask: UltralyticsMasks, img_shape) -> torch.Tensor:
     mask_img = _to_mask_img_tensor(yolo_mask.data)
     if mask_img.ndim == 2:
         mask_img = mask_img.unsqueeze(-1)
@@ -62,7 +64,7 @@ def _to_mask_img_tensor(masks: torch.Tensor, class_val=0, pixel_val=255) -> torc
     masks_tensor = torch.where(masks != class_val, pixel_val, 0).to(torch.uint8)
     return masks_tensor[0]
 
-def convert_yolo_mask(yolo_mask: ultralytics.engine.results.Masks, img_shape) -> Mask:
+def convert_yolo_mask(yolo_mask: UltralyticsMasks, img_shape) -> Mask:
     mask_img = _to_mask_img(yolo_mask.data)
     if mask_img.ndim == 2:
         mask_img = np.expand_dims(mask_img, axis=-1)
@@ -76,15 +78,14 @@ def _to_mask_img(masks, class_val=0, pixel_val=255) -> Mask:
     mask_img = masks_tensor.cpu().numpy()[0].astype(np.uint8)
     return mask_img
 
-def choose_biggest_detection(result: ultralytics.engine.results.Results, tracking_mode=True) -> tuple[
-    ultralytics.engine.results.Boxes | None, ultralytics.engine.results.Masks | None]:
+def choose_biggest_detection(result: UltralyticsResults, tracking_mode=True) -> tuple[UltralyticsBoxes | None, UltralyticsMasks | None]:
     """
     Returns the biggest detection box and mask of a YOLO Results set
     """
     box = None
     mask = None
-    yolo_box: ultralytics.engine.results.Boxes
-    yolo_mask: ultralytics.engine.results.Masks
+    yolo_box: UltralyticsBoxes
+    yolo_mask: UltralyticsMasks
     for i, yolo_box in enumerate(result.boxes):
         if tracking_mode and yolo_box.id is None:
             continue
