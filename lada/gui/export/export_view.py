@@ -19,6 +19,7 @@ from lada.gui.export.export_item_data import ExportItemData, ExportItemDataProgr
 from lada.gui.export.export_multiple_files_page import ExportMultipleFilesPage
 from lada.gui.export.export_single_file_page import ExportSingleFileStatusPage
 from lada.gui.export.export_utils import ResumeInformation
+from lada.gui.export.shutdown_manager import ShutdownManager, ShutdownError
 from lada.gui.export.spinner_button import SpinnerButton
 from lada.gui.frame_restorer_provider import FrameRestorerOptions, FRAME_RESTORER_PROVIDER
 from lada.utils import audio_utils, video_utils
@@ -557,27 +558,15 @@ class ExportView(Gtk.Widget):
         )
 
         timeout_id = None
-        cancelled = False
-        responded = False
 
         def execute_shutdown():
-            nonlocal cancelled, responded
-            if cancelled or responded:
-                return
             logger.info("Timeout reached - proceeding with automatic shutdown")
-            import subprocess
-            import sys
             try:
-                if sys.platform == "win32":
-                    # Windows shutdown immediately
-                    subprocess.run(["shutdown", "/s", "/t", "0"], check=True)
-                else:
-                    # Linux/Mac shutdown immediately
-                    subprocess.run(["shutdown", "now"], check=True)
+                shutdown_manager = ShutdownManager()
+                shutdown_manager.shutdown()
                 logger.info("Shutdown command executed successfully")
-            except subprocess.CalledProcessError as e:
+            except ShutdownError as e:
                 logger.error(f"Failed to initiate shutdown: {e}")
-                # Show error dialog
                 error_dialog = Adw.AlertDialog(
                     heading=_("Shutdown Failed"),
                     body=_("Failed to initiate system shutdown. Please check system permissions."),
@@ -585,20 +574,18 @@ class ExportView(Gtk.Widget):
                 error_dialog.add_response("ok", _("Okay"))
                 error_dialog.choose(self, None, lambda *_: None)
 
-        def on_response_selected(_dialog, response):
-            nonlocal timeout_id, cancelled, responded
-            responded = True
+        def on_response_selected(_dialog, task: Gio.Task):
+            nonlocal timeout_id
+            response = _dialog.choose_finish(task)
             if timeout_id:
                 GLib.source_remove(timeout_id)
-
             if response == "shutdown":
                 logger.info("User confirmed shutdown - proceeding with system shutdown")
                 execute_shutdown()
             else:
                 logger.info("User cancelled shutdown")
 
-        # Set up 30-second timeout for automatic shutdown
-        timeout_id = GLib.timeout_add_seconds(30, lambda: execute_shutdown() or True)
+        timeout_id = GLib.timeout_add_seconds(30, lambda: execute_shutdown())
 
         dialog.add_response("cancel", _("Cancel"))
         dialog.add_response("shutdown", _("Shutdown now"))
