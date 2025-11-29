@@ -4,11 +4,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
-"POT-Creation-Date: 2025-11-20 12:51+0000\n"
+"POT-Creation-Date: 2025-11-26 13:23+0000\n"
 "PO-Revision-Date: 2025-11-21 15:10+0000\n"
 "Last-Translator: Vistaus <vistaus@noreply.codeberg.org>\n"
-"Language-Team: Dutch <https://translate.codeberg.org/projects/lada/lada/nl/>"
-"\n"
+"Language-Team: Dutch <https://translate.codeberg.org/projects/lada/lada/nl/"
+">\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -25,20 +25,8 @@ msgstr "Foutmelding tonen"
 msgid "Remove"
 msgstr "Verwijderen"
 
-msgid "Restoring video…"
-msgstr "Bezig met herstellen…"
-
-msgid "Finished video restoration!"
-msgstr "De video is hersteld!"
-
-msgid "Restoration failed"
-msgstr "Het herstellen is mislukt"
-
 msgid "Export video"
 msgstr "Video exporteren"
-
-msgid "Restoration paused"
-msgstr "Het herstellen is onderbroken"
 
 msgid "Restore"
 msgstr "Herstellen"
@@ -55,9 +43,24 @@ msgstr "Annuleren"
 msgid "Open File"
 msgstr "Bestand openen"
 
+msgid "Settings"
+msgstr "Instellingen"
+
+msgid "Add Files…"
+msgstr "Bestanden toevoegen…"
+
+msgid "Keyboard Shortcuts"
+msgstr "Sneltoetsen"
+
+msgid "About Lada"
+msgstr "Over Lada"
+
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
 msgstr "Duur: {duration} — Resolutie: {resolution} — Framesnelheid: {fps} fps"
+
+msgid "Restoration failed"
+msgstr "Het herstellen is mislukt"
 
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
@@ -98,6 +101,15 @@ msgstr ""
 msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
 msgstr "Onderbroken  |  Verwerkt: {time_done} ({frames_done} frames)"
 
+msgid "Restoring video…"
+msgstr "Bezig met herstellen…"
+
+msgid "Finished video restoration!"
+msgstr "De video is hersteld!"
+
+msgid "Restoration paused"
+msgstr "Het herstellen is onderbroken"
+
 msgid "Restore…"
 msgstr "Herstellen…"
 
@@ -122,18 +134,6 @@ msgstr "Het afsluiten is mislukt - controleer de bevoegdheden."
 
 msgid "Shutdown now"
 msgstr "Nu afsluiten"
-
-msgid "Settings"
-msgstr "Instellingen"
-
-msgid "Add Files…"
-msgstr "Bestanden toevoegen…"
-
-msgid "Keyboard Shortcuts"
-msgstr "Sneltoetsen"
-
-msgid "About Lada"
-msgstr "Over Lada"
 
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr ""
@@ -201,6 +201,12 @@ msgid ""
 msgstr ""
 "Schakel in om het geluid automatisch te dempen na het openen van een bestand."
 
+msgid "Enable seek preview"
+msgstr ""
+
+msgid "Show a preview of the video frame when hovering over the timeline."
+msgstr ""
+
 msgid "Export"
 msgstr "Exporteren"
 
@@ -267,12 +273,6 @@ msgstr "Naverwerkingsactie"
 
 msgid "Action to be run after all queued files have been restored"
 msgstr "De actie die moet worden uitgevoerd nadat alle bestanden zijn hersteld"
-
-msgid "No action"
-msgstr "Geen actie"
-
-msgid "Do nothing after export is completed."
-msgstr "Doe niets nadat het exporteren is voltooid."
 
 msgid "Shutdown system"
 msgstr "Computer afsluiten"
@@ -358,63 +358,6 @@ msgstr "Afspeelscherm tonen"
 msgid "Select one or multiple video files"
 msgstr "Kies een of meerdere videobestanden"
 
-msgid "No video files found"
-msgstr "Er zijn geen videobestanden aangetroffen"
-
-msgid "PyAV version:"
-msgstr "PyAV-versie:"
-
-msgid "Available video encoders:"
-msgstr "Beschikbare video-encoderingen:"
-
-msgid "Encoders with support for hardware acceleration (GPU):"
-msgstr "Encoderingssoftware met ondersteuning voor hardwareversnelling (gpu):"
-
-msgid "Device"
-msgstr "Apparaat"
-
-msgid "Description"
-msgstr "Beschrijving"
-
-msgid "Available devices:"
-msgstr "Beschikbare apparaten:"
-
-msgid "Available detection models:"
-msgstr "Beschikbare detectiemodellen:"
-
-msgid "None!"
-msgstr "Geen!"
-
-msgid "Name"
-msgstr "Naam"
-
-msgid "Path"
-msgstr "Locatie"
-
-msgid "Available restoration models:"
-msgstr "Beschikbaar herstelmodellen:"
-
-msgid "Usage: "
-msgstr "Gebruik: "
-
-#, python-brace-format
-msgid ""
-"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
-"f){bar_suffix}"
-msgstr ""
-"Videoverwerking: {done_percent}%|{bar}|Verwerkt: {time_done} ({frames_done}f)"
-"{bar_suffix}"
-
-msgid " | Remaining: ? | Speed: ?"
-msgstr " | Resterend: ? | Snelheid: ?"
-
-#, python-brace-format
-msgid ""
-" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
-" | Resterend: {time_remaining} ({frames_remaining}f) | Snelheid: {speed_fps}"
-"fps"
-
 msgid "Examples:"
 msgstr "Voorbeelden:"
 
@@ -490,8 +433,8 @@ msgid ""
 "usage. (default: True if CUDA is available)"
 msgstr ""
 "Maak gebruik van FP16-precisie voor herstel- en detectiemodellen. Hiermee "
-"wordt het geheugengebruik verlaagd. "
-"(standaard: ingeschakeld indien CUDA beschikbaar is)"
+"wordt het geheugengebruik verlaagd. (standaard: ingeschakeld indien CUDA "
+"beschikbaar is)"
 
 msgid "List available devices and exit"
 msgstr "Toon de beschikbare apparaten en sluit af"
@@ -638,6 +581,69 @@ msgstr "Ongeldige invoer: geen bestand of map in {input_path}"
 
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "Ctrl+C gedetecteerd — het herstel wordt afgebroken."
+
+msgid "No video files found"
+msgstr "Er zijn geen videobestanden aangetroffen"
+
+msgid "PyAV version:"
+msgstr "PyAV-versie:"
+
+msgid "Available video encoders:"
+msgstr "Beschikbare video-encoderingen:"
+
+msgid "Encoders with support for hardware acceleration (GPU):"
+msgstr "Encoderingssoftware met ondersteuning voor hardwareversnelling (gpu):"
+
+msgid "Device"
+msgstr "Apparaat"
+
+msgid "Description"
+msgstr "Beschrijving"
+
+msgid "Available devices:"
+msgstr "Beschikbare apparaten:"
+
+msgid "Available detection models:"
+msgstr "Beschikbare detectiemodellen:"
+
+msgid "None!"
+msgstr "Geen!"
+
+msgid "Name"
+msgstr "Naam"
+
+msgid "Path"
+msgstr "Locatie"
+
+msgid "Available restoration models:"
+msgstr "Beschikbaar herstelmodellen:"
+
+msgid "Usage: "
+msgstr "Gebruik: "
+
+#, python-brace-format
+msgid ""
+"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
+"f){bar_suffix}"
+msgstr ""
+"Videoverwerking: {done_percent}%|{bar}|Verwerkt: {time_done} ({frames_done}f)"
+"{bar_suffix}"
+
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | Resterend: ? | Snelheid: ?"
+
+#, python-brace-format
+msgid ""
+" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr ""
+" | Resterend: {time_remaining} ({frames_remaining}f) | Snelheid: {speed_fps}"
+"fps"
+
+#~ msgid "No action"
+#~ msgstr "Geen actie"
+
+#~ msgid "Do nothing after export is completed."
+#~ msgstr "Doe niets nadat het exporteren is voltooid."
 
 #~ msgid ""
 #~ "Pattern used to determine output file name(s). Used when input is a "

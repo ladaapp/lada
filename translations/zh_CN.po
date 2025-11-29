@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
-"POT-Creation-Date: 2025-11-20 12:51+0000\n"
+"POT-Creation-Date: 2025-11-26 13:23+0000\n"
 "PO-Revision-Date: 2025-11-25 09:41+0000\n"
 "Last-Translator: dragonSoul <dragonsoul@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://"
@@ -25,20 +25,8 @@ msgstr "显示错误信息"
 msgid "Remove"
 msgstr "移除"
 
-msgid "Restoring video…"
-msgstr "正在修复视频…"
-
-msgid "Finished video restoration!"
-msgstr "视频修复已完成！"
-
-msgid "Restoration failed"
-msgstr "修复失败"
-
 msgid "Export video"
 msgstr "导出视频"
-
-msgid "Restoration paused"
-msgstr "修复已暂停"
 
 msgid "Restore"
 msgstr "修复"
@@ -55,9 +43,24 @@ msgstr "取消"
 msgid "Open File"
 msgstr "打开文件"
 
+msgid "Settings"
+msgstr "设置"
+
+msgid "Add Files…"
+msgstr "添加文件…"
+
+msgid "Keyboard Shortcuts"
+msgstr "键盘快捷键"
+
+msgid "About Lada"
+msgstr "关于 Lada"
+
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
 msgstr "时长：{duration}，分辨率：{resolution}，帧率：{fps} 帧/秒"
+
+msgid "Restoration failed"
+msgstr "修复失败"
 
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
@@ -94,6 +97,15 @@ msgstr ""
 msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
 msgstr "已暂停  |  已处理： {time_done} ({frames_done} 帧)"
 
+msgid "Restoring video…"
+msgstr "正在修复视频…"
+
+msgid "Finished video restoration!"
+msgstr "视频修复已完成！"
+
+msgid "Restoration paused"
+msgstr "修复已暂停"
+
 msgid "Restore…"
 msgstr "修复…"
 
@@ -117,18 +129,6 @@ msgstr "无法启动系统关机.请检查系统权限."
 
 msgid "Shutdown now"
 msgstr "立即关机"
-
-msgid "Settings"
-msgstr "设置"
-
-msgid "Add Files…"
-msgstr "添加文件…"
-
-msgid "Keyboard Shortcuts"
-msgstr "键盘快捷键"
-
-msgid "About Lada"
-msgstr "关于 Lada"
 
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr "未检测到 GPU！在 CPU 上运行程序，速度会非常缓慢。"
@@ -190,6 +190,12 @@ msgstr "默认静音"
 msgid ""
 "When enabled, audio will be muted automatically when a new file is opened."
 msgstr "启用后，打开新文件时将自动静音。"
+
+msgid "Enable seek preview"
+msgstr ""
+
+msgid "Show a preview of the video frame when hovering over the timeline."
+msgstr ""
 
 msgid "Export"
 msgstr "导出"
@@ -253,12 +259,6 @@ msgstr "导出后操作"
 
 msgid "Action to be run after all queued files have been restored"
 msgstr "在所有排队的文件恢复完成后要执行的操作"
-
-msgid "No action"
-msgstr "无操作"
-
-msgid "Do nothing after export is completed."
-msgstr "导出完成后无后续操作."
 
 msgid "Shutdown system"
 msgstr "关闭系统"
@@ -341,62 +341,6 @@ msgstr "切换到预览视图"
 
 msgid "Select one or multiple video files"
 msgstr "选择一个或多个视频文件"
-
-msgid "No video files found"
-msgstr "找不到视频文件"
-
-msgid "PyAV version:"
-msgstr "PyAV 版本："
-
-msgid "Available video encoders:"
-msgstr "可用视频编码器："
-
-msgid "Encoders with support for hardware acceleration (GPU):"
-msgstr "支持硬件加速（GPU）的编码器："
-
-msgid "Device"
-msgstr "设备"
-
-msgid "Description"
-msgstr "描述"
-
-msgid "Available devices:"
-msgstr "可用设备："
-
-msgid "Available detection models:"
-msgstr "可用检测模型："
-
-msgid "None!"
-msgstr "无！"
-
-msgid "Name"
-msgstr "名称"
-
-msgid "Path"
-msgstr "路径"
-
-msgid "Available restoration models:"
-msgstr "可用修复模型："
-
-msgid "Usage: "
-msgstr "用法： "
-
-#, python-brace-format
-msgid ""
-"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
-"f){bar_suffix}"
-msgstr ""
-"正在处理视频：{done_percent}%|{bar}|已处理： {time_done} ({frames_done}帧)"
-"{bar_suffix}"
-
-msgid " | Remaining: ? | Speed: ?"
-msgstr " | 剩余时间：？ | 处理速度：？"
-
-#, python-brace-format
-msgid ""
-" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
-" | 剩余： {time_remaining} ({frames_remaining}帧) | 速度：{speed_fps} 帧/秒"
 
 msgid "Examples:"
 msgstr "示例："
@@ -547,7 +491,8 @@ msgstr "修复模型文件的路径 (默认: %(default)s)"
 msgid ""
 "Path to restoration model configuration file. You'll not have to set this "
 "unless you're training your own custom models"
-msgstr "还原模型配置文件的路径。除非你正在训练自己的自定义模型，否则无需设置此项"
+msgstr ""
+"还原模型配置文件的路径。除非你正在训练自己的自定义模型，否则无需设置此项"
 
 #, python-format
 msgid ""
@@ -591,6 +536,68 @@ msgstr "输入无效。在 {input_path} 处未找到文件或目录"
 
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "检测到 Ctrl-C 信号，正在终止修复。"
+
+msgid "No video files found"
+msgstr "找不到视频文件"
+
+msgid "PyAV version:"
+msgstr "PyAV 版本："
+
+msgid "Available video encoders:"
+msgstr "可用视频编码器："
+
+msgid "Encoders with support for hardware acceleration (GPU):"
+msgstr "支持硬件加速（GPU）的编码器："
+
+msgid "Device"
+msgstr "设备"
+
+msgid "Description"
+msgstr "描述"
+
+msgid "Available devices:"
+msgstr "可用设备："
+
+msgid "Available detection models:"
+msgstr "可用检测模型："
+
+msgid "None!"
+msgstr "无！"
+
+msgid "Name"
+msgstr "名称"
+
+msgid "Path"
+msgstr "路径"
+
+msgid "Available restoration models:"
+msgstr "可用修复模型："
+
+msgid "Usage: "
+msgstr "用法： "
+
+#, python-brace-format
+msgid ""
+"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
+"f){bar_suffix}"
+msgstr ""
+"正在处理视频：{done_percent}%|{bar}|已处理： {time_done} ({frames_done}帧)"
+"{bar_suffix}"
+
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | 剩余时间：？ | 处理速度：？"
+
+#, python-brace-format
+msgid ""
+" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr ""
+" | 剩余： {time_remaining} ({frames_remaining}帧) | 速度：{speed_fps} 帧/秒"
+
+#~ msgid "No action"
+#~ msgstr "无操作"
+
+#~ msgid "Do nothing after export is completed."
+#~ msgstr "导出完成后无后续操作."
 
 #~ msgid "Directory for temporary video file during restoration process"
 #~ msgstr "恢复过程中用于临时视频文件的目录"

@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
-"POT-Creation-Date: 2025-11-20 12:51+0000\n"
+"POT-Creation-Date: 2025-11-26 13:23+0000\n"
 "PO-Revision-Date: 2025-10-22 15:51+0000\n"
 "Last-Translator: sanatorium <sanatorium@noreply.codeberg.org>\n"
 "Language-Team: Japanese <https://translate.codeberg.org/projects/lada/lada/"
@@ -25,20 +25,8 @@ msgstr "エラーを表示"
 msgid "Remove"
 msgstr "削除"
 
-msgid "Restoring video…"
-msgstr "モザイクの除去…"
-
-msgid "Finished video restoration!"
-msgstr "ビデオのモザイク除去が完了しました！"
-
-msgid "Restoration failed"
-msgstr "修復に失敗しました"
-
 msgid "Export video"
 msgstr "ビデオをエクスポート"
-
-msgid "Restoration paused"
-msgstr "除去作業が一時停止されました"
 
 msgid "Restore"
 msgstr "除去"
@@ -55,9 +43,24 @@ msgstr "キャンセル"
 msgid "Open File"
 msgstr "ファイルを開く"
 
+msgid "Settings"
+msgstr "設定"
+
+msgid "Add Files…"
+msgstr "ファイルを追加…"
+
+msgid "Keyboard Shortcuts"
+msgstr "キーボードショートカット"
+
+msgid "About Lada"
+msgstr "Ladaについて"
+
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
 msgstr "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
+
+msgid "Restoration failed"
+msgstr "修復に失敗しました"
 
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
@@ -94,6 +97,15 @@ msgstr ""
 msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
 msgstr "一時停止  |  処理済み: {time_done} ({frames_done} frames)"
 
+msgid "Restoring video…"
+msgstr "モザイクの除去…"
+
+msgid "Finished video restoration!"
+msgstr "ビデオのモザイク除去が完了しました！"
+
+msgid "Restoration paused"
+msgstr "除去作業が一時停止されました"
+
 msgid "Restore…"
 msgstr "除去…"
 
@@ -117,18 +129,6 @@ msgstr ""
 
 msgid "Shutdown now"
 msgstr ""
-
-msgid "Settings"
-msgstr "設定"
-
-msgid "Add Files…"
-msgstr "ファイルを追加…"
-
-msgid "Keyboard Shortcuts"
-msgstr "キーボードショートカット"
-
-msgid "About Lada"
-msgstr "Ladaについて"
 
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr ""
@@ -195,6 +195,12 @@ msgid ""
 msgstr ""
 "有効にすると、新しいファイルを開いた際に音声が自動的にミュートされます。"
 
+msgid "Enable seek preview"
+msgstr ""
+
+msgid "Show a preview of the video frame when hovering over the timeline."
+msgstr ""
+
 msgid "Export"
 msgstr "エクスポート"
 
@@ -258,12 +264,6 @@ msgid "Post-Export Action"
 msgstr ""
 
 msgid "Action to be run after all queued files have been restored"
-msgstr ""
-
-msgid "No action"
-msgstr ""
-
-msgid "Do nothing after export is completed."
 msgstr ""
 
 msgid "Shutdown system"
@@ -349,61 +349,6 @@ msgstr "視聴表示に切り替え"
 
 msgid "Select one or multiple video files"
 msgstr "1つまたは複数のビデオファイルを選択"
-
-msgid "No video files found"
-msgstr "ビデオファイルが見つかりません"
-
-msgid "PyAV version:"
-msgstr "PyAV バージョン:"
-
-msgid "Available video encoders:"
-msgstr "利用可能なビデオエンコーダ:"
-
-msgid "Encoders with support for hardware acceleration (GPU):"
-msgstr "ハードウェアアクセラレーション(GPU)をサポートするエンコーダ:"
-
-msgid "Device"
-msgstr "デバイス"
-
-msgid "Description"
-msgstr "説明"
-
-msgid "Available devices:"
-msgstr "利用可能なデバイス:"
-
-msgid "Available detection models:"
-msgstr "利用可能な検出モデル:"
-
-msgid "None!"
-msgstr "なし！"
-
-msgid "Name"
-msgstr "名前"
-
-msgid "Path"
-msgstr "パス"
-
-msgid "Available restoration models:"
-msgstr "利用可能な除去モデル:"
-
-msgid "Usage: "
-msgstr "使用法 "
-
-#, python-brace-format
-msgid ""
-"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
-"f){bar_suffix}"
-msgstr ""
-"ビデオの処理中: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f)"
-"{bar_suffix}"
-
-msgid " | Remaining: ? | Speed: ?"
-msgstr " | 残り: ? | 速度: ?"
-
-#, python-brace-format
-msgid ""
-" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr " | 残り: {time_remaining} ({frames_remaining}f) | 速度: {speed_fps}fps"
 
 msgid "Examples:"
 msgstr "例:"
@@ -606,6 +551,61 @@ msgstr ""
 
 msgid "Received Ctrl-C, stopping restoration."
 msgstr ""
+
+msgid "No video files found"
+msgstr "ビデオファイルが見つかりません"
+
+msgid "PyAV version:"
+msgstr "PyAV バージョン:"
+
+msgid "Available video encoders:"
+msgstr "利用可能なビデオエンコーダ:"
+
+msgid "Encoders with support for hardware acceleration (GPU):"
+msgstr "ハードウェアアクセラレーション(GPU)をサポートするエンコーダ:"
+
+msgid "Device"
+msgstr "デバイス"
+
+msgid "Description"
+msgstr "説明"
+
+msgid "Available devices:"
+msgstr "利用可能なデバイス:"
+
+msgid "Available detection models:"
+msgstr "利用可能な検出モデル:"
+
+msgid "None!"
+msgstr "なし！"
+
+msgid "Name"
+msgstr "名前"
+
+msgid "Path"
+msgstr "パス"
+
+msgid "Available restoration models:"
+msgstr "利用可能な除去モデル:"
+
+msgid "Usage: "
+msgstr "使用法 "
+
+#, python-brace-format
+msgid ""
+"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
+"f){bar_suffix}"
+msgstr ""
+"ビデオの処理中: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f)"
+"{bar_suffix}"
+
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | 残り: ? | 速度: ?"
+
+#, python-brace-format
+msgid ""
+" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr " | 残り: {time_remaining} ({frames_remaining}f) | 速度: {speed_fps}fps"
 
 #~ msgid ""
 #~ "Pattern used to determine output file name(s). Used when input is a "
