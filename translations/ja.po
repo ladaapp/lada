@@ -5,8 +5,8 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
 "POT-Creation-Date: 2025-11-26 13:23+0000\n"
-"PO-Revision-Date: 2025-10-22 15:51+0000\n"
-"Last-Translator: sanatorium <sanatorium@noreply.codeberg.org>\n"
+"PO-Revision-Date: 2025-11-29 17:43+0000\n"
+"Last-Translator: Yentown <yentown@noreply.codeberg.org>\n"
 "Language-Team: Japanese <https://translate.codeberg.org/projects/lada/lada/"
 "ja/>\n"
 "Language: ja\n"
@@ -14,67 +14,67 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.13.3\n"
+"X-Generator: Weblate 5.14.3\n"
 
 msgid "Open in External Program…"
-msgstr "別のプログラムで開いています…"
+msgstr ""
 
 msgid "Show Error"
-msgstr "エラーを表示"
+msgstr ""
 
 msgid "Remove"
-msgstr "削除"
+msgstr ""
 
 msgid "Export video"
-msgstr "ビデオをエクスポート"
+msgstr ""
 
 msgid "Restore"
-msgstr "除去"
+msgstr ""
 
 msgid "Resume"
-msgstr "再開"
+msgstr ""
 
 msgid "Pause"
-msgstr "一時停止"
+msgstr ""
 
 msgid "Cancel"
-msgstr "キャンセル"
+msgstr ""
 
 msgid "Open File"
-msgstr "ファイルを開く"
+msgstr ""
 
 msgid "Settings"
-msgstr "設定"
+msgstr ""
 
 msgid "Add Files…"
-msgstr "ファイルを追加…"
+msgstr ""
 
 msgid "Keyboard Shortcuts"
-msgstr "キーボードショートカット"
+msgstr ""
 
 msgid "About Lada"
-msgstr "Ladaについて"
+msgstr ""
 
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
-msgstr "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
+msgstr ""
 
 msgid "Restoration failed"
-msgstr "修復に失敗しました"
+msgstr ""
 
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
-msgstr "処理中にエラーが発生しました <span><tt>{filename}</tt></span>"
+msgstr ""
 
 msgid "Okay"
-msgstr "了解"
+msgstr ""
 
 msgid "Failed"
-msgstr "失敗"
+msgstr ""
 
 #, python-brace-format
 msgid "Finished  |  Processed: {time_done} ({frames_done} frames)"
-msgstr "完了  |  処理済み: {time_done} ({frames_done} frames)"
+msgstr ""
 
 #, python-brace-format
 msgid ""
@@ -82,38 +82,34 @@ msgid ""
 "frames)  |  Remaining: {time_remaining} ({frames_remaining} frames)  |  "
 "Speed: {speed_fps} FPS"
 msgstr ""
-"処理中… {done_percent}%  |  処理済み: {time_done} ({frames_done} frames)  |  "
-"残り: {time_remaining} ({frames_remaining} frames)  |  速度: {speed_fps} FPS"
 
 #, python-brace-format
 msgid ""
 "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} "
 "frames)  |  Remaining: Estimating… |  Speed: Estimating…"
 msgstr ""
-"処理中… {done_percent}%  |  処理済み: {time_done} ({frames_done} frames)  |  "
-"残り: 計算中… |  速度: 計算中…"
 
 #, python-brace-format
 msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
-msgstr "一時停止  |  処理済み: {time_done} ({frames_done} frames)"
+msgstr ""
 
 msgid "Restoring video…"
-msgstr "モザイクの除去…"
+msgstr ""
 
 msgid "Finished video restoration!"
-msgstr "ビデオのモザイク除去が完了しました！"
+msgstr ""
 
 msgid "Restoration paused"
-msgstr "除去作業が一時停止されました"
+msgstr ""
 
 msgid "Restore…"
-msgstr "除去…"
+msgstr ""
 
 msgid "Save restored video file"
-msgstr "除去された動画ファイルを保存"
+msgstr ""
 
 msgid "Save restored video files"
-msgstr "除去された動画ファイルを複数保存"
+msgstr ""
 
 msgid "Shutdown System"
 msgstr ""
@@ -132,68 +128,62 @@ msgstr ""
 
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr ""
-"GPUが検出されませんでした！CPUでアプリを実行すると、非常に遅くなります。"
 
 msgid "Click the folder button to choose a default"
-msgstr "フォルダボタンをクリックしてデフォルトを選択してください"
+msgstr ""
 
 msgid "Select a folder where restored videos should be saved"
-msgstr "除去したビデオを保存するフォルダを選んでください"
+msgstr ""
 
 msgid "Select a folder for temporary files"
 msgstr ""
 
 msgid "Mosaic Removal"
-msgstr "モザイク除去"
+msgstr ""
 
 msgid "Detection model"
-msgstr "検出モデル"
+msgstr ""
 
 msgid "Model used for detecting mosaic areas."
-msgstr "モザイク範囲の検出に使用されるモデル。"
+msgstr ""
 
 msgid "Restoration model"
-msgstr "除去モデル"
+msgstr ""
 
 msgid "Model used for restoring mosaic areas."
-msgstr "モザイク範囲の除去に使用するモデル。"
+msgstr ""
 
 msgid "Maximum clip duration"
-msgstr "最大クリップ時間"
+msgstr ""
 
 msgid ""
 "Maximum number of frames for restoration. Higher values improve temporal "
 "stability. Lower values reduce memory footprint."
 msgstr ""
-"除去可能なフレームの最大数。値を大きくするとフレーム間の安定性が上昇し、値を"
-"小さくするとメモリ使用量が削減されます。"
 
 msgid "GPU"
-msgstr "GPU"
+msgstr ""
 
 msgid "Selected GPU for model processing."
-msgstr "モデル処理に選択されたGPU。"
+msgstr ""
 
 msgid "Playback"
-msgstr "再生"
+msgstr ""
 
 msgid "Buffer duration"
-msgstr "バッファ時間"
+msgstr ""
 
 msgid ""
 "How much video is pre-loaded for playback, measured in seconds. If set to 0 "
 "this value will be chosen automatically."
 msgstr ""
-"再生用にプリロードされる動画の長さ(秒単位)。0に設定すると、この値は自動的に選"
-"択されます。"
 
 msgid "Mute audio by default"
-msgstr "デフォルトで音量をミュートする"
+msgstr ""
 
 msgid ""
 "When enabled, audio will be muted automatically when a new file is opened."
 msgstr ""
-"有効にすると、新しいファイルを開いた際に音声が自動的にミュートされます。"
 
 msgid "Enable seek preview"
 msgstr ""
@@ -202,48 +192,41 @@ msgid "Show a preview of the video frame when hovering over the timeline."
 msgstr ""
 
 msgid "Export"
-msgstr "エクスポート"
+msgstr ""
 
 msgid "Codec"
-msgstr "コーデック"
+msgstr ""
 
 msgid "Video Codec used for encoding the restored video."
-msgstr "除去したビデオをエンコードするために使用されるビデオコーデック。"
+msgstr ""
 
 msgid "CRF (Constant Rate Factor)"
-msgstr "CRF (固定品質)"
+msgstr ""
 
 msgid ""
 "Quality setting of the video encoder. Lower values will result in higher "
 "quality but larger file sizes."
 msgstr ""
-"ビデオエンコーダの品質設定。値を低くすると品質は高くなりますが、ファイルサイ"
-"ズは大きくなります。"
 
 msgid ""
 "Custom FFmpeg encoder options (Optional).\n"
 "Example: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</"
 "tt></span>"
 msgstr ""
-"Custom FFmpeg encoder options (Optional).\n"
-"例: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</tt></"
-"span>"
 
 msgid ""
 "FFmpeg Codecs Documentation:\n"
 "https://ffmpeg.org/ffmpeg-codecs.html"
 msgstr ""
-"FFmpeg コーデックドキュメント:\n"
-"https://ffmpeg.org/ffmpeg-codecs.html"
 
 msgid "Output Directory"
-msgstr "出力ディレクトリ"
+msgstr ""
 
 msgid "Always ask"
-msgstr "常に尋ねる"
+msgstr ""
 
 msgid "Use this folder"
-msgstr "このフォルダーを使用する"
+msgstr ""
 
 msgid "Temporary Directory"
 msgstr ""
@@ -256,9 +239,6 @@ msgid ""
 "Must include placeholder <span background=\"#D3D3D350\"><tt>{orig_file_name}"
 "</tt></span>."
 msgstr ""
-"除去ファイルのファイル名パターン.\n"
-"Must include placeholder <span background=\"#D3D3D350\"><tt>{orig_file_name}"
-"</tt></span>."
 
 msgid "Post-Export Action"
 msgstr ""
@@ -282,125 +262,116 @@ msgid "Custom command"
 msgstr ""
 
 msgid "Troubleshooting"
-msgstr "トラブルシューティング"
+msgstr ""
 
 msgid "Show mosaic detections"
-msgstr "モザイク検出を表示"
+msgstr ""
 
 msgid ""
 "Show detected mosaic areas. Useful to evaluate quality of detection model."
 msgstr ""
-"検出されたモザイク領域を表示します。検出モデルの品質を評価するのに役立ちま"
-"す。"
 
 msgid "UI"
-msgstr "UI"
+msgstr ""
 
 msgid "Color Scheme"
-msgstr "テーマ"
+msgstr ""
 
 msgid "Follow System style"
-msgstr "システムスタイルに従う"
+msgstr ""
 
 msgid "Light style"
-msgstr "ライトテーマ"
+msgstr ""
 
 msgid "Dark style"
-msgstr "ダークテーマ"
+msgstr ""
 
 msgid "Default View"
-msgstr "標準表示"
+msgstr ""
 
 msgid "View shown after opening files"
-msgstr "ファイルを開いたときの表示"
+msgstr ""
 
 msgid "Watch"
-msgstr "視聴"
+msgstr ""
 
 msgid "Reset to factory settings"
-msgstr "初期設定にリセット"
+msgstr ""
 
 msgid "Restore pixelated adult videos"
-msgstr "ピクセルモザイクのアダルトビデオを除去する"
+msgstr ""
 
 msgid "Drop one or more videos here"
-msgstr "ここに1つ以上の動画をドロップしてください"
+msgstr ""
 
 msgid "Open Files…"
-msgstr "ファイルを開く…"
+msgstr ""
 
 msgid "Toggle Fullscreen"
-msgstr "フルスクリーン切り替え"
+msgstr ""
 
 msgid "Mute/Unmute"
-msgstr "ミュート/ミュート解除"
+msgstr ""
 
 msgid "Play/Pause"
-msgstr "再生/一時停止"
+msgstr ""
 
 msgid "Enable/Disable fullscreen"
-msgstr "フルスクリーンを有効/無効にする"
+msgstr ""
 
 msgid "Switch to Export View"
-msgstr "エクスポート表示に切り替え"
+msgstr ""
 
 msgid "Switch to Watch View"
-msgstr "視聴表示に切り替え"
+msgstr ""
 
 msgid "Select one or multiple video files"
-msgstr "1つまたは複数のビデオファイルを選択"
+msgstr ""
 
 msgid "Examples:"
-msgstr "例:"
+msgstr ""
 
 msgid "Restore video with default settings:"
-msgstr "デフォルト設定で動画の除去をする:"
+msgstr ""
 
 #, python-format
 msgid "%(prog)s --input input.mp4"
-msgstr "%(prog)s --input input.mp4"
+msgstr ""
 
 msgid ""
 "Restore all videos found in the specified directory and save them to a "
 "different folder:"
 msgstr ""
-"指定されたディレクトリ内にあるすべての動画を復元し、別のフォルダに保存します:"
 
 #, python-format
 msgid "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
-msgstr "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
+msgstr ""
 
 msgid "Use a GPU-accelerated codec for encoding the restored video:"
 msgstr ""
-"除去したビデオのエンコードにはGPUアクセラレーション対応コーデックを使用してく"
-"ださい:"
 
 #, python-format
 msgid "%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20"
-msgstr "%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20"
+msgstr ""
 
 #, python-format
 msgid "%(prog)s [options]"
-msgstr "%(prog)s [設定]"
+msgstr ""
 
 msgid "Restore pixelated adult videos (JAV)"
-msgstr "ピクセル化されたアダルト動画を復元する"
+msgstr ""
 
 msgid "General"
-msgstr "一般"
+msgstr ""
 
 msgid "Path to pixelated video file or directory containing video files"
 msgstr ""
-"ピクセル化された動画ファイルへのパス、または動画ファイルを含むディレクトリ"
 
 msgid ""
 "Path used to save output file(s). If path is a directory then file name will "
 "be chosen automatically (see --output-file-pattern). If no output path was "
 "given then the directory of the input file will be used"
 msgstr ""
-"出力ファイルを保存するパス。パスがディレクトリの場合、ファイル名は自動的に選"
-"択されます（--output-file-pattern を参照）。出力パスが指定されていない場合、"
-"入力ファイルのディレクトリが使用されます"
 
 #, python-format, python-brace-format
 msgid ""
@@ -415,9 +386,6 @@ msgid ""
 "\"cuda\". If you have multiple GPUs you can select a specific one via index "
 "e.g. \"cuda:0\" (default: %(default)s)"
 msgstr ""
-"復元および検出モデルの実行に使用するデバイス。\"cpu\" または \"cuda\" を指定"
-"してください。複数のGPUがある場合、インデックスで特定のGPUを選択できます（例:"
-"\"cuda:0\"）。デフォルト: (%(default)s)"
 
 msgid ""
 "Use FP16 precision for restoration and detection models. Reduces memory "
@@ -425,16 +393,16 @@ msgid ""
 msgstr ""
 
 msgid "List available devices and exit"
-msgstr "利用可能なデバイスの一覧を表示して終了する"
+msgstr ""
 
 msgid "Display version and exit"
-msgstr "バージョンを表示して終了する"
+msgstr ""
 
 msgid "Show this help message and exit"
-msgstr "このヘルプメッセージを表示して終了します"
+msgstr ""
 
 msgid "Export (Encoder settings)"
-msgstr "Export (Encoder settings)"
+msgstr ""
 
 #, python-format
 msgid ""
@@ -446,8 +414,6 @@ msgid ""
 "List available codecs and hardware devices / GPUs for hardware-accelerated "
 "video encoding"
 msgstr ""
-"利用可能なコーデックとハードウェアデバイス/GPUをリストアップし、ハードウェア"
-"アクセラレーションによる動画エンコードを実現します"
 
 #, python-format
 msgid ""
@@ -457,26 +423,17 @@ msgid ""
 "will be used instead as those encoders don't support the \"crf\" option. "
 "(default: %(default)s)"
 msgstr ""
-"固定品質（CRF）。ビデオエンコーダの画質設定。値を低くすると画質は向上します"
-"が、ファイルサイズが大きくなります。GPUコーデック「h264_nvenc」または"
-"「hevc_nvenc」を選択した場合、これらのエンコーダは「crf」オプションをサポート"
-"していないため、代わりに「qp」オプションが使用されます。（デフォルト："
-"%(default)s）"
 
 #, python-format
 msgid ""
 "Encoder preset. Mostly affects file-size and speed. (default: %(default)s)"
 msgstr ""
-"エンコーダプリセット。主にファイルサイズと速度に影響します。（デフォルト："
-"%(default)s）"
 
 #, python-format
 msgid ""
 "Sets ffmpeg mov flags 'frag_keyframe+empty_moov+faststart'. Enables playing "
 "the output video while it's being written (default: %(default)s)"
 msgstr ""
-"ffmpeg mov フラグに 'frag_keyframe+empty_moov+faststart' を設定します。出力動"
-"画の書き込み中に再生を有効にします（デフォルト: %(default)s）"
 
 msgid ""
 "Pass arbitrary encoder options. Pass it like you'd specify them using "
@@ -484,17 +441,13 @@ msgid ""
 "vbr_hq\". Official FFmpeg Codecs Documentation: https://ffmpeg.org/ffmpeg-"
 "codecs.html"
 msgstr ""
-"任意のエンコーダオプションを記述します。ffmpegで使用する場合と同様に指定して"
-"ください。例: --custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\"。公式"
-"FFmpegコーデックドキュメント: https://ffmpeg.org/ffmpeg-codecs.html"
 
 msgid "Mosaic Restoration"
-msgstr "モザイク除去"
+msgstr ""
 
 #, python-format
 msgid "Model used to restore mosaic clips (default: %(default)s)"
 msgstr ""
-"モザイククリップを除去するために使用するモデル （デフォルト: %(default)s）"
 
 msgid ""
 "List available restoration models found in model weights directory and exit "
@@ -553,54 +506,52 @@ msgid "Received Ctrl-C, stopping restoration."
 msgstr ""
 
 msgid "No video files found"
-msgstr "ビデオファイルが見つかりません"
+msgstr ""
 
 msgid "PyAV version:"
-msgstr "PyAV バージョン:"
+msgstr ""
 
 msgid "Available video encoders:"
-msgstr "利用可能なビデオエンコーダ:"
+msgstr ""
 
 msgid "Encoders with support for hardware acceleration (GPU):"
-msgstr "ハードウェアアクセラレーション(GPU)をサポートするエンコーダ:"
+msgstr ""
 
 msgid "Device"
-msgstr "デバイス"
+msgstr ""
 
 msgid "Description"
-msgstr "説明"
+msgstr ""
 
 msgid "Available devices:"
-msgstr "利用可能なデバイス:"
+msgstr ""
 
 msgid "Available detection models:"
-msgstr "利用可能な検出モデル:"
+msgstr ""
 
 msgid "None!"
-msgstr "なし！"
+msgstr ""
 
 msgid "Name"
-msgstr "名前"
+msgstr ""
 
 msgid "Path"
-msgstr "パス"
+msgstr ""
 
 msgid "Available restoration models:"
-msgstr "利用可能な除去モデル:"
+msgstr ""
 
 msgid "Usage: "
-msgstr "使用法 "
+msgstr ""
 
 #, python-brace-format
 msgid ""
 "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
 "f){bar_suffix}"
 msgstr ""
-"ビデオの処理中: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f)"
-"{bar_suffix}"
 
 msgid " | Remaining: ? | Speed: ?"
-msgstr " | 残り: ? | 速度: ?"
+msgstr ""
 
 #, python-brace-format
 msgid ""
