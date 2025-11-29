@@ -175,6 +175,10 @@ class ExportView(Gtk.Widget):
     def files_opened_signal(self, files: list[Gio.File]):
         pass
 
+    @GObject.Signal(name="shutdown-confirmation-requested")
+    def shutdown_confirmation_requested(self):
+        pass
+
     @Gtk.Template.Callback()
     def on_button_start_export_clicked(self, start_export_button: Gtk.Button):
         if self._config.export_directory:
@@ -535,6 +539,7 @@ class ExportView(Gtk.Widget):
         elif action == PostExportAction.SHUTDOWN:
             logger.info("Post-export action: Shutting down PC - showing confirmation dialog")
             self.show_shutdown_confirmation_dialog()
+            self.emit("shutdown-confirmation-requested")
         elif action == PostExportAction.CUSTOM_COMMAND:
             command = self._config.post_export_custom_command.strip()
             if command:

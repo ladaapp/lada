@@ -65,6 +65,7 @@ class MainWindow(Adw.ApplicationWindow):
 
         self.export_view.props.view_stack = self.view_stack
         self.export_view.connect("video-export-requested", lambda obj, restore_directory_or_file: self.on_video_export_requested(restore_directory_or_file))
+        self.export_view.connect("shutdown-confirmation-requested", lambda *args: self.present())
         self.preview_view.props.view_stack = self.view_stack
 
     def on_video_export_requested(self, restore_directory_or_file: Gio.File):

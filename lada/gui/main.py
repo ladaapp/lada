@@ -114,7 +114,7 @@ def main():
         return app.run(sys.argv)
     except KeyboardInterrupt:
         logger.info("Received Ctrl-C, quitting")
-        app.on_close()
+        app.on_shutdown()
 
 if __name__ == "__main__":
     main()
