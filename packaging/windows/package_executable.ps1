@@ -156,8 +156,8 @@ function Create-7ZArchive {
 
     $env:Path = ($env:Programfiles + "\7-Zip;") + $env:Path
 
-    $archive_path = "./dist/" + "lada-" + $version + ".7z"
-    $tmp_archive_path = "./dist/" + "lada-" + $version + ".tmp.7z"
+    $archive_path = "./dist/" + "lada-v" + $version + ".7z"
+    $tmp_archive_path = "./dist/" + "lada-v" + $version + ".tmp.7z"
 
     # Delete files from prior runs
     Get-ChildItem "./dist" -filter "*.7z*" | ForEach-Object {
