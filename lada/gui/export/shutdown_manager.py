@@ -79,11 +79,11 @@ class ShutdownManager:
         return False
 
     def shutdown(self):
-        linux_desktop_env = os.getenv("XDG_CURRENT_DESKTOP").upper()
-        linux_session_desktop_env = os.getenv("XDG_SESSION_DESKTOP").upper()
+        linux_desktop_env = os.getenv("XDG_CURRENT_DESKTOP", "").upper()
+        linux_session_desktop_env = os.getenv("XDG_SESSION_DESKTOP", "").upper()
         if sys.platform == "win32":
             self.shutdown_windows()
-        elif ("KDE" in linux_desktop_env or "KDE" in linux_session_desktop_env) and self.is_service_registered("org.kde.Shutdown"):
+        elif "KDE" in linux_desktop_env or "KDE" in linux_session_desktop_env:
             self.shutdown_linux_kde()
         elif ("GNOME" in linux_desktop_env or "GNOME" in linux_session_desktop_env) and self.is_service_registered("org.gnome.SessionManager"):
             self.shutdown_linux_gnome()
