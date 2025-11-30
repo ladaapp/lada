@@ -11,6 +11,8 @@ finish-args:
   - "--device=dri"
   - "--share=ipc"
   - "--socket=pulseaudio"
+  - "--talk-name=org.gnome.SessionManager" # Post-export automatic system shutdown on GNOME desktops
+  - "--talk-name=org.kde.Shutdown" # Post-export automatic system shutdown on KDE desktops
   - "--env=LADA_MODEL_WEIGHTS_DIR=/app/model_weights"
   - "--env=YOLO_CONFIG_DIR=/var/config/yolo"
 modules:
