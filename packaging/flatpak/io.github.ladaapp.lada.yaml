@@ -14,6 +14,7 @@ finish-args:
   - "--talk-name=org.gnome.SessionManager" # Post-export automatic system shutdown on GNOME desktops
   - "--talk-name=org.kde.Shutdown" # Post-export automatic system shutdown on KDE desktops
   - "--env=LADA_MODEL_WEIGHTS_DIR=/app/model_weights"
+  - "--env=LOCALE_DIR=/app/lib/python3.13/site-packages/lada/locale"
   - "--env=YOLO_CONFIG_DIR=/var/config/yolo"
 modules:
   - lada-python-dependencies.yaml
