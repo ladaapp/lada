@@ -1,6 +1,15 @@
 .venv/
+venv_gtk/
+venv_gtk_release/
+venv_release_win/
 experiments/
 build/
+dist/
+.idea/
+.flatpak-builder/
+build_flatpak/
+build_gtk/
+build_gtk_release/
 model_weights/
 datasets/
 lada/locale/*/

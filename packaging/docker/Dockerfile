@@ -4,19 +4,21 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends gettext patch curl xz-utils \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-RUN mkdir -p /root/.local/bin \
+USER lada
+WORKDIR /home/lada
+RUN mkdir -p .local/bin \
     && curl -L 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.0-latest-linux64-gpl-8.0.tar.xz' \
-        | tar xJf - -C /root/.local/bin --strip-components 2 ffmpeg-n8.0-latest-linux64-gpl-8.0/bin/ffmpeg \
-    && chmod -R 555 /root/.local/bin/ffmpeg
+        | tar xJf - -C .local/bin --strip-components 2 ffmpeg-n8.0-latest-linux64-gpl-8.0/bin/ffmpeg \
+    && chmod -R 555 .local/bin/ffmpeg
 COPY packaging/docker/requirements.txt packaging/docker/requirements.txt
 RUN pip install --user --no-deps --no-cache-dir --requirement packaging/docker/requirements.txt --extra-index-url https://download.pytorch.org/whl/cu128
 COPY patches patches
-RUN    patch -u -p1 -d /root/.local/lib/python3.13/site-packages < patches/increase_mms_time_limit.patch \
-    && patch -u -p1 -d /root/.local/lib/python3.13/site-packages < patches/remove_ultralytics_telemetry.patch \
-    && patch -u -p1 -d /root/.local/lib/python3.13/site-packages < patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
-COPY . .
+RUN    patch -u -p1 -d .local/lib/python3.13/site-packages < patches/increase_mms_time_limit.patch \
+    && patch -u -p1 -d .local/lib/python3.13/site-packages < patches/remove_ultralytics_telemetry.patch \
+    && patch -u -p1 -d .local/lib/python3.13/site-packages < patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
+COPY --chown=lada:lada . .
 RUN sh translations/compile_po.sh --release
-RUN pip install --user --no-deps --no-cache-dir '.'
+RUN pip install --user --no-deps --no-cache-dir  '.'
 
 
 FROM python:3.13-slim-trixie
@@ -36,7 +38,7 @@ ADD --checksum=sha256:d404152576ce64fb5b2f315c03062709dac4f5f8548934866cd01c823c
 ADD --checksum=sha256:5643ca297c13920b8ffd39a0d85296e494683a69e5e8204d662653d24c582766 \
     https://drive.usercontent.google.com/download?id=1ulct4RhRxQp1v5xwEmUH7xz7AK42Oqlw&export=download&confirm=t model_weights/3rd_party/clean_youknow_video.pth
 RUN chmod 444 model_weights/*\.pt* model_weights/3rd_party/*\.pt*
-COPY --from=build --chown=lada:lada /root/.local /home/lada/.local
+COPY --from=build --chown=lada:lada /home/lada/.local /home/lada/.local
 USER lada
 ENV PATH=/home/lada/.local/bin:$PATH
 
