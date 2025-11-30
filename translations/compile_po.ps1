@@ -25,13 +25,7 @@ function should_compile_po {
         return $true
     }
 
-    foreach ($filter_lang in $global:lang_filter) {
-        if ($filter_lang -eq $lang) {
-            return $true
-        }
-    }
-
-    return $false
+	return ($global:lang_filter.split(" ") -contains $lang)
 }
 
 # Clean up compiled translations if there is no corresponding .po file anymore (deleted translations)
