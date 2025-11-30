@@ -27,12 +27,8 @@ should_compile_po() {
   if [ -z "$lang_filter" ]; then
     return 0
   fi
-  echo "$lang_filter" | tr " " "\n" | while read filter_lang ; do
-    if [ "$filter_lang" = "$lang" ] ; then
-      return 0
-    fi
-  done
-  return 1
+  echo "$lang_filter" | tr " " "\n" | grep -q "$lang"
+  return $?
 }
 
 # Clean up compiled translations if there is no corresponding .po file anymore (deleted translations)

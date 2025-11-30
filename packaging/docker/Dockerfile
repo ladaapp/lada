@@ -41,6 +41,7 @@ RUN chmod 444 model_weights/*\.pt* model_weights/3rd_party/*\.pt*
 COPY --from=build --chown=lada:lada /home/lada/.local /home/lada/.local
 USER lada
 ENV PATH=/home/lada/.local/bin:$PATH
+ENV LOCALE_DIR=/home/lada/.local/lib/python3.13/site-packages/lada/locale
 
 ENTRYPOINT ["lada-cli"]
 CMD ["--help"]
