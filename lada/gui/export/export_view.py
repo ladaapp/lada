@@ -504,7 +504,7 @@ class ExportView(Gtk.Widget):
                 if selected is not None:
                     self.emit("video-export-requested",selected)
             except GLib.Error as error:
-                if error.message == "Dismissed by user":
+                if error.code == 2: # "Dismissed by user"
                     dismissed_callback()
                     logger.debug("FileDialog cancelled: Dismissed by user")
                 else:
@@ -572,7 +572,7 @@ class ExportView(Gtk.Widget):
                     body=_("Failed to initiate system shutdown. Please check system permissions."),
                 )
                 error_dialog.add_response("ok", _("Okay"))
-                error_dialog.choose(self, None, lambda *_: None)
+                error_dialog.choose(self, None, lambda _dialog, task: _dialog.choose_finish(task))
 
         def on_response_selected(_dialog, task: Gio.Task):
             nonlocal timeout_id

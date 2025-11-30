@@ -87,7 +87,7 @@ def show_open_files_dialog(callback, dismissed_callback):
             if len(video_files) > 0:
                 callback(video_files)
         except GLib.Error as error:
-            if error.message == "Dismissed by user":
+            if error.code == 2: # "Dismissed by user"
                 dismissed_callback()
                 logger.debug("FileDialog cancelled: Dismissed by user")
             else:

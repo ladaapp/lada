@@ -360,7 +360,7 @@ class ConfigSidebar(Gtk.Box):
                 self.action_row_export_directory.set_subtitle(selected_folder_path)
                 if not self.check_button_export_directory_defaultdir.get_active(): self.check_button_export_directory_defaultdir.set_active(True)
             except GLib.Error as error:
-                if error.message == "Dismissed by user":
+                if error.code == 2: # "Dismissed by user"
                     logger.debug("FileDialog cancelled: Dismissed by user")
                 else:
                     logger.error(f"Error selecting folder: {error.message}")
@@ -380,7 +380,7 @@ class ConfigSidebar(Gtk.Box):
                 self._config.temp_directory = selected_folder_path
                 self.action_row_temp_directory.set_subtitle(selected_folder_path)
             except GLib.Error as error:
-                if error.message == "Dismissed by user":
+                if error.code == 2: # "Dismissed by user"
                     logger.debug("FileDialog cancelled: Dismissed by user")
                 else:
                     logger.error(f"Error selecting folder: {error.message}")

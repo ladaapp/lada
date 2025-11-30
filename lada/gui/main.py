@@ -88,7 +88,7 @@ class LadaApplication(Adw.Application):
                 win.close()
 
     def on_about_action(self, *args):
-        about = Adw.AboutDialog(application_name='lada',
+        about = Adw.AboutDialog(application_name='Lada',
                                 application_icon='io.github.ladaapp.lada',
                                 license_type=Gtk.License.AGPL_3_0,
                                 website='https://codeberg.org/ladaapp/lada',
