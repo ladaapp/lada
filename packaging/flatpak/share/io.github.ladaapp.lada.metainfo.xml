@@ -55,6 +55,28 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release date="2025-11-30" version="0.9.0">
+            <description>
+                <p>Features:</p>
+                <ul>
+                    <li>CLI+GUI: Optimized performance of restoration pipeline. Depending on your hardware and specific video content you could see faster processing speed from anywhere between 1x (no change) up to 1.5x compared to previous version v0.8.2.</li>
+                    <li>CLI+GUI: New Translations. This Release is available in Chinese (Simplified), Chinese (Traditional), Dutch, Spanish and Japanese</li>
+                    <li>GUI(Export): Post-export actions: Automatically shutdown your system or run a custom command or script after all exports have finished (Flatpak users might want to read tips in the README)</li>
+                    <li>GUI(Export): Added setting to overwrite default location of temporary directory used for storing files while export is in-progress</li>
+                    <li>docs: Simplified build instructions (aka developer installation) on Windows</li>
+                </ul>
+                <p>Fixes:</p>
+                <ul>
+                    <li>CLI+GUI(Export): Fixed common crash on files with incorrect timestamps (Error: Application provided invalid, non monotonically increasing dts to muxer in stream 0)</li>
+                    <li>GUI(Watch): Fixed opening .ts files in Watch mode on Windows</li>
+                    <li>GUI: Fixed lada.exe process not ending after closing the Window, locking the restored file</li>
+                </ul>
+                <p>Known problems:</p>
+                <ul>
+                    <li>The new optimized restoration pipeline seems to cause increased CPU usage on some systems. See issue #140</li>
+                </ul>
+            </description>
+        </release>
         <release date="2025-10-23" version="0.8.2">
             <description>
                 <p>Features:</p>

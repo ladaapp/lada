@@ -115,6 +115,10 @@ The easiest way to install the app (CLI and GUI) on Linux is via Flathub:
 > You could also give the filesystem permission permanently via [Flatseal](https://flathub.org/apps/com.github.tchx84.Flatseal) 
 
 > [!TIP]
+> If you want to use the Post-export action feature to run a command/script after export has finished you'll need to give the Flatpak additional permissions.
+> Add the `--talk-name=org.freedesktop.Flatpak` permission and then run your command via `flatpak-spawn`. For example: If the script you want to run is /home/user/myscript.sh then set custom command as `flatpak-spawn --host /home/user/myscript.sh`
+
+> [!TIP]
 > If you installed Lada from Flathub and drag-and-drop doesn't work, your file browser might not support [File Transfer Portal](https://flatpak.github.io/xdg-desktop-portal/docs/doc-org.freedesktop.portal.FileTransfer.html).
 > You can fix this by:
 >  1) Switching or updating your file browser to one that supports it.
