@@ -1,4 +1,4 @@
-FROM python:3.13-slim-trixie as build
+FROM python:3.13.9-slim-trixie as build
 RUN useradd --create-home lada
 RUN apt-get update \
     && apt-get install -y --no-install-recommends gettext patch curl xz-utils \
@@ -8,8 +8,8 @@ USER lada
 WORKDIR /home/lada
 RUN mkdir -p .local/bin \
     && curl -L 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n8.0-latest-linux64-gpl-8.0.tar.xz' \
-        | tar xJf - -C .local/bin --strip-components 2 ffmpeg-n8.0-latest-linux64-gpl-8.0/bin/ffmpeg \
-    && chmod -R 555 .local/bin/ffmpeg
+        | tar xJf - -C .local/bin --strip-components 2 ffmpeg-n8.0-latest-linux64-gpl-8.0/bin/ffmpeg ffmpeg-n8.0-latest-linux64-gpl-8.0/bin/ffprobe \
+    && chmod 555 .local/bin/*
 COPY packaging/docker/requirements.txt packaging/docker/requirements.txt
 RUN pip install --user --no-deps --no-cache-dir --requirement packaging/docker/requirements.txt --extra-index-url https://download.pytorch.org/whl/cu128
 COPY patches patches
