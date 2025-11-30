@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import sys
 
@@ -38,7 +39,10 @@ class ShutdownManager:
             raise ShutdownError(e)
 
     def shutdown_linux_generic(self):
-        subprocess.run(["shutdown", "now"], check=True)
+        try:
+            subprocess.run(["shutdown", "now"], check=True)
+        except subprocess.CalledProcessError as e:
+            raise ShutdownError(e)
 
     def shutdown_linux_kde(self):
         try:
@@ -87,8 +91,10 @@ class ShutdownManager:
             self.shutdown_linux_kde()
         elif ("GNOME" in linux_desktop_env or "GNOME" in linux_session_desktop_env) and self.is_service_registered("org.gnome.SessionManager"):
             self.shutdown_linux_gnome()
-        else:
+        elif shutil.which("shutdown") is not None:
             self.shutdown_linux_generic()
+        else:
+            raise ShutdownError("Couldn't find any means to shutdown the system")
 
 if __name__ == "__main__":
     shutdown_manager = ShutdownManager()
