@@ -60,6 +60,7 @@ gui-dev = [
 ]
 training = ["albumentations", "tensorboard", "standard-imghdr"]
 dataset-creation = ["lap>=0.5.12", "timm", "einops", "pillow", "scipy", "onnx", "onnxruntime-gpu"]
+docker = ["opencv-python-headless"]
 
 [[tool.uv.index]]
 name = "pytorch-cu128"

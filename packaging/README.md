@@ -6,7 +6,7 @@ After updating release dependencies by adjusting `uv.lock` we need to update dep
 # No need for gui extra as pycairo and pygobject dependencies are available in flatpak gnome runtime
 uv export --no-default-groups --no-emit-local --format pylock.toml --extra cu128 --frozen | uv run  packaging/flatpak/convert-pylock-to-flatpak.py
 # No need for gui extra as the docker image will only offer Lada CLI
-uv export --no-default-groups --no-emit-local --format requirements.txt --extra cu128 --frozen > packaging/docker/requirements.txt
+uv export --no-default-groups --no-emit-local --format requirements.txt --extra cu128 --group docker --no-emit-package opencv-python --frozen  > packaging/docker/requirements.txt
 # No need for gui extra as pycairo and pygobject dependencies will be built locally via gvsbuild
 uv export --no-default-groups --no-emit-local --format requirements.txt --extra cu128 --frozen > packaging/windows/requirements.txt
 ```

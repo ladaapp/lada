@@ -660,6 +660,9 @@ dev = [
     { name = "tensorboard" },
     { name = "timm" },
 ]
+docker = [
+    { name = "opencv-python-headless" },
+]
 gui-dev = [
     { name = "albumentations" },
     { name = "einops" },
@@ -718,6 +721,7 @@ dev = [
     { name = "tensorboard" },
     { name = "timm" },
 ]
+docker = [{ name = "opencv-python-headless" }]
 gui-dev = [
     { name = "albumentations" },
     { name = "einops" },
