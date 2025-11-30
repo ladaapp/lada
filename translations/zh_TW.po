@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
-"POT-Creation-Date: 2025-11-20 12:51+0000\n"
-"PO-Revision-Date: 2025-11-21 15:10+0000\n"
+"POT-Creation-Date: 2025-11-26 13:23+0000\n"
+"PO-Revision-Date: 2025-11-26 21:39+0000\n"
 "Last-Translator: tetsukasinobu <tetsukasinobu@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Traditional Han script) <https://"
 "translate.codeberg.org/projects/lada/lada/zh_Hant/>\n"
@@ -25,20 +25,8 @@ msgstr "顯示錯誤訊息"
 msgid "Remove"
 msgstr "移除"
 
-msgid "Restoring video…"
-msgstr "正在修復影片…"
-
-msgid "Finished video restoration!"
-msgstr "影片修復完成!"
-
-msgid "Restoration failed"
-msgstr "修復失敗"
-
 msgid "Export video"
 msgstr "輸出影片"
-
-msgid "Restoration paused"
-msgstr "修復暫停"
 
 msgid "Restore"
 msgstr "修復"
@@ -55,9 +43,24 @@ msgstr "取消"
 msgid "Open File"
 msgstr "開啟檔案"
 
+msgid "Settings"
+msgstr "設定"
+
+msgid "Add Files…"
+msgstr "新增檔案…"
+
+msgid "Keyboard Shortcuts"
+msgstr "鍵盤快速鍵"
+
+msgid "About Lada"
+msgstr "關於 Lada"
+
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
 msgstr "持續時間: {duration}, 解析度: {resolution}, Frame rate: {fps} FPS"
+
+msgid "Restoration failed"
+msgstr "修復失敗"
 
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
@@ -94,6 +97,15 @@ msgstr ""
 msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
 msgstr "已暫停  |  已處理: {time_done} ({frames_done} frames)"
 
+msgid "Restoring video…"
+msgstr "正在修復影片…"
+
+msgid "Finished video restoration!"
+msgstr "影片修復完成!"
+
+msgid "Restoration paused"
+msgstr "修復暫停"
+
 msgid "Restore…"
 msgstr "修復…"
 
@@ -117,18 +129,6 @@ msgstr "無法啟動系統關機. 請檢查系統權限."
 
 msgid "Shutdown now"
 msgstr "立即關機"
-
-msgid "Settings"
-msgstr "設定"
-
-msgid "Add Files…"
-msgstr "新增檔案…"
-
-msgid "Keyboard Shortcuts"
-msgstr "鍵盤快速鍵"
-
-msgid "About Lada"
-msgstr "關於 Lada"
 
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr "偵測不到GPU! 使用CPU運行此軟體將會非常緩慢."
@@ -188,6 +188,12 @@ msgstr "預設靜音"
 msgid ""
 "When enabled, audio will be muted automatically when a new file is opened."
 msgstr "啟用時，當新檔案開啟時將自動靜音."
+
+msgid "Enable seek preview"
+msgstr "啟用搜尋預覽"
+
+msgid "Show a preview of the video frame when hovering over the timeline."
+msgstr "滑鼠移到時間軸上時,顯示影片畫面預覽."
 
 msgid "Export"
 msgstr "輸出"
@@ -251,12 +257,6 @@ msgstr "匯出後動作"
 
 msgid "Action to be run after all queued files have been restored"
 msgstr "在修復所有佇列檔案之後要執行的動作"
-
-msgid "No action"
-msgstr "無動作"
-
-msgid "Do nothing after export is completed."
-msgstr "匯出完成後不執行任何動作."
 
 msgid "Shutdown system"
 msgstr "系統關機"
@@ -340,62 +340,6 @@ msgstr "切換至輸出畫面"
 msgid "Select one or multiple video files"
 msgstr "選擇單個或多個影片檔"
 
-msgid "No video files found"
-msgstr "找不到影片檔"
-
-msgid "PyAV version:"
-msgstr "PyAV 版本:"
-
-msgid "Available video encoders:"
-msgstr "可用的影片編碼器："
-
-msgid "Encoders with support for hardware acceleration (GPU):"
-msgstr "支援硬體加速(GPU)的編碼器:"
-
-msgid "Device"
-msgstr "設備"
-
-msgid "Description"
-msgstr "描述"
-
-msgid "Available devices:"
-msgstr "可用設備:"
-
-msgid "Available detection models:"
-msgstr "可用偵測模型:"
-
-msgid "None!"
-msgstr "沒有!"
-
-msgid "Name"
-msgstr "名稱"
-
-msgid "Path"
-msgstr "路徑"
-
-msgid "Available restoration models:"
-msgstr "可用修復模型:"
-
-msgid "Usage: "
-msgstr "用量: "
-
-#, python-brace-format
-msgid ""
-"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
-"f){bar_suffix}"
-msgstr ""
-"處理中影片: {done_percent}%|{bar}|已處理: {time_done} ({frames_done}f)"
-"{bar_suffix}"
-
-msgid " | Remaining: ? | Speed: ?"
-msgstr " | 剩餘的: ? | 速度: ?"
-
-#, python-brace-format
-msgid ""
-" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
-" | 剩餘的: {time_remaining} ({frames_remaining}f) | 速度: {speed_fps}fps"
-
 msgid "Examples:"
 msgstr "範例:"
 
@@ -464,7 +408,8 @@ msgstr ""
 msgid ""
 "Use FP16 precision for restoration and detection models. Reduces memory "
 "usage. (default: True if CUDA is available)"
-msgstr "使用FP16精度來進行修復與偵測模型. 減少記憶體使用. (預設值: 若有 CUDA 則啟用)"
+msgstr ""
+"使用FP16精度來進行修復與偵測模型. 減少記憶體使用. (預設值: 若有 CUDA 則啟用)"
 
 msgid "List available devices and exit"
 msgstr "列出可用設備並退出"
@@ -594,6 +539,68 @@ msgstr "無效輸入。沒有檔案或目錄在{input_path}"
 
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "接收到Ctrl-C及停止修復."
+
+msgid "No video files found"
+msgstr "找不到影片檔"
+
+msgid "PyAV version:"
+msgstr "PyAV 版本:"
+
+msgid "Available video encoders:"
+msgstr "可用的影片編碼器："
+
+msgid "Encoders with support for hardware acceleration (GPU):"
+msgstr "支援硬體加速(GPU)的編碼器:"
+
+msgid "Device"
+msgstr "設備"
+
+msgid "Description"
+msgstr "描述"
+
+msgid "Available devices:"
+msgstr "可用設備:"
+
+msgid "Available detection models:"
+msgstr "可用偵測模型:"
+
+msgid "None!"
+msgstr "沒有!"
+
+msgid "Name"
+msgstr "名稱"
+
+msgid "Path"
+msgstr "路徑"
+
+msgid "Available restoration models:"
+msgstr "可用修復模型:"
+
+msgid "Usage: "
+msgstr "用量: "
+
+#, python-brace-format
+msgid ""
+"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
+"f){bar_suffix}"
+msgstr ""
+"處理中影片: {done_percent}%|{bar}|已處理: {time_done} ({frames_done}f)"
+"{bar_suffix}"
+
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | 剩餘的: ? | 速度: ?"
+
+#, python-brace-format
+msgid ""
+" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr ""
+" | 剩餘的: {time_remaining} ({frames_remaining}f) | 速度: {speed_fps}fps"
+
+#~ msgid "No action"
+#~ msgstr "無動作"
+
+#~ msgid "Do nothing after export is completed."
+#~ msgstr "匯出完成後不執行任何動作."
 
 #~ msgid "Directory for temporary video file during restoration process"
 #~ msgstr "修復處理時的影片檔暫存目錄"
