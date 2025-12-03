@@ -111,7 +111,9 @@ class ExportSingleFileStatusPage(Gtk.Widget):
     def on_video_export_finished(self):
         self.status_page.set_title(_("Finished video restoration!"))
         self.status_page.set_icon_name("check-round-outline2-symbolic")
-        self.progress_bar.set_visible(False)
+        self.progress_bar.set_fraction(1.0)
+        self.progress_bar.set_text(export_utils.get_progressbar_text(self.item.state, self.item.progress))
+        self.progress_bar.set_visible(True)
         self.button_open.set_visible(True)
         self.button_pause_export.set_visible(False)
         self.button_cancel_export.set_visible(False)
