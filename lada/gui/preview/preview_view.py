@@ -417,17 +417,17 @@ class PreviewView(Gtk.Widget):
             if self._video_preview_init_done:
                 self._video_preview_init_done = False
                 self.pipeline_manager.close_video_file()
+                self.close_thumbnailer()
+                self.seek_preview_popover.clear_thumbnail()
             GLib.idle_add(lambda: self._open_file(file))
 
         threading.Thread(target=run, daemon=True).start()
 
     def _open_file(self, file: Gio.File):
-        self.frame_restorer_options = FrameRestorerOptions(self.config.mosaic_restoration_model, self.config.mosaic_detection_model, video_utils.get_video_meta_data(file.get_path()), self.config.device, self.config.max_clip_duration, self.config.show_mosaic_detections, False)
-        file_path = file.get_path()
-
         assert not self._video_preview_init_done
+        file_path = file.get_path()
         self.video_metadata = video_utils.get_video_meta_data(file_path)
-        self._frame_restorer_options = self._frame_restorer_options.with_video_metadata(self.video_metadata)
+        self.frame_restorer_options = FrameRestorerOptions(self.config.mosaic_restoration_model, self.config.mosaic_detection_model, self.video_metadata, self.config.device, self.config.max_clip_duration, self.config.show_mosaic_detections, False)
         self.has_audio = audio_utils.get_audio_codec(self.video_metadata.video_file) is not None
         self.button_mute_unmute.set_sensitive(self.has_audio)
         self.set_speaker_icon(mute=not self.has_audio or self.config.mute_audio)
@@ -591,15 +591,18 @@ class PreviewView(Gtk.Widget):
         self._shortcuts_manager.add("preview", "toggle-play-pause", "<Ctrl>space", lambda *args: self.button_play_pause_callback(self.button_play_pause), _("Play/Pause"))
         self._shortcuts_manager.add("preview", "toggle-fullscreen", "f", lambda *args: self.emit("toggle-fullscreen-requested"), _("Enable/Disable fullscreen"))
 
-    def close(self, block=False):
-        if not self.pipeline_manager:
-            return
-        self._video_preview_init_done = False
+    def close_thumbnailer(self):
         with self._thumbnailer_lock:
             self._thread_counter += 1 # Invalidate potentially scheduled thread
             if self._video_thumbnailer:
                 self._video_thumbnailer.close()
                 self._video_thumbnailer = None
+
+    def close(self, block=False):
+        if not self.pipeline_manager:
+            return
+        self._video_preview_init_done = False
+        self.close_thumbnailer()
         if block:
             self.pipeline_manager.close_video_file()
         else:

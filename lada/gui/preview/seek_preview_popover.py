@@ -56,3 +56,6 @@ class SeekPreviewPopover(Gtk.Popover):
 
         GLib.idle_add(update_ui)
 
+    def clear_thumbnail(self):
+        GLib.idle_add(lambda: self.picture.set_pixbuf(None))
+
