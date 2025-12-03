@@ -117,13 +117,23 @@ def convert_segment_masks_to_yolo_labels(masks_dir, output_dir_segmentation_labe
 
     Based of: ultralytics.data.converter.convert_segment_masks_to_yolo_seg
     """
-    def get_yolo_box(contour) -> tuple[float]:
+
+    PRECISION = 6 # Rounding to 6 decimal places
+
+    def get_yolo_box(contour, img_width, img_height) -> tuple[float]:
+        yolo_detection_format_data
         x, y, w, h = cv2.boundingRect(contour)
-        h, w = mask.shape[:2]
         center_x = x + w / 2
         center_y = y + h / 2
-        yolo_box = center_x / w, center_y / h, w / w, h / h
-        return yolo_box
+        yolo_box = center_x / img_width, center_y / img_height, w / img_width, h / img_height
+        return [round(num, PRECISION) for num in yolo_box]
+
+    def get_yolo_segment_polygon(contour, img_width, img_height) -> tuple[float]:
+        yolo_polygon = []
+        for point in contour:
+            yolo_polygon.append(round(point[0] / img_width, PRECISION))
+            yolo_polygon.append(round(point[1] / img_height, PRECISION))
+        return yolo_polygon
 
     for mask_path in Path(masks_dir).iterdir():
         if mask_path.suffix in {".png", ".jpg"}:
@@ -147,13 +157,10 @@ def convert_segment_masks_to_yolo_labels(masks_dir, output_dir_segmentation_labe
                 for contour in contours:
                     if len(contour) >= 3:  # YOLO requires at least 3 points for a valid segmentation
                         contour = contour.squeeze()  # Remove single-dimensional entries
-                        yolo_segmentation_format = [class_index]
-                        for point in contour:
-                            # Normalize the coordinates
-                            yolo_segmentation_format.append(round(point[0] / img_width, 6))  # Rounding to 6 decimal places
-                            yolo_segmentation_format.append(round(point[1] / img_height, 6))
-                        yolo_segmentation_format_data.append(yolo_segmentation_format)
-                        yolo_detection_format_data.append(get_yolo_box(contour))
+                        segmentation_data = [class_index] + get_yolo_segment_polygon(contour, img_width, img_height)
+                        yolo_segmentation_format_data.append(segmentation_data)
+                        detection_data = [class_index] + get_yolo_box(contour, img_width, img_height)
+                        yolo_detection_format_data.append(detection_data)
 
             # Save Ultralytics YOLO format data to file
             output_path = Path(output_dir_segmentation_labels) / f"{mask_path.stem}.txt"
