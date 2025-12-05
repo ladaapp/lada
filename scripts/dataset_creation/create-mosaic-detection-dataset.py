@@ -15,7 +15,7 @@ import numpy as np
 from lada.models.centerface.centerface import CenterFace
 import lada.models.bpjdet.inference as bpjdet
 from lada.utils import visualization_utils, image_utils, transforms as lada_transforms, Detections, DETECTION_CLASSES, \
-    Image
+    Image, Detection
 from lada.utils.box_utils import box_overlap
 from lada.datasetcreation.detectors.face_detector import FaceDetector
 from lada.datasetcreation.detectors.head_detector import HeadDetector
@@ -158,6 +158,19 @@ def wait_until_key_press(accepted_keys: list[str]) -> str:
         if _key_pressed in _accepted_keys:
             return accepted_keys[_accepted_keys.index(_key_pressed)]
 
+def _get_mosaic_transform_args(detection: Detection):
+    mosaic_args = dict(reuse_input_mask_value=True)
+    # Use higher block sizes for sfw face/head mosaics to avoid false positive detections of non-pixelated faces
+    # We don't expect non-pixelated nsfw areas in JAV footage so we can use fine mosaic sizes
+    # Also SFW mosaics tend to use larger block sizes on real-world videos
+    if detection.cls == DETECTION_CLASSES["nsfw"]["cls"]:
+        mosaic_args["base_block_size_scale_factor_range"] = [0.9, 1.8]
+        mosaic_args["min_block_size"] = 3
+    else:
+        mosaic_args["base_block_size_scale_factor_range"] = [1.3, 2.3]
+        mosaic_args["min_block_size"] = 5
+    return mosaic_args
+
 def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], device='cpu', window_name="mosaic", target_size=640) -> bool:
     img = cv2.imread(file_path)
     target_shape = get_target_shape(img.shape, target_size)
@@ -174,10 +187,11 @@ def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector 
                 mask = detection.mask
             else:
                 mask = mask | detection.mask
+            mosaic_args = _get_mosaic_transform_args(detection)
             if img_mosaic is None:
-                img_mosaic, mask_mosaic, mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img, detection.mask)
+                img_mosaic, mask_mosaic, mosaic_size = lada_transforms.Mosaic(**mosaic_args)(img, detection.mask)
             else:
-                img_mosaic, _mask_mosaic, _mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img_mosaic, detection.mask)
+                img_mosaic, _mask_mosaic, _mosaic_size = lada_transforms.Mosaic(**mosaic_args)(img_mosaic, detection.mask)
                 mask_mosaic = mask_mosaic | _mask_mosaic
                 mosaic_size = min(_mosaic_size, mosaic_size)
 
@@ -217,10 +231,11 @@ def process_image_file(file_path, output_root, detectors: list[NsfwImageDetector
             mask = detection.mask
         else:
             mask = mask | detection.mask
+        mosaic_args = _get_mosaic_transform_args(detection)
         if img_mosaic is None:
-            img_mosaic, mask_mosaic, mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img, detection.mask)
+            img_mosaic, mask_mosaic, mosaic_size = lada_transforms.Mosaic(**mosaic_args)(img, detection.mask)
         else:
-            img_mosaic, _mask_mosaic, _mosaic_size = lada_transforms.Mosaic(reuse_input_mask_value=True)(img_mosaic, detection.mask)
+            img_mosaic, _mask_mosaic, _mosaic_size = lada_transforms.Mosaic(**mosaic_args)(img_mosaic, detection.mask)
             mask_mosaic = mask_mosaic | _mask_mosaic
             mosaic_size = min(_mosaic_size, mosaic_size)
 

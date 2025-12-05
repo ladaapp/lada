@@ -277,7 +277,8 @@ class Mosaic(torch.nn.Module):
                  mask_area_calc_methods=['normal', 'bounding'],
                  mask_area_calc_method_props=[0.5, 0.5],
                  mask_dilation_iteration_range: list[int]=[0,2],
-                 base_block_size_scale_factor_range: list[float]=[0.7, 2.2],
+                 base_block_size_scale_factor_range: list[float]=[1.0, 1.6],
+                 min_block_size: int = 3,
                  block_shapes=['squa_mid', 'squa_avg', 'rect_avg'],
                  block_shape_probs=[0.25, 0.3, 0.45],
                  rectangular_block_ratio_range=[1.1, 1.8],
@@ -297,6 +298,7 @@ class Mosaic(torch.nn.Module):
         self.should_apply_feathering =  random.random() < feather_prob
         self.should_enable_incomplete_blocks=  random.random() < incomplete_blocks_prop
         self.reuse_input_mask_value = reuse_input_mask_value
+        self.min_block_size = min_block_size
 
     def forward(self, img: Image, mask: Mask):
         single_image = not isinstance(img, list)
@@ -304,7 +306,7 @@ class Mosaic(torch.nn.Module):
         masks_gt = [mask] if single_image else mask
 
         base_block_size = mosaic_utils.get_mosaic_block_size_v4(masks_gt[0], area_type=self.mask_area_calc_method)
-        mosaic_size = int(base_block_size * self.mosaic_block_size_scale_factor)
+        mosaic_size = max(self.min_block_size, int(base_block_size * self.mosaic_block_size_scale_factor))
         mosaic_feather_size = int(mosaic_size * self.feather_size_scale_factor) if self.should_apply_feathering else -1
 
         img_lqs = []
