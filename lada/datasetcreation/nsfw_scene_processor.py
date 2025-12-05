@@ -410,13 +410,13 @@ class SceneProcessor:
             def _run_watermark_detection():
                 if scene_processing_options.watermark_detection.filter or scene_processing_options.watermark_detection.add_metadata:
                     if scene_processing_options.save_cropped:
-                        _watermark_detected = self.watermark_detector.detect(scene.get_images(), cropped_scene.get_boxes())
+                        _watermark_detected = self.watermark_detector.detect_batch(scene.get_images(), cropped_scene.get_boxes())
                         if scene_processing_options.resize_crops:
                             dataset_item_crop_scaled.watermark_detected = _watermark_detected
                         if scene_processing_options.preserve_crops:
                             dataset_item_crop_unscaled.watermark_detected = _watermark_detected
                     if scene_processing_options.save_uncropped:
-                        dataset_item_uncropped.watermark_detected = self.watermark_detector.detect(scene.get_images())
+                        dataset_item_uncropped.watermark_detected = self.watermark_detector.detect_batch(scene.get_images())
             scene_analyzers_futures.append(scene_analyzers_executor.submit(_run_watermark_detection))
 
             #########
@@ -441,13 +441,13 @@ class SceneProcessor:
             def _run_censor_detection():
                 if scene_processing_options.censor_detection.filter or scene_processing_options.censor_detection.add_metadata:
                     if scene_processing_options.save_cropped:
-                        _censoring_detected = self.censor_detector.detect(scene.get_images(), cropped_scene.get_boxes())
+                        _censoring_detected = self.censor_detector.detect_batch(scene.get_images(), cropped_scene.get_boxes())
                         if scene_processing_options.resize_crops:
                             dataset_item_crop_scaled.censoring_detected = _censoring_detected
                         if scene_processing_options.preserve_crops:
                             dataset_item_crop_unscaled.censoring_detected = _censoring_detected
                     if scene_processing_options.save_uncropped:
-                        dataset_item_uncropped.censoring_detected = self.censor_detector.detect(scene.get_images())
+                        dataset_item_uncropped.censoring_detected = self.censor_detector.detect_batch(scene.get_images())
             scene_analyzers_futures.append(scene_analyzers_executor.submit(_run_censor_detection))
 
         wait_until_completed(scene_analyzers_futures)

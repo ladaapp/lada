@@ -5,7 +5,7 @@ from typing import Optional
 
 from lada.utils.ultralytics_utils import convert_yolo_boxes
 from lada.utils.box_utils import box_overlap
-from lada.utils import Image, Box
+from lada.utils import Image, Box, Detections, ultralytics_utils, Detection, DETECTION_CLASSES
 from lada.models.yolo.yolo import Yolo
 
 class MosaicClassifier:
@@ -17,7 +17,7 @@ class MosaicClassifier:
         self.min_positive_detections = 4
         self.sampling_rate = 0.3
 
-    def detect(self, images:list[Image], boxes:Optional[list[Box]]=None) -> bool:
+    def detect_batch(self, images:list[Image], boxes:Optional[list[Box]]=None) -> bool:
         num_samples = min(len(images), max(1, int(len(images) * self.sampling_rate)))
         indices_step_size = len(images) // num_samples
         indices = list(range(0, num_samples*indices_step_size, indices_step_size))
@@ -41,3 +41,20 @@ class MosaicClassifier:
                     if positive_detections >= self.min_positive_detections:
                         return True
         return False
+
+    def detect(self, source: str | Image) -> Detections | None:
+        for yolo_results in self.model.predict(source=source, stream=False, verbose=False, device=self.device, conf=self.min_confidence, imgsz=640):
+            detections = []
+            if not yolo_results.boxes:
+                return None
+            for yolo_box, yolo_mask in zip(yolo_results.boxes, yolo_results.masks):
+                mask = ultralytics_utils.convert_yolo_mask(yolo_mask, yolo_results.orig_img.shape)
+                box = ultralytics_utils.convert_yolo_box(yolo_box, yolo_results.orig_img.shape)
+                t, l, b, r = box
+                width, height = r - l + 1, b - t + 1
+                if min(width, height) < 20:
+                    # skip tiny detections
+                    continue
+
+                detections.append(Detection(DETECTION_CLASSES["mosaic"]["cls"], box, mask))
+            return Detections(yolo_results.orig_img, detections)

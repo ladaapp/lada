@@ -70,4 +70,6 @@ DETECTION_CLASSES = {
     "nsfw": dict(cls=0, mask_value=255),
     "sfw_head": dict(cls=1, mask_value=127),
     "sfw_face": dict(cls=2, mask_value=192),
+    "watermark": dict(cls=3, mask_value=60),
+    "mosaic": dict(cls=4, mask_value=90),
 }

@@ -95,3 +95,9 @@ def create_blend_mask(crop_mask: torch.Tensor, dtype: torch.dtype):
 def apply_random_mask_extensions(mask: Mask) -> Mask:
     value = np.random.choice([0, 0, 1, 1, 2])
     return extend_mask(mask, value)
+
+def box_to_mask(box: Box, shape, mask_value: int):
+    mask = np.zeros((shape[0], shape[1], 1), np.uint8)
+    t, l, b, r = box
+    mask[t:b + 1, l:r + 1] = mask_value
+    return mask

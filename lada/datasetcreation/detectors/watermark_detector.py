@@ -5,7 +5,7 @@ from typing import Optional
 
 from lada.utils.ultralytics_utils import convert_yolo_boxes
 from lada.utils.box_utils import box_overlap
-from lada.utils import Image, Box
+from lada.utils import Image, Box, Detections, ultralytics_utils, Detection, DETECTION_CLASSES, mask_utils
 from lada.models.yolo.yolo import Yolo
 
 class WatermarkDetector:
@@ -17,7 +17,7 @@ class WatermarkDetector:
         self.min_positive_detections = 4
         self.sampling_rate = 0.3
 
-    def detect(self, images:list[Image], boxes:Optional[list[Box]]=None) -> bool:
+    def detect_batch(self, images:list[Image], boxes:Optional[list[Box]]=None) -> bool:
         num_samples = min(len(images), max(1, int(len(images) * self.sampling_rate)))
         indices_step_size = len(images) // num_samples
         indices = list(range(0, num_samples*indices_step_size, indices_step_size))
@@ -42,3 +42,20 @@ class WatermarkDetector:
         watermark_detected = positive_detections >= self.min_positive_detections
         #print(f"watermark detector: watermark {watermark_detected}, detected {positive_detections}/{len(samples)}")
         return watermark_detected
+
+    def detect(self, source: str | Image) -> Detections | None:
+        for yolo_results in self.model.predict(source=source, stream=False, verbose=False, device=self.device, conf=self.min_confidence, imgsz=640):
+            detections = []
+            if not yolo_results.boxes:
+                return None
+            for yolo_box in yolo_results.boxes:
+                box = ultralytics_utils.convert_yolo_box(yolo_box, yolo_results.orig_img.shape)
+                mask = mask_utils.box_to_mask(box, yolo_results.orig_img.shape, DETECTION_CLASSES["watermark"]["mask_value"])
+                t, l, b, r = box
+                width, height = r - l + 1, b - t + 1
+                if min(width, height) < 40:
+                    # skip tiny detections
+                    continue
+
+                detections.append(Detection(DETECTION_CLASSES["watermark"]["cls"], box, mask))
+            return Detections(yolo_results.orig_img, detections)
