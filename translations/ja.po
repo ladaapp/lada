@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
 "POT-Creation-Date: 2025-11-26 13:23+0000\n"
-"PO-Revision-Date: 2025-11-29 17:43+0000\n"
+"PO-Revision-Date: 2025-12-06 12:59+0000\n"
 "Last-Translator: softasa <softasa@noreply.codeberg.org>\n"
 "Language-Team: Japanese <https://translate.codeberg.org/projects/lada/lada/"
 "ja/>\n"
@@ -57,7 +57,7 @@ msgstr "Ladaについて"
 
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
-msgstr "再生時間: {duration}、解像度: {resolution}、フレームレート: {fps} FPS"
+msgstr "再生時間: {duration},解像度: {resolution},フレームレート: {fps} FPS"
 
 msgid "Restoration failed"
 msgstr "除去処理に失敗しました"
@@ -98,13 +98,13 @@ msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
 msgstr "一時停止  |  処理済み: {time_done} ({frames_done} frames)"
 
 msgid "Restoring video…"
-msgstr "ビデオを復元中…"
+msgstr "動画を処理中…"
 
 msgid "Finished video restoration!"
-msgstr "動画の除去処理が完了しました！"
+msgstr "動画の処理が完了しました！"
 
 msgid "Restoration paused"
-msgstr "除去処理を一時停止しました"
+msgstr "処理を一時停止しました"
 
 msgid "Restore…"
 msgstr "除去…"
@@ -205,7 +205,7 @@ msgid "Codec"
 msgstr "コーデック"
 
 msgid "Video Codec used for encoding the restored video."
-msgstr "除去したビデオをエンコードするために使用されるビデオコーデック。"
+msgstr "処理したビデオをエンコードするために使用されるビデオコーデック。"
 
 msgid "CRF (Constant Rate Factor)"
 msgstr "CRF (固定品質)"
@@ -252,7 +252,7 @@ msgid ""
 "Must include placeholder <span background=\"#D3D3D350\"><tt>{orig_file_name}"
 "</tt></span>."
 msgstr ""
-"除去ファイルのファイル名パターン.\n"
+"処理されたファイルのファイル名パターン.\n"
 "Must include placeholder <span background=\"#D3D3D350\""
 "><tt>{orig_file_name}</tt></span>."
 
@@ -260,7 +260,7 @@ msgid "Post-Export Action"
 msgstr "エクスポート後のアクション"
 
 msgid "Action to be run after all queued files have been restored"
-msgstr "キューに入れられたすべてのファイルが復元された後に実行されるアクション"
+msgstr "キューに入れられたすべてのファイルが処理された後に実行されるアクション"
 
 msgid "Shutdown system"
 msgstr "システムをシャットダウン"
@@ -316,7 +316,7 @@ msgid "Reset to factory settings"
 msgstr "初期設定にリセット"
 
 msgid "Restore pixelated adult videos"
-msgstr "ピクセルモザイクのアダルトビデオを除去する"
+msgstr "アダルトビデオのピクセルモザイクを除去する"
 
 msgid "Drop one or more videos here"
 msgstr "ここに1つ以上の動画をドロップしてください"
@@ -349,7 +349,7 @@ msgid "Examples:"
 msgstr "例:"
 
 msgid "Restore video with default settings:"
-msgstr "デフォルト設定で動画の除去をする:"
+msgstr "デフォルト設定で動画を処理する:"
 
 #, python-format
 msgid "%(prog)s --input input.mp4"
@@ -358,8 +358,7 @@ msgstr "%(prog)s --input input.mp4"
 msgid ""
 "Restore all videos found in the specified directory and save them to a "
 "different folder:"
-msgstr "指定されたディレクトリ内にあるすべての動画を除去処理し、別のフォルダに保存し"
-"ます:"
+msgstr "指定されたディレクトリ内にあるすべての動画を処理し、別のフォルダに保存します:"
 
 #, python-format
 msgid "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
@@ -378,7 +377,7 @@ msgid "%(prog)s [options]"
 msgstr "%(prog)s [設定]"
 
 msgid "Restore pixelated adult videos (JAV)"
-msgstr "ピクセルモザイクのアダルトビデオ(JAV)を除去する"
+msgstr "アダルトビデオ(JAV)のピクセルモザイクを除去する"
 
 msgid "General"
 msgstr "一般"
@@ -508,7 +507,7 @@ msgid ""
 "Path to restoration model configuration file. You'll not have to set this "
 "unless you're training your own custom models"
 msgstr "除去モデルの設定ファイルのパス。自作モデルをトレーニングする場合を除き、設定"
-"する必要はありません"
+"する必要はありません。"
 
 #, python-format
 msgid ""
@@ -544,20 +543,20 @@ msgid ""
 "Invalid file name pattern. It must include the template string "
 "'{orig_file_name}' and a file extension"
 msgstr "無効なファイル名パターンです。'{orig_file_name}'のテンプレート文字列と拡張子"
-"を含める必要があります"
+"を含める必要があります。"
 
 msgid ""
 "Invalid output directory. If input is a directory then --output must also be "
 "set to a directory"
-msgstr "無効な出力ディレクトリです。入力がディレクトリの場合、--output もディレクトリ"
-"として指定する必要があります"
+msgstr "無効な出力ディレクトリです。入力がディレクトリの場合 --output もディレクトリ"
+"として指定する必要があります。"
 
 #, python-brace-format
 msgid "Invalid input. No file or directory at {input_path}"
 msgstr "無効な入力です。{input_path} にファイルまたはディレクトリが存在しません"
 
 msgid "Received Ctrl-C, stopping restoration."
-msgstr "Ctrl-C が押されました。除去処理を停止します。"
+msgstr "Ctrl-C が押されました。処理を停止します。"
 
 msgid "No video files found"
 msgstr "ビデオファイルが見つかりません"
@@ -603,7 +602,7 @@ msgid ""
 "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
 "f){bar_suffix}"
 msgstr ""
-"ビデオの処理中: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f)"
+"ビデオの処理中: {done_percent}%|{bar}|処理済み: {time_done} ({frames_done}f)"
 "{bar_suffix}"
 
 msgid " | Remaining: ? | Speed: ?"
