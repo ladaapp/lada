@@ -75,15 +75,15 @@ def addmosaic_base(img, mask, n, model='squa_avg', rect_ratio=1.6, feather=0, re
 
     for i in range(h_step):
         for j in range(w_step):
-            if mask_val := mask_padded[i * n_h + pix_mid_h, j * n_w + pix_mid_w]:
-                if not reuse_input_mask_value: mask_val = 255
-                min_h, max_h = min(min_h, i), max(max_h, i)
-                min_w, max_w = min(min_w, j), max(max_w, j)
-                y_start = i * n_h + h_start
-                y_end = (i + 1) * n_h + h_start
-                x_start = j * n_w + w_start
-                x_end = (j + 1) * n_w + w_start
-                if incomplete_blocks:
+            min_h, max_h = min(min_h, i), max(max_h, i)
+            min_w, max_w = min(min_w, j), max(max_w, j)
+            y_start = i * n_h + h_start
+            y_end = (i + 1) * n_h + h_start
+            x_start = j * n_w + w_start
+            x_end = (j + 1) * n_w + w_start
+            if incomplete_blocks:
+                if mask[y_start:y_end, x_start:x_end, :].any():
+                    mask_val = mask[y_start:y_end, x_start:x_end, :].max() if reuse_input_mask_value else 255
                     img_block = img[y_start:y_end, x_start:x_end,:]
                     mask_block = mask[y_start:y_end, x_start:x_end,:]
                     img_mosaic_block = get_block_data(img_padded, i, j, n_h, n_w, h_start, w_start)
@@ -92,7 +92,9 @@ def addmosaic_base(img, mask, n, model='squa_avg', rect_ratio=1.6, feather=0, re
                     mask_mosaic_block = np.where(mask_block_indices, 0, mask_val)
                     img_mosaic[y_start:y_end, x_start:x_end,:] = img_mosaic_block
                     mask_mosaic[y_start:y_end, x_start:x_end,:] = mask_mosaic_block
-                else:
+            else:
+                if mask_val := mask_padded[i * n_h + pix_mid_h, j * n_w + pix_mid_w]:
+                    if not reuse_input_mask_value: mask_val = 255
                     img_mosaic[y_start:y_end, x_start:x_end,:] = get_block_data(img_padded, i, j, n_h, n_w, h_start, w_start)
                     mask_mosaic[y_start:y_end, x_start:x_end,:] = mask_val
 
