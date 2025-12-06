@@ -6,7 +6,6 @@ import pathlib
 from gi.repository import Adw, Gtk, Gio, GObject
 from lada import LOG_LEVEL
 from lada.gui import utils
-from lada.gui.frame_restorer_provider import FrameRestorerOptions
 from lada.gui.shortcuts import ShortcutsManager
 
 here = pathlib.Path(__file__).parent.resolve()
@@ -23,7 +22,6 @@ class FileSelectionView(Gtk.Widget):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self._frame_restorer_options: FrameRestorerOptions | None = None
         self._shortcuts_manager: ShortcutsManager | None = None
         self._window_title: str | None = None
 

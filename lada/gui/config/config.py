@@ -8,12 +8,12 @@ import threading
 from enum import Enum
 from pathlib import Path
 
-import torch
 from gi.repository import GLib, GObject, Adw
 
 from lada import LOG_LEVEL
 from lada import get_available_restoration_models, get_available_detection_models
 from lada.gui import utils
+from lada.utils import os_utils
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
@@ -37,7 +37,7 @@ class Config(GObject.Object):
         'export_crf': 20,
         'export_directory': None,
         'file_name_pattern': "{orig_file_name}.restored.mp4",
-        'fp16_enabled': torch.cuda.is_available(),  # Default: True if CUDA is available and GPU is Turing or newer
+        'fp16_enabled': os_utils.gpu_has_tensor_cores(),
         'initial_view': 'preview',
         'max_clip_duration': 180,
         'mosaic_detection_model': 'v3.1-fast',

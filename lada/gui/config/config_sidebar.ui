@@ -74,8 +74,8 @@ SPDX-License-Identifier: AGPL-3.0
                                 </child>
                                 <child>
                                     <object class="AdwSwitchRow" id="switch_row_fp16">
-                                        <property name="title" translatable="true">Enable faster processing with less VRAM on modern GPUs</property>
-                                        <property name="subtitle" translatable="true">Use half-precision (FP16) for model processing. Negligible quality difference, but may be slower on legacy hardware.</property>
+                                        <property name="title" translatable="true">FP16 precision</property>
+                                        <property name="subtitle" translatable="true">Reduces VRAM usage and may increase speed on modern GPUs, with negligible quality difference.</property>
                                         <signal name="notify::active" handler="switch_row_fp16_active_callback"/>
                                     </object>
                                 </child>

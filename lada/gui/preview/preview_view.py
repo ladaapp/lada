@@ -285,16 +285,7 @@ class PreviewView(Gtk.Widget):
 
         def on_fp16_enabled(object, spec):
             if self._frame_restorer_options:
-                self.frame_restorer_options = FrameRestorerOptions(
-                    self._frame_restorer_options.mosaic_restoration_model_name,
-                    self._frame_restorer_options.mosaic_detection_model_name,
-                    self._frame_restorer_options.video_metadata,
-                    self._frame_restorer_options.device,
-                    self._frame_restorer_options.max_clip_length,
-                    self._frame_restorer_options.mosaic_detection,
-                    self._frame_restorer_options.passthrough,
-                    self._config.fp16_enabled
-                )
+                self.frame_restorer_options = self._frame_restorer_options.with_fp16(self._config.fp16_enabled)
         self._config.connect("notify::fp16-enabled", on_fp16_enabled)
 
     def set_speaker_icon(self, mute: bool):
