@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
 "POT-Creation-Date: 2025-11-26 13:23+0000\n"
-"PO-Revision-Date: 2025-11-28 16:51+0000\n"
+"PO-Revision-Date: 2025-12-01 21:10+0000\n"
 "Last-Translator: Abraxax <abraxax@noreply.codeberg.org>\n"
 "Language-Team: Spanish <https://translate.codeberg.org/projects/lada/lada/es/"
 ">\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14\n"
+"X-Generator: Weblate 5.14.3\n"
 
 #: lada/gui/export/export_multiple_files_row.ui:67
 #: lada/gui/export/export_single_file_page.ui:116
@@ -90,7 +90,7 @@ msgstr ""
 #: lada/gui/export/export_utils.py:53
 #: lada/gui/export/export_single_file_page.py:120
 msgid "Restoration failed"
-msgstr "Fallo de Restauración"
+msgstr "Fallo en la Restauración"
 
 #: lada/gui/export/export_utils.py:54
 #, python-brace-format
@@ -114,16 +114,16 @@ msgstr "Terminado  |  Procesado: {time_done} ({frames_done} frames)"
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: {time_remaining} ({frames_remaining} frames)  |  Speed: {speed_fps} FPS"
 msgstr ""
-"Processando… {done_percent}%  |  Procesado: {time_done} "
-"({frames_done} frames)  |  Restante: {time_remaining} "
-"({frames_remaining} frames)  |  Velocidad: {speed_fps} FPS"
+"Procesando… {done_percent}%  |  Procesado: {time_done} ({frames_done} frames)"
+"  |  Restante: {time_remaining} ({frames_remaining} frames)  |  Velocidad: "
+"{speed_fps} FPS"
 
 #: lada/gui/export/export_utils.py:90
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: Estimating… |  Speed: Estimating…"
 msgstr ""
 "Procesando… {done_percent}%  |  Procesado: {time_done} ({frames_done} frames)"
-"  |  Tiempo Restante… |  Velocidad: Estimanado…"
+"  |  Tiempo Restante… |  Velocidad: Estimado…"
 
 #: lada/gui/export/export_utils.py:96
 #, python-brace-format
@@ -133,19 +133,19 @@ msgstr "Pausado  |  Procesado: {time_done} ({frames_done} frames)"
 #: lada/gui/export/export_single_file_page.py:94
 #: lada/gui/export/export_single_file_page.py:155
 msgid "Restoring video…"
-msgstr "Restaurando Video…"
+msgstr "Procesando Video…"
 
 #: lada/gui/export/export_single_file_page.py:112
 msgid "Finished video restoration!"
-msgstr "Restauración Video Terminada restoration!"
+msgstr "¡Procesado de Video Terminado!"
 
 #: lada/gui/export/export_single_file_page.py:144
 msgid "Restoration paused"
-msgstr "Restauración Pausada"
+msgstr "Procesado Pausado"
 
 #: lada/gui/export/export_view.py:240
 msgid "Restore…"
-msgstr "Restaurando…"
+msgstr "Procesando…"
 
 #: lada/gui/export/export_view.py:514
 msgid "Save restored video file"
@@ -184,7 +184,7 @@ msgstr ""
 #: lada/gui/config/config_sidebar.py:119 lada/gui/config/config_sidebar.py:246
 #: lada/gui/config/config_sidebar.ui:172
 msgid "Click the folder button to choose a default"
-msgstr "Elige una carpeta por defectgo"
+msgstr "Elige la carpeta destino por defecto"
 
 #: lada/gui/config/config_sidebar.py:354
 msgid "Select a folder where restored videos should be saved"
@@ -208,11 +208,11 @@ msgstr "Modelo usado para detectar áreas con mosaico."
 
 #: lada/gui/config/config_sidebar.ui:36
 msgid "Restoration model"
-msgstr "Modelo de Restauración"
+msgstr "Modelo de Procesado"
 
 #: lada/gui/config/config_sidebar.ui:37
 msgid "Model used for restoring mosaic areas."
-msgstr "Modelo usado para restauración de áreas con mosaico."
+msgstr "Modelo usado para procesado de áreas con mosaico."
 
 #: lada/gui/config/config_sidebar.ui:47
 msgid "Maximum clip duration"
@@ -231,7 +231,7 @@ msgstr "GPU"
 
 #: lada/gui/config/config_sidebar.ui:64
 msgid "Selected GPU for model processing."
-msgstr "GPU seleccionada para el procesamiento del modelo."
+msgstr "GPU seleccionada para el procesado del modelo."
 
 #: lada/gui/config/config_sidebar.ui:79
 msgid "Playback"
@@ -239,7 +239,7 @@ msgstr "Reproducción"
 
 #: lada/gui/config/config_sidebar.ui:83
 msgid "Buffer duration"
-msgstr "Duración del Búffer"
+msgstr "Duración del Búfer"
 
 #: lada/gui/config/config_sidebar.ui:84
 msgid "How much video is pre-loaded for playback, measured in seconds. If set to 0 this value will be chosen automatically."
@@ -278,7 +278,7 @@ msgstr "Códec"
 
 #: lada/gui/config/config_sidebar.ui:121
 msgid "Video Codec used for encoding the restored video."
-msgstr "Códec de Video usado para restaurar el video."
+msgstr "Códec de Video usado para procesar el video."
 
 #: lada/gui/config/config_sidebar.ui:133
 msgid "CRF (Constant Rate Factor)"
@@ -342,7 +342,7 @@ msgstr "Acción posterior a la exportación"
 
 #: lada/gui/config/config_sidebar.ui:215
 msgid "Action to be run after all queued files have been restored"
-msgstr "Acción a ejecutar después de restaurar todos los archivos en cola."
+msgstr "Acción a ejecutar después de procesar todos los archivos en cola."
 
 #: lada/gui/config/config_sidebar.ui:222
 msgid "Shutdown system"
@@ -450,7 +450,7 @@ msgstr "Cambiar a vista de exportación"
 
 #: lada/gui/window.py:108
 msgid "Switch to Watch View"
-msgstr "Cambiar a Vista Mirar"
+msgstr "Cambiar a Modo Ver"
 
 #: lada/gui/utils.py:83
 msgid "Select one or multiple video files"
@@ -462,7 +462,7 @@ msgstr "Ejemplos:"
 
 #: lada/cli/main.py:23
 msgid "Restore video with default settings:"
-msgstr "Restaurar video con la configuración por defecto:"
+msgstr "Procesar video con la configuración por defecto:"
 
 #: lada/cli/main.py:24
 #, python-format
@@ -472,8 +472,8 @@ msgstr "%(prog)s --input input.mp4"
 #: lada/cli/main.py:26
 msgid "Restore all videos found in the specified directory and save them to a different folder:"
 msgstr ""
-"Restaurar todos los vídeos encontrados en el directorio especificado y "
-"guardarlos en una carpeta diferente:"
+"Procesar todos los vídeos del directorio especificado y guardarlos en una "
+"carpeta diferente:"
 
 #: lada/cli/main.py:27
 #, python-format
@@ -496,7 +496,7 @@ msgstr "%(prog)s [options]"
 
 #: lada/cli/main.py:34
 msgid "Restore pixelated adult videos (JAV)"
-msgstr "Restaurar videos adultos pixelados (JAV)"
+msgstr "Procesar videos adultos pixelados (JAV)"
 
 #: lada/cli/main.py:47
 msgid "General"
@@ -678,7 +678,7 @@ msgstr "Entrada no válida. No existe el fichero o directorio en {input_path}"
 
 #: lada/cli/main.py:172
 msgid "Received Ctrl-C, stopping restoration."
-msgstr "Ctrl-C detectado. Restauración detenida."
+msgstr "Ctrl-C detectado. Deteniendo Procesado."
 
 #: lada/cli/utils.py:51
 msgid "No video files found"
