@@ -40,13 +40,19 @@ def pad_image(img: Image|torch.Tensor, max_height, max_width, mode='zero') -> tu
     pad_w_l = math.ceil(pad_w / 2)
     pad_w_r = math.floor(pad_w / 2)
     pad = (pad_h_t, pad_h_b,pad_w_l, pad_w_r)
-    if isinstance(img, torch.Tensor):
+    if isinstance(img, torch.Tensor) and img.device.type == 'cuda':
         if mode == 'reflect':
             padded_image = torch_pad_reflect(img.permute(2, 0, 1), (pad_w_l, pad_w_r, pad_h_t, pad_h_b)).permute(1, 2, 0)
         else:
             padded_image = F.pad(img.permute(2, 0, 1), (pad_w_l, pad_w_r, pad_h_t, pad_h_b), mode='constant').permute(1, 2, 0)
     else:
+        return_pt = False
+        if isinstance(img, torch.Tensor):
+            return_pt = True
+            img = img.numpy()
         padded_image =  pad_image_by_pad(img, pad, mode)
+        if return_pt:
+            padded_image = torch.from_numpy(padded_image)
     assert padded_image.shape[:2] == (max_height, max_width)
     return padded_image, pad
 
@@ -201,7 +207,7 @@ def resize(img: Image|torch.Tensor, size: int|tuple[int, int], interpolation=cv2
             return img
         new_h, new_w = size
 
-    if isinstance(img, torch.Tensor):
+    if isinstance(img, torch.Tensor) and img.device.type == 'cuda':
         if interpolation == cv2.INTER_LINEAR:
             interpolation = InterpolationMode.BILINEAR
         elif interpolation == cv2.INTER_NEAREST:
@@ -213,7 +219,13 @@ def resize(img: Image|torch.Tensor, size: int|tuple[int, int], interpolation=cv2
         resized_img = Resize(size=(new_h, new_w), interpolation=interpolation, antialias=False)(img)
         resized_img = resized_img.permute(1, 2, 0)
     else:
+        return_pt = False
+        if isinstance(img, torch.Tensor):
+            return_pt = True
+            img = img.numpy()
         resized_img = cv2.resize(img, (new_w, new_h), interpolation=interpolation)
+        if return_pt:
+            resized_img = torch.from_numpy(resized_img)
     assert size == max(resized_img.shape[:2]) if type(size) == int else size == resized_img.shape[:2]
     return resized_img
 

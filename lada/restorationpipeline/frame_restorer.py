@@ -178,20 +178,15 @@ class FrameRestorer:
             raise NotImplementedError()
         return restored_clip_images
 
-    def _restore_frame(self, frame, frame_num, restored_clips):
+    def _restore_frame(self, frame: torch.Tensor, frame_num: int, restored_clips: list[Clip]):
         """
         Takes mosaic frame and restored clips and replaces mosaic regions in frame with restored content from the clips starting at the same frame number as mosaic frame.
         Pops starting frame from each restored clip in the process if they actually start at the same frame number as frame.
         """
-        for buffered_clip in [c for c in restored_clips if c.frame_start == frame_num]:
-            clip_img, clip_mask, orig_clip_box, orig_crop_shape, pad_after_resize = buffered_clip.pop()
-            clip_img = image_utils.unpad_image(clip_img, pad_after_resize)
-            clip_mask = image_utils.unpad_image(clip_mask, pad_after_resize)
-            clip_img = image_utils.resize(clip_img, orig_crop_shape[:2])
-            clip_mask = image_utils.resize(clip_mask, orig_crop_shape[:2],interpolation=cv2.INTER_NEAREST)
+        is_cpu_input = frame.device.type == 'cpu'
+        target_dtype = torch.float32 if is_cpu_input else self.mosaic_restoration_model.dtype
+        def _blend_gpu(blend_mask: torch.Tensor, clip_img: torch.Tensor, orig_clip_box: tuple[int, int, int, int]):
             t, l, b, r = orig_clip_box
-            blend_mask = mask_utils.create_blend_mask(clip_mask, dtype=self.mosaic_restoration_model.dtype).to(device=frame.device)
-
             frame_roi = frame[t:b + 1, l:r + 1, :]
             roi_f = frame_roi.to(dtype=self.mosaic_restoration_model.dtype)
             temp = clip_img.to(dtype=self.mosaic_restoration_model.dtype, device=frame_roi.device)
@@ -200,6 +195,29 @@ class FrameRestorer:
             temp.add_(roi_f)
             temp.round_().clamp_(0, 255)
             frame_roi[:] = temp
+
+        def _blend_cpu(blend_mask: torch.Tensor, clip_img: torch.Tensor, orig_clip_box: tuple[int, int, int, int]):
+            blend_mask = blend_mask.cpu().numpy()
+            clip_img = clip_img.cpu().numpy()
+            t, l, b, r = orig_clip_box
+            frame_roi = frame[t:b + 1, l:r + 1, :].numpy()
+            temp_buffer = np.empty_like(frame_roi, dtype=np.float32)
+            np.subtract(clip_img, frame_roi, out=temp_buffer, dtype=np.float32)
+            np.multiply(temp_buffer, blend_mask[..., None], out=temp_buffer)
+            np.add(temp_buffer, frame_roi, out=temp_buffer)
+            frame_roi[:] = temp_buffer.astype(np.uint8)
+            
+        blend = _blend_cpu if is_cpu_input else _blend_gpu
+
+        for buffered_clip in [c for c in restored_clips if c.frame_start == frame_num]:
+            clip_img, clip_mask, orig_clip_box, orig_crop_shape, pad_after_resize = buffered_clip.pop()
+            clip_img = image_utils.unpad_image(clip_img, pad_after_resize)
+            clip_mask = image_utils.unpad_image(clip_mask, pad_after_resize)
+            clip_img = image_utils.resize(clip_img, orig_crop_shape[:2])
+            clip_mask = image_utils.resize(clip_mask, orig_crop_shape[:2],interpolation=cv2.INTER_NEAREST)
+            blend_mask = mask_utils.create_blend_mask(clip_mask, dtype=target_dtype).to(device=frame.device)
+
+            blend(blend_mask, clip_img, orig_clip_box)
 
     def _restore_clip(self, clip: Clip):
         """

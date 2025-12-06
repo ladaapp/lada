@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0
 
 import torch
+import numpy as np
 from ultralytics.utils.checks import check_imgsz
 from ultralytics.utils import nms, ops
 from ultralytics.engine.results import Results
@@ -11,6 +12,7 @@ from ultralytics.utils import DEFAULT_CFG
 from ultralytics import YOLO
 from lada.utils.torch_letterbox import PyTorchLetterBox
 from typing import List
+from ultralytics.data.augment import LetterBox
 
 class Yolo11SegmentationModel:
     def __init__(self, model_path: str, device, imgsz=640, fp16=False, **kwargs):
@@ -18,14 +20,14 @@ class Yolo11SegmentationModel:
         assert yolo_model.task == 'segment'
         self.stride = 32
         self.imgsz = check_imgsz(imgsz, stride=self.stride, min_dim=2)
-        self.letterbox: PyTorchLetterBox | None = None
+        self.letterbox: PyTorchLetterBox|LetterBox = LetterBox(self.imgsz, auto=True, stride=self.stride)
 
         custom = {"conf": 0.25, "batch": 1, "save": False, "mode": "predict", "device": device, "half": fp16}
         args = {**yolo_model.overrides, **custom, **kwargs}  # highest priority args on the right
         self.args = get_cfg(DEFAULT_CFG, args)
 
         self.device: torch.device = torch.device(device)
-        self.is_cuda_device: bool = torch.device.type == 'cuda'
+        self.is_cuda_device: bool = self.device.type == 'cuda'
         self.model = AutoBackend(
             model=yolo_model.model,
             device=self.device,
@@ -39,34 +41,34 @@ class Yolo11SegmentationModel:
         self.model.eval()
         self.model.warmup(imgsz=(1, 3, *self.imgsz))
         self.dtype = torch.float16 if fp16 else torch.float32
-        self.cpu_buffer = None
-        self.inference_buffer = None
 
-    def preallocate_buffers(self, batch_size: int, img_shape: tuple[int, int, int]):
-        self.cpu_buffer = torch.empty(batch_size, *img_shape, dtype=torch.uint8, device='cpu', pin_memory=self.is_cuda_device)
-        self.inference_buffer = torch.empty(batch_size, *img_shape, dtype=self.dtype, device=self.device, memory_format=torch.channels_last)
+    def _preprocess_cpu(self, imgs: list[torch.Tensor]) -> torch.Tensor:
+        im = np.stack([self.letterbox(image=x.numpy()) for x in imgs])
+        im = im.transpose((0, 3, 1, 2))  # BHWC to BCHW, (n, 3, h, w)
+        im = np.ascontiguousarray(im)  # contiguous
+        return torch.from_numpy(im)
+    
+    def _preprocess_gpu(self, imgs: list[torch.Tensor]) -> torch.Tensor:
+        return self.letterbox(torch.stack(imgs, dim=0))
 
     def preprocess(self, imgs: list[torch.Tensor]) -> list[torch.Tensor]:
-        if self.letterbox is None or imgs[0].shape[:2] != self.letterbox.original_shape:
-            self.letterbox = PyTorchLetterBox(self.imgsz, imgs[0].shape[:2], stride=self.stride)
-        return [self.letterbox(im.permute(2, 0, 1).unsqueeze(0)).squeeze(0) for im in imgs]
+        is_cpu_input = imgs[0].device.type == 'cpu'
+        if is_cpu_input:
+            return self._preprocess_cpu(imgs)
+        else:
+            if self.letterbox is None or imgs[0].shape[:2] != self.letterbox.original_shape:
+                self.letterbox = PyTorchLetterBox(self.imgsz, imgs[0].shape[:2], stride=self.stride)
+            return self._preprocess_gpu(imgs)
 
     def inference(self, image_batch: torch.Tensor):
         return self.model(image_batch, augment=False, visualize=False, embed=None)
 
-    def inference_and_postprocess(self, imgs: list[torch.Tensor], orig_imgs: list[torch.Tensor]) -> list[Results]:
-        if self.cpu_buffer is None or imgs[0].shape != self.cpu_buffer.shape:
-            self.preallocate_buffers(len(imgs), imgs[0].shape)
+    def inference_and_postprocess(self, imgs: torch.Tensor, orig_imgs: list[torch.Tensor]) -> list[Results]:
 
         with torch.inference_mode():
-            cpu_buffer_view = self.cpu_buffer[:len(imgs)]
-            inference_view = self.inference_buffer[:len(imgs)]
-            torch.stack(imgs, dim=0, out=cpu_buffer_view)
-            inference_view.copy_(cpu_buffer_view, non_blocking=True)
-            inference_view.div_(255.0)
-
-            preds = self.inference(inference_view)
-            return self.postprocess(preds, inference_view, orig_imgs)
+            input = imgs.to(device=self.device).to(dtype=self.dtype).div_(255.0)
+            preds = self.inference(input)
+            return self.postprocess(preds, input, orig_imgs)
 
     def postprocess(self, preds, img, orig_imgs: List[torch.Tensor]) -> List[Results]:
         protos = preds[1][-1]

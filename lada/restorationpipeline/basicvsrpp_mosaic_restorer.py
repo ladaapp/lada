@@ -6,26 +6,18 @@ class BasicvsrppMosaicRestorer:
     def __init__(self, model: BasicVSRPlusPlusGan, device: torch.device, fp16, clip_length):
         self.model = model
         self.device: torch.device = torch.device(device)
-        is_cuda_device = device.type == 'cuda'
-        self.cpu_buffer = torch.empty(1, clip_length, 3, 256, 256, dtype=torch.uint8, device='cpu', pin_memory=is_cuda_device)
         self.dtype = torch.float16 if fp16 else torch.float32
-        self.inference_buffer = torch.empty(1, clip_length, 3, 256, 256, dtype=self.dtype, device=device, memory_format=torch.channels_last_3d)
 
     def restore(self, video: list[torch.Tensor], max_frames=-1) -> list[torch.Tensor]:
         input_frame_count = len(video)
         input_frame_shape = video[0].shape
         with torch.inference_mode():
             result = []
-            cpu_buffer_view = self.cpu_buffer[0][:input_frame_count]
-            inference_view = self.inference_buffer[:, :input_frame_count]
-
-            torch.stack([x.permute(2, 0, 1) for x in video], dim=0, out=cpu_buffer_view)
-            inference_view.copy_(cpu_buffer_view, non_blocking=True)
-            inference_view.div_(255.0)
+            inference_view = torch.stack([x.permute(2, 0, 1) for x in video], dim=0).to(device=self.device).to(dtype=self.dtype).div_(255.0).unsqueeze(0)
 
             if max_frames > 0:
-                for i in range(0, input.shape[1], max_frames):
-                    output = self.model(inputs=self.cpu_buffer[:, i:i + max_frames])
+                for i in range(0, inference_view.shape[1], max_frames):
+                    output = self.model(inputs=inference_view[:, i:i + max_frames])
                     result.append(output)
                 result = torch.cat(result, dim=1)
             else:
