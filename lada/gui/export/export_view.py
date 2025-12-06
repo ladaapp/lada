@@ -403,7 +403,7 @@ class ExportView(Gtk.Widget):
             self.show_video_export_started(restore_file)
 
         def run_export():
-            frame_restorer_options = FrameRestorerOptions(self._config.mosaic_restoration_model, self._config.mosaic_detection_model, video_utils.get_video_meta_data(source_file.get_path()), self._config.device, self._config.max_clip_duration, False, False)
+            frame_restorer_options = FrameRestorerOptions(self._config.mosaic_restoration_model, self._config.mosaic_detection_model, video_utils.get_video_meta_data(source_file.get_path()), self._config.device, self._config.max_clip_duration, False, False, self._config.fp16_enabled)
             video_metadata = frame_restorer_options.video_metadata
             frame_restorer_provider = FRAME_RESTORER_PROVIDER
             frame_restorer_provider.init(frame_restorer_options)

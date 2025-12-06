@@ -26,6 +26,7 @@ class FrameRestorerOptions:
     max_clip_length: int
     mosaic_detection: bool
     passthrough: bool
+    fp16_enabled: bool = True
 
     def with_mosaic_restoration_model_name(self, mosaic_restoration_model_name) -> 'FrameRestorerOptions':
         return FrameRestorerOptions(mosaic_restoration_model_name, self.mosaic_detection_model_name, self.video_metadata, self.device, self.max_clip_length, self.mosaic_detection, self.passthrough)
@@ -83,7 +84,7 @@ class FrameRestorerProvider:
             mosaic_detection_path = DETECTION_MODEL_NAMES_TO_FILES[self.options.mosaic_detection_model_name]
             mosaic_detection_model, mosaic_restoration_model, mosaic_restoration_model_preferred_pad_mode = load_models(
                 torch.device(self.options.device), self.options.mosaic_restoration_model_name, mosaic_restoration_model_path, None,
-                mosaic_detection_path, fp16=torch.cuda.is_available(), clip_length=self.options.max_clip_length
+                mosaic_detection_path, fp16=self.options.fp16_enabled, clip_length=self.options.max_clip_length
             )
 
             self.models_cache = dict(mosaic_restoration_model_name=self.options.mosaic_restoration_model_name,

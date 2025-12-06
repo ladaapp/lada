@@ -72,6 +72,13 @@ SPDX-License-Identifier: AGPL-3.0
                                                 handler="combo_row_gpu_selected_callback"/>
                                     </object>
                                 </child>
+                                <child>
+                                    <object class="AdwSwitchRow" id="switch_row_fp16">
+                                        <property name="title" translatable="true">Enable faster processing with less VRAM on modern GPUs</property>
+                                        <property name="subtitle" translatable="true">Use half-precision (FP16) for model processing. Negligible quality difference, but may be slower on legacy hardware.</property>
+                                        <signal name="notify::active" handler="switch_row_fp16_active_callback"/>
+                                    </object>
+                                </child>
                             </object>
                         </child>
                         <child>
@@ -249,26 +256,26 @@ SPDX-License-Identifier: AGPL-3.0
                                          </child>
                                      </object>
                                  </child>
-                            </object>
-                        </child>
-                        <child>
-                            <object class="AdwPreferencesGroup">
-                                <property name="title" translatable="true">Troubleshooting</property>
-                                <property name="visible" bind-source="ConfigSidebar" bind-property="show-playback-section"/>
-                                <child>
-                                    <object class="AdwActionRow">
-                                        <property name="title" translatable="true">Show mosaic detections</property>
-                                        <property name="subtitle" translatable="true">Show detected mosaic areas. Useful to evaluate quality of detection model.</property>
-                                        <child type="prefix">
-                                            <object class="GtkCheckButton" id="check_button_show_mosaic_detections">
-                                                <property name="active">true</property>
-                                                <signal name="toggled" handler="check_button_show_mosaic_detections_callback"/>
-                                            </object>
-                                        </child>
-                                    </object>
-                                </child>
-                            </object>
-                        </child>
+                             </object>
+                         </child>
+                         <child>
+                             <object class="AdwPreferencesGroup">
+                                 <property name="title" translatable="true">Troubleshooting</property>
+                                 <property name="visible" bind-source="ConfigSidebar" bind-property="show-playback-section"/>
+                                 <child>
+                                     <object class="AdwActionRow">
+                                         <property name="title" translatable="true">Show mosaic detections</property>
+                                         <property name="subtitle" translatable="true">Show detected mosaic areas. Useful to evaluate quality of detection model.</property>
+                                         <child type="prefix">
+                                             <object class="GtkCheckButton" id="check_button_show_mosaic_detections">
+                                                 <property name="active">true</property>
+                                                 <signal name="toggled" handler="check_button_show_mosaic_detections_callback"/>
+                                             </object>
+                                         </child>
+                                     </object>
+                                 </child>
+                             </object>
+                         </child>
                         <child>
                             <object class="AdwPreferencesGroup">
                                 <property name="title" translatable="true">UI</property>

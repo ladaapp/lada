@@ -8,6 +8,7 @@ import threading
 from enum import Enum
 from pathlib import Path
 
+import torch
 from gi.repository import GLib, GObject, Adw
 
 from lada import LOG_LEVEL
@@ -36,6 +37,7 @@ class Config(GObject.Object):
         'export_crf': 20,
         'export_directory': None,
         'file_name_pattern': "{orig_file_name}.restored.mp4",
+        'fp16_enabled': torch.cuda.is_available(),  # Default: True if CUDA is available and GPU is Turing or newer
         'initial_view': 'preview',
         'max_clip_duration': 180,
         'mosaic_detection_model': 'v3.1-fast',
@@ -69,6 +71,7 @@ class Config(GObject.Object):
         self._post_export_action = self._defaults['post_export_action']
         self._post_export_custom_command = self._defaults['post_export_custom_command']
         self._temp_directory = self._defaults['temp_directory']
+        self._fp16_enabled = self._defaults['fp16_enabled']
 
         self.save_lock = threading.Lock()
         self._style_manager = style_manager
@@ -274,6 +277,17 @@ class Config(GObject.Object):
         self._temp_directory = value
         self.save()
 
+    @GObject.Property()
+    def fp16_enabled(self):
+        return self._fp16_enabled
+
+    @fp16_enabled.setter
+    def fp16_enabled(self, value):
+        if value == self._fp16_enabled:
+            return
+        self._fp16_enabled = value
+        self.save()
+
     def save(self):
         self.save_lock.acquire_lock()
         config_file_path = self.get_config_file_path()
@@ -312,6 +326,7 @@ class Config(GObject.Object):
         self.export_crf = self._defaults['export_crf']
         self.export_directory = self._defaults['export_directory']
         self.file_name_pattern = self._defaults['file_name_pattern']
+        self.fp16_enabled = self._defaults['fp16_enabled']
         self.initial_view = self._defaults['initial_view']
         self.max_clip_duration = self._defaults['max_clip_duration']
         self.mosaic_detection_model = self._defaults['mosaic_detection_model']
@@ -342,6 +357,7 @@ class Config(GObject.Object):
             'export_crf': self._export_crf,
             'export_directory': self._export_directory,
             'file_name_pattern': self._file_name_pattern,
+            'fp16_enabled': self._fp16_enabled,
             'initial_view': self._initial_view,
             'max_clip_duration': self._max_clip_duration,
             'mosaic_detection_model': self._mosaic_detection_model,
@@ -383,6 +399,8 @@ class Config(GObject.Object):
                     self.validate_and_set_initial_view(dict[key])
                 elif key == 'seek_preview_enabled':
                     self._seek_preview_enabled = dict[key]
+                elif key == 'fp16_enabled':
+                    self._fp16_enabled = dict[key]
                 else:
                     setattr(self, f"_{key}", dict[key])
 
