@@ -69,8 +69,8 @@ def main():
         os.makedirs(args.output)
 
     if osp.isfile(args.input):
-        assert video_utils.is_video_file(args.video)
-        extractor = FrameExtractor(video_file=args.video, output_dir=args.output, sampling=args.sampling)
+        assert video_utils.is_video_file(args.input)
+        extractor = FrameExtractor(video_file=args.input, output_dir=args.output, sampling=args.sampling)
         extractor.extract()
     else:
         root_input_dir = args.input

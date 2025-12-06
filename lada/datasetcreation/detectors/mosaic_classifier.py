@@ -9,11 +9,11 @@ from lada.utils import Image, Box, Detections, ultralytics_utils, Detection, DET
 from lada.models.yolo.yolo import Yolo
 
 class MosaicClassifier:
-    def __init__(self, model: Yolo, device):
+    def __init__(self, model: Yolo, device, min_confidence=0.8):
         self.model = model
         self.device = device
         self.batch_size = 4
-        self.min_confidence = 0.8
+        self.min_confidence = min_confidence
         self.min_positive_detections = 4
         self.sampling_rate = 0.3
 

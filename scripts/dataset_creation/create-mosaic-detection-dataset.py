@@ -92,7 +92,7 @@ def create_degradation_pipeline(img_shape: tuple[int, int, int], mosaic_size: in
                                          bitrate_ranges={}),
     ])
 
-def get_detections(source: str | Image, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector],  negative_detectors: list[WatermarkDetector | MosaicClassifier]) -> Detections:
+def get_detections(source: str | Image, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector],  negative_detectors: list[WatermarkDetector], mosaic_detector: MosaicClassifier | None) -> Detections | None:
     detections = []
     nsfw_detections = []
     sfw_detections = []
@@ -108,6 +108,10 @@ def get_detections(source: str | Image, detectors: list[NsfwImageDetector | Face
 
     def get_non_skipped(detections):
         return [det for det in detections if det not in skip]
+
+    if mosaic_detector is not None:
+        if mosaic_detector.detect(source) is not None:
+            return None
 
     for detector in negative_detectors:
         _detections = detector.detect(source)
@@ -183,12 +187,12 @@ def _get_mosaic_transform_args(detection: Detection):
         mosaic_args["min_block_size"] = 5
     return mosaic_args
 
-def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], negative_detectors: list[WatermarkDetector | MosaicClassifier], device='cpu', window_name="mosaic", target_size=640) -> bool:
+def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], negative_detectors: list[WatermarkDetector], mosaic_detector: MosaicClassifier, device='cpu', window_name="mosaic", target_size=640) -> bool:
     img = cv2.imread(file_path)
     target_shape = get_target_shape(img.shape, target_size)
     img = image_utils.resize(img, size=target_shape)
 
-    detections: Detections = get_detections(img, detectors, negative_detectors)
+    detections: Detections = get_detections(img, detectors, negative_detectors, mosaic_detector)
     if not detections or len(detections.detections) == 0:
         return True
 
@@ -226,12 +230,12 @@ def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector 
             return False
     return True
 
-def process_image_file(file_path, output_root, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], negative_detectors: list[WatermarkDetector | MosaicClassifier], device='cpu', target_size=640):
+def process_image_file(file_path, output_root, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], negative_detectors: list[WatermarkDetector], mosaic_detector: MosaicClassifier, device='cpu', target_size=640):
     img = cv2.imread(file_path)
     target_shape = get_target_shape(img.shape, target_size)
     img = image_utils.resize(img, size=target_shape)
 
-    detections: Detections = get_detections(img, detectors, negative_detectors)
+    detections: Detections = get_detections(img, detectors, negative_detectors, mosaic_detector)
     if not detections or len(detections.detections) == 0:
         name = osp.splitext(os.path.basename(file_path))[0]
         shutil.copy(file_path, f"{output_root}/background_images/{name}.jpg")
@@ -285,7 +289,7 @@ def parse_args():
     parser.add_argument('--enable-watermark-filter', default=False, action=argparse.BooleanOptionalAction, help="If enabled, scenes obstructed by watermarks (arbitrary text or logos) will be skipped")
     parser.add_argument('--watermark-model-path', type=str, default="model_weights/lada_watermark_detection_model_v1.3.pt",  help="path to watermark detection model")
     parser.add_argument('--enable-mosaic-filter', default=False, action=argparse.BooleanOptionalAction, help="If enabled, pixelated scenes will be skipped")
-    parser.add_argument('--mosaic-model-path', type=str, default="model_weights/lada_mosaic_detection_model_v2.pt", help="path to mosaic detection model")
+    parser.add_argument('--mosaic-model-path', type=str, default="model_weights/lada_mosaic_detection_model_v3.1_accurate.pt", help="path to mosaic detection model")
     parser.add_argument('--max-file-limit', type=int, default=None, help="instead of processing all files found in input-root dir it will choose files randomly up to the given limit")
     parser.add_argument('--target-size', type=int, default=640, help="output size of images. should match imgsz param of YOLO")
 
@@ -298,7 +302,7 @@ def main():
     detectors = []
     if args.create_nsfw_mosaics:
         model = Yolo(args.model)
-        detectors.append(NsfwImageDetector(model, args.device, random_extend_masks=True, conf=0.8))
+        detectors.append(NsfwImageDetector(model, args.device, random_extend_masks=True, conf=0.7))
     if args.create_sfw_face_mosaics:
         model = CenterFace()
         detectors.append(FaceDetector(model, random_extend_masks=True, conf=0.8))
@@ -313,9 +317,8 @@ def main():
 
     negative_detectors = []
     if args.enable_watermark_filter:
-        negative_detectors.append(WatermarkDetector(Yolo(args.watermark_model_path), device=args.device))
-    if args.enable_mosaic_filter:
-        negative_detectors.append(MosaicClassifier(Yolo(args.mosaic_model_path), device=args.device))
+        negative_detectors.append(WatermarkDetector(Yolo(args.watermark_model_path), device=args.device, min_confidence=0.2))
+    mosaic_detector = MosaicClassifier(Yolo(args.mosaic_model_path), device=args.device, min_confidence=0.1) if args.enable_mosaic_filter else None
 
     selected_files = get_files(args.input_root, image_utils.is_image_file)
     if args.max_file_limit and len(selected_files) > args.max_file_limit:
@@ -324,7 +327,7 @@ def main():
     if args.show:
         for file_idx, file_path in enumerate(selected_files):
             print(f"{file_idx}, Processing {file_path.name}")
-            should_continue = show_image_file(file_path, detectors, negative_detectors, device=args.device, target_size=args.target_size)
+            should_continue = show_image_file(file_path, detectors, negative_detectors, mosaic_detector, device=args.device, target_size=args.target_size)
             if not should_continue: break
         cv2.destroyAllWindows()
     else:
@@ -342,7 +345,7 @@ def main():
                     print(f"{file_idx}, Skipping {file_path.name}: Already processed")
                     continue
                 print(f"{file_idx}, Processing {file_path.name}")
-                jobs.append(executor.submit(process_image_file, file_path, args.output_root, detectors, negative_detectors, args.device, args.target_size))
+                jobs.append(executor.submit(process_image_file, file_path, args.output_root, detectors, negative_detectors, mosaic_detector, args.device, args.target_size))
                 clean_up_completed_futures(jobs)
         wait(jobs, return_when=ALL_COMPLETED)
         clean_up_completed_futures(jobs)
