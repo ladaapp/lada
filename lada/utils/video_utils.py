@@ -89,6 +89,8 @@ class VideoReader:
         self.container.close()
 
     def frames(self) -> Iterator[Tuple[torch.Tensor, int]]:
+        self.container.streams.video[0].thread_type = 'AUTO'
+
         for frame in self.container.decode(video=0):
             nd_frame = frame.to_ndarray(format='bgr24')
             torch_frame = torch.from_numpy(nd_frame)
