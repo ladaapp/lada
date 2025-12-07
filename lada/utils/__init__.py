@@ -53,6 +53,7 @@ class Detection:
     cls: int
     box: Box
     mask: Mask # Binary segmentation mask. Values can be either 0 (background) or mask_val
+    confidence: float | None = None # value between 0 and 1 where 1 is completely certain
 
 """
 Detection result containing bounding box and segmentation mask of the detected object within the frame

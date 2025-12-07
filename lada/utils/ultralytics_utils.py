@@ -10,6 +10,7 @@ import torch.nn.functional as F
 from ultralytics import settings
 from ultralytics.engine.results import Boxes as UltralyticsBoxes
 from ultralytics.engine.results import Masks as UltralyticsMasks
+from ultralytics.engine.results import Probs as UltralyticsProbs
 from ultralytics.engine.results import Results as UltralyticsResults
 from ultralytics.utils.ops import scale_image
 
@@ -37,6 +38,9 @@ def convert_yolo_boxes(yolo_box: UltralyticsBoxes, img_shape) -> list[Box]:
         box = t, l, b, r
         boxes.append(box)
     return boxes
+
+def convert_yolo_conf(yolo_box: UltralyticsBoxes) -> float:
+    return yolo_box.conf[0].item()
 
 def scale_and_unpad_image(masks, im0_shape):
     h0, w0 = im0_shape[:2]

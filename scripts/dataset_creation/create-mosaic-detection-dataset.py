@@ -31,6 +31,9 @@ from lada.utils.image_utils import UnsharpMaskingSharpener
 from lada.utils.jpeg_utils import DiffJPEG
 from lada.models.yolo.yolo import Yolo
 
+MIN_CONF_NSFW = 0.7
+MIN_CONF_NSFW_FOR_FILTERING = 0.2
+
 def get_target_shape(img_shape, target_size: int):
     h, w = img_shape[:2]
     new_w, new_h = (int(target_size * w / h), target_size) if h > w else (target_size, int(target_size * h / w))
@@ -151,6 +154,9 @@ def get_detections(source: str | Image, detectors: list[NsfwImageDetector | Face
         if should_skip: continue
         detections.append(sfw_detection)
     for nsfw_detection in nsfw_detections:
+        if nsfw_detection.confidence < MIN_CONF_NSFW:
+            skip.append(nsfw_detection)
+            continue
         should_skip = overlaps_with_negative_detection(nsfw_detection.box)
         if should_skip:
             skip.append(nsfw_detection)
@@ -302,7 +308,8 @@ def main():
     detectors = []
     if args.create_nsfw_mosaics:
         model = Yolo(args.model)
-        detectors.append(NsfwImageDetector(model, args.device, random_extend_masks=True, conf=0.7))
+        conf = MIN_CONF_NSFW_FOR_FILTERING if args.create_sfw_face_mosaics or args.create_sfw_head_mosaics else MIN_CONF_NSFW
+        detectors.append(NsfwImageDetector(model, args.device, random_extend_masks=True, conf=conf))
     if args.create_sfw_face_mosaics:
         model = CenterFace()
         detectors.append(FaceDetector(model, random_extend_masks=True, conf=0.8))

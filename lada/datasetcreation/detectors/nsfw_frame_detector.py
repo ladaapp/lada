@@ -1,19 +1,20 @@
 # SPDX-FileCopyrightText: Lada Authors
 # SPDX-License-Identifier: AGPL-3.0
 
-import ultralytics.models
+from ultralytics.engine.results import Results as UltralyticsResults
 from lada.utils import Detections, Detection, Image, DETECTION_CLASSES
-from lada.utils import mask_utils
-from lada.utils.ultralytics_utils import convert_yolo_box, convert_yolo_mask
+from lada.utils import mask_utils, ultralytics_utils
 from lada.models.yolo.yolo import Yolo
 
-def get_nsfw_frames(yolo_results: ultralytics.engine.results.Results, random_extend_masks: bool) -> Detections | None:
+
+def get_nsfw_frames(yolo_results: UltralyticsResults, random_extend_masks: bool) -> Detections | None:
     detections = []
     if not yolo_results.boxes:
         return None
     for yolo_box, yolo_mask in zip(yolo_results.boxes, yolo_results.masks):
-        mask = convert_yolo_mask(yolo_mask, yolo_results.orig_img.shape)
-        box = convert_yolo_box(yolo_box, yolo_results.orig_img.shape)
+        mask = ultralytics_utils.convert_yolo_mask(yolo_mask, yolo_results.orig_img.shape)
+        box = ultralytics_utils.convert_yolo_box(yolo_box, yolo_results.orig_img.shape)
+        conf = ultralytics_utils.convert_yolo_conf(yolo_box)
         mask, box = mask_utils.clean_mask(mask, box)
         mask = mask_utils.smooth_mask(mask, kernel_size=11)
 
@@ -28,7 +29,7 @@ def get_nsfw_frames(yolo_results: ultralytics.engine.results.Results, random_ext
             # skip tiny detections
             continue
 
-        detections.append(Detection(DETECTION_CLASSES["nsfw"]["cls"], box, mask))
+        detections.append(Detection(DETECTION_CLASSES["nsfw"]["cls"], box, mask, conf))
     return Detections(yolo_results.orig_img, detections)
 
 class NsfwImageDetector:
