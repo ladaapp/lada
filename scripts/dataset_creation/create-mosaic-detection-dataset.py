@@ -280,6 +280,18 @@ def get_files(dir, filter_func):
                 file_list.append(Path(file_path))
     return file_list
 
+def get_detectors(nsfw_detector: NsfwImageDetector | None, head_detector: HeadDetector | None, face_detector: FaceDetector | None):
+    detectors = []
+    if nsfw_detector: detectors.append(nsfw_detector)
+    if head_detector and face_detector:
+        sfw_detector = random.choices([head_detector, face_detector], weights=[0.3, 0.7])[0]
+        detectors.append(sfw_detector)
+    elif head_detector:
+        detectors.append(head_detector)
+    elif face_detector:
+        detectors.append(face_detector)
+    return detectors
+
 def parse_args():
     parser = argparse.ArgumentParser("Create mosaic detection dataset")
     parser.add_argument('--output-root', type=Path, help="directory where resulting images/masks are saved")
@@ -292,9 +304,9 @@ def parse_args():
     parser.add_argument('--create-nsfw-mosaics', default=True, action=argparse.BooleanOptionalAction, help="Use Lada NSFW detection model to create NSFW mosaics")
     parser.add_argument('--create-sfw-face-mosaics', default=False, action=argparse.BooleanOptionalAction, help="Use CenterFace human face detection model to create SFW mosaics")
     parser.add_argument('--create-sfw-head-mosaics', default=False, action=argparse.BooleanOptionalAction, help="Use BPJDet human head detection model to create SFW mosaics")
-    parser.add_argument('--enable-watermark-filter', default=False, action=argparse.BooleanOptionalAction, help="If enabled, scenes obstructed by watermarks (arbitrary text or logos) will be skipped")
+    parser.add_argument('--enable-watermark-filter', default=True, action=argparse.BooleanOptionalAction, help="If enabled, scenes obstructed by watermarks (arbitrary text or logos) will be skipped")
     parser.add_argument('--watermark-model-path', type=str, default="model_weights/lada_watermark_detection_model_v1.3.pt",  help="path to watermark detection model")
-    parser.add_argument('--enable-mosaic-filter', default=False, action=argparse.BooleanOptionalAction, help="If enabled, pixelated scenes will be skipped")
+    parser.add_argument('--enable-mosaic-filter', default=True, action=argparse.BooleanOptionalAction, help="If enabled, pixelated scenes will be skipped")
     parser.add_argument('--mosaic-model-path', type=str, default="model_weights/lada_mosaic_detection_model_v3.1_accurate.pt", help="path to mosaic detection model")
     parser.add_argument('--max-file-limit', type=int, default=None, help="instead of processing all files found in input-root dir it will choose files randomly up to the given limit")
     parser.add_argument('--target-size', type=int, default=640, help="output size of images. should match imgsz param of YOLO")
@@ -305,22 +317,24 @@ def parse_args():
 def main():
     args = parse_args()
 
-    detectors = []
+    nsfw_detector = None
     if args.create_nsfw_mosaics:
         model = Yolo(args.model)
         conf = MIN_CONF_NSFW_FOR_FILTERING if args.create_sfw_face_mosaics or args.create_sfw_head_mosaics else MIN_CONF_NSFW
-        detectors.append(NsfwImageDetector(model, args.device, random_extend_masks=True, conf=conf))
+        nsfw_detector = NsfwImageDetector(model, args.device, random_extend_masks=True, conf=conf)
+    face_detector = None
     if args.create_sfw_face_mosaics:
         model = CenterFace()
-        detectors.append(FaceDetector(model, random_extend_masks=True, conf=0.8))
+        face_detector = FaceDetector(model, random_extend_masks=True, conf=0.8)
+    head_detector = None
     if args.create_sfw_head_mosaics:
         model = bpjdet.get_model(device=args.device)
         data = bpjdet.JointBP_CrowdHuman_head.DATA
         data['conf_thres_part'] = 0.7
         data['iou_thres_part'] = 0.7
         data['match_iou_thres'] = 0.7
-        detectors.append(HeadDetector(model, data=data, random_extend_masks=True, conf_thres=data['conf_thres_part'], iou_thres=data['iou_thres_part']))
-    assert len(detectors) > 0
+        head_detector = HeadDetector(model, data=data, random_extend_masks=True, conf_thres=data['conf_thres_part'], iou_thres=data['iou_thres_part'])
+    assert nsfw_detector or face_detector or head_detector
 
     negative_detectors = []
     if args.enable_watermark_filter:
@@ -334,6 +348,7 @@ def main():
     if args.show:
         for file_idx, file_path in enumerate(selected_files):
             print(f"{file_idx}, Processing {file_path.name}")
+            detectors = get_detectors(nsfw_detector, head_detector, face_detector)
             should_continue = show_image_file(file_path, detectors, negative_detectors, mosaic_detector, device=args.device, target_size=args.target_size)
             if not should_continue: break
         cv2.destroyAllWindows()
@@ -352,6 +367,7 @@ def main():
                     print(f"{file_idx}, Skipping {file_path.name}: Already processed")
                     continue
                 print(f"{file_idx}, Processing {file_path.name}")
+                detectors = get_detectors(nsfw_detector, head_detector, face_detector)
                 jobs.append(executor.submit(process_image_file, file_path, args.output_root, detectors, negative_detectors, mosaic_detector, args.device, args.target_size))
                 clean_up_completed_futures(jobs)
         wait(jobs, return_when=ALL_COMPLETED)
