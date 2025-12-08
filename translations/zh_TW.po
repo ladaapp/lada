@@ -3,8 +3,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
-"Report-Msgid-Bugs-To: https://github.com/ladaapp/issues\n"
-"POT-Creation-Date: 2025-11-26 13:23+0000\n"
+"Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
+"POT-Creation-Date: 2025-12-06 14:43+0000\n"
 "PO-Revision-Date: 2025-11-26 21:39+0000\n"
 "Last-Translator: tetsukasinobu <tetsukasinobu@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Traditional Han script) <https://"
@@ -55,12 +55,21 @@ msgstr "鍵盤快速鍵"
 msgid "About Lada"
 msgstr "關於 Lada"
 
-#, python-brace-format
-msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
-msgstr "持續時間: {duration}, 解析度: {resolution}, Frame rate: {fps} FPS"
+msgid "Restoring video…"
+msgstr "正在修復影片…"
+
+msgid "Finished video restoration!"
+msgstr "影片修復完成!"
 
 msgid "Restoration failed"
 msgstr "修復失敗"
+
+msgid "Restoration paused"
+msgstr "修復暫停"
+
+#, python-brace-format
+msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
+msgstr "持續時間: {duration}, 解析度: {resolution}, Frame rate: {fps} FPS"
 
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
@@ -96,15 +105,6 @@ msgstr ""
 #, python-brace-format
 msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
 msgstr "已暫停  |  已處理: {time_done} ({frames_done} frames)"
-
-msgid "Restoring video…"
-msgstr "正在修復影片…"
-
-msgid "Finished video restoration!"
-msgstr "影片修復完成!"
-
-msgid "Restoration paused"
-msgstr "修復暫停"
 
 msgid "Restore…"
 msgstr "修復…"
@@ -170,6 +170,14 @@ msgstr "GPU"
 
 msgid "Selected GPU for model processing."
 msgstr "選擇模型處理使用的GPU."
+
+msgid "FP16 precision"
+msgstr ""
+
+msgid ""
+"Reduces VRAM usage and may increase speed on modern GPUs, with negligible "
+"quality difference."
+msgstr ""
 
 msgid "Playback"
 msgstr "播放"
@@ -331,14 +339,70 @@ msgstr "播放/暫停"
 msgid "Enable/Disable fullscreen"
 msgstr "啟用/停用 全螢幕"
 
+msgid "Select one or multiple video files"
+msgstr "選擇單個或多個影片檔"
+
 msgid "Switch to Export View"
 msgstr "切換至輸出畫面"
 
 msgid "Switch to Watch View"
 msgstr "切換至輸出畫面"
 
-msgid "Select one or multiple video files"
-msgstr "選擇單個或多個影片檔"
+msgid "No video files found"
+msgstr "找不到影片檔"
+
+msgid "PyAV version:"
+msgstr "PyAV 版本:"
+
+msgid "Available video encoders:"
+msgstr "可用的影片編碼器："
+
+msgid "Encoders with support for hardware acceleration (GPU):"
+msgstr "支援硬體加速(GPU)的編碼器:"
+
+msgid "Device"
+msgstr "設備"
+
+msgid "Description"
+msgstr "描述"
+
+msgid "Available devices:"
+msgstr "可用設備:"
+
+msgid "Available detection models:"
+msgstr "可用偵測模型:"
+
+msgid "None!"
+msgstr "沒有!"
+
+msgid "Name"
+msgstr "名稱"
+
+msgid "Path"
+msgstr "路徑"
+
+msgid "Available restoration models:"
+msgstr "可用修復模型:"
+
+msgid "Usage: "
+msgstr "用量: "
+
+#, python-brace-format
+msgid ""
+"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
+"f){bar_suffix}"
+msgstr ""
+"處理中影片: {done_percent}%|{bar}|已處理: {time_done} ({frames_done}f)"
+"{bar_suffix}"
+
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | 剩餘的: ? | 速度: ?"
+
+#, python-brace-format
+msgid ""
+" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr ""
+" | 剩餘的: {time_remaining} ({frames_remaining}f) | 速度: {speed_fps}fps"
 
 msgid "Examples:"
 msgstr "範例:"
@@ -405,11 +469,11 @@ msgstr ""
 "運行修復和偵測模型的設備。使用 \"cpu\" 或 \"cuda\"。如果您有多個 GPU，您可以"
 "透過索引選擇一個特定的 GPU e.g. \"cuda:0\" (預設值: %(default)s)"
 
+#, python-format
 msgid ""
-"Use FP16 precision for restoration and detection models. Reduces memory "
-"usage. (default: True if CUDA is available)"
+"Reduces VRAM usage and may increase speed on modern GPUs, with negligible "
+"quality difference. (default: %(default)s)"
 msgstr ""
-"使用FP16精度來進行修復與偵測模型. 減少記憶體使用. (預設值: 若有 CUDA 則啟用)"
 
 msgid "List available devices and exit"
 msgstr "列出可用設備並退出"
@@ -540,61 +604,12 @@ msgstr "無效輸入。沒有檔案或目錄在{input_path}"
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "接收到Ctrl-C及停止修復."
 
-msgid "No video files found"
-msgstr "找不到影片檔"
-
-msgid "PyAV version:"
-msgstr "PyAV 版本:"
-
-msgid "Available video encoders:"
-msgstr "可用的影片編碼器："
-
-msgid "Encoders with support for hardware acceleration (GPU):"
-msgstr "支援硬體加速(GPU)的編碼器:"
-
-msgid "Device"
-msgstr "設備"
-
-msgid "Description"
-msgstr "描述"
-
-msgid "Available devices:"
-msgstr "可用設備:"
-
-msgid "Available detection models:"
-msgstr "可用偵測模型:"
-
-msgid "None!"
-msgstr "沒有!"
-
-msgid "Name"
-msgstr "名稱"
-
-msgid "Path"
-msgstr "路徑"
-
-msgid "Available restoration models:"
-msgstr "可用修復模型:"
-
-msgid "Usage: "
-msgstr "用量: "
-
-#, python-brace-format
-msgid ""
-"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
-"f){bar_suffix}"
-msgstr ""
-"處理中影片: {done_percent}%|{bar}|已處理: {time_done} ({frames_done}f)"
-"{bar_suffix}"
-
-msgid " | Remaining: ? | Speed: ?"
-msgstr " | 剩餘的: ? | 速度: ?"
-
-#, python-brace-format
-msgid ""
-" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
-" | 剩餘的: {time_remaining} ({frames_remaining}f) | 速度: {speed_fps}fps"
+#~ msgid ""
+#~ "Use FP16 precision for restoration and detection models. Reduces memory "
+#~ "usage. (default: True if CUDA is available)"
+#~ msgstr ""
+#~ "使用FP16精度來進行修復與偵測模型. 減少記憶體使用. (預設值: 若有 CUDA 則啟"
+#~ "用)"
 
 #~ msgid "No action"
 #~ msgstr "無動作"
