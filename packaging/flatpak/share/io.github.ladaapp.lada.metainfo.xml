@@ -55,6 +55,22 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release date="2025-12-08" version="0.9.1">
+            <description>
+                <p>Features:</p>
+                <ul>
+                    <li>GUI: Add toggle to enable/disable FP16 precision (was only available via CLI previously). On some hardware FP16 can be slower so you might to disable it.</li>
+                    <li>GUI: Keep progress bar visible in single file export view after export job completed as is done in multi-file view</li>
+                    <li>CLI+GUI: Enable multithreaded video decoding for potentially higher processing speed</li>
+                </ul>
+                <p>Fixes:</p>
+                <ul>
+                    <li>CLI+GUI: Fix high-CPU load on certain system. This change should bring CPU back to pre v0.9.0 levels while keeping the speed increase.</li>
+                    <li>GUI: Fix Seek Preview still showing frames of old file after new file was selected</li>
+                    <li>GUI: Fix crash on Windows on systems were CUDA SDK was installed system-wide</li>
+                </ul>
+            </description>
+        </release>
         <release date="2025-11-30" version="0.9.0">
             <description>
                 <p>Features:</p>
@@ -62,6 +78,7 @@
                     <li>CLI+GUI: Optimized performance of restoration pipeline. Depending on your hardware and specific video content you could see faster processing speed from anywhere between 1x (no change) up to 1.5x compared to previous version v0.8.2.</li>
                     <li>CLI+GUI: New Translations. This Release is available in Chinese (Simplified), Chinese (Traditional), Dutch, Spanish and Japanese</li>
                     <li>GUI(Export): Post-export actions: Automatically shutdown your system or run a custom command or script after all exports have finished (Flatpak users might want to read tips in the README)</li>
+                    <li>GUI(Watch): Added seek previews, showing video frames when hovering over the timeline</li>
                     <li>GUI(Export): Added setting to overwrite default location of temporary directory used for storing files while export is in-progress</li>
                     <li>docs: Simplified build instructions (aka developer installation) on Windows</li>
                 </ul>
