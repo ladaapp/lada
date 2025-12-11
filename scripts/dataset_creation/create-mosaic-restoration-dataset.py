@@ -8,7 +8,7 @@ from pathlib import Path
 from time import sleep
 
 from lada.models.dover.evaluate import VideoQualityEvaluator
-from lada.datasetcreation.detectors.mosaic_classifier import MosaicClassifier
+from lada.datasetcreation.detectors.mosaic_detector import MosaicDetector
 from lada.datasetcreation.nsfw_scene_detector import NsfwDetector, FileProcessingOptions
 from lada.datasetcreation.nsfw_scene_processor import SceneProcessingOptions, SceneProcessor
 from lada.datasetcreation.detectors.nudenet_nsfw_detector import NudeNetNsfwDetector
@@ -103,7 +103,7 @@ def main():
     video_quality_evaluator = VideoQualityEvaluator(device=args.video_quality_model_device) if args.add_video_quality_metadata or args.enable_video_quality_filter else None
     watermark_detector = WatermarkDetector(Yolo(args.watermark_model_path), device=args.model_device) if args.add_watermark_metadata or args.enable_watermark_filter else None
     nudenet_nsfw_detector = NudeNetNsfwDetector(Yolo(args.nudenet_nsfw_model_path), device=args.model_device) if args.add_nudenet_nsfw_metadata or args.enable_nudenet_nsfw_filter else None
-    censor_detector = MosaicClassifier(Yolo(args.censor_model_path), device=args.model_device) if args.add_censor_metadata or args.enable_censor_filter else None
+    censor_detector = MosaicDetector(Yolo(args.censor_model_path), device=args.model_device) if args.add_censor_metadata or args.enable_censor_filter else None
 
     output_dir = args.output_root
     if not output_dir.exists():

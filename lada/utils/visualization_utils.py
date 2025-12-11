@@ -68,3 +68,11 @@ def draw_mosaic_detections(clip: Clip, border_color = (255, 0, 255)) -> list[tor
         mosaic_detection_images = torch.stack(mosaic_detection_images, dim=0).to(device=device)
         return torch.unbind(mosaic_detection_images, dim=0)
     return mosaic_detection_images
+
+def wait_until_key_press(accepted_keys: list[str]) -> str:
+    _accepted_keys = [ord(key) for key in accepted_keys]
+    while True:
+        key_pressed = cv2.waitKey(1)
+        _key_pressed = key_pressed & 0xFF
+        if _key_pressed in _accepted_keys:
+            return accepted_keys[_accepted_keys.index(_key_pressed)]

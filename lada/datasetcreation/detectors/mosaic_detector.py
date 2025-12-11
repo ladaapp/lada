@@ -8,7 +8,7 @@ from lada.utils.box_utils import box_overlap
 from lada.utils import Image, Box, Detections, ultralytics_utils, Detection, DETECTION_CLASSES
 from lada.models.yolo.yolo import Yolo
 
-class MosaicClassifier:
+class MosaicDetector:
     def __init__(self, model: Yolo, device, min_confidence=0.8):
         self.model = model
         self.device = device

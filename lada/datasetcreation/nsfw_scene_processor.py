@@ -17,7 +17,7 @@ from lada.datasetcreation import restoration_dataset_metadata
 from lada.utils import video_utils, image_utils
 from lada.models.dover.evaluate import VideoQualityEvaluator
 from lada.utils.image_utils import pad_image
-from lada.datasetcreation.detectors.mosaic_classifier import MosaicClassifier
+from lada.datasetcreation.detectors.mosaic_detector import MosaicDetector
 from lada.utils.mosaic_utils import get_random_parameter, addmosaic_base, get_mosaic_block_size_v1, \
     get_mosaic_block_size_v2, get_mosaic_block_size_v3
 from lada.datasetcreation.nsfw_scene_detector import Scene, CroppedScene
@@ -344,7 +344,7 @@ class DatasetItem:
         return io_futures
 
 class SceneProcessor:
-    def __init__(self,  video_quality_evaluator: VideoQualityEvaluator, watermark_detector: WatermarkDetector, nudenet_nsfw_detector: NudeNetNsfwDetector, censoring_detector: MosaicClassifier):
+    def __init__(self, video_quality_evaluator: VideoQualityEvaluator, watermark_detector: WatermarkDetector, nudenet_nsfw_detector: NudeNetNsfwDetector, censoring_detector: MosaicDetector):
         self.video_quality_evaluator = video_quality_evaluator
         self.watermark_detector = watermark_detector
         self.nudenet_nsfw_detector = nudenet_nsfw_detector

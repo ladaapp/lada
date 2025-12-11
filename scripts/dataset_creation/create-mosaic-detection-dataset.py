@@ -11,25 +11,22 @@ from pathlib import Path
 
 import cv2
 import numpy as np
-
-from lada.datasetcreation.detectors.mosaic_classifier import MosaicClassifier
-from lada.datasetcreation.detectors.watermark_detector import WatermarkDetector
-from lada.models.centerface.centerface import CenterFace
-import lada.models.bpjdet.inference as bpjdet
-from lada.utils import visualization_utils, image_utils, transforms as lada_transforms, Detections, DETECTION_CLASSES, \
-    Image, Detection, Box
-from lada.utils.box_utils import box_overlap
-from lada.datasetcreation.detectors.face_detector import FaceDetector
-from lada.datasetcreation.detectors.head_detector import HeadDetector
-from lada.datasetcreation.detectors.nsfw_frame_detector import NsfwImageDetector
-from lada.utils.threading_utils import clean_up_completed_futures
-from lada.utils.ultralytics_utils import convert_segment_masks_to_yolo_labels
-
 from torchvision.transforms import transforms as torchvision_transforms
 
+import lada.models.bpjdet.inference as bpjdet
+from lada.datasetcreation.detectors.face_detector import FaceDetector
+from lada.datasetcreation.detectors.head_detector import HeadDetector
+from lada.datasetcreation.detectors.mosaic_detector import MosaicDetector
+from lada.datasetcreation.detectors.nsfw_frame_detector import NsfwImageDetector
+from lada.datasetcreation.detectors.watermark_detector import WatermarkDetector
+from lada.models.centerface.centerface import CenterFace
+from lada.models.yolo.yolo import Yolo
+from lada.utils import visualization_utils, image_utils, transforms as lada_transforms, Detections, DETECTION_CLASSES, Image, Detection, Box
+from lada.utils.box_utils import box_overlap
 from lada.utils.image_utils import UnsharpMaskingSharpener
 from lada.utils.jpeg_utils import DiffJPEG
-from lada.models.yolo.yolo import Yolo
+from lada.utils.threading_utils import clean_up_completed_futures
+from lada.utils.ultralytics_utils import convert_segment_masks_to_yolo_labels
 
 MIN_CONF_NSFW = 0.7
 MIN_CONF_NSFW_FOR_FILTERING = 0.2
@@ -95,7 +92,7 @@ def create_degradation_pipeline(img_shape: tuple[int, int, int], mosaic_size: in
                                          bitrate_ranges={}),
     ])
 
-def get_detections(source: str | Image, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector],  negative_detectors: list[WatermarkDetector], mosaic_detector: MosaicClassifier | None) -> Detections | None:
+def get_detections(source: str | Image, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], negative_detectors: list[WatermarkDetector], mosaic_detector: MosaicDetector | None) -> Detections | None:
     detections = []
     nsfw_detections = []
     sfw_detections = []
@@ -172,14 +169,6 @@ def get_detections(source: str | Image, detectors: list[NsfwImageDetector | Face
         detections.append(nsfw_detection)
     return Detections(frame, detections)
 
-def wait_until_key_press(accepted_keys: list[str]) -> str:
-    _accepted_keys = [ord(key) for key in accepted_keys]
-    while True:
-        key_pressed = cv2.waitKey(1)
-        _key_pressed = key_pressed & 0xFF
-        if _key_pressed in _accepted_keys:
-            return accepted_keys[_accepted_keys.index(_key_pressed)]
-
 def _get_mosaic_transform_args(detection: Detection):
     mosaic_args = dict(reuse_input_mask_value=True)
     # Use higher block sizes for sfw face/head mosaics to avoid false positive detections of non-pixelated faces
@@ -193,7 +182,7 @@ def _get_mosaic_transform_args(detection: Detection):
         mosaic_args["min_block_size"] = 5
     return mosaic_args
 
-def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], negative_detectors: list[WatermarkDetector], mosaic_detector: MosaicClassifier, device='cpu', window_name="mosaic", target_size=640) -> bool:
+def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], negative_detectors: list[WatermarkDetector], mosaic_detector: MosaicDetector, device='cpu', window_name="mosaic", target_size=640) -> bool:
     img = cv2.imread(file_path)
     target_shape = get_target_shape(img.shape, target_size)
     img = image_utils.resize(img, size=target_shape)
@@ -227,7 +216,7 @@ def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector 
         show_img = visualization_utils.overlay_mask_boundary(show_img, mask, color=(255, 0, 0), thickness=1)
 
         cv2.imshow(window_name, show_img)
-        pressed_key = wait_until_key_press(["n", "r", "q"])
+        pressed_key = visualization_utils.wait_until_key_press(["n", "r", "q"])
         if pressed_key == "n":
             break
         elif pressed_key == "r":
@@ -236,7 +225,7 @@ def show_image_file(file_path, detectors: list[NsfwImageDetector | FaceDetector 
             return False
     return True
 
-def process_image_file(file_path, output_root, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], negative_detectors: list[WatermarkDetector], mosaic_detector: MosaicClassifier, device='cpu', target_size=640):
+def process_image_file(file_path, output_root, detectors: list[NsfwImageDetector | FaceDetector | HeadDetector], negative_detectors: list[WatermarkDetector], mosaic_detector: MosaicDetector, device='cpu', target_size=640):
     img = cv2.imread(file_path)
     target_shape = get_target_shape(img.shape, target_size)
     img = image_utils.resize(img, size=target_shape)
@@ -339,7 +328,7 @@ def main():
     negative_detectors = []
     if args.enable_watermark_filter:
         negative_detectors.append(WatermarkDetector(Yolo(args.watermark_model_path), device=args.device, min_confidence=0.2))
-    mosaic_detector = MosaicClassifier(Yolo(args.mosaic_model_path), device=args.device, min_confidence=0.1) if args.enable_mosaic_filter else None
+    mosaic_detector = MosaicDetector(Yolo(args.mosaic_model_path), device=args.device, min_confidence=0.1) if args.enable_mosaic_filter else None
 
     selected_files = get_files(args.input_root, image_utils.is_image_file)
     if args.max_file_limit and len(selected_files) > args.max_file_limit:
