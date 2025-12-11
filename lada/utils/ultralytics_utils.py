@@ -10,14 +10,17 @@ import torch.nn.functional as F
 from ultralytics import settings
 from ultralytics.engine.results import Boxes as UltralyticsBoxes
 from ultralytics.engine.results import Masks as UltralyticsMasks
-from ultralytics.engine.results import Probs as UltralyticsProbs
 from ultralytics.engine.results import Results as UltralyticsResults
+from ultralytics.utils import JSONDict
 from ultralytics.utils.ops import scale_image
 
 from lada.utils import Box, Mask
 
 def set_default_settings():
     settings.update({'runs_dir': './experiments/yolo', 'datasets_dir': './datasets', 'tensorboard': True})
+
+def get_settings() -> JSONDict:
+    return settings
 
 def convert_yolo_box(yolo_box: UltralyticsBoxes, img_shape) -> Box:
     _box = yolo_box.xyxy[0]
