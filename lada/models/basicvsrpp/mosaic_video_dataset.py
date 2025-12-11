@@ -53,7 +53,6 @@ class MosaicVideoDataset(data.Dataset):
         self.filter_video_quality = opt.get('filter_video_quality', False)
         self.filter_watermark_thresh = 0.1
         self.repad = True
-        self.rng_random, self.rng_numpy = random_utils.get_rngs(self.repeatable_random)
 
         self.metadata = []
         for meta_path in glob.glob(os.path.join(opt['metadata_root_dir'], '*')):
@@ -76,17 +75,19 @@ class MosaicVideoDataset(data.Dataset):
         return mosaic_size, mosaic_mod, mosaic_rectangle_ratio, mosaic_feather_size
 
     def get_end_frame_index(self, meta):
+        rng_random, _ = random_utils.get_rngs(self.repeatable_random)
         if self.max_frame_count == -1:
             # select the full clip
             start_frame_idx = 0
             end_frame_idx = meta.frames_count - 1
         else:
             # randomly select shorter clip of length num_frame
-            start_frame_idx = self.rng_random.randint(0, meta.frames_count - self.max_frame_count)
+            start_frame_idx = rng_random.randint(0, meta.frames_count - self.max_frame_count)
             end_frame_idx = start_frame_idx + self.max_frame_count
         return end_frame_idx, start_frame_idx
 
     def __getitem__(self, index):
+        rng_random, _ = random_utils.get_rngs(self.repeatable_random)
         meta = self.metadata[index]
 
         end_frame_idx, start_frame_idx = self.get_end_frame_index(meta)
@@ -129,12 +130,12 @@ class MosaicVideoDataset(data.Dataset):
             img_lqs = repad_image(img_lqs, scaled_pads, mode='zero')
             img_gts = repad_image(img_gts, scaled_pads, mode='zero')
 
-        if self.use_hflip and self.rng_random.random() < 0.5:
+        if self.use_hflip and rng_random.random() < 0.5:
             img_gts = [np.fliplr(img) for img in img_gts]
             img_lqs = [np.fliplr(img) for img in img_lqs]
 
-        if self.rng_random.random()<0.3:
-            rotation_deg = self.rng_random.choice([-2, -1, 1, 2])
+        if rng_random.random()<0.3:
+            rotation_deg = rng_random.choice([-2, -1, 1, 2])
             img_lqs = [image_utils.rotate(img, rotation_deg) for img in img_lqs]
             img_gts = [image_utils.rotate(img, rotation_deg) for img in img_gts]
 
