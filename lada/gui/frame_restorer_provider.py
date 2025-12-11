@@ -79,6 +79,9 @@ class FrameRestorerProvider:
             if self.models_cache["mosaic_detection_model_name"] != self.options.mosaic_detection_model_name:
                 cache_miss = True
                 logger.info(f"model {self.options.mosaic_detection_model_name} not found in cache. Loading...")
+            if self.models_cache.get("fp16_enabled") != self.options.fp16_enabled:
+                cache_miss = True
+                logger.info(f"FP16 setting changed from {self.models_cache.get('fp16_enabled')} to {self.options.fp16_enabled}. Reloading models...")
 
         if cache_miss:
             self._clear_cache()
@@ -92,6 +95,7 @@ class FrameRestorerProvider:
 
             self.models_cache = dict(mosaic_restoration_model_name=self.options.mosaic_restoration_model_name,
                                      mosaic_detection_model_name=self.options.mosaic_detection_model_name,
+                                     fp16_enabled=self.options.fp16_enabled,
                                      mosaic_detection_model=mosaic_detection_model,
                                      mosaic_restoration_model=mosaic_restoration_model,
                                      mosaic_restoration_model_preferred_pad_mode=mosaic_restoration_model_preferred_pad_mode)
