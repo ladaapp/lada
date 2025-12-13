@@ -50,7 +50,7 @@ class InferenceViewer:
             frame_count = int(self.vid_capture.get(cv2.CAP_PROP_FRAME_COUNT))
             cv2.createTrackbar('frame', self.window_name, 0, frame_count, self.update_frame_num)
         cv2.createTrackbar('conf', self.window_name, int(self.conf * 100), 100, self.update_conf)
-        cv2.createTrackbar('imgsz', self.window_name, int(self.imgsz/32), int((self.imgsz_max-self.imgsz_min)/32), self.update_imgsz)
+        cv2.createTrackbar('imgsz', self.window_name, int((self.imgsz-self.imgsz_min)/32), int((self.imgsz_max-self.imgsz_min)/32), self.update_imgsz)
         cv2.createTrackbar('iou', self.window_name, int(self.iou * 100 / 5), 20, self.update_iou)
 
     def update(self):
@@ -59,7 +59,6 @@ class InferenceViewer:
             ret, frame = self.vid_capture.read()
             if ret:
                 self.frame = frame
-
         result = self.model.predict(self.frame, conf=self.conf, imgsz=self.imgsz, iou=self.iou)
         output = result[0].plot()
         cv2.imshow(self.window_name, output)
@@ -68,19 +67,19 @@ class InferenceViewer:
         self.frame_num = frame_num
         self.update()
 
-    def update_conf(self, conf):
-        self.conf = max(self.conf_min, conf / 100.)
-        print("conf", self.conf)
+    def update_conf(self, value: int):
+        self.conf = max(self.conf_min, value / 100.)
+        print(f"conf: {self.conf} (slider: {value})")
         self.update()
 
-    def update_iou(self, iou: float):
-        self.iou = max(self.iou_min, (iou * 5) / 100.)
-        print("iou", iou, self.iou)
+    def update_iou(self, value: int):
+        self.iou = max(self.iou_min, (value * 5) / 100.)
+        print(f"iou: {self.iou} (slider: {value})")
         self.update()
 
-    def update_imgsz(self, imgsz: int):
-        self.imgsz = imgsz * 32 + self.imgsz_min
-        print("imgsz", imgsz, self.imgsz)
+    def update_imgsz(self, value: int):
+        self.imgsz = value * 32 + self.imgsz_min
+        print(f"imgsz: {self.imgsz} (slider: {value})")
         self.update()
 
     def screenshot(self, dir):
