@@ -102,6 +102,7 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
         if newstate == Gst.State.NULL:
             self._stop_appsource_worker(shutdown=True)
         elif newstate == Gst.State.READY:
+            logger.debug(f"appsource ready, unset shutdown requested flag")
             self.appsource_thread_shutdown_requested = False
 
     def _set_video_metadata(self, video_metadata: VideoMetadata):
@@ -127,15 +128,15 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
 
     def _on_seek_data(self, appsrc, offset_ns):
         logger.debug(f"appsource seek: offset (sec): {offset_ns / Gst.SECOND}, current position (sec): {self.current_timestamp_ns / Gst.SECOND}")
-        if offset_ns == self.current_timestamp_ns:
-            # nothing to do, we're already at the desired position in the file or already received this seek request
-            logger.debug("appsource seek: skipped seek as we're already at the seek position")
-            return True
-        if self.appsource_thread_shutdown_requested:
-            logger.debug("appsource seek: skipped seek as shutdown was requested.")
-            return True
-        self.appsource_thread_eof = False
         with self.appsrc_lock:
+            if offset_ns == self.current_timestamp_ns:
+                # nothing to do, we're already at the desired position in the file or already received this seek request
+                logger.debug("appsource seek: skipped seek as we're already at the seek position")
+                return True
+            if self.appsource_thread_shutdown_requested:
+                logger.debug("appsource seek: skipped seek as shutdown was requested.")
+                return True
+            self.appsource_thread_eof = False
             self._stop_appsource_worker()
             self._start_appsource_worker(seek_position=offset_ns)
         return True
