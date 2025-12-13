@@ -80,6 +80,7 @@ class PipelineManager(GObject.Object):
         pass
 
     def play(self):
+        logger.debug("Request pipeline state change to PLAYING")
         self.pipeline.set_state(Gst.State.PLAYING)
 
     def pause(self):

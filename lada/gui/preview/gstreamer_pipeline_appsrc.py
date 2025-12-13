@@ -131,6 +131,9 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
             # nothing to do, we're already at the desired position in the file or already received this seek request
             logger.debug("appsource seek: skipped seek as we're already at the seek position")
             return True
+        if self.appsource_thread_shutdown_requested:
+            logger.debug("appsource seek: skipped seek as shutdown was requested.")
+            return True
         self.appsource_thread_eof = False
         with self.appsrc_lock:
             self._stop_appsource_worker()
@@ -178,6 +181,7 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
         with self.frame_restorer_lock:
             start = time.time()
             if shutdown:
+                logger.debug(f"appsource worker: shutdown requested")
                 self.appsource_thread_shutdown_requested =True
             self.appsource_thread_stop_requested = True
             self.appsource_thread_should_be_running = False
