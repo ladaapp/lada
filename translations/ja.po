@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
 "POT-Creation-Date: 2025-12-06 14:43+0000\n"
-"PO-Revision-Date: 2025-12-08 10:46+0000\n"
+"PO-Revision-Date: 2025-12-13 16:15+0000\n"
 "Last-Translator: softasa <softasa@noreply.codeberg.org>\n"
 "Language-Team: Japanese <https://translate.codeberg.org/projects/lada/lada/"
 "ja/>\n"
@@ -73,7 +73,7 @@ msgstr "再生時間: {duration},解像度: {resolution},フレームレート: 
 
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
-msgstr "処理中にエラーが発生しました <span><tt>{filename}</tt></span>"
+msgstr "処理中にエラーが発生しました<span><tt>{filename}</tt></span>"
 
 msgid "Okay"
 msgstr "了解"
@@ -237,9 +237,9 @@ msgid ""
 "Example: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</"
 "tt></span>"
 msgstr ""
-"FFmpeg エンコーダのカスタムオプション（オプション）。\n"
-"例: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</tt></"
-"span>"
+"FFmpeg エンコーダのカスタムオプション（オプション）.\n"
+"Example: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc "
+"vbr_hq</tt></span>"
 
 msgid ""
 "FFmpeg Codecs Documentation:\n"
@@ -586,9 +586,8 @@ msgstr "除去モデルのウェイトファイルのパス（デフォルト: %
 msgid ""
 "Path to restoration model configuration file. You'll not have to set this "
 "unless you're training your own custom models"
-msgstr ""
-"除去モデルの設定ファイルのパス。自作モデルをトレーニングする場合を除き、設定"
-"する必要はありません。"
+msgstr "除去モデルの設定ファイルのパス。自作モデルをトレーニングする場合を除き、設定"
+"する必要はありません"
 
 #, python-format
 msgid ""
@@ -623,14 +622,14 @@ msgstr "GPU {device} が選択されていますが、CUDA が利用できませ
 msgid ""
 "Invalid file name pattern. It must include the template string "
 "'{orig_file_name}' and a file extension"
-msgstr "無効なファイル名パターンです。{orig_file_name} のテンプレート文字列と拡張子を"
-"含める必要があります。"
+msgstr "無効なファイル名パターンです。 テンプレート文字列 '{orig_file_name}' とファイ"
+"ル拡張子を含める必要があります"
 
 msgid ""
 "Invalid output directory. If input is a directory then --output must also be "
 "set to a directory"
-msgstr "無効な出力ディレクトリです。入力がディレクトリの場合、--output もディレクトリ"
-"として指定する必要があります。"
+msgstr "無効な出力ディレクトリです.入力がディレクトリの場合、--output もディレクトリ"
+"として指定する必要があります"
 
 #, python-brace-format
 msgid "Invalid input. No file or directory at {input_path}"
