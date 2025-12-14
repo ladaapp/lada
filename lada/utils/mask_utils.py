@@ -67,8 +67,8 @@ def get_mask_area(mask: Mask) -> float:
 def smooth_mask(mask: Mask, kernel_size: int) -> Mask:
     return cv2.medianBlur(mask, kernel_size).reshape(mask.shape)
 
-def create_blend_mask(crop_mask: torch.Tensor, dtype: torch.dtype):
-    mask = crop_mask.squeeze().to(dtype=dtype)
+def create_blend_mask(crop_mask: torch.Tensor):
+    mask = crop_mask.squeeze()
     h, w = mask.shape
     border_ratio = 0.05
     h_inner, w_inner = int(h * (1.0 - border_ratio)), int(w * (1.0 - border_ratio))

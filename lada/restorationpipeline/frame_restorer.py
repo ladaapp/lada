@@ -17,13 +17,14 @@ from lada.utils import image_utils, video_utils, threading_utils, mask_utils
 from lada.utils import visualization_utils
 from lada.restorationpipeline.mosaic_detector import MosaicDetector
 from lada.restorationpipeline.mosaic_detector import Clip
+from lada.models.yolo.yolo11_segmentation_model import Yolo11SegmentationModel
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
 
 class FrameRestorer:
     def __init__(self, device, video_file, max_clip_length, mosaic_restoration_model_name,
-                 mosaic_detection_model, mosaic_restoration_model, preferred_pad_mode,
+                 mosaic_detection_model: Yolo11SegmentationModel, mosaic_restoration_model, preferred_pad_mode,
                  mosaic_detection=False):
         self.device = torch.device(device)
         self.mosaic_restoration_model_name = mosaic_restoration_model_name
@@ -215,7 +216,7 @@ class FrameRestorer:
             clip_mask = image_utils.unpad_image(clip_mask, pad_after_resize)
             clip_img = image_utils.resize(clip_img, orig_crop_shape[:2])
             clip_mask = image_utils.resize(clip_mask, orig_crop_shape[:2],interpolation=cv2.INTER_NEAREST)
-            blend_mask = mask_utils.create_blend_mask(clip_mask, dtype=target_dtype).to(device=frame.device)
+            blend_mask = mask_utils.create_blend_mask(clip_mask.to(device=self.device).to(dtype=self.mosaic_restoration_model.dtype)).to(device=clip_img.device, dtype=target_dtype)
 
             blend(blend_mask, clip_img, orig_clip_box)
 
