@@ -226,7 +226,7 @@ SPDX-License-Identifier: AGPL-3.0
                                  <child>
                                      <object class="AdwExpanderRow" id="expander_row_post_export_action">
                                         <property name="title" translatable="true">Post-Export Action</property>
-                                        <property name="subtitle" translatable="true">Action to be run after all queued files have been restored</property>
+                                        <property name="subtitle" translatable="true">Action to be run after all queued files have been restored.</property>
                                         <property name="show-enable-switch">true</property>
                                         <property name="enable-expansion">true</property>
                                         <property name="expanded">false</property>
@@ -263,6 +263,13 @@ SPDX-License-Identifier: AGPL-3.0
                                          </child>
                                      </object>
                                  </child>
+                                <child>
+                                    <object class="AdwSwitchRow" id="switch_row_mp4_fast_start">
+                                        <property name="title" translatable="true">Enable .mp4 Fast Start</property>
+                                        <property name="subtitle" translatable="true">Allows playing the file while it's being written.</property>
+                                        <signal name="notify::active" handler="switch_row_mp4_fast_start_active_callback"/>
+                                    </object>
+                                </child>
                              </object>
                          </child>
                          <child>

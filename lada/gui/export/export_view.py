@@ -434,7 +434,8 @@ class ExportView(Gtk.Widget):
                         video_tmp_file_output_path, video_metadata.video_width,
                         video_metadata.video_height, video_metadata.video_fps_exact,
                         self._config.export_codec, time_base=video_metadata.time_base,
-                        crf=self._config.export_crf, custom_encoder_options=self._config.custom_ffmpeg_encoder_options)
+                        crf=self._config.export_crf, custom_encoder_options=self._config.custom_ffmpeg_encoder_options,
+                        mp4_fast_start=self._config.mp4_fast_start)
                     self.progress_calculator = export_utils.ProgressCalculator(video_metadata)
 
                 frame_restorer.start(start_ns=start_ns)

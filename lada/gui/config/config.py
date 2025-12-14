@@ -42,6 +42,7 @@ class Config(GObject.Object):
         'max_clip_duration': 180,
         'mosaic_detection_model': 'v4-fast',
         'mosaic_restoration_model': 'basicvsrpp-v1.2',
+        'mp4_fast_start': False,
         'mute_audio': False,
         'post_export_action': PostExportAction.NONE,
         'post_export_custom_command': '',
@@ -65,6 +66,7 @@ class Config(GObject.Object):
         self._max_clip_duration: int = self._defaults['max_clip_duration']
         self._mosaic_detection_model = self._defaults['mosaic_detection_model']
         self._mosaic_restoration_model = self._defaults['mosaic_restoration_model']
+        self._mp4_fast_start = self._defaults['mp4_fast_start']
         self._mute_audio = self._defaults['mute_audio']
         self._preview_buffer_duration = self._defaults['preview_buffer_duration']
         self._seek_preview_enabled = self._defaults['seek_preview_enabled']
@@ -111,6 +113,17 @@ class Config(GObject.Object):
         if value == self._mosaic_restoration_model:
             return
         self._mosaic_restoration_model = value
+        self.save()
+
+    @GObject.Property()
+    def mp4_fast_start(self):
+        return self._mp4_fast_start
+
+    @mp4_fast_start.setter
+    def mp4_fast_start(self, value):
+        if value == self._mp4_fast_start:
+            return
+        self._mp4_fast_start = value
         self.save()
 
     @GObject.Property()
@@ -344,6 +357,7 @@ class Config(GObject.Object):
         self.max_clip_duration = self._defaults['max_clip_duration']
         self.mosaic_detection_model = self._defaults['mosaic_detection_model']
         self.mosaic_restoration_model = self._defaults['mosaic_restoration_model']
+        self.mp4_fast_start = self._defaults['mp4_fast_start']
         self.mute_audio = self._defaults['mute_audio']
         self.post_export_action = self._defaults['post_export_action']
         self.post_export_custom_command = self._defaults['post_export_custom_command']
@@ -376,6 +390,7 @@ class Config(GObject.Object):
             'max_clip_duration': self._max_clip_duration,
             'mosaic_detection_model': self._mosaic_detection_model,
             'mosaic_restoration_model': self._mosaic_restoration_model,
+            'mp4_fast_start': self._mp4_fast_start,
             'mute_audio': self._mute_audio,
             'post_export_action': self._post_export_action.value,
             'post_export_custom_command': self._post_export_custom_command,

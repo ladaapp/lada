@@ -261,8 +261,11 @@ class VideoWriter:
         encoder_defaults['hevc'] = libx265
         return encoder_defaults
 
-    def __init__(self, output_path, width, height, fps, codec, crf=None, preset=None, time_base=None, moov_front=False, custom_encoder_options=None):
-        container_options = {"movflags": "+frag_keyframe+empty_moov+faststart"} if moov_front else {}
+    def __init__(self, output_path, width, height, fps, codec, crf=None, preset=None, time_base=None, mp4_fast_start=False, custom_encoder_options=None):
+        if mp4_fast_start and (output_path.lower().endswith(".mp4") or output_path.lower().endswith(".mov")):
+            container_options = {"movflags": "+frag_keyframe+empty_moov+faststart"}
+        else:
+            container_options = {}
         encoder_defaults = self.get_default_encoder_options()
         encoder_options = encoder_defaults.get(codec, {})
 
