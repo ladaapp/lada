@@ -463,7 +463,11 @@ class PreviewView(Gtk.Widget):
             self.pipeline_manager.connect("notify::state", lambda obj, spec: GLib.idle_add(lambda: self.on_pipeline_state(obj.get_property(spec.name))))
             GLib.timeout_add(100, self.update_current_position)
 
-        threading.Thread(target=self.pipeline_manager.play).start()
+        def play():
+            logger.debug("Finished opening file, play pipeline...")
+            self.pipeline_manager.play()
+
+        threading.Thread(target=play).start()
 
     def on_eos(self, *args):
         self.eos = True

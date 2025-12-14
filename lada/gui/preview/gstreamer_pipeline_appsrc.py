@@ -99,10 +99,10 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
             super().do_set_property(prop, value)
 
     def do_state_changed(self, oldstate: Gst.State, newstate: Gst.State, pending: Gst.State) -> None:
-        if newstate == Gst.State.NULL:
+        logger.debug(f"appsource state change: {oldstate} -> {newstate} (pending: {pending})")
+        if oldstate == Gst.State.READY and newstate == Gst.State.NULL:
             self._stop_appsource_worker(shutdown=True)
-        elif newstate == Gst.State.READY:
-            logger.debug(f"appsource ready, unset shutdown requested flag")
+        elif oldstate == Gst.State.NULL and newstate == Gst.State.READY:
             self.appsource_thread_shutdown_requested = False
 
     def _set_video_metadata(self, video_metadata: VideoMetadata):
