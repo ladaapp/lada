@@ -165,7 +165,7 @@ class Progressbar:
         BAR_FORMAT = _("Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}")
         BAR_FORMAT_TQDM = BAR_FORMAT.format(done_percent="{percentage:3.0f}", bar="{bar}", time_done="{elapsed}", frames_done="{n_fmt}", bar_suffix="{desc}")
         initial_estimating_bar_suffix = _(" | Remaining: ? | Speed: ?")
-        self.tqdm_iterable = tqdm(frame_restorer, total=video_metadata.frames_count, bar_format=BAR_FORMAT_TQDM, desc=initial_estimating_bar_suffix)
+        self.tqdm_iterable = tqdm(frame_restorer, dynamic_ncols=True, total=video_metadata.frames_count, bar_format=BAR_FORMAT_TQDM, desc=initial_estimating_bar_suffix)
         orig_close = self.tqdm_iterable.close
         def ensure_completed_bar_then_close():
             # On some media files the frame count, which is used to set up total of the progressbar, is not correct.
