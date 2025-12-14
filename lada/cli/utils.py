@@ -14,7 +14,7 @@ from tqdm import tqdm
 
 from lada import DETECTION_MODEL_NAMES_TO_FILES, RESTORATION_MODEL_NAMES_TO_FILES, \
     get_available_restoration_models, get_available_detection_models, DETECTION_MODEL_FILES_TO_NAMES, \
-    RESTORATION_MODEL_FILES_TO_NAMES
+    RESTORATION_MODEL_FILES_TO_NAMES, MODEL_WEIGHTS_DIR
 from lada.utils import VideoMetadata
 from lada.restorationpipeline.frame_restorer import FrameRestorer
 
@@ -113,7 +113,9 @@ def dump_torch_devices():
     print(s)
 
 def dump_available_detection_models():
-    s = _("Available detection models:")
+    s = _("Model weights directory:")
+    s += "\n\t" + os.path.abspath(MODEL_WEIGHTS_DIR)
+    s += "\n" + _("Available detection models:")
     detection_model_names = get_available_detection_models()
     if len(detection_model_names) == 0:
         s += f"\n\t{_("None!")}"
@@ -129,7 +131,9 @@ def dump_available_detection_models():
     print(s)
 
 def dump_available_restoration_models():
-    s = _("Available restoration models:")
+    s = _("Model weights directory:")
+    s += "\n\t" + os.path.abspath(MODEL_WEIGHTS_DIR)
+    s += "\n" + _("Available restoration models:")
     restoration_model_names = get_available_restoration_models()
     if len(restoration_model_names) == 0:
         s += f"\n\t{_("None!")}"

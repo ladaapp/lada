@@ -288,6 +288,11 @@ class PreviewView(Gtk.Widget):
                 self.frame_restorer_options = self._frame_restorer_options.with_fp16(self._config.fp16_enabled)
         self._config.connect("notify::fp16-enabled", on_fp16_enabled)
 
+        def on_detect_face_mosaics(object, spec):
+            if self._frame_restorer_options:
+                self.frame_restorer_options = self._frame_restorer_options.with_detect_face_mosaics(self._config.detect_face_mosaics)
+        self._config.connect("notify::detect-face-mosaics", on_detect_face_mosaics)
+
     def set_speaker_icon(self, mute: bool):
         icon_name = "speaker-0-symbolic" if mute else "speaker-4-symbolic"
         self.button_image_mute_unmute.set_property("icon-name", icon_name)
@@ -432,7 +437,14 @@ class PreviewView(Gtk.Widget):
         assert not self._video_preview_init_done
         file_path = file.get_path()
         self.video_metadata = video_utils.get_video_meta_data(file_path)
-        self.frame_restorer_options = FrameRestorerOptions(self.config.mosaic_restoration_model, self.config.mosaic_detection_model, self.video_metadata, self.config.device, self.config.max_clip_duration, self.config.show_mosaic_detections, False, self.config.fp16_enabled)
+        self.frame_restorer_options = FrameRestorerOptions(self.config.mosaic_restoration_model,
+                                                           self.config.mosaic_detection_model, self.video_metadata,
+                                                           self.config.device,
+                                                           self.config.max_clip_duration,
+                                                           self.config.show_mosaic_detections,
+                                                           False,
+                                                           self.config.fp16_enabled,
+                                                           self.config.detect_face_mosaics)
         self.has_audio = audio_utils.get_audio_codec(self.video_metadata.video_file) is not None
         self.button_mute_unmute.set_sensitive(self.has_audio)
         self.set_speaker_icon(mute=not self.has_audio or self.config.mute_audio)

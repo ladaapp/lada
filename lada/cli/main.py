@@ -10,7 +10,7 @@ import textwrap
 
 import torch
 
-from lada import MODEL_WEIGHTS_DIR, VERSION
+from lada import VERSION, DETECTION_MODEL_NAMES_TO_FILES, RESTORATION_MODEL_NAMES_TO_FILES
 from lada.cli import utils
 from lada.utils import audio_utils
 from lada.utils.os_utils import gpu_has_tensor_cores
@@ -65,15 +65,15 @@ def setup_argparser() -> argparse.ArgumentParser:
     export.add_argument('--custom-encoder-options', type=str, help=_("Pass arbitrary encoder options. Pass it like you'd specify them using ffmpeg. For example: --custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\". Official FFmpeg Codecs Documentation: https://ffmpeg.org/ffmpeg-codecs.html"))
 
     group_restoration = parser.add_argument_group(_('Mosaic Restoration'))
-    group_restoration.add_argument('--mosaic-restoration-model', type=str, default="basicvsrpp", help=_("Model used to restore mosaic clips (default: %(default)s)"))
     group_restoration.add_argument('--list-mosaic-restoration-models', action='store_true', help=_("List available restoration models found in model weights directory and exit (default location is './model_weights' if not overwritten by environment variable LADA_MODEL_WEIGHTS_DIR)"))
-    group_restoration.add_argument('--mosaic-restoration-model-path', type=str, default=os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_restoration_model_generic_v1.2.pth'), help=_("Path to restoration model weights file (default: %(default)s)"))
+    group_restoration.add_argument('--mosaic-restoration-model', type=str, default='basicvsrpp-v1.2', help=_('Name of detection model or path to model weights file. Use "--list-mosaic-restoration-models" to see what\'s available. (default: %(default)s)'))
     group_restoration.add_argument('--mosaic-restoration-config-path', type=str, default=None, help=_("Path to restoration model configuration file. You'll not have to set this unless you're training your own custom models"))
     group_restoration.add_argument('--max-clip-length', type=int, default=180, help=_('Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint. If set too low flickering could appear (default: %(default)s)'))
 
     group_detection = parser.add_argument_group(_('Mosaic Detection'))
-    group_detection.add_argument('--mosaic-detection-model-path', type=str, default=os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v3.1_fast.pt'), help=_("Path to restoration model weights file (default: %(default)s)"))
+    group_detection.add_argument('--mosaic-detection-model', type=str, default='v3.1', help=_('Name of detection model or path to model weights file. Use "--list-mosaic-detection-models" to see what\'s available. (default: %(default)s)'))
     group_detection.add_argument('--list-mosaic-detection-models', action='store_true', help=_("List available detection models found in model weights directory and exit (default location is './model_weights' if not overwritten by environment variable LADA_MODEL_WEIGHTS_DIR)"))
+    group_detection.add_argument('--detect-face-mosaics', action=argparse.BooleanOptionalAction, default=False, help=_("Detect and ignore areas of pixelated faces. Prevents restoration artifacts if the source includes these types of mosaics. Available for models v3 and newer. (default: %(default)s)"))
 
     return parser
 
@@ -154,10 +154,28 @@ def main():
         print(_("Invalid input. No file or directory at {input_path}").format(input_path=args.input))
         sys.exit(1)
 
+    if args.mosaic_detection_model in utils.get_available_detection_models():
+        mosaic_detection_model_path = DETECTION_MODEL_NAMES_TO_FILES[args.mosaic_detection_model]
+    elif os.path.isfile(args.mosaic_detection_model):
+        mosaic_detection_model_path = args.mosaic_detection_model
+    else:
+        print(_("Invalid mosaic detection model"))
+        sys.exit(1)
+
+    if args.mosaic_restoration_model in utils.get_available_restoration_models():
+        mosaic_restoration_model_name = args.mosaic_restoration_model
+        mosaic_restoration_model_path = RESTORATION_MODEL_NAMES_TO_FILES[args.mosaic_restoration_model]
+    elif os.path.isfile(args.mosaic_restoration_model):
+        mosaic_restoration_model_path = args.mosaic_restoration_model
+        mosaic_restoration_model_name = 'basicvsrpp' # Assume custom model is basicvsrpp. DeepMosaics custom path is not supported
+    else:
+        print(_("Invalid mosaic restoration model"))
+        sys.exit(1)
+
     device = torch.device(args.device)
     mosaic_detection_model, mosaic_restoration_model, preferred_pad_mode = load_models(
-        device, args.mosaic_restoration_model, args.mosaic_restoration_model_path, args.mosaic_restoration_config_path,
-        args.mosaic_detection_model_path, args.fp16, args.max_clip_length
+        device, mosaic_restoration_model_name, mosaic_restoration_model_path, args.mosaic_restoration_config_path,
+        mosaic_detection_model_path, args.fp16, args.max_clip_length, args.detect_face_mosaics
     )
 
     input_files, output_files = utils.setup_input_and_output_paths(args.input, args.output, args.output_file_pattern)
@@ -169,7 +187,7 @@ def main():
             print(f"{os.path.basename(input_path)}:")
         try:
             process_video_file(input_path=input_path, output_path=output_path, temp_dir_path=args.temp_directory, device=device, mosaic_restoration_model=mosaic_restoration_model, mosaic_detection_model=mosaic_detection_model,
-                               mosaic_restoration_model_name=args.mosaic_restoration_model, preferred_pad_mode=preferred_pad_mode, max_clip_length=args.max_clip_length,
+                               mosaic_restoration_model_name=mosaic_restoration_model_name, preferred_pad_mode=preferred_pad_mode, max_clip_length=args.max_clip_length,
                                codec=args.codec, crf=args.crf, moov_front=args.moov_front, preset=args.preset, custom_encoder_options=args.custom_encoder_options)
         except KeyboardInterrupt:
             print(_("Received Ctrl-C, stopping restoration."))

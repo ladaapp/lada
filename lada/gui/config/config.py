@@ -49,6 +49,7 @@ class Config(GObject.Object):
         'seek_preview_enabled': True,
         'show_mosaic_detections': False,
         'temp_directory': tempfile.gettempdir(),
+        'detect_face_mosaics': False,
     }
 
     def __init__(self, style_manager: Adw.StyleManager):
@@ -72,6 +73,7 @@ class Config(GObject.Object):
         self._post_export_custom_command = self._defaults['post_export_custom_command']
         self._temp_directory = self._defaults['temp_directory']
         self._fp16_enabled = self._defaults['fp16_enabled']
+        self._detect_face_mosaics = self._defaults['detect_face_mosaics']
 
         self.save_lock = threading.Lock()
         self._style_manager = style_manager
@@ -288,6 +290,17 @@ class Config(GObject.Object):
         self._fp16_enabled = value
         self.save()
 
+    @GObject.Property()
+    def detect_face_mosaics(self):
+        return self._detect_face_mosaics
+
+    @detect_face_mosaics.setter
+    def detect_face_mosaics(self, value):
+        if value == self._detect_face_mosaics:
+            return
+        self._detect_face_mosaics = value
+        self.save()
+
     def save(self):
         self.save_lock.acquire_lock()
         config_file_path = self.get_config_file_path()
@@ -339,6 +352,7 @@ class Config(GObject.Object):
         self.show_mosaic_detections = self._defaults['show_mosaic_detections']
         self.temp_directory = self._defaults['temp_directory']
         self.validate_and_set_device(self._defaults['device'])
+        self.detect_face_mosaics = self._defaults['detect_face_mosaics']
         self.save()
 
     def _update_style(self, color_scheme: ColorScheme):
@@ -369,6 +383,7 @@ class Config(GObject.Object):
             'seek_preview_enabled': self._seek_preview_enabled,
             'show_mosaic_detections': self._show_mosaic_detections,
             'temp_directory': self._temp_directory,
+            'detect_face_mosaics': self._detect_face_mosaics,
         }
 
     def get_default_value(self, key):
@@ -397,10 +412,6 @@ class Config(GObject.Object):
                     self.validate_and_set_file_name_pattern(dict[key])
                 elif key == 'initial_view':
                     self.validate_and_set_initial_view(dict[key])
-                elif key == 'seek_preview_enabled':
-                    self._seek_preview_enabled = dict[key]
-                elif key == 'fp16_enabled':
-                    self._fp16_enabled = dict[key]
                 else:
                     setattr(self, f"_{key}", dict[key])
 

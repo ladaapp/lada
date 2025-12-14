@@ -57,6 +57,35 @@ def _init_translations():
     gettext.textdomain(DOMAIN)
     gettext.install(DOMAIN, LOCALE_DIR)
 
+def _add_custom_detection_models():
+    if not os.path.exists(MODEL_WEIGHTS_DIR):
+        return
+    well_known_models = [os.path.basename(path) for path in DETECTION_MODEL_FILES_TO_NAMES.keys()]
+    for filename in os.listdir(MODEL_WEIGHTS_DIR):
+        if filename.endswith('.pt') and filename.startswith('lada_mosaic_detection_model_') and filename not in well_known_models:
+            model_name = os.path.splitext(filename)[0].split("lada_mosaic_detection_model_")[1]
+            if len(model_name) == 0:
+                continue
+            model_path = os.path.join(MODEL_WEIGHTS_DIR, filename)
+            DETECTION_MODEL_FILES_TO_NAMES[model_path] = model_name
+            DETECTION_MODEL_NAMES_TO_FILES[model_name] = model_path
+
+def _add_custom_restoration_models():
+    if not os.path.exists(MODEL_WEIGHTS_DIR):
+        return
+    well_known_models = [os.path.basename(path) for path in RESTORATION_MODEL_FILES_TO_NAMES.keys()]
+    for filename in os.listdir(MODEL_WEIGHTS_DIR):
+        if filename.endswith('.pth') and filename.startswith('lada_mosaic_restoration_model_') and filename not in well_known_models:
+            model_name = os.path.splitext(filename)[0].split("lada_mosaic_restoration_model_")[1]
+            if len(model_name) == 0:
+                continue
+            if not model_name.startswith("deepmosaics") and "deepmosaics" in model_name:
+                model_name = f"deepmosaics-{model_name}"
+            elif not model_name.startswith("basicvsrpp"):
+                model_name = f"basicvsrpp-{model_name}"
+            model_path = os.path.join(MODEL_WEIGHTS_DIR, filename)
+            RESTORATION_MODEL_FILES_TO_NAMES[model_path] = model_name
+            RESTORATION_MODEL_NAMES_TO_FILES[model_name] = model_path
 
 def get_available_restoration_models():
   available_models = []
@@ -74,3 +103,5 @@ def get_available_detection_models():
   return available_models
 
 _init_translations()
+_add_custom_detection_models()
+_add_custom_restoration_models()

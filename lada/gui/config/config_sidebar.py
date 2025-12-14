@@ -47,6 +47,7 @@ class ConfigSidebar(Gtk.Box):
     check_button_show_mosaic_detections: Gtk.CheckButton = Gtk.Template.Child()
     switch_row_seek_preview = Gtk.Template.Child()
     switch_row_fp16: Adw.SwitchRow = Gtk.Template.Child()
+    switch_row_detect_faces = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -107,6 +108,8 @@ class ConfigSidebar(Gtk.Box):
 
         self.switch_row_seek_preview.set_active(config.seek_preview_enabled)
         self.switch_row_fp16.set_active(config.fp16_enabled)
+        self.switch_row_detect_faces.set_active(config.detect_face_mosaics)
+        self.switch_row_detect_faces.set_visible(config.mosaic_detection_model != 'v2')
 
         # init color scheme
         if config.color_scheme == ColorScheme.LIGHT: self.light_color_scheme_button.set_property("active", True)
@@ -183,6 +186,7 @@ class ConfigSidebar(Gtk.Box):
     @skip_if_uninitialized
     def combo_row_mosaic_detection_models_selected_callback(self, combo_row, value):
         self._config.mosaic_detection_model = combo_row.get_property("selected_item").get_string()
+        self.switch_row_detect_faces.set_visible(self._config.mosaic_detection_model != 'v2')
 
     @Gtk.Template.Callback()
     @skip_if_uninitialized
@@ -334,6 +338,11 @@ class ConfigSidebar(Gtk.Box):
     @skip_if_uninitialized
     def switch_row_fp16_active_callback(self, switch_row, active):
         self._config.fp16_enabled = switch_row.get_property("active")
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def switch_row_detect_face_mosaics_callback(self, switch_row, active):
+        self._config.detect_face_mosaics = switch_row.get_property("active")
 
     def set_file_name_pattern_row_styles(self):
         is_valid = validate_file_name_pattern(self.entry_row_file_name_pattern.get_text())

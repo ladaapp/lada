@@ -43,6 +43,13 @@ SPDX-License-Identifier: AGPL-3.0
                                     </object>
                                 </child>
                                 <child>
+                                    <object class="AdwSwitchRow" id="switch_row_detect_faces">
+                                        <property name="title" translatable="true">Detect face mosaics</property>
+                                        <property name="subtitle" translatable="true">Detect and ignore areas of pixelated faces. Prevents restoration artifacts if the source includes these types of mosaics.</property>
+                                        <signal name="notify::active" handler="switch_row_detect_face_mosaics_callback"/>
+                                    </object>
+                                </child>
+                                <child>
                                     <object class="AdwSpinRow" id="spin_row_clip_max_duration">
                                         <property name="title" translatable="true">Maximum clip duration</property>
                                         <property name="subtitle" translatable="true">Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint.</property>
