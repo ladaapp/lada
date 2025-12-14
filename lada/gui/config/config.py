@@ -40,7 +40,7 @@ class Config(GObject.Object):
         'fp16_enabled': os_utils.gpu_has_tensor_cores(),
         'initial_view': 'preview',
         'max_clip_duration': 180,
-        'mosaic_detection_model': 'v3.1-fast',
+        'mosaic_detection_model': 'v4-fast',
         'mosaic_restoration_model': 'basicvsrpp-v1.2',
         'mute_audio': False,
         'post_export_action': PostExportAction.NONE,
