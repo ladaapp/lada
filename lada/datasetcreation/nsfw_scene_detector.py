@@ -400,7 +400,7 @@ class NsfwDetector:
             print(f"{file_index}, Skipping {file_name}: Unsupported file format")
             return None
         video_metadata = video_utils.get_video_meta_data(file_path)
-        if max(video_metadata.video_width, video_metadata.video_height) > 2_000:
+        if self.file_processing_options.skip4k and max(video_metadata.video_width, video_metadata.video_height) > 2_000:
             print(f"{file_index}, Skipping {file_name}: 4K")
             return None
         scene_max_length = determine_max_scene_length (video_metadata, self.file_processing_options.scene_max_length, self.file_processing_options.scene_max_memory)
