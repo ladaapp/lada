@@ -97,6 +97,7 @@ def process_video_file(input_path: str, output_path: str, temp_dir_path: str, de
             for elem in frame_restorer_progressbar:
                 if elem is None:
                     success = False
+                    frame_restorer_progressbar.error = True
                     print("Error on export: frame restorer stopped prematurely")
                     break
                 (restored_frame, restored_frame_pts) = elem
