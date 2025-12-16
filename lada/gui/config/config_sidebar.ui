@@ -301,6 +301,7 @@ SPDX-License-Identifier: AGPL-3.0
                                                 <property name="sensitive">True</property>
                                                 <property name="tooltip-text" translatable="true">Follow System style</property>
                                                 <property name="icon-name">color-scheme-system</property>
+                                                <property name="valign">center</property>
                                                 <signal name="clicked" handler="toggle_button_system_color_scheme_callback"/>
                                                 <style>
                                                     <class name="flat"/>
@@ -313,6 +314,7 @@ SPDX-License-Identifier: AGPL-3.0
                                                 <property name="group">system_color_scheme_button</property>
                                                 <property name="tooltip-text" translatable="true">Light style</property>
                                                 <property name="icon-name">color-scheme-light</property>
+                                                <property name="valign">center</property>
                                                 <signal name="clicked" handler="toggle_button_light_color_scheme_callback"/>
                                                 <style>
                                                     <class name="flat"/>
@@ -325,6 +327,7 @@ SPDX-License-Identifier: AGPL-3.0
                                                 <property name="group">system_color_scheme_button</property>
                                                 <property name="tooltip-text" translatable="true">Dark style</property>
                                                 <property name="icon-name">color-scheme-dark</property>
+                                                <property name="valign">center</property>
                                                 <signal name="clicked" handler="toggle_button_dark_color_scheme_callback"/>
                                                 <style>
                                                     <class name="flat"/>
@@ -340,6 +343,7 @@ SPDX-License-Identifier: AGPL-3.0
                                         <child>
                                             <object class="GtkToggleButton" id="toggle_button_initial_view_preview">
                                                 <property name="sensitive">True</property>
+                                                <property name="valign">center</property>
                                                 <property name="child">
                                                     <object class="AdwButtonContent">
                                                         <property name="icon-name">playback-symbolic</property>
@@ -355,6 +359,7 @@ SPDX-License-Identifier: AGPL-3.0
                                         <child>
                                             <object class="GtkToggleButton" id="toggle_button_initial_view_export">
                                                 <property name="group">toggle_button_initial_view_preview</property>
+                                                <property name="valign">center</property>
                                                 <property name="child">
                                                     <object class="AdwButtonContent">
                                                         <property name="icon-name">arrow-pointing-away-from-line-right-symbolic</property>
