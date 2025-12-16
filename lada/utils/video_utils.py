@@ -4,13 +4,13 @@
 import json
 import logging
 import os
-import re
 import subprocess
 from contextlib import contextmanager
 from fractions import Fraction
 from typing import Callable, Iterator, Tuple
 from collections import deque
 import heapq
+import shlex
 
 import av
 import cv2
@@ -233,16 +233,13 @@ def approx_max_length_by_memory_limit(video_metadata: VideoMetadata, limit_in_me
     return max_length_seconds
 
 class VideoWriter:
-    def parse_custom_options(self, custom_encoder_options):
-        # squeeze spaces
-        custom_encoder_options = ' '.join(custom_encoder_options.split())
-        regex = re.compile(r"-(\w+ \w+)")
-        matches = regex.findall(custom_encoder_options)
-        encoder_options = {}
-        for match in matches:
-            option, value = match.split()
-            encoder_options[option] = value
-        return encoder_options
+    def _parse_encoder_options(self, encoder_options: str):
+        tokens = shlex.split(encoder_options)
+        parsed_encoder_options = {
+            tokens[i].lstrip("-"): tokens[i + 1]
+            for i in range(0, len(tokens), 2)
+        }
+        return parsed_encoder_options
 
     def get_default_encoder_options(self):
         libx264 = {
@@ -279,7 +276,7 @@ class VideoWriter:
             encoder_options['preset'] = preset
 
         if custom_encoder_options:
-            encoder_options.update(self.parse_custom_options(custom_encoder_options))
+            encoder_options.update(self._parse_encoder_options(custom_encoder_options))
 
         output_container = av.open(output_path, "w", options=container_options)
         video_stream_out: av.VideoStream = output_container.add_stream(codec, fps)
