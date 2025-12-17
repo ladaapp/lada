@@ -131,6 +131,7 @@ SPDX-License-Identifier: AGPL-3.0
                                 <property name="visible" bind-source="ConfigSidebar" bind-property="show-export-section"/>
                                 <child>
                                     <object class="AdwComboRow" id="combo_row_export_codec">
+                                        <property name="visible">false</property>
                                         <property name="title" translatable="true">Codec</property>
                                         <property name="subtitle" translatable="true">Video Codec used for encoding the restored video.</property>
                                         <signal name="notify::selected"
@@ -143,34 +144,21 @@ SPDX-License-Identifier: AGPL-3.0
                                     </object>
                                 </child>
                                 <child>
-                                    <object class="AdwSpinRow" id="spin_row_export_crf">
-                                        <property name="title" translatable="true">CRF (Constant Rate Factor)</property>
-                                        <property name="subtitle" translatable="true">Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes.</property>
-                                        <property name="adjustment">
-                                            <object class="GtkAdjustment">
-                                                <property name="lower">0</property>
-                                                <property name="upper">40</property>
-                                                <property name="step-increment">1</property>
-                                            </object>
-                                        </property>
-                                        <signal name="notify::value"
-                                                handler="spin_row_preview_export_crf_selected_callback"/>
-                                    </object>
-                                </child>
-                                <child>
-                                    <object class="AdwEntryRow" id="entry_row_custom_ffmpeg_encoder_options">
-                                        <property name="title" translatable="true">Custom FFmpeg encoder options (Optional).&#xA;Example: &lt;span background=&quot;#D3D3D350&quot;&gt;&lt;tt&gt;-rc-lookahead 32 -rc vbr_hq&lt;/tt&gt;&lt;/span&gt;</property>
-                                        <property name="tooltip-text" translatable="true">FFmpeg Codecs Documentation:&#xA;https://ffmpeg.org/ffmpeg-codecs.html</property>
-                                        <signal name="changed" handler="entry_row_custom_ffmpeg_encoder_options_changed_callback"/>
-                                    </object>
-                                </child>
-                                <child>
-                                    <object class="AdwExpanderRow">
-                                        <property name="title" translatable="true">Output Directory</property>
+                                    <object class="AdwExpanderRow" id="expander_row_encoding_presets">
+                                        <property name="title" translatable="true">Encoding Preset</property>
                                         <property name="show-enable-switch">false</property>
-                                        <property name="expanded">true</property>
+                                        <property name="expanded">false</property>
+                                    </object>
+                                </child>
+
+                                <child>
+                                    <object class="AdwExpanderRow" id="expander_row_export_directory">
+                                        <property name="title" translatable="true">Output Directory</property>
+                                        <property name="tooltip-text" translatable="true">Directory where restored files will be saved</property>
+                                        <property name="show-enable-switch">false</property>
+                                        <property name="expanded">false</property>
                                         <child>
-                                            <object class="AdwActionRow">
+                                            <object class="AdwActionRow" id="action_row_export_directory_alwaysask">
                                                 <property name="title" translatable="true">Always ask</property>
                                                 <child type="prefix">
                                                     <object class="GtkCheckButton" id="check_button_export_directory_alwaysask">

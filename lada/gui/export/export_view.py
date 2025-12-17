@@ -430,12 +430,12 @@ class ExportView(Gtk.Widget):
                 else:
                     start_ns = 0
                     start_frame_num = 0
+                    preset = utils.get_selected_preset(self.config)
                     self.video_writer = video_utils.VideoWriter(
                         video_tmp_file_output_path, video_metadata.video_width,
                         video_metadata.video_height, video_metadata.video_fps_exact,
-                        self._config.export_codec, time_base=video_metadata.time_base,
-                        crf=self._config.export_crf, custom_encoder_options=self._config.custom_ffmpeg_encoder_options,
-                        mp4_fast_start=self._config.mp4_fast_start)
+                        encoder=preset.encoder_name, encoder_options=preset.encoder_options,
+                        time_base=video_metadata.time_base, mp4_fast_start=self._config.mp4_fast_start)
                     self.progress_calculator = export_utils.ProgressCalculator(video_metadata)
 
                 frame_restorer.start(start_ns=start_ns)

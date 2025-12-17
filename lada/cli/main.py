@@ -12,7 +12,7 @@ import torch
 
 from lada import VERSION, DETECTION_MODEL_NAMES_TO_FILES, RESTORATION_MODEL_NAMES_TO_FILES
 from lada.cli import utils
-from lada.utils import audio_utils
+from lada.utils import audio_utils, video_utils
 from lada.utils.os_utils import gpu_has_tensor_cores
 from lada.restorationpipeline.frame_restorer import FrameRestorer
 from lada.restorationpipeline import load_models
@@ -27,8 +27,11 @@ def setup_argparser() -> argparse.ArgumentParser:
     example2_text = _("Restore all videos found in the specified directory and save them to a different folder:")
     example2_command = _("%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/")
 
-    example3_text = _("Use a GPU-accelerated codec for encoding the restored video:")
-    example3_command = _("%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20")
+    example3_text = _("Use Nvidia hardware-accelerated encoder by selecting a preset:")
+    example3_command = _("%(prog)s --input input.mp4 --encoding-preset hevc-nvidia-gpu-hq")
+
+    example4_text = _("Set encoding parameters directly without using an encoding preset:")
+    example4_command = _("%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 -preset fast -x265-params log_level=error'")
 
     parser = argparse.ArgumentParser(
         usage=_('%(prog)s [options]'),
@@ -41,6 +44,8 @@ def setup_argparser() -> argparse.ArgumentParser:
                      {example2_command}
                 * {example3_text}
                     {example3_command}
+                * {example4_text}
+                    {example4_command}
             ''')),
         formatter_class=utils.TranslatableHelpFormatter,
         add_help=False)
@@ -56,13 +61,14 @@ def setup_argparser() -> argparse.ArgumentParser:
     group_general.add_argument('--version', action='store_true', help=_("Display version and exit"))
     group_general.add_argument('--help', action='store_true', help=_("Show this help message and exit"))
 
-    export = parser.add_argument_group(_('Export (Encoder settings)'))
-    export.add_argument('--codec', type=str, default="h264", help=_('FFmpeg video codec. E.g. "h264, "hevc" or "hevc_nvenc". Use "--list-codecs" to see what\'s available. (default: %(default)s)'))
-    export.add_argument('--list-codecs', action='store_true', help=_("List available codecs and hardware devices / GPUs for hardware-accelerated video encoding"))
-    export.add_argument('--crf', type=int, default=None, help=_('Constant rate factor (CRF). Quality setting of the video encoder. Lower values will result in higher quality but larger file sizes. If you have selected GPU codecs "h264_nvenc" or "hevc_nvenc" then the option "qp" will be used instead as those encoders don\'t support the "crf" option. (default: %(default)s)'))
-    export.add_argument('--preset', type=str, default=None, help=_('Encoder preset. Mostly affects file-size and speed. (default: %(default)s)'))
-    export.add_argument('--mp4-fast-start',  default=False, action=argparse.BooleanOptionalAction, help=_("Allows playing the file while it's being written. Sets .mp4 mov flags 'frag_keyframe+empty_moov+faststart'. (default: %(default)s)"))
-    export.add_argument('--custom-encoder-options', type=str, help=_("Pass arbitrary encoder options. Pass it like you'd specify them using ffmpeg. For example: --custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\". Official FFmpeg Codecs Documentation: https://ffmpeg.org/ffmpeg-codecs.html"))
+    export = parser.add_argument_group(_('Export'))
+    export.add_argument('--encoding-preset', type=str, default="h264-cpu-hq", help=_('Select encoding preset by name. Ignored if "--encoder" and "--encoder-options" are used. (default: %(default)s)'))
+    export.add_argument('--list-encoding-presets', action='store_true', help=_("List available encoding presets and exit"))
+    export.add_argument('--encoder', type=str, help=_('Select video encoder by name. Use "--list-encoders" to see what\'s available. (default: %(default)s)'))
+    export.add_argument('--list-encoders', action='store_true', help=_("List available encoders and exit"))
+    export.add_argument('--encoder-options', type=str, help=_("Space-separated list of options for the encoder set via \"--encoder\". Use \"--list-encoder-options\" to see what's available. (default: %(default)s)"))
+    export.add_argument('--list-encoder-options', metavar='ENCODER', type=str, help=_("List available options of the given encoder and exit"))
+    export.add_argument('--mp4-fast-start',  default=False, action=argparse.BooleanOptionalAction, help=_("Allows playing the file while it's being written. Sets .mp4 mov flags \"frag_keyframe+empty_moov+faststart\". (default: %(default)s)"))
 
     group_restoration = parser.add_argument_group(_('Mosaic Restoration'))
     group_restoration.add_argument('--list-mosaic-restoration-models', action='store_true', help=_("List available restoration models found in model weights directory and exit (default location is './model_weights' if not overwritten by environment variable LADA_MODEL_WEIGHTS_DIR)"))
@@ -78,7 +84,7 @@ def setup_argparser() -> argparse.ArgumentParser:
     return parser
 
 def process_video_file(input_path: str, output_path: str, temp_dir_path: str, device: torch.device, mosaic_restoration_model, mosaic_detection_model,
-                       mosaic_restoration_model_name, preferred_pad_mode, max_clip_length, codec, crf, mp4_fast_start, preset, custom_encoder_options):
+                       mosaic_restoration_model_name, preferred_pad_mode, max_clip_length, encoder: str, encoder_options: str, mp4_fast_start):
     video_metadata = get_video_meta_data(input_path)
 
     frame_restorer = FrameRestorer(device, input_path, max_clip_length, mosaic_restoration_model_name,
@@ -90,9 +96,8 @@ def process_video_file(input_path: str, output_path: str, temp_dir_path: str, de
         frame_restorer.start()
 
         with VideoWriter(video_tmp_file_output_path, video_metadata.video_width, video_metadata.video_height,
-                         video_metadata.video_fps_exact, codec=codec, crf=crf, mp4_fast_start=mp4_fast_start,
-                         time_base=video_metadata.time_base, preset=preset,
-                         custom_encoder_options=custom_encoder_options) as video_writer:
+                         video_metadata.video_fps_exact, encoder=encoder, encoder_options=encoder_options,
+                         time_base=video_metadata.time_base, mp4_fast_start=mp4_fast_start) as video_writer:
             frame_restorer_progressbar = utils.Progressbar(video_metadata, frame_restorer)
             for elem in frame_restorer_progressbar:
                 if elem is None:
@@ -126,8 +131,8 @@ def main():
     if args.version:
         print("Lada: ", VERSION)
         sys.exit(0)
-    if args.list_codecs:
-        utils.dump_pyav_codecs()
+    if args.list_encoders:
+        utils.dump_encoders()
         sys.exit(0)
     if args.list_mosaic_detection_models:
         utils.dump_available_detection_models()
@@ -137,6 +142,12 @@ def main():
         sys.exit(0)
     if args.list_devices:
         utils.dump_torch_devices()
+        sys.exit(0)
+    if args.list_encoding_presets:
+        utils.dump_available_encoding_presets()
+        sys.exit(0)
+    if args.list_encoder_options:
+        utils.dump_encoder_options(args.list_encoder_options)
         sys.exit(0)
     if args.help or not args.input:
         argparser.print_help()
@@ -172,6 +183,28 @@ def main():
         print(_("Invalid mosaic restoration model"))
         sys.exit(1)
 
+    encoder = None
+    encoder_options = None
+    if args.encoder:
+        encoder = args.encoder
+        encoder_options = args.encoder_options if args.encoder_options else ''
+    elif args.encoding_preset:
+        encoding_presets = video_utils.get_encoding_presets()
+        found = False
+        for preset in encoding_presets:
+            if preset.name == args.encoding_preset:
+                found = True
+                encoder = preset.encoder_name
+                encoder_options = preset.encoder_options
+                break
+        if not found:
+            print(_("Invalid encoding preset"))
+            sys.exit(1)
+    else:
+        print(_('Either "--encoding-preset" or "--encoder" together with "--encoding-options" must be used'))
+        sys.exit(1)
+    assert encoder is not None and encoder_options is not None
+
     device = torch.device(args.device)
     mosaic_detection_model, mosaic_restoration_model, preferred_pad_mode = load_models(
         device, mosaic_restoration_model_name, mosaic_restoration_model_path, args.mosaic_restoration_config_path,
@@ -188,7 +221,7 @@ def main():
         try:
             process_video_file(input_path=input_path, output_path=output_path, temp_dir_path=args.temp_directory, device=device, mosaic_restoration_model=mosaic_restoration_model, mosaic_detection_model=mosaic_detection_model,
                                mosaic_restoration_model_name=mosaic_restoration_model_name, preferred_pad_mode=preferred_pad_mode, max_clip_length=args.max_clip_length,
-                               codec=args.codec, crf=args.crf, mp4_fast_start=args.mp4_fast_start, preset=args.preset, custom_encoder_options=args.custom_encoder_options)
+                               encoder=encoder, encoder_options=encoder_options, mp4_fast_start=args.mp4_fast_start)
         except KeyboardInterrupt:
             print(_("Received Ctrl-C, stopping restoration."))
             break

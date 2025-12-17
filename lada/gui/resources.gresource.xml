@@ -25,6 +25,7 @@ SPDX-License-Identifier: AGPL-3.0
         <file alias="exclamation-mark-symbolic.svg">icons/exclamation-mark-symbolic.svg</file>
         <file alias="cross-large-symbolic.svg">icons/cross-large-symbolic.svg</file>
         <file alias="pause-large-symbolic.svg">icons/pause-large-symbolic.svg</file>
+        <file alias="edit-symbolic.svg">icons/edit-symbolic.svg</file>
     </gresource>
     <gresource prefix="/io/github/ladaapp/lada/icons/128x128">
         <file alias="lada-logo-gray.png">icons/lada-logo-gray.png</file>

@@ -5,6 +5,7 @@ import argparse
 import mimetypes
 import os
 import pathlib
+import subprocess
 import sys
 import time
 
@@ -15,7 +16,7 @@ from tqdm import tqdm
 from lada import DETECTION_MODEL_NAMES_TO_FILES, RESTORATION_MODEL_NAMES_TO_FILES, \
     get_available_restoration_models, get_available_detection_models, DETECTION_MODEL_FILES_TO_NAMES, \
     RESTORATION_MODEL_FILES_TO_NAMES, MODEL_WEIGHTS_DIR
-from lada.utils import VideoMetadata
+from lada.utils import VideoMetadata, video_utils
 from lada.restorationpipeline.frame_restorer import FrameRestorer
 
 def _filter_video_files(directory_path: str):
@@ -74,28 +75,25 @@ def setup_input_and_output_paths(input_arg, output_arg, output_file_pattern):
 
     return input_files, output_files
 
-def dump_pyav_codecs():
-    print(_("PyAV version:"))
-    print(f"\t{av.__version__}")
-
-    from lada.utils.video_utils import get_available_video_encoder_codecs
-    print(_("Available video encoders:"))
-    for short_name, long_name in get_available_video_encoder_codecs():
-        print("\t%-18s %s" % (short_name, long_name))
-
-    try:
-        from av.codec.hwaccel import hwdevices_available
-        print(_("Encoders with support for hardware acceleration (GPU):"))
-        for x in hwdevices_available():
-            print(f"\t{x}")
-    except ImportError:
-        print("Unable to list available hwdevices, ImportError")
-
-    try:
-        from av.codec.codec import dump_hwconfigs
-        dump_hwconfigs()
-    except ImportError:
-        print("Unable to list hwdevice configs, ImportError")
+def dump_encoders():
+    from lada.utils.video_utils import get_video_encoder_codecs
+    encoders = get_video_encoder_codecs()
+    is_hardware_accelerated = _("Yes")
+    name_header = _("Name")
+    description_header = _("Description")
+    hardware_header = _("Hardware-accelerated")
+    devices_header = _("Hardware devices")
+    name_column_width = max([len(e.name) for e in encoders] + [len(name_header)])
+    description_column_width = max([len(e.long_name) for e in encoders] + [len(description_header)])
+    hardware_column_width = max([len(is_hardware_accelerated), len(hardware_header)])
+    devices_column_width = max([len(e.hardware_devices) for e in encoders] + [len(devices_header)])
+    s = _("Available video encoders:")
+    s += f"\n\t{name_header.ljust(name_column_width)}\t{description_header.ljust(description_column_width)}\t{hardware_header.ljust(hardware_column_width)}\t{devices_header}"
+    s += f"\n\t{name_column_width*"-"}\t{description_column_width*"-"}\t{hardware_column_width*"-"}\t{devices_column_width*"-"}"
+    for e in encoders:
+        hardware = is_hardware_accelerated if e.hardware_encoder else ""
+        s += f"\n\t{e.name.ljust(name_column_width)}\t{e.long_name.ljust(description_column_width)}\t{hardware.ljust(hardware_column_width)}\t{e.hardware_devices if len(e.hardware_devices) > 0 else ''}"
+    print(s)
 
 def dump_torch_devices():
     cuda_device_count = torch.cuda.device_count()
@@ -122,12 +120,12 @@ def dump_available_detection_models():
     else:
         model_name_header = _("Name")
         model_path_header = _("Path")
-        model_name_column_with = max([len(item) for item in detection_model_names + [model_name_header]])
-        model_path_column_with = max([len(item) for item in list(DETECTION_MODEL_FILES_TO_NAMES.keys()) + [model_path_header]])
-        s += f"\n\t{model_name_header.ljust(model_name_column_with)}\t{model_path_header}"
-        s += f"\n\t{model_name_column_with * "-"}\t{model_path_column_with * "-"}"
+        model_name_column_width = max([len(item) for item in detection_model_names + [model_name_header]])
+        model_path_column_width = max([len(item) for item in list(DETECTION_MODEL_FILES_TO_NAMES.keys()) + [model_path_header]])
+        s += f"\n\t{model_name_header.ljust(model_name_column_width)}\t{model_path_header}"
+        s += f"\n\t{model_name_column_width * "-"}\t{model_path_column_width * "-"}"
         for name in detection_model_names:
-            s += f"\n\t{name.ljust(model_name_column_with)}\t{DETECTION_MODEL_NAMES_TO_FILES[name]}"
+            s += f"\n\t{name.ljust(model_name_column_width)}\t{DETECTION_MODEL_NAMES_TO_FILES[name]}"
     print(s)
 
 def dump_available_restoration_models():
@@ -140,13 +138,44 @@ def dump_available_restoration_models():
     else:
         model_name_header = _("Name")
         model_path_header = _("Path")
-        model_name_column_with = max([len(item) for item in restoration_model_names + [model_name_header]])
-        model_path_column_with = max([len(item) for item in list(RESTORATION_MODEL_FILES_TO_NAMES.keys()) + [model_path_header]])
-        s += f"\n\t{model_name_header.ljust(model_name_column_with)}\t{model_path_header}"
-        s += f"\n\t{model_name_column_with * "-"}\t{model_path_column_with * "-"}"
+        model_name_column_width = max([len(item) for item in restoration_model_names + [model_name_header]])
+        model_path_column_width = max([len(item) for item in list(RESTORATION_MODEL_FILES_TO_NAMES.keys()) + [model_path_header]])
+        s += f"\n\t{model_name_header.ljust(model_name_column_width)}\t{model_path_header}"
+        s += f"\n\t{model_name_column_width * "-"}\t{model_path_column_width * "-"}"
         for name in restoration_model_names:
-            s += f"\n\t{name.ljust(model_name_column_with)}\t{RESTORATION_MODEL_NAMES_TO_FILES[name]}"
+            s += f"\n\t{name.ljust(model_name_column_width)}\t{RESTORATION_MODEL_NAMES_TO_FILES[name]}"
     print(s)
+
+def dump_available_encoding_presets(show_encoder_details=False):
+    s = _("Available encoding presets:")
+    encoding_presets = video_utils.get_encoding_presets()
+    if len(encoding_presets) == 0:
+        s += f"\n\t{_("None!")}"
+    else:
+        preset_name_header = _("Name")
+        preset_description_header = _("Description")
+        encoder_name_header = _("Encoder Name")
+        encoder_options_header = _("Encoder Options")
+        preset_name_column_width = max([len(preset.name) for preset in encoding_presets] + [len(preset_name_header)])
+        preset_description_column_width = max([len(preset.description) for preset in encoding_presets] + [len(preset_description_header)])
+        encoder_name_column_width = max([len(preset.encoder_name) for preset in encoding_presets] + [len(encoder_name_header)])
+        encoder_options_column_width = max([len(preset.encoder_options) for preset in encoding_presets] + [len(encoder_options_header)])
+        if show_encoder_details:
+            s += f"\n\t{preset_name_header.ljust(preset_name_column_width)}\t{preset_description_header.ljust(preset_description_column_width)}\t{encoder_name_header.ljust(encoder_name_column_width)}\t{encoder_options_header}"
+            s += f"\n\t{preset_name_column_width * "-"}\t{preset_description_column_width * "-"}\t{encoder_name_column_width * "-"}\t{encoder_options_column_width * "-"}"
+            for preset in encoding_presets:
+                s += f"\n\t{preset.name.ljust(preset_name_column_width)}\t{preset.description.ljust(preset_description_column_width)}\t{preset.encoder_name.ljust(encoder_name_column_width)}\t{preset.encoder_options}"
+        else:
+            s += f"\n\t{preset_name_header.ljust(preset_name_column_width)}\t{preset_description_header}"
+            s += f"\n\t{preset_name_column_width * "-"}\t{preset_description_column_width * "-"}"
+            for preset in encoding_presets:
+                s += f"\n\t{preset.name.ljust(preset_name_column_width)}\t{preset.description.ljust(preset_description_column_width)}"
+    print(s)
+
+def dump_encoder_options(encoder: str):
+    result = subprocess.run(["ffmpeg", "-loglevel", "quiet", "-h", f"encoder={encoder}"], capture_output=True, text=True)
+    text = result.stdout.strip().replace("Exiting with exit code 0", "").strip()
+    print(text)
 
 class TranslatableHelpFormatter(argparse.RawDescriptionHelpFormatter):
     def __init__(self, *args, **kwargs):

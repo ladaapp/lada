@@ -1,12 +1,16 @@
 # SPDX-FileCopyrightText: Lada Authors
 # SPDX-License-Identifier: AGPL-3.0
-
+import csv
+import dataclasses
 import json
 import logging
 import os
+import re
 import subprocess
 from contextlib import contextmanager
+from dataclasses import dataclass
 from fractions import Fraction
+from functools import cache
 from typing import Callable, Iterator, Tuple
 from collections import deque
 import heapq
@@ -232,6 +236,32 @@ def approx_max_length_by_memory_limit(video_metadata: VideoMetadata, limit_in_me
     max_length_seconds = int(max_length_frames / video_metadata.video_fps)
     return max_length_seconds
 
+@dataclass
+class EncodingPreset:
+    name: str
+    description: str
+    user_preset: bool
+    encoder_name: str
+    encoder_options: str
+
+    def __hash__(self): return hash(self.name)
+
+    def clone(self): return EncodingPreset(**dataclasses.asdict(self))
+
+@cache
+def get_encoding_presets() -> list[EncodingPreset]:
+    presets = []
+    encoding_presets_csv_path = os.path.join(os.path.dirname(__file__), 'encoding_presets.csv')
+    if not os.path.exists(encoding_presets_csv_path):
+        logger.warning("Could not find encoding_presets.csv!")
+        return presets
+    with open(encoding_presets_csv_path, mode='r', newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile, delimiter='|')
+        for row in reader:
+            preset = EncodingPreset(row["preset_name"], row["preset_description(translatable)"], False, row["encoder_name"], row["encoder_options"])
+            presets.append(preset)
+        return presets
+
 class VideoWriter:
     def _parse_encoder_options(self, encoder_options: str):
         tokens = shlex.split(encoder_options)
@@ -241,45 +271,13 @@ class VideoWriter:
         }
         return parsed_encoder_options
 
-    def get_default_encoder_options(self):
-        libx264 = {
-            'preset': 'medium',
-            'crf': '20'
-        }
-        libx265 = {
-            'preset': 'medium',
-            'crf': '23',
-            'x265-params': 'log_level=error'
-        }
-        encoder_defaults = {}
-        encoder_defaults['libx264'] = libx264
-        encoder_defaults['h264'] = libx264
-        encoder_defaults['libx265'] = libx265
-        encoder_defaults['hevc'] = libx265
-        return encoder_defaults
-
-    def __init__(self, output_path, width, height, fps, codec, crf=None, preset=None, time_base=None, mp4_fast_start=False, custom_encoder_options=None):
+    def __init__(self, output_path, width, height, fps, encoder: str, encoder_options: str, time_base=None, mp4_fast_start=False):
+        container_options = {}
         if mp4_fast_start and (output_path.lower().endswith(".mp4") or output_path.lower().endswith(".mov")):
-            container_options = {"movflags": "+frag_keyframe+empty_moov+faststart"}
-        else:
-            container_options = {}
-        encoder_defaults = self.get_default_encoder_options()
-        encoder_options = encoder_defaults.get(codec, {})
-
-        if crf is not None:
-            if codec in ('hevc_nvenc', 'h264_nvenc'):
-                encoder_options['rc'] = 'constqp'
-                encoder_options['qp'] = str(crf)
-            else:
-                encoder_options['crf'] = str(crf)
-        if preset:
-            encoder_options['preset'] = preset
-
-        if custom_encoder_options:
-            encoder_options.update(self._parse_encoder_options(custom_encoder_options))
+            container_options["movflags"] = "+frag_keyframe+empty_moov+faststart"
 
         output_container = av.open(output_path, "w", options=container_options)
-        video_stream_out: av.VideoStream = output_container.add_stream(codec, fps)
+        video_stream_out: av.VideoStream = output_container.add_stream(encoder, fps)
 
         video_stream_out.width = width
         video_stream_out.height = height
@@ -294,7 +292,7 @@ class VideoWriter:
         video_stream_out.codec_context.thread_type = 3
         video_stream_out.codec_context.time_base = time_base
 
-        video_stream_out.options = encoder_options
+        video_stream_out.options = self._parse_encoder_options(encoder_options)
         self.output_container = output_container
         self.video_stream = video_stream_out
 
@@ -361,18 +359,34 @@ def is_video_file(file_path):
     file_ext = os.path.splitext(file_path)[1]
     return file_ext.lower() in SUPPORTED_VIDEO_FILE_EXTENSIONS
 
-def get_available_video_encoder_codecs():
+@dataclass
+class Encoder:
+    name: str
+    long_name: str
+    hardware_encoder: bool
+    hardware_devices: set[str]
+
+    def __hash__(self): return hash(self.name)
+
+def get_video_encoder_codecs() -> list[Encoder]:
     codecs = set()
     for name in av.codec.codecs_available:
         try:
-            e_codec = av.codec.Codec(name, "w")
+            codec = av.codec.Codec(name, "w")
         except ValueError:
             continue
-        if e_codec.type != 'video':
+        if codec.type != 'video':
             continue
-        codecs.add((e_codec.name, e_codec.long_name))
-    return sorted(list(codecs))
-
+        if re.search(r'\bimage\b', codec.long_name, re.IGNORECASE):
+            continue
+        codec_long_name = codec.long_name.lower()
+        whitelist_video_codecs = ['hevc', 'h265', "h.265", "h264", "h.264", "vp9", "av1", "ffmpeg video codec #1", "huffyuv", "prores", "mpeg-2"]
+        if not any(name in codec_long_name for name in whitelist_video_codecs):
+            continue
+        is_hardware_encoder = bool(codec.capabilities & av.codec.Capabilities.hardware)
+        encoder = Encoder(codec.name, codec.long_name, is_hardware_encoder, set([hwconfig.device_type.name for hwconfig in codec.hardware_configs] if is_hardware_encoder else []))
+        codecs.add(encoder)
+    return sorted(list(codecs), key=lambda e: e.name)
 
 class VideoThumbnailer:
 

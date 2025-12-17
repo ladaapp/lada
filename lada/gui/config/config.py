@@ -13,7 +13,7 @@ from gi.repository import GLib, GObject, Adw
 from lada import LOG_LEVEL
 from lada import get_available_restoration_models, get_available_detection_models
 from lada.gui import utils
-from lada.utils import os_utils
+from lada.utils import os_utils, video_utils
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
@@ -31,10 +31,9 @@ class PostExportAction(Enum):
 class Config(GObject.Object):
     _defaults = {
         'color_scheme': ColorScheme.SYSTEM,
-        'custom_ffmpeg_encoder_options': '',
         'device': 'cuda:0',
-        'export_codec': 'libx264',
-        'export_crf': 20,
+        'custom_encoding_presets': set(),
+        'encoding_preset_name': 'h264-cpu-hq',
         'export_directory': None,
         'file_name_pattern': "{orig_file_name}.restored.mp4",
         'fp16_enabled': os_utils.gpu_has_tensor_cores(),
@@ -56,10 +55,9 @@ class Config(GObject.Object):
     def __init__(self, style_manager: Adw.StyleManager):
         super().__init__()
         self._color_scheme = self._defaults['color_scheme']
-        self._custom_ffmpeg_encoder_options = self._defaults['custom_ffmpeg_encoder_options']
         self._device = self._defaults['device']
-        self._export_codec = self._defaults['export_codec']
-        self._export_crf = self._defaults['export_crf']
+        self._encoding_preset_name = self._defaults['encoding_preset_name']
+        self._custom_encoding_presets = self._defaults['custom_encoding_presets']
         self._export_directory = self._defaults['export_directory']
         self._file_name_pattern = self._defaults['file_name_pattern']
         self._initial_view = self._defaults['initial_view']
@@ -182,25 +180,25 @@ class Config(GObject.Object):
         self.save()
 
     @GObject.Property()
-    def export_crf(self):
-        return self._export_crf
+    def custom_encoding_presets(self):
+        return self._custom_encoding_presets
 
-    @export_crf.setter
-    def export_crf(self, value):
-        if value == self._export_crf:
+    @custom_encoding_presets.setter
+    def custom_encoding_presets(self, value: set[video_utils.EncodingPreset]):
+        if value == self._custom_encoding_presets and all([a == b for a, b in zip(value, self._custom_encoding_presets)]):
             return
-        self._export_crf = value
+        self._custom_encoding_presets = value
         self.save()
 
     @GObject.Property()
-    def export_codec(self):
-        return self._export_codec
+    def encoding_preset_name(self):
+        return self._encoding_preset_name
 
-    @export_codec.setter
-    def export_codec(self, value):
-        if value == self._export_codec:
+    @encoding_preset_name.setter
+    def encoding_preset_name(self, value: str):
+        if value == self._encoding_preset_name:
             return
-        self._export_codec = value
+        self._encoding_preset_name = value
         self.save()
 
     @GObject.Property()
@@ -246,17 +244,6 @@ class Config(GObject.Object):
         if value == self._initial_view:
             return
         self._initial_view = value
-        self.save()
-
-    @GObject.Property()
-    def custom_ffmpeg_encoder_options(self):
-        return self._custom_ffmpeg_encoder_options
-
-    @custom_ffmpeg_encoder_options.setter
-    def custom_ffmpeg_encoder_options(self, value):
-        if value == self._custom_ffmpeg_encoder_options:
-            return
-        self._custom_ffmpeg_encoder_options = value
         self.save()
 
     @GObject.Property()
@@ -347,9 +334,8 @@ class Config(GObject.Object):
 
     def reset_to_default_values(self):
         self.color_scheme = self._defaults['color_scheme']
-        self.custom_ffmpeg_encoder_options = self._defaults['custom_ffmpeg_encoder_options']
-        self.export_codec = self._defaults['export_codec']
-        self.export_crf = self._defaults['export_crf']
+        self.encoding_preset_name = self._defaults['encoding_preset_name']
+        self.custom_encoding_presets = self._defaults['custom_encoding_presets']
         self.export_directory = self._defaults['export_directory']
         self.file_name_pattern = self._defaults['file_name_pattern']
         self.fp16_enabled = self._defaults['fp16_enabled']
@@ -379,10 +365,9 @@ class Config(GObject.Object):
     def _as_dict(self) -> dict:
         return {
             'color_scheme': self._color_scheme.value,
-            'custom_ffmpeg_encoder_options': self._custom_ffmpeg_encoder_options,
             'device': self._device,
-            'export_codec': self._export_codec,
-            'export_crf': self._export_crf,
+            'custom_encoding_presets': [self._encoding_preset_as_dict(preset) for preset in self._custom_encoding_presets],
+            'encoding_preset_name': self._encoding_preset_name,
             'export_directory': self._export_directory,
             'file_name_pattern': self._file_name_pattern,
             'fp16_enabled': self._fp16_enabled,
@@ -401,6 +386,14 @@ class Config(GObject.Object):
             'detect_face_mosaics': self._detect_face_mosaics,
         }
 
+    def _encoding_preset_as_dict(self, encoding_preset: video_utils.EncodingPreset):
+        return {
+            'name': encoding_preset.name,
+            'description': encoding_preset.description,
+            'encoder_name': encoding_preset.encoder_name,
+            'encoder_options': encoding_preset.encoder_options,
+        }
+
     def get_default_value(self, key):
         return self._defaults.get(key)
 
@@ -417,8 +410,10 @@ class Config(GObject.Object):
                     self._color_scheme = ColorScheme(dict[key])
                 elif key == 'post_export_action':
                     self._post_export_action = PostExportAction(dict[key])
-                elif key == 'export_codec':
-                    self.validate_and_set_export_codec(dict[key])
+                elif key == 'encoding_preset_name':
+                    self.validate_and_set_encoding_preset_name(dict[key])
+                elif key == 'custom_encoding_presets':
+                    self.validate_and_set_custom_encoding_presets(dict[key])
                 elif key == 'export_directory':
                     self.validate_and_set_export_directory(dict[key])
                 elif key == 'temp_directory':
@@ -479,16 +474,20 @@ class Config(GObject.Object):
                 f"configured detection model {detection_model_name} is not available on the filesystem, falling back to model {default_model}")
             self._mosaic_detection_model = default_model
 
-    def validate_and_set_export_codec(self, export_codec: str):
-        if export_codec == 'h264':
-            self._export_codec = 'libx264'
-        elif export_codec == 'h265' or export_codec == 'hevc':
-            self._export_codec = 'libx265'
-        elif export_codec not in utils.get_available_video_codecs():
-            self._export_codec = self.get_default_value('export_codec')
-            logger.warning(f"Configured codec {export_codec} not the list of available/recommended list of codecs, falling back to '{self._export_codec}'")
+    def validate_and_set_encoding_preset_name(self, encoding_preset_name: str):
+        if encoding_preset_name in [preset.name for preset in video_utils.get_encoding_presets()] or encoding_preset_name in [preset.name for preset in self._custom_encoding_presets]:
+            self._encoding_preset_name = encoding_preset_name
         else:
-            self._export_codec = export_codec
+            logger.warning(f"Configured encoding preset {encoding_preset_name} not found in custom or system presets, falling back to '{self._encoding_preset_name}'")
+            self._encoding_preset_name = self.get_default_value('encoding_preset_name')
+
+    def validate_and_set_custom_encoding_presets(self, custom_encoding_presets: list[dict]):
+        self._custom_encoding_presets = set()
+        for custom_preset in custom_encoding_presets:
+            try:
+                self._custom_encoding_presets.add(video_utils.EncodingPreset(custom_preset["name"], custom_preset["description"], True, custom_preset["encoder_name"], custom_preset["encoder_options"]))
+            except:
+                logger.warning(f"Couldn't parse custom preset '{custom_preset}' as EncodingPreset. Ignoring...")
 
     def validate_and_set_export_directory(self, export_directory: str | None):
         if export_directory is None:

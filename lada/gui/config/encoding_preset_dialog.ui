@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+SPDX-FileCopyrightText: Lada Authors
+SPDX-License-Identifier: AGPL-3.0
+-->
+
+<interface>
+    <requires lib="gtk" version="4.0"/>
+    <requires lib="Adw" version="1.0"/>
+    <template class="EncodingPresetDialog" parent="AdwDialog">
+        <property name="content-width">800</property>
+        <property name="content-height">500</property>
+        <child>
+            <object class="AdwToolbarView">
+                <child type="top">
+                    <object class="AdwHeaderBar"/>
+                </child>
+                <child type="bottom">
+                    <object class="GtkActionBar">
+                        <property name="revealed">true</property>
+                        <child type="center">
+                            <object class="GtkButton" id="button_save">
+                                <property name="label" translatable="true">Save</property>
+                                <property name="sensitive">True</property>
+                                <style>
+                                    <class name="suggested-action"/>
+                                </style>
+                                <signal name="clicked" handler="button_create_clicked_callback"/>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <property name="content">
+                    <object class="GtkBox" id="vbox">
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">10</property>
+                        <property name="margin_top">10</property>
+                        <property name="margin_bottom">10</property>
+                        <property name="margin_start">10</property>
+                        <property name="margin_end">10</property>
+
+                        <child>
+                            <object class="GtkLabel">
+                                <property name="label" translatable="true">&lt;big&gt;Description&lt;&#47;big&gt;</property>
+                                <property name="xalign">0.5</property>
+                                <property name="use-markup">True</property>
+                            </object>
+                        </child>
+
+                        <child>
+                            <object class="GtkEntry" id="entry_description">
+                                <signal name="changed" handler="entry_description_changed_callback"/>
+                            </object>
+                        </child>
+
+                        <child>
+                            <object class="GtkLabel">
+                                <property name="label" translatable="true">&lt;big&gt;Encoder&lt;&#47;big&gt;</property>
+                                <property name="xalign">0.5</property>
+                                <property name="use-markup">True</property>
+                            </object>
+                        </child>
+
+                        <child>
+                            <object class="GtkDropDown" id="drop_down_encoders">
+                                <property name="enable-search">true</property>
+                                <property name="search-match-mode">substring</property>
+                            </object>
+
+                        </child>
+
+                        <child>
+                            <object class="GtkLabel">
+                                <property name="label" translatable="true">&lt;big&gt;Encoder Help&lt;&#47;big&gt;</property>
+                                <property name="xalign">0.5</property>
+                                <property name="use-markup">True</property>
+                            </object>
+                        </child>
+
+                        <child>
+                            <object class="GtkScrolledWindow">
+                                <child>
+                                    <object class="GtkTextView" id="text_view_encoder_options">
+                                        <property name="editable">False</property>
+                                        <property name="vexpand">True</property>
+                                        <property name="hexpand">True</property>
+                                        <property name="monospace">True</property>
+                                        <property name="cursor_visible">False</property>
+                                        <property name="wrap_mode">none</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+
+                        <child>
+                            <object class="GtkLabel">
+                                <property name="label" translatable="true">&lt;big&gt;Encoder Options&lt;&#47;big&gt;</property>
+                                <property name="xalign">0.5</property>
+                                <property name="use-markup">True</property>
+                            </object>
+                        </child>
+
+                        <child>
+                            <object class="GtkEntry" id="entry_encoder_options">
+                                <property name="placeholder_text" translatable="true">Enter encoder options…</property>
+                            </object>
+                        </child>
+                    </object>
+                </property>
+            </object>
+        </child>
+
+    </template>
+</interface>

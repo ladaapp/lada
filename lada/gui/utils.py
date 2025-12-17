@@ -3,8 +3,7 @@
 
 import logging
 import os
-import pathlib
-import sys
+import subprocess
 import xml.etree.ElementTree as ET
 
 import torch
@@ -12,7 +11,9 @@ from gi.repository import Gio
 from gi.repository import Gtk, GLib, Gdk
 
 from lada import LOG_LEVEL
+from lada.gui.config.config import Config
 from lada.utils import video_utils
+from lada.utils.video_utils import EncodingPreset
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
@@ -50,9 +51,25 @@ def skip_if_uninitialized(f):
         return f(*args) if args[0].init_done else noop
     return wrapper
 
-def get_available_video_codecs() -> list[str]:
-    filter_list = ['libx264', 'h264_nvenc', 'libx265', 'hevc_nvenc', 'libsvtav1', 'librav1e', 'libaom-av1', 'av1_nvenc']
-    return [codec_short_name for codec_short_name, codec_long_name in video_utils.get_available_video_encoder_codecs() if codec_short_name in filter_list]
+def set_validation_css_classes(widget: Gtk.Widget, is_valid: bool):
+    focused = "focused" in widget.get_css_classes()
+    all_classes = {"success", "warning", "error"}
+    def add_if_not_present(class_name):
+        if class_name not in widget.get_css_classes():
+            for other_class_names in all_classes.difference({class_name}):
+                widget.remove_css_class(other_class_names)
+            if class_name:
+                widget.add_css_class(class_name)
+    if is_valid:
+        if focused:
+            add_if_not_present("success")
+        else:
+            add_if_not_present(None)
+    else:
+        if focused:
+            add_if_not_present("warning")
+        else:
+            add_if_not_present("error")
 
 def validate_file_name_pattern(file_name_pattern: str) -> bool:
     if not "{orig_file_name}" in file_name_pattern:
@@ -63,6 +80,13 @@ def validate_file_name_pattern(file_name_pattern: str) -> bool:
     if file_extension not in [".mp4", ".mkv", ".mov", ".m4v"]:
         return False
     return True
+
+def validate_preset_description(description: str, config: Config, original_description: str | None) -> bool:
+    presets = []
+    presets.extend(config.custom_encoding_presets if original_description is None else [p for p in config.custom_encoding_presets if p.description != original_description])
+    presets.extend(video_utils.get_encoding_presets())
+    presets_descriptions = [preset.description.lower() for preset in presets]
+    return description.lower() not in presets_descriptions
 
 def filter_video_files(files: list[Gio.File]) -> list[Gio.File]:
     def is_video_file(file: Gio.File):
@@ -115,3 +139,34 @@ def translate_ui_xml(path: str) -> str:
             del node.attrib["translatable"]
     as_str = ET.tostring(tree, encoding='utf-8', method='xml')
     return as_str
+
+def dump_encoder_options(encoder: str) -> str:
+    result = subprocess.run(["ffmpeg", "-loglevel", "quiet", "-h", f"encoder={encoder}"], capture_output=True, text=True)
+    text = result.stdout.strip().replace("Exiting with exit code 0", "").strip()
+    return text
+
+def get_next_custom_preset(config: Config) -> EncodingPreset:
+    num = len(config.custom_encoding_presets) + 1
+    description = _("Custom Preset {custom_preset_num}").format(custom_preset_num=num)
+    return EncodingPreset(f"custom-preset-{num}", description, True, "libx264", "")
+
+def get_selected_preset(config: Config) -> EncodingPreset:
+    presets = []
+    presets.extend(video_utils.get_encoding_presets())
+    presets.extend(config.custom_encoding_presets)
+    for preset in presets:
+        if preset.name == config.encoding_preset_name:
+            return preset
+    raise ValueError("Selected preset not found")
+
+def get_preset_by_name(config: Config, name: str):
+    presets = []
+    presets.extend(video_utils.get_encoding_presets())
+    presets.extend(config.custom_encoding_presets)
+    for preset in presets:
+        if preset.name == name:
+            return preset
+    raise ValueError("Invalid preset name")
+
+def is_unique_preset_description(description) -> bool:
+    return not any([preset.description == description for preset in video_utils.get_encoding_presets()])

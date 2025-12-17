@@ -41,6 +41,7 @@ packages = { find = { where = ["."], include = ["lada", "lada.*"] } }
 "*" = ['*.ui']
 "lada.gui" = ['style.css', 'resources.gresource']
 "lada.locale" = ['*.mo']
+"lada.utils" = ['encoding_presets.csv']
 
 [tool.setuptools.dynamic]
 version = { attr = "lada.VERSION" }
