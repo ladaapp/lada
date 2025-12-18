@@ -41,10 +41,6 @@ lada-cli --input <input video path>
 
 For more information about additional options, use the `--help` argument.
 
-> [!TIP]
-> Lada writes the restored video to a temporary file before combining it with the audio stream from the original file and saving it to the selected destination.
-> You can overwrite [the default location](https://docs.python.org/3/library/tempfile.html#tempfile.gettempdir) by setting the `TMPDIR` environment variable to another location of you choice.
-
 ## Performance and hardware requirements
 Don't expect this to work perfectly, some scenes can be pretty good and close to the real thing. Other scenes can be rather meh and show worse artifacts than the original mosaics.
 
