@@ -113,6 +113,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
         self.status_page.set_icon_name("check-round-outline2-symbolic")
         self.progress_bar.set_fraction(1.0)
         self.progress_bar.set_text(export_utils.get_progressbar_text(self.item.state, self.item.progress))
+        self.progress_bar.add_css_class("finished")
         self.progress_bar.set_visible(True)
         self.button_open.set_visible(True)
         self.button_pause_export.set_visible(False)
