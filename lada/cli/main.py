@@ -10,7 +10,7 @@ import textwrap
 
 import torch
 
-from lada import VERSION, DETECTION_MODEL_NAMES_TO_FILES, RESTORATION_MODEL_NAMES_TO_FILES
+from lada import VERSION, ModelFiles
 from lada.cli import utils
 from lada.utils import audio_utils, video_utils
 from lada.utils.os_utils import gpu_has_tensor_cores
@@ -165,17 +165,17 @@ def main():
         print(_("Invalid input. No file or directory at {input_path}").format(input_path=args.input))
         sys.exit(1)
 
-    if args.mosaic_detection_model in utils.get_available_detection_models():
-        mosaic_detection_model_path = DETECTION_MODEL_NAMES_TO_FILES[args.mosaic_detection_model]
+    if detection_modelfile := ModelFiles.get_detection_model_by_name(args.mosaic_detection_model):
+        mosaic_detection_model_path = detection_modelfile.path
     elif os.path.isfile(args.mosaic_detection_model):
         mosaic_detection_model_path = args.mosaic_detection_model
     else:
         print(_("Invalid mosaic detection model"))
         sys.exit(1)
 
-    if args.mosaic_restoration_model in utils.get_available_restoration_models():
+    if restoration_modelfile := ModelFiles.get_restoration_model_by_name(args.mosaic_restoration_model):
         mosaic_restoration_model_name = args.mosaic_restoration_model
-        mosaic_restoration_model_path = RESTORATION_MODEL_NAMES_TO_FILES[args.mosaic_restoration_model]
+        mosaic_restoration_model_path = restoration_modelfile.path
     elif os.path.isfile(args.mosaic_restoration_model):
         mosaic_restoration_model_path = args.mosaic_restoration_model
         mosaic_restoration_model_name = 'basicvsrpp' # Assume custom model is basicvsrpp. DeepMosaics custom path is not supported

@@ -2,7 +2,7 @@ import logging
 
 import torch
 
-from lada import DETECTION_MODEL_FILES_TO_NAMES, LOG_LEVEL
+from lada import LOG_LEVEL, ModelFiles
 from lada.models.yolo.yolo11_segmentation_model import Yolo11SegmentationModel
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ def load_models(
     # setting classes=[0] will consider only detections of class id = 0 (nsfw mosaics) therefore filtering out sfw mosaics (heads, faces)
     if detect_face_mosaics:
         classes = [0]
-        detection_model_name = DETECTION_MODEL_FILES_TO_NAMES.get(mosaic_detection_model_path)
+        detection_model_name = ModelFiles.get_detection_model_by_path(mosaic_detection_model_path)
         if detection_model_name and detection_model_name == "v2":
             logger.info("Mosaic detection model v2 does not support detecting face mosaics. Use detection models v3 or newer. Ignoring...")
     else:

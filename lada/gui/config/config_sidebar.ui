@@ -21,31 +21,23 @@ SPDX-License-Identifier: AGPL-3.0
                             <object class="AdwPreferencesGroup">
                                 <property name="title" translatable="true">Mosaic Removal</property>
                                 <child>
-                                    <object class="AdwComboRow" id="combo_row_mosaic_detection_models">
+                                    <object class="AdwExpanderRow" id="expander_row_detection_models">
                                         <property name="title" translatable="true">Detection model</property>
-                                        <property name="subtitle" translatable="true">Model used for detecting mosaic areas.</property>
-                                        <signal name="notify::selected"
-                                                handler="combo_row_mosaic_detection_models_selected_callback"/>
-                                        <property name="model">
-                                            <object class="GtkStringList"/>
-                                        </property>
+                                        <property name="show-enable-switch">false</property>
+                                        <property name="expanded">false</property>
                                     </object>
                                 </child>
-                                <child>
-                                    <object class="AdwComboRow" id="combo_row_mosaic_removal_models">
+                               <child>
+                                    <object class="AdwExpanderRow" id="expander_row_restoration_models">
                                         <property name="title" translatable="true">Restoration model</property>
-                                        <property name="subtitle" translatable="true">Model used for restoring mosaic areas.</property>
-                                        <signal name="notify::selected"
-                                                handler="combo_row_mosaic_removal_models_selected_callback"/>
-                                        <property name="model">
-                                            <object class="GtkStringList"/>
-                                        </property>
+                                        <property name="show-enable-switch">false</property>
+                                        <property name="expanded">false</property>
                                     </object>
                                 </child>
                                 <child>
                                     <object class="AdwSwitchRow" id="switch_row_detect_faces">
                                         <property name="title" translatable="true">Detect face mosaics</property>
-                                        <property name="subtitle" translatable="true">Detect and ignore areas of pixelated faces. Prevents restoration artifacts if the source includes these types of mosaics.</property>
+                                        <property name="subtitle" translatable="true">Detect and ignore areas of pixelated faces. Can prevent restoration artifacts but may hurt detection of NSFW mosaics.</property>
                                         <signal name="notify::active" handler="switch_row_detect_face_mosaics_callback"/>
                                     </object>
                                 </child>
@@ -130,27 +122,12 @@ SPDX-License-Identifier: AGPL-3.0
                                 <property name="title" translatable="true">Export</property>
                                 <property name="visible" bind-source="ConfigSidebar" bind-property="show-export-section"/>
                                 <child>
-                                    <object class="AdwComboRow" id="combo_row_export_codec">
-                                        <property name="visible">false</property>
-                                        <property name="title" translatable="true">Codec</property>
-                                        <property name="subtitle" translatable="true">Video Codec used for encoding the restored video.</property>
-                                        <signal name="notify::selected"
-                                                handler="combo_row_mosaic_export_codec_selected_callback"/>
-                                        <property name="model">
-                                            <object class="GtkStringList">
-                                                <items></items>
-                                            </object>
-                                        </property>
-                                    </object>
-                                </child>
-                                <child>
                                     <object class="AdwExpanderRow" id="expander_row_encoding_presets">
                                         <property name="title" translatable="true">Encoding Preset</property>
                                         <property name="show-enable-switch">false</property>
                                         <property name="expanded">false</property>
                                     </object>
                                 </child>
-
                                 <child>
                                     <object class="AdwExpanderRow" id="expander_row_export_directory">
                                         <property name="title" translatable="true">Output Directory</property>

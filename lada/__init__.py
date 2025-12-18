@@ -1,5 +1,7 @@
 import os
 import sys
+from dataclasses import dataclass
+from functools import cache
 
 if "LADA_MODEL_WEIGHTS_DIR" in os.environ:
   MODEL_WEIGHTS_DIR = os.environ["LADA_MODEL_WEIGHTS_DIR"]
@@ -13,23 +15,108 @@ VERSION = '0.9.1-dev'
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
 
-RESTORATION_MODEL_FILES_TO_NAMES = {
-    os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_restoration_model_generic.pth'): 'basicvsrpp-v1.0',
-    os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_restoration_model_generic_v1.1.pth'): 'basicvsrpp-v1.1',
-    os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_restoration_model_generic_v1.2.pth'): 'basicvsrpp-v1.2',
-    os.path.join(MODEL_WEIGHTS_DIR, '3rd_party', 'clean_youknow_video.pth'): 'deepmosaics',
-}
-RESTORATION_MODEL_NAMES_TO_FILES = {v: k for k, v in RESTORATION_MODEL_FILES_TO_NAMES.items()}
+@dataclass(frozen=True)
+class ModelFile:
+    name: str
+    description: str | None
+    path: str
 
-DETECTION_MODEL_FILES_TO_NAMES = {
-    os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v2.pt'): 'v2',
-    os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v3.pt'): 'v3',
-    os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v3.1_fast.pt'): 'v3.1-fast',
-    os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v3.1_accurate.pt'): 'v3.1-accurate',
-    os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v4_fast.pt'): 'v4-fast',
-    os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v4_accurate.pt'): 'v4-accurate',
-}
-DETECTION_MODEL_NAMES_TO_FILES = {v: k for k, v in DETECTION_MODEL_FILES_TO_NAMES.items()}
+class ModelFiles:
+    _WELL_KNOWN_RESTORATION_MODELS = [
+        ModelFile('basicvsrpp-v1.0', None, os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_restoration_model_generic.pth')),
+        ModelFile('basicvsrpp-v1.1', None, os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_restoration_model_generic_v1.1.pth')),
+        ModelFile('basicvsrpp-v1.2', "Latest Lada restoration model. Recommended", os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_restoration_model_generic_v1.2.pth')),
+        ModelFile('deepmosaics', "Restoration model from abandoned DeepMosaics project", os.path.join(MODEL_WEIGHTS_DIR, '3rd_party', 'clean_youknow_video.pth')),
+    ]
+    _WELL_KNOWN_DETECTION_MODELS = [
+        ModelFile('v2', None, os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v2.pt')),
+        ModelFile('v3', None, os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v3.pt')),
+        ModelFile('v3.1-fast', None, os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v3.1_fast.pt')),
+        ModelFile('v3.1-accurate', None, os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v3.1_accurate.pt')),
+        ModelFile('v4-fast', "Fast and efficient. Recommended", os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v4_fast.pt')),
+        ModelFile('v4-accurate', "Can be slightly more accurate than v4-fast but slower", os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v4_accurate.pt')),
+    ]
+
+    @staticmethod
+    def _get_custom_detection_models() -> list[ModelFile]:
+        models = []
+        if not os.path.exists(MODEL_WEIGHTS_DIR):
+            return models
+        well_known_filenames = [os.path.basename(model.path) for model in ModelFiles._WELL_KNOWN_DETECTION_MODELS]
+        for filename in os.listdir(MODEL_WEIGHTS_DIR):
+            if filename.endswith('.pt') and filename.startswith('lada_mosaic_detection_model_') and filename not in well_known_filenames:
+                model_name = os.path.splitext(filename)[0].split("lada_mosaic_detection_model_")[1]
+                if len(model_name) == 0:
+                    continue
+                model_path = os.path.join(MODEL_WEIGHTS_DIR, filename)
+                models.append(ModelFile(model_name, None, model_path))
+        return models
+
+    @staticmethod
+    def _get_custom_restoration_models() -> list[ModelFile]:
+        models = []
+        if not os.path.exists(MODEL_WEIGHTS_DIR):
+            return models
+        well_known_filenames = [os.path.basename(model.path) for model in ModelFiles._WELL_KNOWN_RESTORATION_MODELS]
+        for filename in os.listdir(MODEL_WEIGHTS_DIR):
+            if filename.endswith('.pth') and filename.startswith('lada_mosaic_restoration_model_') and filename not in well_known_filenames:
+                model_name = os.path.splitext(filename)[0].split("lada_mosaic_restoration_model_")[1]
+                if len(model_name) == 0:
+                    continue
+                if not model_name.startswith("deepmosaics") and "deepmosaics" in model_name:
+                    model_name = f"deepmosaics-{model_name}"
+                elif not model_name.startswith("basicvsrpp"):
+                    model_name = f"basicvsrpp-{model_name}"
+                model_path = os.path.join(MODEL_WEIGHTS_DIR, filename)
+                models.append(ModelFile(model_name, None, model_path))
+        return models
+
+    @staticmethod
+    def _get_well_known_detection_models():
+        models = []
+        for model in ModelFiles._WELL_KNOWN_DETECTION_MODELS:
+            if os.path.exists(model.path):
+                models.append(model)
+        return models
+
+    @staticmethod
+    def _get_well_known_restoration_models():
+        models = []
+        for model in ModelFiles._WELL_KNOWN_RESTORATION_MODELS:
+            if os.path.exists(model.path):
+                models.append(model)
+        return models
+
+    @staticmethod
+    @cache
+    def get_detection_models() -> list[ModelFile]:
+        return ModelFiles._get_well_known_detection_models() + ModelFiles._get_custom_detection_models()
+
+    @staticmethod
+    @cache
+    def get_restoration_models() -> list[ModelFile]:
+        return ModelFiles._get_well_known_restoration_models() + ModelFiles._get_custom_restoration_models()
+
+    @staticmethod
+    def get_restoration_model_by_name(model_name: str) -> ModelFile | None:
+        for model in ModelFiles.get_restoration_models():
+            if model.name == model_name:
+                return model
+        return None
+
+    @staticmethod
+    def get_detection_model_by_name(model_name: str) -> ModelFile | None:
+        for model in ModelFiles.get_detection_models():
+            if model.name == model_name:
+                return model
+        return None
+
+    @staticmethod
+    def get_detection_model_by_path(model_path: str) -> ModelFile | None:
+        for model in ModelFiles.get_detection_models():
+            if model.path == model_path:
+                return model
+        return None
 
 def _get_language_from_os() -> str:
     if sys.platform == "win32":
@@ -59,51 +146,4 @@ def _init_translations():
     gettext.textdomain(DOMAIN)
     gettext.install(DOMAIN, LOCALE_DIR)
 
-def _add_custom_detection_models():
-    if not os.path.exists(MODEL_WEIGHTS_DIR):
-        return
-    well_known_models = [os.path.basename(path) for path in DETECTION_MODEL_FILES_TO_NAMES.keys()]
-    for filename in os.listdir(MODEL_WEIGHTS_DIR):
-        if filename.endswith('.pt') and filename.startswith('lada_mosaic_detection_model_') and filename not in well_known_models:
-            model_name = os.path.splitext(filename)[0].split("lada_mosaic_detection_model_")[1]
-            if len(model_name) == 0:
-                continue
-            model_path = os.path.join(MODEL_WEIGHTS_DIR, filename)
-            DETECTION_MODEL_FILES_TO_NAMES[model_path] = model_name
-            DETECTION_MODEL_NAMES_TO_FILES[model_name] = model_path
-
-def _add_custom_restoration_models():
-    if not os.path.exists(MODEL_WEIGHTS_DIR):
-        return
-    well_known_models = [os.path.basename(path) for path in RESTORATION_MODEL_FILES_TO_NAMES.keys()]
-    for filename in os.listdir(MODEL_WEIGHTS_DIR):
-        if filename.endswith('.pth') and filename.startswith('lada_mosaic_restoration_model_') and filename not in well_known_models:
-            model_name = os.path.splitext(filename)[0].split("lada_mosaic_restoration_model_")[1]
-            if len(model_name) == 0:
-                continue
-            if not model_name.startswith("deepmosaics") and "deepmosaics" in model_name:
-                model_name = f"deepmosaics-{model_name}"
-            elif not model_name.startswith("basicvsrpp"):
-                model_name = f"basicvsrpp-{model_name}"
-            model_path = os.path.join(MODEL_WEIGHTS_DIR, filename)
-            RESTORATION_MODEL_FILES_TO_NAMES[model_path] = model_name
-            RESTORATION_MODEL_NAMES_TO_FILES[model_name] = model_path
-
-def get_available_restoration_models():
-  available_models = []
-  for file_path in RESTORATION_MODEL_FILES_TO_NAMES:
-    if os.path.exists(file_path):
-      available_models.append(RESTORATION_MODEL_FILES_TO_NAMES[file_path])
-  return available_models
-
-
-def get_available_detection_models():
-  available_models = []
-  for file_path in DETECTION_MODEL_FILES_TO_NAMES:
-    if os.path.exists(file_path):
-      available_models.append(DETECTION_MODEL_FILES_TO_NAMES[file_path])
-  return available_models
-
 _init_translations()
-_add_custom_detection_models()
-_add_custom_restoration_models()

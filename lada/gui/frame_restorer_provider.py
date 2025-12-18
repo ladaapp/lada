@@ -4,12 +4,11 @@
 import logging
 from dataclasses import dataclass
 
-from lada import LOG_LEVEL
+from lada import LOG_LEVEL, ModelFiles
 from lada.utils import VideoMetadata
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
-from lada import RESTORATION_MODEL_NAMES_TO_FILES, DETECTION_MODEL_NAMES_TO_FILES
 from lada.restorationpipeline.frame_restorer import FrameRestorer
 from lada.restorationpipeline import load_models
 from lada.utils import video_utils
@@ -93,8 +92,8 @@ class FrameRestorerProvider:
         if cache_miss:
             self._clear_cache()
 
-            mosaic_restoration_model_path = RESTORATION_MODEL_NAMES_TO_FILES[self.options.mosaic_restoration_model_name]
-            mosaic_detection_path = DETECTION_MODEL_NAMES_TO_FILES[self.options.mosaic_detection_model_name]
+            mosaic_restoration_model_path = ModelFiles.get_restoration_model_by_name(self.options.mosaic_restoration_model_name).path
+            mosaic_detection_path = ModelFiles.get_detection_model_by_name(self.options.mosaic_detection_model_name).path
             mosaic_detection_model, mosaic_restoration_model, mosaic_restoration_model_preferred_pad_mode = load_models(
                 torch.device(self.options.device), self.options.mosaic_restoration_model_name, mosaic_restoration_model_path, None,
                 mosaic_detection_path, fp16=self.options.fp16_enabled, clip_length=self.options.max_clip_length, detect_face_mosaics=self.options.detect_face_mosaics,

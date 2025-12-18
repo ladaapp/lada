@@ -9,13 +9,10 @@ import subprocess
 import sys
 import time
 
-import av
 import torch
 from tqdm import tqdm
 
-from lada import DETECTION_MODEL_NAMES_TO_FILES, RESTORATION_MODEL_NAMES_TO_FILES, \
-    get_available_restoration_models, get_available_detection_models, DETECTION_MODEL_FILES_TO_NAMES, \
-    RESTORATION_MODEL_FILES_TO_NAMES, MODEL_WEIGHTS_DIR
+from lada import MODEL_WEIGHTS_DIR, ModelFiles, ModelFile
 from lada.utils import VideoMetadata, video_utils
 from lada.restorationpipeline.frame_restorer import FrameRestorer
 
@@ -110,41 +107,30 @@ def dump_torch_devices():
         s += f"\n\t{device.ljust(device_header_width)}\t{description}"
     print(s)
 
-def dump_available_detection_models():
-    s = _("Model weights directory:")
-    s += "\n\t" + os.path.abspath(MODEL_WEIGHTS_DIR)
-    s += "\n" + _("Available detection models:")
-    detection_model_names = get_available_detection_models()
-    if len(detection_model_names) == 0:
-        s += f"\n\t{_("None!")}"
-    else:
-        model_name_header = _("Name")
-        model_path_header = _("Path")
-        model_name_column_width = max([len(item) for item in detection_model_names + [model_name_header]])
-        model_path_column_width = max([len(item) for item in list(DETECTION_MODEL_FILES_TO_NAMES.keys()) + [model_path_header]])
-        s += f"\n\t{model_name_header.ljust(model_name_column_width)}\t{model_path_header}"
-        s += f"\n\t{model_name_column_width * "-"}\t{model_path_column_width * "-"}"
-        for name in detection_model_names:
-            s += f"\n\t{name.ljust(model_name_column_width)}\t{DETECTION_MODEL_NAMES_TO_FILES[name]}"
-    print(s)
-
-def dump_available_restoration_models():
+def _dump_available_models(modelfiles: list[ModelFile]):
     s = _("Model weights directory:")
     s += "\n\t" + os.path.abspath(MODEL_WEIGHTS_DIR)
     s += "\n" + _("Available restoration models:")
-    restoration_model_names = get_available_restoration_models()
-    if len(restoration_model_names) == 0:
+    if len(modelfiles) == 0:
         s += f"\n\t{_("None!")}"
     else:
         model_name_header = _("Name")
+        model_description_header = _("Description")
         model_path_header = _("Path")
-        model_name_column_width = max([len(item) for item in restoration_model_names + [model_name_header]])
-        model_path_column_width = max([len(item) for item in list(RESTORATION_MODEL_FILES_TO_NAMES.keys()) + [model_path_header]])
-        s += f"\n\t{model_name_header.ljust(model_name_column_width)}\t{model_path_header}"
-        s += f"\n\t{model_name_column_width * "-"}\t{model_path_column_width * "-"}"
-        for name in restoration_model_names:
-            s += f"\n\t{name.ljust(model_name_column_width)}\t{RESTORATION_MODEL_NAMES_TO_FILES[name]}"
+        model_name_column_width = max([len(item.name) for item in modelfiles] + [len(model_name_header)])
+        model_description_column_width = max([len(item.description) if item.description else 0 for item in modelfiles] + [len(model_name_header)])
+        model_path_column_width = max([len(item.path) for item in modelfiles] + [len(model_path_header)])
+        s += f"\n\t{model_name_header.ljust(model_name_column_width)}\t{model_description_header.ljust(model_description_column_width)}\t{model_path_header}"
+        s += f"\n\t{model_name_column_width * "-"}\t{model_description_column_width * "-"}\t{model_path_column_width * "-"}"
+        for modelfile in modelfiles:
+            s += f"\n\t{modelfile.name.ljust(model_name_column_width)}\t{(modelfile.description if modelfile.description else "").ljust(model_description_column_width)}\t{modelfile.path}"
     print(s)
+
+def dump_available_detection_models():
+    _dump_available_models(ModelFiles.get_detection_models())
+
+def dump_available_restoration_models():
+    _dump_available_models(ModelFiles.get_restoration_models())
 
 def dump_available_encoding_presets(show_encoder_details=False):
     s = _("Available encoding presets:")

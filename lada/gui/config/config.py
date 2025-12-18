@@ -10,8 +10,7 @@ from pathlib import Path
 
 from gi.repository import GLib, GObject, Adw
 
-from lada import LOG_LEVEL
-from lada import get_available_restoration_models, get_available_detection_models
+from lada import LOG_LEVEL, ModelFiles
 from lada.gui import utils
 from lada.utils import os_utils, video_utils
 
@@ -449,7 +448,7 @@ class Config(GObject.Object):
                 self._device = f"cuda:{available_gpus[0][0]}"
 
     def validate_and_set_restoration_model(self, restoration_model_name: str):
-        available_models = get_available_restoration_models()
+        available_models = [modelfile.name for modelfile in ModelFiles.get_restoration_models()]
         if restoration_model_name in available_models:
             self._mosaic_restoration_model = restoration_model_name
         else:
@@ -462,7 +461,7 @@ class Config(GObject.Object):
             self._mosaic_restoration_model = default_model
 
     def validate_and_set_detection_model(self, detection_model_name: str):
-        available_models = get_available_detection_models()
+        available_models = [modelfile.name for modelfile in ModelFiles.get_detection_models()]
         if detection_model_name in available_models:
             self._mosaic_detection_model = detection_model_name
         else:

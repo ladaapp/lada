@@ -2,10 +2,11 @@
 # SPDX-License-Identifier: AGPL-3.0
 import logging
 import pathlib
+from typing import Callable
 
 from gi.repository import Gtk, GObject, Adw, Gio, GLib
 
-from lada import get_available_restoration_models, get_available_detection_models, LOG_LEVEL
+from lada import LOG_LEVEL, ModelFiles, ModelFile
 from lada.gui import utils
 from lada.gui.config.config import Config, ColorScheme, PostExportAction
 from lada.gui.config.encoding_preset_dialog import EncodingPresetDialog
@@ -23,9 +24,6 @@ class ConfigSidebar(Gtk.Box):
     __gtype_name__ = 'ConfigSidebar'
 
     combo_row_gpu = Gtk.Template.Child()
-    combo_row_mosaic_removal_models = Gtk.Template.Child()
-    combo_row_mosaic_detection_models = Gtk.Template.Child()
-    combo_row_export_codec = Gtk.Template.Child()
     spin_row_preview_buffer_duration = Gtk.Template.Child()
     spin_row_clip_max_duration = Gtk.Template.Child()
     switch_row_mute_audio = Gtk.Template.Child()
@@ -52,6 +50,8 @@ class ConfigSidebar(Gtk.Box):
     switch_row_fp16: Adw.SwitchRow = Gtk.Template.Child()
     switch_row_detect_faces = Gtk.Template.Child()
     expander_row_encoding_presets: Adw.ExpanderRow = Gtk.Template.Child()
+    expander_row_detection_models: Adw.ExpanderRow = Gtk.Template.Child()
+    expander_row_restoration_models: Adw.ExpanderRow = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -63,6 +63,8 @@ class ConfigSidebar(Gtk.Box):
         self._create_preset_action_row: Adw.ActionRow | None = None
         self._presets_radio_buttons: list[Gtk.CheckButton] = []
         self._presets_action_rows: list[Adw.ActionRow] = []
+        self._detection_models_actions_rows: list[Adw.ActionRow] = []
+        self._restoration_models_actions_rows: list[Adw.ActionRow] = []
 
     def init_sidebar_from_config(self, config: Config):
         self.check_button_show_mosaic_detections.props.active = config.show_mosaic_detections
@@ -80,22 +82,20 @@ class ConfigSidebar(Gtk.Box):
             self.combo_row_gpu.set_selected(configured_gpu_selection_idx)
 
         # init restoration model
-        combo_row_models_list = Gtk.StringList.new([])
-        available_models = get_available_restoration_models()
-        for model_name in available_models:
-            combo_row_models_list.append(model_name)
-        self.combo_row_mosaic_removal_models.set_model(combo_row_models_list)
-        idx = available_models.index(config.get_property("mosaic_restoration_model"))
-        self.combo_row_mosaic_removal_models.set_selected(idx)
+        for row in self._restoration_models_actions_rows:
+            self.expander_row_restoration_models.remove(row)
+        self._restoration_models_actions_rows = self.get_action_rows_for_restoration_model(config.mosaic_restoration_model)
+        for row in self._restoration_models_actions_rows:
+            self.expander_row_restoration_models.add_row(row)
+        self.expander_row_restoration_models.set_subtitle(config.mosaic_restoration_model)
 
         # init detection model
-        combo_row_detection_models_list = Gtk.StringList.new([])
-        available_detection_models = get_available_detection_models()
-        for model_name in available_detection_models:
-            combo_row_detection_models_list.append(model_name)
-        self.combo_row_mosaic_detection_models.set_model(combo_row_detection_models_list)
-        idx = available_detection_models.index(config.mosaic_detection_model)
-        self.combo_row_mosaic_detection_models.set_selected(idx)
+        for row in self._detection_models_actions_rows:
+            self.expander_row_detection_models.remove(row)
+        self._detection_models_actions_rows = self.get_action_rows_for_detection_model(config.mosaic_detection_model)
+        for row in self._detection_models_actions_rows:
+            self.expander_row_detection_models.add_row(row)
+        self.expander_row_detection_models.set_subtitle(config.mosaic_detection_model)
 
         # init encoding presets
         selected_preset = utils.get_selected_preset(config)
@@ -194,22 +194,6 @@ class ConfigSidebar(Gtk.Box):
     @show_export_section.setter
     def show_export_section(self, value):
         self._show_export_section = value
-
-    @Gtk.Template.Callback()
-    @skip_if_uninitialized
-    def combo_row_mosaic_removal_models_selected_callback(self, combo_row, value):
-        self._config.mosaic_restoration_model = combo_row.get_property("selected_item").get_string()
-
-    @Gtk.Template.Callback()
-    @skip_if_uninitialized
-    def combo_row_mosaic_detection_models_selected_callback(self, combo_row, value):
-        self._config.mosaic_detection_model = combo_row.get_property("selected_item").get_string()
-        self.switch_row_detect_faces.set_visible(self._config.mosaic_detection_model != 'v2')
-
-    @Gtk.Template.Callback()
-    @skip_if_uninitialized
-    def combo_row_mosaic_export_codec_selected_callback(self, combo_row, value):
-        self._config.export_codec = combo_row.get_property("selected_item").get_string()
 
     @Gtk.Template.Callback()
     @skip_if_uninitialized
@@ -428,6 +412,41 @@ class ConfigSidebar(Gtk.Box):
         self.expander_row_encoding_presets.add_row(self._create_preset_action_row)
 
         self.expander_row_encoding_presets.set_subtitle(preset.description)
+
+    def _get_action_row_for_model(self, modelfile: ModelFile, selected_radio_button: Gtk.CheckButton, selected_model_name, on_toggled: Callable[[Gtk.CheckButton, str], None]):
+        action_row = Adw.ActionRow.new()
+        action_row.set_title(modelfile.name)
+        if modelfile.description:
+            action_row.set_subtitle(modelfile.description)
+
+        if modelfile.name != selected_model_name:
+            radio_button = Gtk.CheckButton.new()
+            radio_button.set_group(selected_radio_button)
+            radio_button.set_active(False)
+            radio_button.connect("toggled", on_toggled, modelfile.name)
+            action_row.add_prefix(radio_button)
+        else:
+            action_row.add_prefix(selected_radio_button)
+        return action_row
+
+    def get_action_rows_for_restoration_model(self, selected_model: str) -> list[Adw.ActionRow]:
+        def on_toggled(_button, model_name):
+            self._config.mosaic_restoration_model = model_name
+            self.expander_row_restoration_models.set_subtitle(model_name)
+        active_button = Gtk.CheckButton.new()
+        active_button.set_active(True)
+        active_button.connect("toggled", on_toggled, selected_model)
+        return [self._get_action_row_for_model(modelfile, active_button, selected_model, on_toggled) for modelfile in ModelFiles.get_restoration_models()]
+
+    def get_action_rows_for_detection_model(self, selected_model: str) -> list[Adw.ActionRow]:
+        def on_toggled(_button, model_name):
+            self._config.mosaic_detection_model = model_name
+            self.expander_row_detection_models.set_subtitle(model_name)
+            self.switch_row_detect_faces.set_visible(self._config.mosaic_detection_model != 'v2')
+        active_button = Gtk.CheckButton.new()
+        active_button.set_active(True)
+        active_button.connect("toggled", on_toggled, selected_model)
+        return [self._get_action_row_for_model(modelfile, active_button, selected_model, on_toggled) for modelfile in ModelFiles.get_detection_models()]
 
     def get_action_row_for_existing_preset(self, preset: EncodingPreset, active: bool, localized_description: bool) -> tuple[Adw.ActionRow, Gtk.CheckButton]:
         action_row = Adw.ActionRow.new()

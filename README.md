@@ -45,27 +45,6 @@ For more information about additional options, use the `--help` argument.
 > Lada writes the restored video to a temporary file before combining it with the audio stream from the original file and saving it to the selected destination.
 > You can overwrite [the default location](https://docs.python.org/3/library/tempfile.html#tempfile.gettempdir) by setting the `TMPDIR` environment variable to another location of you choice.
 
-## Restoration options
-
-Lada utilizes specialized models for the two main steps of the processing pipeline: Detection and Restoration. You can choose different models for each task.
-
-**Mosaic Restoration Models:**
-
-*   **basicvsrpp-v1.2 (Default)** A general-purpose model trained on diverse video scenes. Delivers mostly good results.
-*   **deepmosaics:** Restoration model from the project [DeepMosaics](https://github.com/HypoX64/DeepMosaics). Worse quality than basicvsrpp-v1.2.
-
-> [!NOTE]
-> The DeepMosaics model should be worse in most/all scenarios. It’s integrated because the DeepMosaics project is not maintained anymore, and I wanted to provide an easy way to try it out and
-compare.
-
-**Mosaic Detection Models:**
-
-*   **v3.1-fast (Default):** Fast and efficient.
-*   **v3.1-accurate:**  Slightly more accurate than v3.1-fast, but slower. Not always better than v2.
-*   **v2:** Slowest of all but often provides better mosaic detection than v3.1-accurate but YMMV.
-
-You can configure the models in the side panel, or when using the CLI by specifying path and type of the model as arguments.
-
 ## Performance and hardware requirements
 Don't expect this to work perfectly, some scenes can be pretty good and close to the real thing. Other scenes can be rather meh and show worse artifacts than the original mosaics.
 
