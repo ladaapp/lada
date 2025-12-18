@@ -108,9 +108,7 @@ def dump_torch_devices():
     print(s)
 
 def _dump_available_models(modelfiles: list[ModelFile]):
-    s = _("Model weights directory:")
-    s += "\n\t" + os.path.abspath(MODEL_WEIGHTS_DIR)
-    s += "\n" + _("Available restoration models:")
+    s = _("Available restoration models:")
     if len(modelfiles) == 0:
         s += f"\n\t{_("None!")}"
     else:
