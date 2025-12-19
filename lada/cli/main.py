@@ -164,6 +164,9 @@ def main():
     if not (os.path.isfile(args.input) or os.path.isdir(args.input)):
         print(_("Invalid input. No file or directory at {input_path}").format(input_path=args.input))
         sys.exit(1)
+    if args.temporary_directory and not os.path.isdir(args.temporary_directory):
+        print(_("Temporary directory {temporary_path} doesn't exit. Creating…").format(temporary_path=args.temporary_directory))
+        os.makedirs(args.temporary_directory)
 
     if detection_modelfile := ModelFiles.get_detection_model_by_name(args.mosaic_detection_model):
         mosaic_detection_model_path = detection_modelfile.path
