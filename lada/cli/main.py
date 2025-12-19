@@ -219,7 +219,7 @@ def main():
         if not single_file_input:
             print(f"{os.path.basename(input_path)}:")
         try:
-            process_video_file(input_path=input_path, output_path=output_path, temp_dir_path=args.temp_directory, device=device, mosaic_restoration_model=mosaic_restoration_model, mosaic_detection_model=mosaic_detection_model,
+            process_video_file(input_path=input_path, output_path=output_path, temp_dir_path=args.temporary_directory, device=device, mosaic_restoration_model=mosaic_restoration_model, mosaic_detection_model=mosaic_detection_model,
                                mosaic_restoration_model_name=mosaic_restoration_model_name, preferred_pad_mode=preferred_pad_mode, max_clip_length=args.max_clip_length,
                                encoder=encoder, encoder_options=encoder_options, mp4_fast_start=args.mp4_fast_start)
         except KeyboardInterrupt:
