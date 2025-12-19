@@ -193,7 +193,7 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
                 self.frame_restorer.stop()
                 frame_restorer_thread_queue = self.frame_restorer.get_frame_restoration_queue()
                 # unblock consumer
-                threading_utils.put_closing_queue_marker(frame_restorer_thread_queue, "frame_restorer_thread_queue")
+                threading_utils.put_queue_stop_marker(frame_restorer_thread_queue, "frame_restorer_thread_queue")
 
             if self.appsource_thread:
                 self.appsource_thread.join()

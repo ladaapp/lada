@@ -11,11 +11,20 @@ from lada import LOG_LEVEL
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
 
-def put_closing_queue_marker(queue: Queue, debug_queue_name: str):
+class StopMarker:
+    pass
+
+class EofMarker:
+    pass
+
+STOP_MARKER = StopMarker()
+EOF_MARKER = EofMarker()
+
+def put_queue_stop_marker(queue: Queue, debug_queue_name: str, stop_marker=STOP_MARKER):
     sent_out_none_success = False
     while not sent_out_none_success:
         try:
-            queue.put(None, block=False)
+            queue.put(stop_marker, block=False)
             sent_out_none_success = True
         except Full:
             queue.get(block=False)

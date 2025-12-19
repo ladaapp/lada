@@ -534,7 +534,7 @@ class NsfwDetector:
         self.scene_detector_thread_should_be_running = False
 
         # unblock consumer
-        for i in range(self.frame_detector_thread_count): threading_utils.put_closing_queue_marker(self.frame_queue, "file_queue")
+        for i in range(self.frame_detector_thread_count): threading_utils.put_queue_stop_marker(self.frame_queue, "file_queue", stop_marker=None)
         # unblock producer
         threading_utils.empty_out_queue_until_futures_are_done(self.scene_queue, "frame_queue", self.frame_detector_thread_futures)
         concurrent_futures.wait(self.frame_detector_thread_futures, return_when=concurrent_futures.ALL_COMPLETED)
@@ -542,8 +542,8 @@ class NsfwDetector:
         self.frame_detector_thread_futures = []
 
         # unblock consumer
-        threading_utils.put_closing_queue_marker(self.scene_queue, "scene_queue")
-        for i in range(self.scene_detector_thread_count): threading_utils.put_closing_queue_marker(self.frame_queue, "frame_queue")
+        threading_utils.put_queue_stop_marker(self.scene_queue, "scene_queue", stop_marker=None)
+        for i in range(self.scene_detector_thread_count): threading_utils.put_queue_stop_marker(self.frame_queue, "frame_queue", stop_marker=None)
         # unblock producer
         threading_utils.empty_out_queue_until_futures_are_done(self.scene_queue, "scene_queue", self.scene_detector_thread_futures)
         wait_until_completed(self.scene_detector_thread_futures)
