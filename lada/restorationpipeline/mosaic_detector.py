@@ -4,40 +4,32 @@
 import logging
 import threading
 import time
-from pathlib import Path
 from typing import List, Tuple
 
 import cv2
 import torch
 
-from ultralytics.engine.results import Results
-
-from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, PipelineQueue
-from lada.utils import VideoMetadata, threading_utils
-from lada.utils import image_utils
-from lada.utils.box_utils import box_overlap
-from lada.models.yolo.yolo11_segmentation_model import Yolo11SegmentationModel
-from lada.utils.scene_utils import crop_to_box_v3
-from lada.utils import video_utils
 from lada import LOG_LEVEL
-from lada.utils.ultralytics_utils import convert_yolo_box, convert_yolo_mask_tensor
+from lada.models.yolo.yolo11_segmentation_model import Yolo11SegmentationModel
 from lada.utils import Box
+from lada.utils import VideoMetadata, threading_utils, ImageTensor, MaskTensor, Pad
+from lada.utils import image_utils
+from lada.utils import video_utils
+from lada.utils.box_utils import box_overlap
+from lada.utils.scene_utils import crop_to_box_v3
+from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, PipelineQueue
+from lada.utils.ultralytics_utils import convert_yolo_box, convert_yolo_mask_tensor, UltralyticsResults
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
-Image = torch.Tensor # [H, W, C] fp
-Images = List[torch.Tensor] # [H, W, C] fp
-Mask = torch.Tensor # [H, W] uint8
-Masks = List[torch.Tensor] # [H, W] uint8
-Boxes = List[Box] # [4] int64
 
 class Scene:
-    def __init__(self, file_path: Path, video_meta_data: VideoMetadata):
+    def __init__(self, file_path: str, video_meta_data: VideoMetadata):
         self.file_path = file_path
         self.video_meta_data = video_meta_data
-        self.frames: Images = []
-        self.masks: Masks = []
-        self.boxes: Boxes = []
+        self.frames: list[ImageTensor] = []
+        self.masks: list[MaskTensor] = []
+        self.boxes: list[Box] = []
         self.frame_start: int | None = None
         self.frame_end: int | None = None
         self._index: int = 0
@@ -45,7 +37,7 @@ class Scene:
     def __len__(self):
         return len(self.frames)
 
-    def add_frame(self, frame_num: int, img: Image, mask: Mask, box: Box):
+    def add_frame(self, frame_num: int, img: ImageTensor, mask: MaskTensor, box: Box):
         if self.frame_start is None:
             self.frame_start = frame_num
             self.frame_end = frame_num
@@ -57,7 +49,7 @@ class Scene:
         self.masks.append(mask)
         self.boxes.append(box)
 
-    def merge_mask_box(self, mask: Mask, box: Box):
+    def merge_mask_box(self, mask: MaskTensor, box: Box):
         assert self.belongs(box)
         current_box = self.boxes[-1]
         t = min(current_box[0], box[0])
@@ -95,11 +87,11 @@ class Clip:
         assert self.frame_start <= self.frame_end
         self.size = size
         self.pad_mode = pad_mode
-        self.frames: Images = []
-        self.masks: Masks = []
-        self.boxes: Boxes = []
+        self.frames: list[ImageTensor] = []
+        self.masks: list[MaskTensor] = []
+        self.boxes: list[Box] = []
         self.crop_shapes: List[Tuple[int, int]] = []
-        self.pad_after_resizes: List[Tuple[int, int, int, int]] = []
+        self.pad_after_resizes: List[Pad] = []
         self._index: int = 0
 
         # crop scene
@@ -171,9 +163,9 @@ class Clip:
         return self.frames[item], self.masks[item], self.boxes[item]
 
 class MosaicDetector:
-    def __init__(self, model: Yolo11SegmentationModel, video_file, frame_detection_queue: PipelineQueue, mosaic_clip_queue: PipelineQueue, max_clip_length=30, clip_size=256, device=None, pad_mode='reflect', batch_size=4):
+    def __init__(self, model: Yolo11SegmentationModel, video_metadata: VideoMetadata, frame_detection_queue: PipelineQueue, mosaic_clip_queue: PipelineQueue, max_clip_length=30, clip_size=256, device: torch.device | None = None, pad_mode='reflect', batch_size=4):
         self.model = model
-        self.video_file = video_file
+        self.video_meta_data = video_metadata
         self.device = torch.device(device) if device is not None else device
         self.max_clip_length = max_clip_length
         assert max_clip_length > 0
@@ -182,7 +174,6 @@ class MosaicDetector:
         self.clip_counter = 0
         self.start_ns = 0
         self.start_frame = 0
-        self.video_meta_data = video_utils.get_video_meta_data(self.video_file)
         self.frame_detection_queue = frame_detection_queue
         self.mosaic_clip_queue = mosaic_clip_queue
         self.frame_feeder_queue = PipelineQueue(name="frame_feeder_queue", maxsize=8)
@@ -281,7 +272,7 @@ class MosaicDetector:
             scenes.remove(completed_scene)
             self.clip_counter += 1
 
-    def _create_or_append_scenes_based_on_prediction_result(self, results: Results, scenes: list[Scene], frame_num):
+    def _create_or_append_scenes_based_on_prediction_result(self, results: UltralyticsResults, scenes: list[Scene], frame_num):
         mosaic_detected = len(results.boxes) > 0
         self.frame_detection_queue.put((frame_num, mosaic_detected))
         if self.stop_requested:
@@ -302,14 +293,14 @@ class MosaicDetector:
                         current_scene.add_frame(frame_num, results.orig_img, mask, box)
                     break
             if current_scene is None:
-                current_scene = Scene(self.video_file, self.video_meta_data)
+                current_scene = Scene(self.video_meta_data.video_file, self.video_meta_data)
                 scenes.append(current_scene)
                 current_scene.add_frame(frame_num, results.orig_img, mask, box)
 
     def _frame_feeder_worker(self):
         logger.debug("frame feeder: started")
         eof = False
-        with video_utils.VideoReader(self.video_file) as video_reader:
+        with video_utils.VideoReader(self.video_meta_data.video_file) as video_reader:
             if self.start_ns > 0:
                 video_reader.seek(self.start_ns)
             video_frames_generator = video_reader.frames()

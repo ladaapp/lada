@@ -1,18 +1,20 @@
 # SPDX-FileCopyrightText: Lada Authors
 # SPDX-License-Identifier: AGPL-3.0
 
-import torch
 import numpy as np
-from ultralytics.utils.checks import check_imgsz
-from ultralytics.utils import nms, ops
+import torch
+from ultralytics import YOLO
+from ultralytics.cfg import get_cfg
+from ultralytics.data.augment import LetterBox
 from ultralytics.engine.results import Results
 from ultralytics.nn.autobackend import AutoBackend
-from ultralytics.cfg import get_cfg
 from ultralytics.utils import DEFAULT_CFG
-from ultralytics import YOLO
+from ultralytics.utils import nms, ops
+from ultralytics.utils.checks import check_imgsz
+
+from lada.utils import ImageTensor
 from lada.utils.torch_letterbox import PyTorchLetterBox
-from typing import List
-from ultralytics.data.augment import LetterBox
+from lada.utils.ultralytics_utils import UltralyticsResults
 
 class Yolo11SegmentationModel:
     def __init__(self, model_path: str, device, imgsz=640, fp16=False, **kwargs):
@@ -42,16 +44,16 @@ class Yolo11SegmentationModel:
         self.model.warmup(imgsz=(1, 3, *self.imgsz))
         self.dtype = torch.float16 if fp16 else torch.float32
 
-    def _preprocess_cpu(self, imgs: list[torch.Tensor]) -> torch.Tensor:
+    def _preprocess_cpu(self, imgs: list[ImageTensor]) -> torch.Tensor:
         im = np.stack([self.letterbox(image=x.numpy()) for x in imgs])
         im = im.transpose((0, 3, 1, 2))  # BHWC to BCHW, (n, 3, h, w)
         im = np.ascontiguousarray(im)  # contiguous
         return torch.from_numpy(im)
     
-    def _preprocess_gpu(self, imgs: list[torch.Tensor]) -> torch.Tensor:
+    def _preprocess_gpu(self, imgs: list[ImageTensor]) -> torch.Tensor:
         return self.letterbox(torch.stack(imgs, dim=0))
 
-    def preprocess(self, imgs: list[torch.Tensor]) -> list[torch.Tensor]:
+    def preprocess(self, imgs: list[ImageTensor]) -> list[torch.Tensor]:
         is_cpu_input = imgs[0].device.type == 'cpu'
         if is_cpu_input:
             return self._preprocess_cpu(imgs)
@@ -63,14 +65,14 @@ class Yolo11SegmentationModel:
     def inference(self, image_batch: torch.Tensor):
         return self.model(image_batch, augment=False, visualize=False, embed=None)
 
-    def inference_and_postprocess(self, imgs: torch.Tensor, orig_imgs: list[torch.Tensor]) -> list[Results]:
+    def inference_and_postprocess(self, imgs: torch.Tensor, orig_imgs: list[ImageTensor]) -> list[UltralyticsResults]:
 
         with torch.inference_mode():
             input = imgs.to(device=self.device).to(dtype=self.dtype).div_(255.0)
             preds = self.inference(input)
             return self.postprocess(preds, input, orig_imgs)
 
-    def postprocess(self, preds, img, orig_imgs: List[torch.Tensor]) -> List[Results]:
+    def postprocess(self, preds, img, orig_imgs: list[ImageTensor]) -> list[Results]:
         protos = preds[1][-1]
         preds = nms.non_max_suppression(
             preds,
@@ -84,7 +86,7 @@ class Yolo11SegmentationModel:
         )
         return [self.construct_result(pred, img, orig_img, proto) for pred, orig_img, proto in zip(preds, orig_imgs, protos)]
 
-    def construct_result(self, preds: torch.tensor, img: torch.tensor, orig_img: torch.Tensor, proto: torch.tensor):
+    def construct_result(self, preds: torch.tensor, img: torch.tensor, orig_img: ImageTensor, proto: torch.tensor):
         if not len(preds):  # save empty boxes
             masks = None
         else:

@@ -1,14 +1,15 @@
 import torch
 
 from lada.models.basicvsrpp.basicvsrpp_gan import BasicVSRPlusPlusGan
+from lada.utils import ImageTensor
 
 class BasicvsrppMosaicRestorer:
-    def __init__(self, model: BasicVSRPlusPlusGan, device: torch.device, fp16, clip_length):
+    def __init__(self, model: BasicVSRPlusPlusGan, device: torch.device, fp16: bool):
         self.model = model
         self.device: torch.device = torch.device(device)
         self.dtype = torch.float16 if fp16 else torch.float32
 
-    def restore(self, video: list[torch.Tensor], max_frames=-1) -> list[torch.Tensor]:
+    def restore(self, video: list[ImageTensor], max_frames=-1) -> list[ImageTensor]:
         input_frame_count = len(video)
         input_frame_shape = video[0].shape
         with torch.inference_mode():

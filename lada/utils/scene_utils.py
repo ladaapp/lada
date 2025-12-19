@@ -3,10 +3,9 @@
 
 import math
 
-from lada.utils import Box, Mask, Image
+from lada.utils import Box, Mask, Image, ImageTensor, MaskTensor
 
-
-def crop_to_box_v3(box: Box, img: Image, mask_img: Mask, target_size: tuple[int, int], max_box_expansion_factor=1.0, border_size=0):
+def crop_to_box_v3(box: Box, img: Image | ImageTensor, mask_img: Mask | MaskTensor, target_size: tuple[int, int], max_box_expansion_factor=1.0, border_size=0):
     """
     Crops Mask and Image by using Box. Will try to grow Box to better fit target size
     Parameters

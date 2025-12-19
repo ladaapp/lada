@@ -211,7 +211,7 @@ def main():
     device = torch.device(args.device)
     mosaic_detection_model, mosaic_restoration_model, preferred_pad_mode = load_models(
         device, mosaic_restoration_model_name, mosaic_restoration_model_path, args.mosaic_restoration_config_path,
-        mosaic_detection_model_path, args.fp16, args.max_clip_length, args.detect_face_mosaics
+        mosaic_detection_model_path, args.fp16, args.detect_face_mosaics
     )
 
     input_files, output_files = utils.setup_input_and_output_paths(args.input, args.output, args.output_file_pattern)

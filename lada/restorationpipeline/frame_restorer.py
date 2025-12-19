@@ -12,7 +12,7 @@ import numpy as np
 
 from lada import LOG_LEVEL
 from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, StopMarker, EofMarker, PipelineQueue
-from lada.utils import image_utils, video_utils, threading_utils, mask_utils
+from lada.utils import image_utils, video_utils, threading_utils, mask_utils, ImageTensor
 from lada.utils import visualization_utils
 from lada.restorationpipeline.mosaic_detector import MosaicDetector
 from lada.restorationpipeline.mosaic_detector import Clip
@@ -53,7 +53,7 @@ class FrameRestorer:
         # no queue size limit needed, elements are tiny
         self.frame_detection_queue = PipelineQueue(name="mosaic_clip_queue")
 
-        self.mosaic_detector = MosaicDetector(self.mosaic_detection_model, self.video_meta_data.video_file,
+        self.mosaic_detector = MosaicDetector(self.mosaic_detection_model, self.video_meta_data,
                                               frame_detection_queue=self.frame_detection_queue,
                                               mosaic_clip_queue=self.mosaic_clip_queue,
                                               device=self.device,
@@ -152,7 +152,7 @@ class FrameRestorer:
                 frame_feeder_queue/max-qsize: {self.mosaic_detector.frame_feeder_queue.stats[f"{self.mosaic_detector.frame_feeder_queue.name}_max_size"]}/{self.mosaic_detector.frame_feeder_queue.maxsize}"""))
 
 
-    def _restore_clip_frames(self, images):
+    def _restore_clip_frames(self, images: list[ImageTensor]):
         if self.mosaic_restoration_model_name.startswith("deepmosaics"):
             from lada.restorationpipeline.deepmosaics_mosaic_restorer import DeepmosaicsMosaicRestorer
             assert isinstance(self.mosaic_restoration_model, DeepmosaicsMosaicRestorer)
@@ -165,7 +165,7 @@ class FrameRestorer:
             raise NotImplementedError()
         return restored_clip_images
 
-    def _restore_frame(self, frame: torch.Tensor, frame_num: int, restored_clips: list[Clip]):
+    def _restore_frame(self, frame: ImageTensor, frame_num: int, restored_clips: list[Clip]):
         """
         Takes mosaic frame and restored clips and replaces mosaic regions in frame with restored content from the clips starting at the same frame number as mosaic frame.
         Pops starting frame from each restored clip in the process if they actually start at the same frame number as frame.

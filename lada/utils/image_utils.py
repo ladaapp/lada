@@ -12,10 +12,10 @@ from torchvision.utils import make_grid
 from torchvision.transforms.v2 import Resize, InterpolationMode
 from typing import Sequence
 
-from lada.utils import Image, Pad
+from lada.utils import Image, Pad, ImageTensor
 
 # pad image with reflect mode even if pad size is greater than image size
-def torch_pad_reflect(image: torch.Tensor, paddings: Sequence[int]) -> torch.Tensor:
+def _torch_pad_reflect(image: torch.Tensor, paddings: Sequence[int]) -> torch.Tensor:
     paddings = np.array(paddings, dtype=int)
 
     assert np.all(np.array(image.shape[-2:]) > 1),  "Image shape should be more than 1 pixel"
@@ -29,7 +29,7 @@ def torch_pad_reflect(image: torch.Tensor, paddings: Sequence[int]) -> torch.Ten
 
     return image
 
-def pad_image(img: Image|torch.Tensor, max_height, max_width, mode='zero') -> tuple[Image|torch.Tensor, Pad]:
+def pad_image(img: Image | ImageTensor, max_height, max_width, mode='zero') -> tuple[Image | ImageTensor, Pad]:
     height, width = img.shape[:2]
     if height == max_height and width == max_width:
         return img, (0, 0, 0, 0)
@@ -41,10 +41,7 @@ def pad_image(img: Image|torch.Tensor, max_height, max_width, mode='zero') -> tu
     pad_w_r = math.floor(pad_w / 2)
     pad = (pad_h_t, pad_h_b,pad_w_l, pad_w_r)
     if isinstance(img, torch.Tensor) and img.device.type == 'cuda':
-        if mode == 'reflect':
-            padded_image = torch_pad_reflect(img.permute(2, 0, 1), (pad_w_l, pad_w_r, pad_h_t, pad_h_b)).permute(1, 2, 0)
-        else:
-            padded_image = F.pad(img.permute(2, 0, 1), (pad_w_l, pad_w_r, pad_h_t, pad_h_b), mode='constant').permute(1, 2, 0)
+        padded_image = pad_image_tensor_by_pad(img, pad, mode)
     else:
         return_pt = False
         if isinstance(img, torch.Tensor):
@@ -56,7 +53,7 @@ def pad_image(img: Image|torch.Tensor, max_height, max_width, mode='zero') -> tu
     assert padded_image.shape[:2] == (max_height, max_width)
     return padded_image, pad
 
-def pad_image_by_pad(img: Image, pad: Pad, mode='zero'):
+def pad_image_by_pad(img: Image, pad: Pad, mode='zero') -> Image:
     (pad_h_t, pad_h_b,pad_w_l, pad_w_r) = pad
     if img.ndim == 3:
         if mode == 'zero':
@@ -69,6 +66,15 @@ def pad_image_by_pad(img: Image, pad: Pad, mode='zero'):
         assert mode == 'zero'
         padded_img = np.pad(img, ((pad_h_t, pad_h_b),(pad_w_l, pad_w_r)), mode='constant', constant_values=0)
     return padded_img
+
+def pad_image_tensor_by_pad(img: ImageTensor, pad: Pad, mode='zero') -> ImageTensor:
+    pad_h_t, pad_h_b, pad_w_l, pad_w_r = pad
+    if mode =='zero':
+        return F.pad(img.permute(2, 0, 1), (pad_w_l, pad_w_r, pad_h_t, pad_h_b), mode='constant').permute(1, 2, 0)
+    elif mode == 'reflect':
+        return _torch_pad_reflect(img.permute(2, 0, 1), (pad_w_l, pad_w_r, pad_h_t, pad_h_b)).permute(1, 2, 0)
+    else:
+        raise NotImplementedError()
 
 def repad_image(imgs: list[Image], pads: list[Pad], mode='reflect'):
     assert len(imgs) == len(pads)
@@ -189,7 +195,7 @@ def tensor2img(tensor, rgb2bgr=True, out_type=np.uint8, min_max=(0, 1)):
         result.append(img_np)
     return result
 
-def resize(img: Image|torch.Tensor, size: int|tuple[int, int], interpolation=cv2.INTER_LINEAR) -> Image|torch.Tensor:
+def resize(img: Image | ImageTensor, size: int | tuple[int, int], interpolation=cv2.INTER_LINEAR) -> Image | ImageTensor:
     if type(size) == int:
         h, w = img.shape[:2]
         if max(w, h) == size:

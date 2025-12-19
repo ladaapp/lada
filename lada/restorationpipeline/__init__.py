@@ -15,7 +15,6 @@ def load_models(
     mosaic_restoration_config_path: str | None,
     mosaic_detection_model_path: str,
     fp16: bool,
-    clip_length: int,
     detect_face_mosaics: bool):
     if mosaic_restoration_model_name.startswith("deepmosaics"):
         from lada.models.deepmosaics.models import loadmodel
@@ -27,7 +26,7 @@ def load_models(
         from lada.models.basicvsrpp.inference import load_model
         from lada.restorationpipeline.basicvsrpp_mosaic_restorer import BasicvsrppMosaicRestorer
         _model = load_model(mosaic_restoration_config_path, mosaic_restoration_model_path, device, fp16)
-        mosaic_restoration_model = BasicvsrppMosaicRestorer(_model, device, fp16, clip_length)
+        mosaic_restoration_model = BasicvsrppMosaicRestorer(_model, device, fp16)
         pad_mode = 'zero'
     else:
         raise NotImplementedError()
