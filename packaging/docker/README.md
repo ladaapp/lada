@@ -1,6 +1,6 @@
 ## Building the image
 ```shell
-docker build . -f packaging/docker/Dockerfile -t ladaapp/lada:<version-tag>
+docker build . -f packaging/docker/Dockerfile -t ladaapp/lada:<version-tag> --build-arg SOURCE_DATE_EPOCH=0
 ```
 
 ## Publish image on Dockerhub
