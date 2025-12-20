@@ -151,13 +151,11 @@ def get_common_binaries():
 
 def get_common_datas(project_root: str):
     common_datas = [
-        (ospj(project_root, 'model_weights/lada_mosaic_detection_model_v2.pt'), 'model_weights'),
-        (ospj(project_root, 'model_weights/lada_mosaic_detection_model_v3.1_accurate.pt'), 'model_weights'),
-        (ospj(project_root, 'model_weights/lada_mosaic_detection_model_v3.1_fast.pt'), 'model_weights'),
         (ospj(project_root, 'model_weights/lada_mosaic_detection_model_v4_accurate.pt'), 'model_weights'),
         (ospj(project_root, 'model_weights/lada_mosaic_detection_model_v4_fast.pt'), 'model_weights'),
         (ospj(project_root, 'model_weights/lada_mosaic_restoration_model_generic_v1.2.pth'), 'model_weights'),
         (ospj(project_root, 'model_weights/3rd_party/clean_youknow_video.pth'), 'model_weights/3rd_party'),
+        (ospj(project_root, 'lada/utils/encoding_presets.csv'), 'lada/utils'),
     ]
     common_datas += [(str(p), str(p.relative_to(project_root).parent)) for p in pathlib.Path(ospj(project_root, "lada/locale")).rglob("*.mo")]
     return common_datas
