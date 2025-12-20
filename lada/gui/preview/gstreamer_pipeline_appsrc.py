@@ -12,6 +12,7 @@ from lada import LOG_LEVEL
 from lada.gui.frame_restorer_provider import FrameRestorerProvider
 from lada.utils import video_utils, VideoMetadata, threading_utils
 from lada.restorationpipeline.frame_restorer import FrameRestorer
+from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
@@ -216,15 +217,15 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
 
     def _push_next_frame(self) -> bool:
         result = self.frame_restorer.get_frame_restoration_queue().get()
-        if self.appsource_thread_stop_requested:
+        if self.appsource_thread_stop_requested or result is STOP_MARKER:
             logger.debug("appsource worker: frame_restoration_queue consumer unblocked")
-        if result is None:
             self.appsource_thread_should_be_running = False
-            if not self.appsource_thread_stop_requested:
-                self.appsource_thread_eof = True
-                self.emit("end-of-stream")
-                return True
             return False
+        if result is EOF_MARKER:
+            self.appsource_thread_should_be_running = False
+            self.appsource_thread_eof = True
+            self.emit("end-of-stream")
+            return True
         else:
             frame, frame_pts = result
 
