@@ -12,7 +12,7 @@ import numpy as np
 
 from lada import LOG_LEVEL
 from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, StopMarker, EofMarker, PipelineQueue
-from lada.utils import image_utils, video_utils, threading_utils, mask_utils, ImageTensor
+from lada.utils import image_utils, video_utils, threading_utils, mask_utils, ImageTensor, Image
 from lada.utils import visualization_utils
 from lada.restorationpipeline.mosaic_detector import MosaicDetector
 from lada.restorationpipeline.mosaic_detector import Clip
@@ -51,7 +51,7 @@ class FrameRestorer:
         self.restored_clip_queue = PipelineQueue(name="restored_clip_queue", maxsize=max_clips_in_restored_clips_queue)
 
         # no queue size limit needed, elements are tiny
-        self.frame_detection_queue = PipelineQueue(name="mosaic_clip_queue")
+        self.frame_detection_queue = PipelineQueue(name="frame_detection_queue")
 
         self.mosaic_detector = MosaicDetector(self.mosaic_detection_model, self.video_meta_data,
                                               frame_detection_queue=self.frame_detection_queue,
@@ -298,7 +298,7 @@ class FrameRestorer:
             video_frames_generator = video_reader.frames()
 
             frame_num = self.start_frame
-            clips_remaining = True
+            queue_marker = None
             clip_buffer = []
 
             while self.frame_restoration_thread_should_be_running:
@@ -314,8 +314,10 @@ class FrameRestorer:
                 if mosaic_detected:
                     # As we don't know how many clips starting with the current frame we'll read and buffer restored clips until we receive a clip
                     # that starts after the current frame. This makes sure that we've gather all restored clips necessary to restore the current frame.
-                    while clips_remaining and not self._contains_at_least_one_clip_starting_after_frame_num(frame_num, clip_buffer):
-                        clips_remaining = self._read_next_clip(frame_num, clip_buffer) is None
+                    while queue_marker is None and not self._contains_at_least_one_clip_starting_after_frame_num(frame_num, clip_buffer):
+                        queue_marker = self._read_next_clip(frame_num, clip_buffer)
+                    if queue_marker is STOP_MARKER:
+                        break
 
                     self._restore_frame(frame, frame_num, clip_buffer)
                     self.frame_restoration_queue.put((frame, frame_pts))
@@ -337,7 +339,7 @@ class FrameRestorer:
     def __iter__(self):
         return self
 
-    def __next__(self) -> tuple[np.ndarray, int] | None:
+    def __next__(self) -> tuple[Image, int] | None:
         """
         returns None if being called while FrameRestorer is being stopped
         """
@@ -354,5 +356,5 @@ class FrameRestorer:
                 return elem
             return None
 
-    def get_frame_restoration_queue(self):
+    def get_frame_restoration_queue(self) -> PipelineQueue:
         return self.frame_restoration_queue

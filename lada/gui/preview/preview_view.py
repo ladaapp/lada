@@ -12,7 +12,7 @@ from lada.gui import utils
 from lada.gui.config.config import Config
 from lada.gui.config.config_sidebar import ConfigSidebar
 from lada.gui.config.no_gpu_banner import NoGpuBanner
-from lada.gui.frame_restorer_provider import FrameRestorerProvider, FrameRestorerOptions, FRAME_RESTORER_PROVIDER
+from lada.gui.frame_restorer_provider import FrameRestorerProvider, FrameRestorerOptions, FRAME_RESTORER_PROVIDER, FrameRestorerOptionsBuilder
 from lada.gui.preview.fullscreen_mouse_activity_controller import FullscreenMouseActivityController
 from lada.gui.preview.gstreamer_pipeline_manager import PipelineManager, PipelineState
 from lada.gui.preview.headerbar_files_drop_down import HeaderbarFilesDropDown
@@ -258,39 +258,39 @@ class PreviewView(Gtk.Widget):
     def setup_config_signal_handlers(self):
         def on_show_mosaic_detections(*args):
             if self._frame_restorer_options:
-                self.frame_restorer_options = self._frame_restorer_options.with_mosaic_detection(self._config.show_mosaic_detections)
+                self.frame_restorer_options = FrameRestorerOptionsBuilder(self.frame_restorer_options).mosaic_detection(self._config.show_mosaic_detections).build()
         self._config.connect("notify::show-mosaic-detections", on_show_mosaic_detections)
 
         def on_device(object, spec):
             if self._frame_restorer_options:
-                self.frame_restorer_options = self._frame_restorer_options.with_device(self._config.device)
+                self.frame_restorer_options = FrameRestorerOptionsBuilder(self.frame_restorer_options).device(self._config.device).build()
         self._config.connect("notify::device", on_device)
 
         def on_mosaic_restoration_model(object, spec):
             if self._frame_restorer_options:
-                self.frame_restorer_options = self._frame_restorer_options.with_mosaic_restoration_model_name(self._config.mosaic_restoration_model)
+                self.frame_restorer_options = FrameRestorerOptionsBuilder(self.frame_restorer_options).mosaic_restoration_model_name(self._config.mosaic_restoration_model).build()
         self._config.connect("notify::mosaic-restoration-model", on_mosaic_restoration_model)
 
         def on_mosaic_detection_model(object, spec):
             if self._frame_restorer_options:
-                self.frame_restorer_options = self._frame_restorer_options.with_mosaic_detection_model_name(self._config.mosaic_detection_model)
+                self.frame_restorer_options = FrameRestorerOptionsBuilder(self.frame_restorer_options).mosaic_detection_model_name(self._config.mosaic_detection_model).build()
         self._config.connect("notify::mosaic-detection-model", on_mosaic_detection_model)
 
         self._config.connect("notify::preview-buffer-duration", lambda object, spec: self.set_property('buffer-queue-min-thresh-time', object.get_property(spec.name)))
 
         def on_max_clip_duration(object, spec):
             if self._frame_restorer_options:
-                self.frame_restorer_options = self._frame_restorer_options.with_max_clip_length(self._config.max_clip_duration)
+                self.frame_restorer_options = FrameRestorerOptionsBuilder(self.frame_restorer_options).max_clip_length(self._config.max_clip_duration).build()
         self._config.connect("notify::max-clip-duration", on_max_clip_duration)
 
         def on_fp16_enabled(object, spec):
             if self._frame_restorer_options:
-                self.frame_restorer_options = self._frame_restorer_options.with_fp16(self._config.fp16_enabled)
+                self.frame_restorer_options = FrameRestorerOptionsBuilder(self.frame_restorer_options).fp16_enabled(self._config.fp16_enabled).build()
         self._config.connect("notify::fp16-enabled", on_fp16_enabled)
 
         def on_detect_face_mosaics(object, spec):
             if self._frame_restorer_options:
-                self.frame_restorer_options = self._frame_restorer_options.with_detect_face_mosaics(self._config.detect_face_mosaics)
+                self.frame_restorer_options = FrameRestorerOptionsBuilder(self.frame_restorer_options).detect_face_mosaics(self._config.detect_face_mosaics).build()
         self._config.connect("notify::detect-face-mosaics", on_detect_face_mosaics)
 
     def set_speaker_icon(self, mute: bool):

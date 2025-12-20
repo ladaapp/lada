@@ -12,7 +12,7 @@ from lada import LOG_LEVEL
 from lada.gui.frame_restorer_provider import FrameRestorerProvider
 from lada.utils import video_utils, VideoMetadata, threading_utils
 from lada.restorationpipeline.frame_restorer import FrameRestorer
-from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER
+from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, StopMarker, EofMarker
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
@@ -56,7 +56,7 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
         self.appsource_thread: threading.Thread | None = None
         self.appsource_thread_should_be_running: bool = False # Variable controlling state of thread. False if stop or shutdown requested or EOF
         self.appsource_thread_stop_requested = False # Variable controlling state of thread. Set based on enough-data / need-data states to trigger start/stop.
-        self.appsource_thread_shutdown_requested = False # Variable controlling state of thread. Forced shutdown which overwrites appsource_thread_stop_requested. Set if element set to NULL.
+        self.appsource_thread_shutdown_requested = False # Variable controlling state of thread. Forced shutdown which overwrites appsource_thread_stop_requested. True if element state was set to NULL.
         self.appsource_thread_eof = False # Variable controlling state of thread. Set if FrameRestorer gave out last frame / EOF. Unset if getting seek request.
 
         self.appsrc_lock: threading.Lock = threading.Lock()
@@ -82,7 +82,7 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
         elif prop.name == 'frame-restorer-provider':
             return self.frame_restorer_provider
         else:
-            return super().do_set_property(prop)
+            return super().do_get_property(prop)
 
     def do_set_property(self, prop: GObject.GParamSpec, value):
         if prop.name == 'video-metadata':
@@ -100,7 +100,7 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
             super().do_set_property(prop, value)
 
     def do_state_changed(self, oldstate: Gst.State, newstate: Gst.State, pending: Gst.State) -> None:
-        logger.debug(f"appsource state change: {oldstate} -> {newstate} (pending: {pending})")
+        logger.debug(f"appsource state change: {oldstate.name} -> {newstate.name} (pending: {pending.name})")
         if oldstate == Gst.State.READY and newstate == Gst.State.NULL:
             self._stop_appsource_worker(shutdown=True)
         elif oldstate == Gst.State.NULL and newstate == Gst.State.READY:
@@ -194,38 +194,46 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
                 self.frame_restorer.stop()
                 frame_restorer_thread_queue = self.frame_restorer.get_frame_restoration_queue()
                 # unblock consumer
-                threading_utils.put_queue_stop_marker(frame_restorer_thread_queue, "frame_restorer_thread_queue")
+                threading_utils.put_queue_stop_marker(frame_restorer_thread_queue)
 
             if self.appsource_thread:
                 self.appsource_thread.join()
+                logger.debug(f"appsource worker: joined appsource_thread")
                 self.appsource_thread = None
 
             if self.frame_restorer:
                 # garbage collection
-                threading_utils.empty_out_queue(frame_restorer_thread_queue, "frame_restorer_thread_queue")
+                threading_utils.empty_out_queue(frame_restorer_thread_queue)
                 self.frame_restorer = None
 
             logger.debug(f"appsource worker: stopped, took {time.time() - start}")
 
     def _appsource_worker(self):
         logger.debug("appsource worker: started")
-        eof = False
+        queue_marker = None
         while self.appsource_thread_should_be_running:
-            eof = self._push_next_frame()
-        if eof:
+            queue_marker = self._get_next_frame_and_push_buffer()
+            if queue_marker is EOF_MARKER:
+                self.appsource_thread_should_be_running = False
+                self.appsource_thread_eof = True
+                self.emit("end-of-stream")
+            elif queue_marker is STOP_MARKER:
+                self.appsource_thread_should_be_running = False
+                if not self.appsource_thread_stop_requested:
+                    logger.warning("appsource worker: Invalid state. Received queue stop marker but not requested to shutdown")
+        if queue_marker is EOF_MARKER:
             logger.debug("appsource worker: stopped itself, EOF")
+        elif queue_marker is STOP_MARKER:
+            logger.debug("appsource worker: stopped by request")
+        else:
+            pass
 
-    def _push_next_frame(self) -> bool:
+    def _get_next_frame_and_push_buffer(self) -> StopMarker | EofMarker | None:
         result = self.frame_restorer.get_frame_restoration_queue().get()
-        if self.appsource_thread_stop_requested or result is STOP_MARKER:
+        if self.appsource_thread_stop_requested or result is STOP_MARKER or result is EOF_MARKER:
             logger.debug("appsource worker: frame_restoration_queue consumer unblocked")
-            self.appsource_thread_should_be_running = False
-            return False
-        if result is EOF_MARKER:
-            self.appsource_thread_should_be_running = False
-            self.appsource_thread_eof = True
-            self.emit("end-of-stream")
-            return True
+            queue_marker = result
+            return queue_marker
         else:
             frame, frame_pts = result
 
@@ -248,7 +256,7 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
         self.emit('push-buffer', buf)
         self.current_timestamp_ns = frame_timestamp_ns
 
-        return False
+        return None
 
 
 class GstPaddingHelpers:

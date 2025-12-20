@@ -28,32 +28,63 @@ class FrameRestorerOptions:
     fp16_enabled: bool
     detect_face_mosaics: bool
 
-    def with_mosaic_restoration_model_name(self, mosaic_restoration_model_name) -> 'FrameRestorerOptions':
-        return FrameRestorerOptions(mosaic_restoration_model_name, self.mosaic_detection_model_name, self.video_metadata, self.device, self.max_clip_length, self.mosaic_detection, self.passthrough, self.fp16_enabled, self.detect_face_mosaics)
+class FrameRestorerOptionsBuilder:
+    def __init__(self, initial: FrameRestorerOptions | None = None):
+        self._properties = {}
+        if initial:
+            self._properties = {
+                "mosaic_restoration_model_name": initial.mosaic_restoration_model_name,
+                "mosaic_detection_model_name": initial.mosaic_detection_model_name,
+                "video_metadata": initial.video_metadata,
+                "device": initial.device,
+                "max_clip_length": initial.max_clip_length,
+                "mosaic_detection": initial.mosaic_detection,
+                "passthrough": initial.passthrough,
+                "fp16_enabled": initial.fp16_enabled,
+                "detect_face_mosaics": initial.detect_face_mosaics,
+            }
 
-    def with_mosaic_detection_model_name(self, mosaic_detection_model_name) -> 'FrameRestorerOptions':
-        return FrameRestorerOptions(self.mosaic_restoration_model_name, mosaic_detection_model_name, self.video_metadata, self.device, self.max_clip_length, self.mosaic_detection, self.passthrough, self.fp16_enabled, self.detect_face_mosaics)
+    def mosaic_restoration_model_name(self, value: str) -> 'FrameRestorerOptionsBuilder':
+        self._properties["mosaic_restoration_model_name"] = value
+        return self
 
-    def with_video_metadata(self, video_metadata) -> 'FrameRestorerOptions':
-        return FrameRestorerOptions(self.mosaic_restoration_model_name, self.mosaic_detection_model_name, video_metadata, self.device, self.max_clip_length, self.mosaic_detection, self.passthrough, self.fp16_enabled, self.detect_face_mosaics)
+    def mosaic_detection_model_name(self, value: str) -> 'FrameRestorerOptionsBuilder':
+        self._properties["mosaic_detection_model_name"] = value
+        return self
 
-    def with_device(self, device) -> 'FrameRestorerOptions':
-        return FrameRestorerOptions(self.mosaic_restoration_model_name, self.mosaic_detection_model_name, self.video_metadata, device, self.max_clip_length, self.mosaic_detection, self.passthrough, self.fp16_enabled, self.detect_face_mosaics)
+    def video_metadata(self, value: VideoMetadata) -> 'FrameRestorerOptionsBuilder':
+        self._properties["video_metadata"] = value
+        return self
 
-    def with_max_clip_length(self, max_clip_length) -> 'FrameRestorerOptions':
-        return FrameRestorerOptions(self.mosaic_restoration_model_name, self.mosaic_detection_model_name, self.video_metadata, self.device, max_clip_length, self.mosaic_detection, self.passthrough, self.fp16_enabled, self.detect_face_mosaics)
+    def device(self, value: str) -> 'FrameRestorerOptionsBuilder':
+        self._properties["device"] = value
+        return self
 
-    def with_mosaic_detection(self, mosaic_detection) -> 'FrameRestorerOptions':
-        return FrameRestorerOptions(self.mosaic_restoration_model_name, self.mosaic_detection_model_name, self.video_metadata, self.device, self.max_clip_length, mosaic_detection, self.passthrough, self.fp16_enabled, self.detect_face_mosaics)
+    def max_clip_length(self, value: int) -> 'FrameRestorerOptionsBuilder':
+        self._properties["max_clip_length"] = value
+        return self
 
-    def with_passthrough(self, passthrough) -> 'FrameRestorerOptions':
-        return FrameRestorerOptions(self.mosaic_restoration_model_name, self.mosaic_detection_model_name, self.video_metadata, self.device, self.max_clip_length, self.mosaic_detection, passthrough, self.fp16_enabled, self.detect_face_mosaics)
+    def mosaic_detection(self, value: bool) -> 'FrameRestorerOptionsBuilder':
+        self._properties["mosaic_detection"] = value
+        return self
 
-    def with_fp16(self, fp16_enabled: bool) -> 'FrameRestorerOptions':
-        return FrameRestorerOptions(self.mosaic_restoration_model_name, self.mosaic_detection_model_name, self.video_metadata, self.device, self.max_clip_length, self.mosaic_detection, self.passthrough, fp16_enabled, self.detect_face_mosaics)
+    def passthrough(self, value: bool) -> 'FrameRestorerOptionsBuilder':
+        self._properties["passthrough"] = value
+        return self
 
-    def with_detect_face_mosaics(self, detect_face_mosaics: bool) -> 'FrameRestorerOptions':
-        return FrameRestorerOptions(self.mosaic_restoration_model_name, self.mosaic_detection_model_name, self.video_metadata, self.device, self.max_clip_length, self.mosaic_detection, self.passthrough, self.fp16_enabled, detect_face_mosaics)
+    def fp16_enabled(self, value: bool) -> 'FrameRestorerOptionsBuilder':
+        self._properties["fp16_enabled"] = value
+        return self
+
+    def detect_face_mosaics(self, value: bool) -> 'FrameRestorerOptionsBuilder':
+        self._properties["mosaic_detection"] = value
+        return self
+
+    def build(self) -> FrameRestorerOptions:
+        # Check that all properties have been set
+        if any(value is None for value in self._properties.values()):
+            raise ValueError("All properties must be set before building")
+        return FrameRestorerOptions(**self._properties)
 
 class FrameRestorerProvider:
     def __init__(self):
@@ -107,11 +138,14 @@ class FrameRestorerProvider:
                                      mosaic_restoration_model_preferred_pad_mode=mosaic_restoration_model_preferred_pad_mode,
                                      detect_face_mosaics=self.options.detect_face_mosaics)
 
-        return FrameRestorer(self.options.device, self.options.video_metadata.video_file, self.options.max_clip_length,
+        return FrameRestorer(self.options.device,
+                             self.options.video_metadata.video_file,
+                             self.options.max_clip_length,
                              self.options.mosaic_restoration_model_name,
-                             self.models_cache["mosaic_detection_model"], self.models_cache["mosaic_restoration_model"],
+                             self.models_cache["mosaic_detection_model"],
+                             self.models_cache["mosaic_restoration_model"],
                              self.models_cache["mosaic_restoration_model_preferred_pad_mode"],
-                             mosaic_detection=self.options.mosaic_detection)
+                             self.options.mosaic_detection)
 
     def _clear_cache(self):
         if self.models_cache is None:
