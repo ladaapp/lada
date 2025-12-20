@@ -198,7 +198,11 @@ class ConfigSidebar(Gtk.Box):
     @Gtk.Template.Callback()
     @skip_if_uninitialized
     def combo_row_gpu_selected_callback(self, combo_row, value):
-        selected_gpu_name = combo_row.get_property("selected_item").get_string()
+        selected_item = combo_row.get_property("selected_item")
+        if selected_item is None:
+            # CPU device, no GPU available
+            return
+        selected_gpu_name = selected_item.get_string()
         for id, name in utils.get_available_gpus():
             if name == selected_gpu_name:
                 self._config.device = f"cuda:{id}"
