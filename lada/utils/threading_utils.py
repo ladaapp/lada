@@ -21,6 +21,13 @@ class StopMarker:
 class EofMarker:
     pass
 
+# Guarantee that no Mosaic Clips exist within this range (start and end frames are inclusive)
+# Can be used to unblock consumers waiting for next clips to arrive
+@dataclass
+class NoClipsMarker:
+    frame_start: int
+    frame_end: int
+
 STOP_MARKER = StopMarker()
 EOF_MARKER = EofMarker()
 
