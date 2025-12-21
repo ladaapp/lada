@@ -11,7 +11,7 @@ import torch
 import numpy as np
 
 from lada import LOG_LEVEL
-from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, StopMarker, EofMarker, PipelineQueue, NoClipsMarker
+from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, StopMarker, EofMarker, PipelineQueue
 from lada.utils import image_utils, video_utils, threading_utils, mask_utils, ImageTensor, Image
 from lada.utils import visualization_utils
 from lada.restorationpipeline.mosaic_detector import MosaicDetector
@@ -248,13 +248,7 @@ class FrameRestorer:
                 if self.stop_requested:
                     logger.debug("clip restoration worker: restored_clip_queue producer unblocked")
                     break
-            elif isinstance(clip, NoClipsMarker):
-                self.restored_clip_queue.put(clip)
-                if self.stop_requested:
-                    logger.debug("clip restoration worker: restored_clip_queue producer unblocked")
-                    break
             else:
-                assert isinstance(clip, Clip)
                 self._restore_clip(clip)
                 self.restored_clip_queue.put(clip)
                 if self.stop_requested:
@@ -284,16 +278,13 @@ class FrameRestorer:
         assert detection_frame_num == expected_frame_num, f"frame detection queue out of sync: received {detection_frame_num} expected {expected_frame_num}"
         return mosaic_detected, frame, frame_pts
 
-    def _read_next_clip(self, current_frame_num, clip_buffer) -> StopMarker | EofMarker | NoClipsMarker | None:
+    def _read_next_clip(self, current_frame_num, clip_buffer) -> StopMarker | EofMarker | None:
         clip = self.restored_clip_queue.get()
         if self.stop_requested or clip is STOP_MARKER:
             logger.debug("frame restoration worker: restored_clip_queue consumer unblocked")
             return STOP_MARKER
         if clip is EOF_MARKER:
             return EOF_MARKER
-        if isinstance(clip, NoClipsMarker):
-            return clip
-        assert isinstance(clip, Clip)
         assert clip.frame_start >= current_frame_num, "clip queue out of sync!"
         clip_buffer.append(clip)
         return None
@@ -321,9 +312,8 @@ class FrameRestorer:
                     break
                 mosaic_detected, frame, frame_pts = _frame_result
                 if mosaic_detected:
-                    # Unless we receive a EofMarker or NoClipsMarker we don't know if other clips exist that start with the current frame
-                    # so we'll read and buffer restored clips until we receive a clip that starts after the current frame.
-                    # This makes sure that we've gather all restored clips necessary to restore the current frame.
+                    # As we don't know how many clips starting with the current frame we'll read and buffer restored clips until we receive a clip
+                    # that starts after the current frame. This makes sure that we've gather all restored clips necessary to restore the current frame.
                     while queue_marker is None and not self._contains_at_least_one_clip_starting_after_frame_num(frame_num, clip_buffer):
                         queue_marker = self._read_next_clip(frame_num, clip_buffer)
                     if queue_marker is STOP_MARKER:
