@@ -17,7 +17,7 @@ from lada.utils import image_utils
 from lada.utils import video_utils
 from lada.utils.box_utils import box_overlap
 from lada.utils.scene_utils import crop_to_box_v3
-from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, PipelineQueue, NoClipsMarker
+from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, PipelineQueue
 from lada.utils.ultralytics_utils import convert_yolo_box, convert_yolo_mask_tensor, UltralyticsResults
 
 logger = logging.getLogger(__name__)
@@ -172,7 +172,6 @@ class MosaicDetector:
         self.clip_size = clip_size
         self.pad_mode = pad_mode
         self.clip_counter = 0
-        self.frame_end_of_latest_created_clip: int | None = None
         self.start_ns = 0
         self.start_frame = 0
         self.frame_detection_queue = frame_detection_queue
@@ -272,20 +271,6 @@ class MosaicDetector:
             #print(f"frame {frame_num}, yielding clip starting {clip.frame_start}, ending {clip.frame_end}, all scene starts: {[s.frame_start for s in scenes]}, completed scenes: {[s.frame_start for s in completed_scenes]}")
             scenes.remove(completed_scene)
             self.clip_counter += 1
-            if self.frame_end_of_latest_created_clip is None or clip.frame_end > self.frame_end_of_latest_created_clip:
-                self.frame_end_of_latest_created_clip = clip.frame_end
-
-    def _create_no_clips_marker_if_needed(self, scenes, frame_num, max_gap_between_clips_in_frames=100):
-        # Only create NoClipsMarker if we didn't create one earlier after the same CLip to prevent filling queue with unnecessary NoClipsMarkers which could block the queue if not consumed
-        should_create_no_clips_marker = len(scenes) == 0 and self.frame_end_of_latest_created_clip is not None and (frame_num - self.frame_end_of_latest_created_clip > max_gap_between_clips_in_frames)
-        if not should_create_no_clips_marker:
-            return
-        queue_marker = NoClipsMarker(frame_start=self.frame_end_of_latest_created_clip + 1, frame_end=frame_num)
-        self.mosaic_clip_queue.put(queue_marker)
-        if self.stop_requested:
-            logger.debug("frame detector worker: mosaic_clip_queue producer unblocked")
-            return
-        self.frame_end_of_latest_created_clip = None
 
     def _create_or_append_scenes_based_on_prediction_result(self, results: UltralyticsResults, scenes: list[Scene], frame_num):
         for i in range(len(results.boxes)):
@@ -405,7 +390,6 @@ class MosaicDetector:
                         break
                     self._create_or_append_scenes_based_on_prediction_result(results, scenes, frame_num)
                     self._create_clips_for_completed_scenes(scenes, frame_num, eof=False)
-                    self._create_no_clips_marker_if_needed(scenes, frame_num)
                     frame_num += 1
         if eof:
             logger.debug("frame detector worker: stopped itself, EOF")
