@@ -225,14 +225,10 @@ class MosaicDetector:
         # unblock consumer
         threading_utils.put_queue_stop_marker(self.inference_queue)
         # unblock producer
-        clean_up_threads = [
-            threading_utils.empty_out_queue_until_producer_is_done(self.mosaic_clip_queue, self.frame_detector_thread),
-            threading_utils.empty_out_queue_until_producer_is_done(self.mosaic_clip_queue, self.frame_detector_thread)]
+        threading_utils.empty_out_queue(self.mosaic_clip_queue)
         if self.frame_detector_thread:
             self.frame_detector_thread.join()
             logger.debug("MosaicDetector: joined frame_detector_thread")
-        for clean_up_thread in clean_up_threads:
-            clean_up_thread.join()
         self.frame_detector_thread = None
 
         # garbage collection
