@@ -62,8 +62,6 @@ class FrameRestorer:
 
         self.clip_restoration_thread: threading.Thread | None = None
         self.frame_restoration_thread: threading.Thread | None = None
-        self.clip_restoration_thread_should_be_running = False
-        self.frame_restoration_thread_should_be_running = False
         self.stop_requested = False
 
     def start(self, start_ns=0):
@@ -76,8 +74,6 @@ class FrameRestorer:
         self.start_ns = start_ns
         self.start_frame = video_utils.offset_ns_to_frame_num(self.start_ns, self.video_meta_data.video_fps_exact)
         self.stop_requested = False
-        self.frame_restoration_thread_should_be_running = True
-        self.clip_restoration_thread_should_be_running = True
 
         self.frame_restoration_thread = threading.Thread(target=self._frame_restoration_worker, daemon=True)
         self.clip_restoration_thread = threading.Thread(target=self._clip_restoration_worker, daemon=True)
@@ -90,8 +86,6 @@ class FrameRestorer:
         logger.debug("FrameRestorer: stopping...")
         start = time.time()
         self.stop_requested = True
-        self.clip_restoration_thread_should_be_running = False
-        self.frame_restoration_thread_should_be_running = False
 
         self.mosaic_detector.stop()
 
@@ -236,14 +230,13 @@ class FrameRestorer:
     def _clip_restoration_worker(self):
         logger.debug("clip restoration worker: started")
         eof = False
-        while self.clip_restoration_thread_should_be_running:
+        while not (eof or self.stop_requested):
             clip = self.mosaic_clip_queue.get()
             if self.stop_requested or clip is STOP_MARKER:
                 logger.debug("clip restoration worker: mosaic_clip_queue consumer unblocked")
                 break
             if clip is EOF_MARKER:
                 eof = True
-                self.clip_restoration_thread_should_be_running = False
                 self.restored_clip_queue.put(EOF_MARKER)
                 if self.stop_requested:
                     logger.debug("clip restoration worker: restored_clip_queue producer unblocked")
@@ -301,13 +294,12 @@ class FrameRestorer:
             queue_marker = None
             clip_buffer = []
 
-            while self.frame_restoration_thread_should_be_running:
+            while not (self.eof or self.stop_requested):
                 _frame_result = self._read_next_frame(video_frames_generator, frame_num)
                 if self.stop_requested or _frame_result is STOP_MARKER:
                     break
                 if _frame_result is EOF_MARKER:
                     self.eof = True
-                    self.frame_restoration_thread_should_be_running = False
                     self.frame_restoration_queue.put(EOF_MARKER)
                     break
                 mosaic_detected, frame, frame_pts = _frame_result

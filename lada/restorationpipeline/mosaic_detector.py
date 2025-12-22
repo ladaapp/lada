@@ -181,9 +181,6 @@ class MosaicDetector:
         self.frame_detector_thread: threading.Thread | None = None
         self.frame_feeder_thread: threading.Thread | None = None
         self.inference_thread: threading.Thread | None = None
-        self.frame_feeder_thread_should_be_running = False
-        self.frame_detector_thread_should_be_running = False
-        self.inference_worker_thread_should_be_running = False
         self.stop_requested = False
         self.batch_size = batch_size
 
@@ -194,9 +191,6 @@ class MosaicDetector:
         self.start_ns = start_ns
         self.start_frame = video_utils.offset_ns_to_frame_num(self.start_ns, self.video_meta_data.video_fps_exact)
         self.stop_requested = False
-        self.frame_detector_thread_should_be_running = True
-        self.frame_feeder_thread_should_be_running = True
-        self.inference_worker_thread_should_be_running = True
 
         self.frame_detector_thread = threading.Thread(target=self._frame_detector_worker, daemon=True)
         self.frame_detector_thread.start()
@@ -211,8 +205,6 @@ class MosaicDetector:
         logger.debug("MosaicDetector: stopping...")
         start = time.time()
         self.stop_requested = True
-        self.frame_detector_thread_should_be_running = False
-        self.frame_feeder_thread_should_be_running = False
 
         # unblock producer
         threading_utils.empty_out_queue(self.frame_feeder_queue)
@@ -305,7 +297,7 @@ class MosaicDetector:
                 video_reader.seek(self.start_ns)
             video_frames_generator = video_reader.frames()
             frame_num = self.start_frame
-            while self.frame_feeder_thread_should_be_running:
+            while not (eof or self.stop_requested):
                 try:
                     frames = []
                     for i in range(self.batch_size):
@@ -313,7 +305,6 @@ class MosaicDetector:
                         frames.append(frame)
                 except StopIteration:
                     eof = True
-                    self.frame_feeder_thread_should_be_running = False
                 if len(frames) > 0:
                     frames_batch = self.model.preprocess(frames)
                     data = (frames_batch, frames, frame_num)
@@ -335,14 +326,13 @@ class MosaicDetector:
     def _frame_inference_worker(self):
         logger.debug("frame inference worker: started")
         eof = False
-        while self.inference_worker_thread_should_be_running:
+        while not (eof or self.stop_requested):
             frames_data = self.frame_feeder_queue.get()
             if self.stop_requested or frames_data is STOP_MARKER:
                 logger.debug("inference worker: frame_feeder_queue consumer unblocked")
                 break
             if frames_data is EOF_MARKER:
                 eof = True
-                self.inference_worker_thread_should_be_running = False
                 self.inference_queue.put(EOF_MARKER)
                 if self.stop_requested:
                     logger.debug("inference worker: inference_queue producer unblocked")
@@ -366,7 +356,7 @@ class MosaicDetector:
         scenes: list[Scene] = []
         frame_num = self.start_frame
         eof = False
-        while self.frame_detector_thread_should_be_running:
+        while not (eof or self.stop_requested):
             inference_data = self.inference_queue.get()
             if self.stop_requested or inference_data is STOP_MARKER:
                 logger.debug("frame detector worker: inference_queue consumer unblocked")
@@ -382,7 +372,6 @@ class MosaicDetector:
                 if self.stop_requested:
                     logger.debug("frame detector worker: mosaic_clip_queue producer unblocked")
                     break
-                self.frame_detector_thread_should_be_running = False
             else:
                 batch_prediction_results, preprocessed_frames, _frame_num = inference_data
                 assert frame_num == _frame_num, "frame detector worker out of sync with frame reader"
