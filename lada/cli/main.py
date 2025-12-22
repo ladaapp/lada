@@ -204,7 +204,7 @@ def main():
             print(_("Invalid encoding preset"))
             sys.exit(1)
     else:
-        print(_('Either "--encoding-preset" or "--encoder" together with "--encoding-options" must be used'))
+        print(_('Either "--encoding-preset" or "--encoder" together with "--encoder-options" must be used'))
         sys.exit(1)
     assert encoder is not None and encoder_options is not None
 
