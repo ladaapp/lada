@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
 "POT-Creation-Date: 2025-12-19 12:24+0000\n"
-"PO-Revision-Date: 2025-12-07 01:09+0000\n"
+"PO-Revision-Date: 2025-12-20 08:20+0000\n"
 "Last-Translator: tetsukasinobu <tetsukasinobu@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Traditional Han script) <https://"
 "translate.codeberg.org/projects/lada/lada/zh_Hant/>\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 5.15.1\n"
 
 msgid "Open in External Program…"
 msgstr "開啟於外部程式…"
@@ -134,34 +134,34 @@ msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr "偵測不到GPU! 使用CPU運行此軟體將會非常緩慢."
 
 msgid "Create Preset"
-msgstr ""
+msgstr "建立預設"
 
 msgid "Edit Preset"
-msgstr ""
+msgstr "編輯預設"
 
 msgid "Save"
-msgstr ""
+msgstr "保存"
 
 msgid "<big>Description</big>"
-msgstr ""
+msgstr "<big>描述</big>"
 
 msgid "<big>Encoder</big>"
-msgstr ""
+msgstr "<big>編碼器</big>"
 
 msgid "<big>Encoder Help</big>"
-msgstr ""
+msgstr "<big>編碼器幫助</big>"
 
 msgid "<big>Encoder Options</big>"
-msgstr ""
+msgstr "<big>編碼器選項</big>"
 
 msgid "Enter encoder options…"
-msgstr ""
+msgstr "輸入編碼器選項…"
 
 msgid "Click the folder button to choose a default"
 msgstr "點擊資料夾按鈕以選取預設"
 
 msgid "Create Preset…"
-msgstr ""
+msgstr "建立預設…"
 
 msgid "Select a folder where restored videos should be saved"
 msgstr "選擇修復影片檔儲存資料夾"
@@ -179,12 +179,14 @@ msgid "Restoration model"
 msgstr "修復模型"
 
 msgid "Detect face mosaics"
-msgstr ""
+msgstr "偵測人臉馬賽克"
 
 msgid ""
 "Detect and ignore areas of pixelated faces. Can prevent restoration "
 "artifacts but may worsen detection of NSFW mosaics."
 msgstr ""
+"偵測並忽略像素化臉部區域. 可以防止修復過程中出現偽影，但可能會降低馬賽克圖案"
+"的檢出率."
 
 msgid "Maximum clip duration"
 msgstr "最大剪輯持續時間"
@@ -236,13 +238,13 @@ msgid "Export"
 msgstr "輸出"
 
 msgid "Encoding Preset"
-msgstr ""
+msgstr "編碼預設"
 
 msgid "Output Directory"
 msgstr "輸出目錄"
 
 msgid "Directory where restored files will be saved"
-msgstr ""
+msgstr "修復的檔案將儲存的目錄"
 
 msgid "Always ask"
 msgstr "總是詢問"
@@ -269,7 +271,7 @@ msgid "Post-Export Action"
 msgstr "匯出後動作"
 
 msgid "Action to be run after all queued files have been restored."
-msgstr ""
+msgstr "在所有排隊檔案修復完畢後所要執行的操作."
 
 msgid "Shutdown system"
 msgstr "系統關機"
@@ -287,10 +289,10 @@ msgid "Custom command"
 msgstr "自訂指令"
 
 msgid "Enable .mp4 Fast Start"
-msgstr ""
+msgstr "啟用 .mp4 快速啟動"
 
 msgid "Allows playing the file while it's being written."
-msgstr ""
+msgstr "允許在檔案寫入過程中播放該檔案."
 
 msgid "Troubleshooting"
 msgstr "故障排除"
@@ -361,13 +363,13 @@ msgstr "選擇單個或多個影片檔"
 
 #, python-brace-format
 msgid "Custom Preset {custom_preset_num}"
-msgstr ""
+msgstr "自訂預設 {custom_preset_num}"
 
 msgid "No video files found"
 msgstr "找不到影片檔"
 
 msgid "Yes"
-msgstr ""
+msgstr "確定"
 
 msgid "Name"
 msgstr "名稱"
@@ -376,10 +378,10 @@ msgid "Description"
 msgstr "描述"
 
 msgid "Hardware-accelerated"
-msgstr ""
+msgstr "硬體加速"
 
 msgid "Hardware devices"
-msgstr ""
+msgstr "硬體設備"
 
 msgid "Available video encoders:"
 msgstr "可用的影片編碼器："
@@ -400,13 +402,13 @@ msgid "Path"
 msgstr "路徑"
 
 msgid "Available encoding presets:"
-msgstr ""
+msgstr "可用的編碼預設:"
 
 msgid "Encoder Name"
-msgstr ""
+msgstr "編碼器名稱"
 
 msgid "Encoder Options"
-msgstr ""
+msgstr "編碼器選項"
 
 msgid "Usage: "
 msgstr "用量: "
@@ -448,20 +450,22 @@ msgid "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
 msgstr "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
 
 msgid "Use Nvidia hardware-accelerated encoder by selecting a preset:"
-msgstr ""
+msgstr "使用Nvidia硬體加速編碼器:"
 
 #, python-format
 msgid "%(prog)s --input input.mp4 --encoding-preset hevc-nvidia-gpu-hq"
-msgstr ""
+msgstr "%(prog)s --input input.mp4 --encoding-preset hevc-nvidia-gpu-hq"
 
 msgid "Set encoding parameters directly without using an encoding preset:"
-msgstr ""
+msgstr "直接設定編碼參數,不使用編碼預設值:"
 
 #, python-format
 msgid ""
 "%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 "
 "-preset fast -x265-params log_level=error'"
 msgstr ""
+"%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 -"
+"preset fast -x265-params log_level=error'"
 
 #, python-format
 msgid "%(prog)s [options]"
@@ -490,6 +494,8 @@ msgid ""
 "Alternatively, you can use the environment variable TMPDIR. (default: "
 "%(default)s)"
 msgstr ""
+"修復過程中影片暫存檔的存放目錄. 或者,您可以使用環境變數 TMPDIR. (預設: %"
+"(default)s)"
 
 #, python-format, python-brace-format
 msgid ""
@@ -532,33 +538,41 @@ msgid ""
 "what's available. Ignored if \"--encoder\" and \"--encoder-options\" are "
 "used (default: %(default)s)"
 msgstr ""
+"按名稱選擇編碼預設. 使用 “--list-encoding-presets” 查看可用的編碼預設. 如果使"
+"用了 “--encoder” 和 “--encoder-options” ,則忽略此設定。 (預設: %(default)s)"
 
 msgid "List available encoding presets and exit"
-msgstr ""
+msgstr "列出可用的編碼預設並退出"
 
 #, python-format
 msgid ""
 "Select video encoder by name. Use \"--list-encoders\" to see what's "
 "available. (default: %(default)s)"
 msgstr ""
+"按名稱選擇視訊編碼器. 使用 “--list-encoders” 查看可用編碼器. (預設: %"
+"(default)s)"
 
 msgid "List available encoders and exit"
-msgstr ""
+msgstr "列出可用編碼器並退出"
 
 #, python-format
 msgid ""
 "Space-separated list of options for the encoder set via \"--encoder\". Use "
 "\"--list-encoder-options\" to see what's available. (default: %(default)s)"
 msgstr ""
+"透過 \"--encoder\" 設定的編碼器選項列表，以空格分隔. 使用 “--list-encoder-"
+"options” 查看可用選項. (預設: %(default)s)"
 
 msgid "List available options of the given encoder and exit"
-msgstr ""
+msgstr "列出編碼器的可用選項並退出"
 
 #, python-format
 msgid ""
 "Allows playing the file while it's being written. Sets .mp4 mov flags "
 "\"frag_keyframe+empty_moov+faststart\". (default: %(default)s)"
 msgstr ""
+"允許在寫入檔案的同時播放該檔案. Sets .mp4 mov flags "
+"\"frag_keyframe+empty_moov+faststart\". (預設: %(default)s)"
 
 msgid "Mosaic Restoration"
 msgstr "修復馬賽克"
@@ -576,6 +590,8 @@ msgid ""
 "Name of detection model or path to model weights file. Use \"--list-mosaic-"
 "restoration-models\" to see what's available. (default: %(default)s)"
 msgstr ""
+"檢測模型名稱或模型檔案路徑. 使用 “--list-mosaic-restoration-models” 查看有哪"
+"些可用模型. (預設: %(default)s)"
 
 msgid ""
 "Path to restoration model configuration file. You'll not have to set this "
@@ -599,6 +615,8 @@ msgid ""
 "Name of detection model or path to model weights file. Use \"--list-mosaic-"
 "detection-models\" to see what's available. (default: %(default)s)"
 msgstr ""
+"檢測模型名稱或模型檔案路徑. 使用 “--list-mosaic-detection-models” 查看可用模"
+"型. (預設: %(default)s)"
 
 msgid ""
 "List available detection models found in model weights directory and exit "
@@ -614,6 +632,8 @@ msgid ""
 "artifacts but may worsen detection of NSFW mosaics. Available for models v3 "
 "and newer. (default: %(default)s)"
 msgstr ""
+"偵測並忽略人臉像素化區域. 可以防止修復過程中出現偽影,但可能會降低馬賽克影像的"
+"偵測率. 適用於 v3 或更加新的模型. (預設: %(default)s)"
 
 msgid "Processing audio"
 msgstr "音訊處理"
@@ -639,21 +659,23 @@ msgstr "無效輸入。沒有檔案或目錄在{input_path}"
 
 #, python-brace-format
 msgid "Temporary directory {temporary_path} doesn't exist. Creating…"
-msgstr ""
+msgstr "暫存目錄 {temporary_path} 不存在. 正在創建…"
 
 msgid "Invalid mosaic detection model"
-msgstr ""
+msgstr "無效的馬賽克檢測模型"
 
 msgid "Invalid mosaic restoration model"
-msgstr ""
+msgstr "無效的馬賽克修復模型"
 
 msgid "Invalid encoding preset"
-msgstr ""
+msgstr "無效的編碼預設"
 
 msgid ""
 "Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"
 "options\" must be used"
 msgstr ""
+"必須同時使用 \"--encoding-preset\" 或 \"--encoder\" 以及 \"--encoding-"
+"options\""
 
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "接收到Ctrl-C及停止修復."
