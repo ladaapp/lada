@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-06 14:43+0000\n"
+"POT-Creation-Date: 2025-12-19 12:24+0000\n"
 "PO-Revision-Date: 2025-12-08 10:46+0000\n"
 "Last-Translator: Abraxax <abraxax@noreply.codeberg.org>\n"
 "Language-Team: Spanish <https://translate.codeberg.org/projects/lada/lada/es/"
@@ -55,23 +55,14 @@ msgstr "Atajos de Teclado"
 msgid "About Lada"
 msgstr "Acerca de Lada"
 
-msgid "Restoring video…"
-msgstr "Procesando Video…"
-
-msgid "Finished video restoration!"
-msgstr "¡Procesado de Video Terminado!"
-
-msgid "Restoration failed"
-msgstr "Fallo en la Restauración"
-
-msgid "Restoration paused"
-msgstr "Procesado Pausado"
-
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
 msgstr ""
 "Duración: {duration}, Resolución: {resolution}, Velocidad Fotogramas {fps} "
 "FPS"
+
+msgid "Restoration failed"
+msgstr "Fallo en la Restauración"
 
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
@@ -134,12 +125,48 @@ msgstr ""
 msgid "Shutdown now"
 msgstr "Apagar ahora"
 
+msgid "Restoring video…"
+msgstr "Procesando Video…"
+
+msgid "Finished video restoration!"
+msgstr "¡Procesado de Video Terminado!"
+
+msgid "Restoration paused"
+msgstr "Procesado Pausado"
+
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr ""
 "No se detecta GPU. Ejecutando la aplicación con la CPU aunque será más lento."
 
+msgid "Create Preset"
+msgstr ""
+
+msgid "Edit Preset"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "<big>Description</big>"
+msgstr ""
+
+msgid "<big>Encoder</big>"
+msgstr ""
+
+msgid "<big>Encoder Help</big>"
+msgstr ""
+
+msgid "<big>Encoder Options</big>"
+msgstr ""
+
+msgid "Enter encoder options…"
+msgstr ""
+
 msgid "Click the folder button to choose a default"
 msgstr "Elige la carpeta destino por defecto"
+
+msgid "Create Preset…"
+msgstr ""
 
 msgid "Select a folder where restored videos should be saved"
 msgstr "Selecciona la carpeta donde se guardarán los videos"
@@ -153,14 +180,16 @@ msgstr "Eliminación de mosaico"
 msgid "Detection model"
 msgstr "Detección de Modelo"
 
-msgid "Model used for detecting mosaic areas."
-msgstr "Modelo usado para detectar áreas con mosaico."
-
 msgid "Restoration model"
 msgstr "Modelo de Procesado"
 
-msgid "Model used for restoring mosaic areas."
-msgstr "Modelo usado para procesado de áreas con mosaico."
+msgid "Detect face mosaics"
+msgstr ""
+
+msgid ""
+"Detect and ignore areas of pixelated faces. Can prevent restoration "
+"artifacts but may worsen detection of NSFW mosaics."
+msgstr ""
 
 msgid "Maximum clip duration"
 msgstr "Máxima duración del Video"
@@ -222,40 +251,14 @@ msgstr ""
 msgid "Export"
 msgstr "Exportar"
 
-msgid "Codec"
-msgstr "Códec"
-
-msgid "Video Codec used for encoding the restored video."
-msgstr "Códec de Video usado para procesar el video."
-
-msgid "CRF (Constant Rate Factor)"
-msgstr "CRF (Valor Ratio Constante)"
-
-msgid ""
-"Quality setting of the video encoder. Lower values will result in higher "
-"quality but larger file sizes."
+msgid "Encoding Preset"
 msgstr ""
-"Configuración de calidad del codificador de vídeo. Los valores bajos darán "
-"como resultado una mayor calidad, pero archivos de mayor tamaño."
-
-msgid ""
-"Custom FFmpeg encoder options (Optional).\n"
-"Example: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</"
-"tt></span>"
-msgstr ""
-"Opciones personalizadas del codificador FFmpeg (Opcional).\n"
-"Ejemplo: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</"
-"tt></span>"
-
-msgid ""
-"FFmpeg Codecs Documentation:\n"
-"https://ffmpeg.org/ffmpeg-codecs.html"
-msgstr ""
-"Documentación sobre códecs FFmpeg:\n"
-"https://ffmpeg.org/ffmpeg-codecs.html"
 
 msgid "Output Directory"
 msgstr "Directorio de Salida"
+
+msgid "Directory where restored files will be saved"
+msgstr ""
 
 msgid "Always ask"
 msgstr "Preguntar Siempre"
@@ -281,8 +284,8 @@ msgstr ""
 msgid "Post-Export Action"
 msgstr "Acción posterior a la exportación"
 
-msgid "Action to be run after all queued files have been restored"
-msgstr "Acción a ejecutar después de procesar todos los archivos en cola."
+msgid "Action to be run after all queued files have been restored."
+msgstr ""
 
 msgid "Shutdown system"
 msgstr "Apagar el sistema"
@@ -298,6 +301,12 @@ msgstr "Ejecutar un comando personalizado una vez completada la exportación."
 
 msgid "Custom command"
 msgstr "Comando Personalizado"
+
+msgid "Enable .mp4 Fast Start"
+msgstr ""
+
+msgid "Allows playing the file while it's being written."
+msgstr ""
 
 msgid "Troubleshooting"
 msgstr "Solución de Problemas"
@@ -359,50 +368,63 @@ msgstr "Reproducir/Pausar"
 msgid "Enable/Disable fullscreen"
 msgstr "Habilitar/deshabilitar Pantalla Completa"
 
-msgid "Select one or multiple video files"
-msgstr "Selecciona uno o más videos"
-
 msgid "Switch to Export View"
 msgstr "Cambiar a vista de exportación"
 
 msgid "Switch to Watch View"
 msgstr "Cambiar a Modo Ver"
 
+msgid "Select one or multiple video files"
+msgstr "Selecciona uno o más videos"
+
+#, python-brace-format
+msgid "Custom Preset {custom_preset_num}"
+msgstr ""
+
 msgid "No video files found"
 msgstr "No hay videos"
 
-msgid "PyAV version:"
-msgstr "Versión PyAV:"
-
-msgid "Available video encoders:"
-msgstr "Códecs Disponibles:"
-
-msgid "Encoders with support for hardware acceleration (GPU):"
-msgstr "Codificadores que soportan aceleración (GPU):"
-
-msgid "Device"
-msgstr "Dispositivo"
-
-msgid "Description"
-msgstr "Descripción"
-
-msgid "Available devices:"
-msgstr "Dispositivos disponibles:"
-
-msgid "Available detection models:"
-msgstr "Modelos de detección disponibles:"
-
-msgid "None!"
-msgstr "¡Nada!"
+msgid "Yes"
+msgstr ""
 
 msgid "Name"
 msgstr "Nombre"
 
-msgid "Path"
-msgstr "Ruta"
+msgid "Description"
+msgstr "Descripción"
+
+msgid "Hardware-accelerated"
+msgstr ""
+
+msgid "Hardware devices"
+msgstr ""
+
+msgid "Available video encoders:"
+msgstr "Códecs Disponibles:"
+
+msgid "Device"
+msgstr "Dispositivo"
+
+msgid "Available devices:"
+msgstr "Dispositivos disponibles:"
 
 msgid "Available restoration models:"
 msgstr "Modelos de restauración disponibles:"
+
+msgid "None!"
+msgstr "¡Nada!"
+
+msgid "Path"
+msgstr "Ruta"
+
+msgid "Available encoding presets:"
+msgstr ""
+
+msgid "Encoder Name"
+msgstr ""
+
+msgid "Encoder Options"
+msgstr ""
 
 msgid "Usage: "
 msgstr "Uso: "
@@ -446,12 +468,21 @@ msgstr ""
 msgid "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
 msgstr "%(prog)s --input path/to/input/dir/ --output /path/to/output/car/"
 
-msgid "Use a GPU-accelerated codec for encoding the restored video:"
-msgstr "Utiliza un códec acelerado por GPU para codificar el vídeo restaurado:"
+msgid "Use Nvidia hardware-accelerated encoder by selecting a preset:"
+msgstr ""
 
 #, python-format
-msgid "%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20"
-msgstr "%(prog)s --input entrada.mp4 --codec hevc_nvenc --crf 20"
+msgid "%(prog)s --input input.mp4 --encoding-preset hevc-nvidia-gpu-hq"
+msgstr ""
+
+msgid "Set encoding parameters directly without using an encoding preset:"
+msgstr ""
+
+#, python-format
+msgid ""
+"%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 "
+"-preset fast -x265-params log_level=error'"
+msgstr ""
 
 #, python-format
 msgid "%(prog)s [options]"
@@ -477,6 +508,13 @@ msgstr ""
 "directorio, el nombre del archivo se elegirá automáticamente (véase --output-"
 "file-pattern). Si no se ha especificado ninguna ruta de salida, se utilizará "
 "el directorio del archivo de entrada."
+
+#, python-format
+msgid ""
+"Directory for temporary video files during restoration process. "
+"Alternatively, you can use the environment variable TMPDIR. (default: "
+"%(default)s)"
+msgstr ""
 
 #, python-format, python-brace-format
 msgid ""
@@ -516,71 +554,42 @@ msgstr "Mostrar versión y salir"
 msgid "Show this help message and exit"
 msgstr "Mostrar este mensaje y salir"
 
-msgid "Export (Encoder settings)"
-msgstr "Exportar (Encoder settings)"
+#, python-format
+msgid ""
+"Select encoding preset by name. Use \"--list-encoding-presets\" to see "
+"what's available. Ignored if \"--encoder\" and \"--encoder-options\" are "
+"used (default: %(default)s)"
+msgstr ""
+
+msgid "List available encoding presets and exit"
+msgstr ""
 
 #, python-format
 msgid ""
-"FFmpeg video codec. E.g. \"h264, \"hevc\" or \"hevc_nvenc\". Use \"--list-"
-"codecs\" to see what's available. (default: %(default)s)"
+"Select video encoder by name. Use \"--list-encoders\" to see what's "
+"available. (default: %(default)s)"
 msgstr ""
-"Códec de Video FFmpeg. E.j. \"h264, \"hevc\" o \"hevc_nvenc\". Usar \"--list-"
-"codecs\" para ver los que estén disponibles. (Por defecto: %(default)s)"
 
-msgid ""
-"List available codecs and hardware devices / GPUs for hardware-accelerated "
-"video encoding"
+msgid "List available encoders and exit"
 msgstr ""
-"Lista de códecs disponibles y dispositivos de hardware / GPUs aceleradas "
-"para codificación de Video"
 
 #, python-format
 msgid ""
-"Constant rate factor (CRF). Quality setting of the video encoder. Lower "
-"values will result in higher quality but larger file sizes. If you have "
-"selected GPU codecs \"h264_nvenc\" or \"hevc_nvenc\" then the option \"qp\" "
-"will be used instead as those encoders don't support the \"crf\" option. "
-"(default: %(default)s)"
+"Space-separated list of options for the encoder set via \"--encoder\". Use "
+"\"--list-encoder-options\" to see what's available. (default: %(default)s)"
 msgstr ""
-"Factor de Ratio Constante (CRF). Configuración de calidad del codificador de "
-"video. Valores bajos resultarán con calidad más alta pero ficheros más "
-"grandes. Si tienes seleccionado los códecs de GPU \"h264_nvenc\" o "
-"\"hevc_nvenc\" entonces la opción \"qp\" será usada en vez de aquellos "
-"códecs que no soportan la opción \"crf\". (Por defecto: %(default)s)"
+
+msgid "List available options of the given encoder and exit"
+msgstr ""
 
 #, python-format
 msgid ""
-"Encoder preset. Mostly affects file-size and speed. (default: %(default)s)"
+"Allows playing the file while it's being written. Sets .mp4 mov flags "
+"\"frag_keyframe+empty_moov+faststart\". (default: %(default)s)"
 msgstr ""
-"Pre-ajuste del codificador. Mayormente afecta al tamaño del fichero y la "
-"velocidad. (Por defecto: %(default)s)"
-
-#, python-format
-msgid ""
-"Sets ffmpeg mov flags 'frag_keyframe+empty_moov+faststart'. Enables playing "
-"the output video while it's being written (default: %(default)s)"
-msgstr ""
-"Establece ffmpeg mov flags 'frag_keyframe+empty_moov+faststart'. Habilita "
-"reproducir el video de salida mientras se está generando (Por defecto: "
-"%(default)s)"
-
-msgid ""
-"Pass arbitrary encoder options. Pass it like you'd specify them using "
-"ffmpeg. For example: --custom-encoder-options \"-rc-lookahead 32 -rc "
-"vbr_hq\". Official FFmpeg Codecs Documentation: https://ffmpeg.org/ffmpeg-"
-"codecs.html"
-msgstr ""
-"Opciones de codificador arbitrarias. Pásalas como si se utilizara ffmpeg. "
-"Por ejemplo: --custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\". "
-"Documentación Oficial del códec FFmpeg: https://ffmpeg.org/ffmpeg-codecs.html"
 
 msgid "Mosaic Restoration"
 msgstr "Restauración de Mosaico"
-
-#, python-format
-msgid "Model used to restore mosaic clips (default: %(default)s)"
-msgstr ""
-"Modelo usado para restaurar videos con mosaico (Por defecto: %(default)s)"
 
 msgid ""
 "List available restoration models found in model weights directory and exit "
@@ -592,9 +601,10 @@ msgstr ""
 "LADA_MODEL_WEIGHTS_DIR)"
 
 #, python-format
-msgid "Path to restoration model weights file (default: %(default)s)"
+msgid ""
+"Name of detection model or path to model weights file. Use \"--list-mosaic-"
+"restoration-models\" to see what's available. (default: %(default)s)"
 msgstr ""
-"Ruta para los ficheros de modelos de restauración (Por defecto: %(default)s)"
 
 msgid ""
 "Path to restoration model configuration file. You'll not have to set this "
@@ -616,6 +626,12 @@ msgstr ""
 msgid "Mosaic Detection"
 msgstr "Detección de Mosaico"
 
+#, python-format
+msgid ""
+"Name of detection model or path to model weights file. Use \"--list-mosaic-"
+"detection-models\" to see what's available. (default: %(default)s)"
+msgstr ""
+
 msgid ""
 "List available detection models found in model weights directory and exit "
 "(default location is './model_weights' if not overwritten by environment "
@@ -624,6 +640,13 @@ msgstr ""
 "Lista disponible de modelos de detección encontrada en el directorio y "
 "salida (la ruta por defecto es './model_weights' if not overwritten by "
 "environment variable LADA_MODEL_WEIGHTS_DIR)"
+
+#, python-format
+msgid ""
+"Detect and ignore areas of pixelated faces. Can prevent restoration "
+"artifacts but may worsen detection of NSFW mosaics. Available for models v3 "
+"and newer. (default: %(default)s)"
+msgstr ""
 
 msgid "Processing audio"
 msgstr "Procesando Audio"
@@ -651,8 +674,155 @@ msgstr ""
 msgid "Invalid input. No file or directory at {input_path}"
 msgstr "Entrada no válida. No existe el fichero o directorio en {input_path}"
 
+#, python-brace-format
+msgid "Temporary directory {temporary_path} doesn't exist. Creating…"
+msgstr ""
+
+msgid "Invalid mosaic detection model"
+msgstr ""
+
+msgid "Invalid mosaic restoration model"
+msgstr ""
+
+msgid "Invalid encoding preset"
+msgstr ""
+
+msgid ""
+"Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"
+"options\" must be used"
+msgstr ""
+
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "Ctrl-C detectado. Deteniendo Procesado."
+
+#~ msgid "Model used for detecting mosaic areas."
+#~ msgstr "Modelo usado para detectar áreas con mosaico."
+
+#~ msgid "Model used for restoring mosaic areas."
+#~ msgstr "Modelo usado para procesado de áreas con mosaico."
+
+#~ msgid "Codec"
+#~ msgstr "Códec"
+
+#~ msgid "Video Codec used for encoding the restored video."
+#~ msgstr "Códec de Video usado para procesar el video."
+
+#~ msgid "CRF (Constant Rate Factor)"
+#~ msgstr "CRF (Valor Ratio Constante)"
+
+#~ msgid ""
+#~ "Quality setting of the video encoder. Lower values will result in higher "
+#~ "quality but larger file sizes."
+#~ msgstr ""
+#~ "Configuración de calidad del codificador de vídeo. Los valores bajos "
+#~ "darán como resultado una mayor calidad, pero archivos de mayor tamaño."
+
+#~ msgid ""
+#~ "Custom FFmpeg encoder options (Optional).\n"
+#~ "Example: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</"
+#~ "tt></span>"
+#~ msgstr ""
+#~ "Opciones personalizadas del codificador FFmpeg (Opcional).\n"
+#~ "Ejemplo: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</"
+#~ "tt></span>"
+
+#~ msgid ""
+#~ "FFmpeg Codecs Documentation:\n"
+#~ "https://ffmpeg.org/ffmpeg-codecs.html"
+#~ msgstr ""
+#~ "Documentación sobre códecs FFmpeg:\n"
+#~ "https://ffmpeg.org/ffmpeg-codecs.html"
+
+#~ msgid "Action to be run after all queued files have been restored"
+#~ msgstr "Acción a ejecutar después de procesar todos los archivos en cola."
+
+#~ msgid "PyAV version:"
+#~ msgstr "Versión PyAV:"
+
+#~ msgid "Encoders with support for hardware acceleration (GPU):"
+#~ msgstr "Codificadores que soportan aceleración (GPU):"
+
+#~ msgid "Available detection models:"
+#~ msgstr "Modelos de detección disponibles:"
+
+#~ msgid "Use a GPU-accelerated codec for encoding the restored video:"
+#~ msgstr ""
+#~ "Utiliza un códec acelerado por GPU para codificar el vídeo restaurado:"
+
+#, python-format
+#~ msgid "%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20"
+#~ msgstr "%(prog)s --input entrada.mp4 --codec hevc_nvenc --crf 20"
+
+#~ msgid "Export (Encoder settings)"
+#~ msgstr "Exportar (Encoder settings)"
+
+#, python-format
+#~ msgid ""
+#~ "FFmpeg video codec. E.g. \"h264, \"hevc\" or \"hevc_nvenc\". Use \"--list-"
+#~ "codecs\" to see what's available. (default: %(default)s)"
+#~ msgstr ""
+#~ "Códec de Video FFmpeg. E.j. \"h264, \"hevc\" o \"hevc_nvenc\". Usar \"--"
+#~ "list-codecs\" para ver los que estén disponibles. (Por defecto: "
+#~ "%(default)s)"
+
+#~ msgid ""
+#~ "List available codecs and hardware devices / GPUs for hardware-"
+#~ "accelerated video encoding"
+#~ msgstr ""
+#~ "Lista de códecs disponibles y dispositivos de hardware / GPUs aceleradas "
+#~ "para codificación de Video"
+
+#, python-format
+#~ msgid ""
+#~ "Constant rate factor (CRF). Quality setting of the video encoder. Lower "
+#~ "values will result in higher quality but larger file sizes. If you have "
+#~ "selected GPU codecs \"h264_nvenc\" or \"hevc_nvenc\" then the option "
+#~ "\"qp\" will be used instead as those encoders don't support the \"crf\" "
+#~ "option. (default: %(default)s)"
+#~ msgstr ""
+#~ "Factor de Ratio Constante (CRF). Configuración de calidad del codificador "
+#~ "de video. Valores bajos resultarán con calidad más alta pero ficheros más "
+#~ "grandes. Si tienes seleccionado los códecs de GPU \"h264_nvenc\" o "
+#~ "\"hevc_nvenc\" entonces la opción \"qp\" será usada en vez de aquellos "
+#~ "códecs que no soportan la opción \"crf\". (Por defecto: %(default)s)"
+
+#, python-format
+#~ msgid ""
+#~ "Encoder preset. Mostly affects file-size and speed. (default: %(default)s)"
+#~ msgstr ""
+#~ "Pre-ajuste del codificador. Mayormente afecta al tamaño del fichero y la "
+#~ "velocidad. (Por defecto: %(default)s)"
+
+#, python-format
+#~ msgid ""
+#~ "Sets ffmpeg mov flags 'frag_keyframe+empty_moov+faststart'. Enables "
+#~ "playing the output video while it's being written (default: %(default)s)"
+#~ msgstr ""
+#~ "Establece ffmpeg mov flags 'frag_keyframe+empty_moov+faststart'. Habilita "
+#~ "reproducir el video de salida mientras se está generando (Por defecto: "
+#~ "%(default)s)"
+
+#~ msgid ""
+#~ "Pass arbitrary encoder options. Pass it like you'd specify them using "
+#~ "ffmpeg. For example: --custom-encoder-options \"-rc-lookahead 32 -rc "
+#~ "vbr_hq\". Official FFmpeg Codecs Documentation: https://ffmpeg.org/ffmpeg-"
+#~ "codecs.html"
+#~ msgstr ""
+#~ "Opciones de codificador arbitrarias. Pásalas como si se utilizara ffmpeg. "
+#~ "Por ejemplo: --custom-encoder-options \"-rc-lookahead 32 -rc vbr_hq\". "
+#~ "Documentación Oficial del códec FFmpeg: https://ffmpeg.org/ffmpeg-"
+#~ "codecs.html"
+
+#, python-format
+#~ msgid "Model used to restore mosaic clips (default: %(default)s)"
+#~ msgstr ""
+#~ "Modelo usado para restaurar videos con mosaico (Por defecto: %(default)s)"
+
+#, python-format
+#~ msgid "Path to restoration model weights file (default: %(default)s)"
+#~ msgstr ""
+#~ "Ruta para los ficheros de modelos de restauración (Por defecto: "
+#~ "%(default)s)"
 
 #~ msgid ""
 #~ "Use FP16 precision for restoration and detection models. Reduces memory "
