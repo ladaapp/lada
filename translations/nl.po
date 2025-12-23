@@ -5,16 +5,16 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
 "POT-Creation-Date: 2025-12-19 12:24+0000\n"
-"PO-Revision-Date: 2025-12-07 19:33+0000\n"
+"PO-Revision-Date: 2025-12-22 12:53+0000\n"
 "Last-Translator: Vistaus <vistaus@noreply.codeberg.org>\n"
-"Language-Team: Dutch <https://translate.codeberg.org/projects/lada/lada/nl/"
-">\n"
+"Language-Team: Dutch <https://translate.codeberg.org/projects/lada/lada/nl/>"
+"\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 5.15.1\n"
 
 msgid "Open in External Program…"
 msgstr "Openen in extern programma…"
@@ -115,13 +115,13 @@ msgstr "Computer afsluiten"
 
 msgid "Export has finished. The system will shutdown in 30 seconds."
 msgstr ""
-"Het exporteren is voltooid - de computer wordt over 30 seconden afgesloten."
+"Het exporteren is voltooid — de computer wordt over 30 seconden afgesloten."
 
 msgid "Shutdown Failed"
 msgstr "Afsluiten mislukt"
 
 msgid "Failed to initiate system shutdown. Please check system permissions."
-msgstr "Het afsluiten is mislukt - controleer de bevoegdheden."
+msgstr "Het afsluiten is mislukt — controleer de bevoegdheden."
 
 msgid "Shutdown now"
 msgstr "Nu afsluiten"
@@ -141,34 +141,34 @@ msgstr ""
 "zijn."
 
 msgid "Create Preset"
-msgstr ""
+msgstr "Voorinstelling maken"
 
 msgid "Edit Preset"
-msgstr ""
+msgstr "Voorinstelling bewerken"
 
 msgid "Save"
-msgstr ""
+msgstr "Opslaan"
 
 msgid "<big>Description</big>"
-msgstr ""
+msgstr "<big>Beschrijving</big>"
 
 msgid "<big>Encoder</big>"
-msgstr ""
+msgstr "<big>Encodering</big>"
 
 msgid "<big>Encoder Help</big>"
-msgstr ""
+msgstr "<big>Hulp bij encodering</big>"
 
 msgid "<big>Encoder Options</big>"
-msgstr ""
+msgstr "<big>Encoderingsopties</big>"
 
 msgid "Enter encoder options…"
-msgstr ""
+msgstr "Voer encoderingsopties in…"
 
 msgid "Click the folder button to choose a default"
 msgstr "Klik op de mapknop om een standaardmap te kiezen"
 
 msgid "Create Preset…"
-msgstr ""
+msgstr "Voorinstelling maken…"
 
 msgid "Select a folder where restored videos should be saved"
 msgstr "Kies de map waarin herstelde videobestanden moeten worden opgeslagen"
@@ -186,12 +186,14 @@ msgid "Restoration model"
 msgstr "Herstelmodel"
 
 msgid "Detect face mosaics"
-msgstr ""
+msgstr "Gezichtsmozaïeken detecteren"
 
 msgid ""
 "Detect and ignore areas of pixelated faces. Can prevent restoration "
 "artifacts but may worsen detection of NSFW mosaics."
 msgstr ""
+"Detecteer en negeer bepaalde delen van geblurde gezichten. Dit kan "
+"herstelproblemen voorkomen, maar detectie van NSFW-mozaïeken verslechteren."
 
 msgid "Maximum clip duration"
 msgstr "Maximale clipduur"
@@ -252,13 +254,13 @@ msgid "Export"
 msgstr "Exporteren"
 
 msgid "Encoding Preset"
-msgstr ""
+msgstr "Voorinstelling van encodering"
 
 msgid "Output Directory"
 msgstr "Resultaatmap"
 
 msgid "Directory where restored files will be saved"
-msgstr ""
+msgstr "Map waar de herstelde bestanden moeten worden bewaard"
 
 msgid "Always ask"
 msgstr "Altijd vragen"
@@ -287,7 +289,7 @@ msgid "Post-Export Action"
 msgstr "Naverwerkingsactie"
 
 msgid "Action to be run after all queued files have been restored."
-msgstr ""
+msgstr "De uit te voeren actie nadat alle bestanden zijn hersteld."
 
 msgid "Shutdown system"
 msgstr "Computer afsluiten"
@@ -305,10 +307,10 @@ msgid "Custom command"
 msgstr "Opdracht"
 
 msgid "Enable .mp4 Fast Start"
-msgstr ""
+msgstr "Snelle start van .mp4-bestanden inschakelen"
 
 msgid "Allows playing the file while it's being written."
-msgstr ""
+msgstr "Staat bekijken van het bestand tijdens het proces toe."
 
 msgid "Troubleshooting"
 msgstr "Probleemoplossing"
@@ -381,13 +383,13 @@ msgstr "Kies een of meerdere videobestanden"
 
 #, python-brace-format
 msgid "Custom Preset {custom_preset_num}"
-msgstr ""
+msgstr "Eigen voorinstelling {custom_preset_num}"
 
 msgid "No video files found"
 msgstr "Er zijn geen videobestanden aangetroffen"
 
 msgid "Yes"
-msgstr ""
+msgstr "Ja"
 
 msgid "Name"
 msgstr "Naam"
@@ -396,10 +398,10 @@ msgid "Description"
 msgstr "Beschrijving"
 
 msgid "Hardware-accelerated"
-msgstr ""
+msgstr "Hardwareversnelling gebruiken"
 
 msgid "Hardware devices"
-msgstr ""
+msgstr "Hardwareapparaten"
 
 msgid "Available video encoders:"
 msgstr "Beschikbare video-encoderingen:"
@@ -420,13 +422,13 @@ msgid "Path"
 msgstr "Locatie"
 
 msgid "Available encoding presets:"
-msgstr ""
+msgstr "Beschikbare voorinstellingen:"
 
 msgid "Encoder Name"
-msgstr ""
+msgstr "Naam van encodering"
 
 msgid "Encoder Options"
-msgstr ""
+msgstr "Encoderingsopties"
 
 msgid "Usage: "
 msgstr "Gebruik: "
@@ -472,19 +474,23 @@ msgstr ""
 
 msgid "Use Nvidia hardware-accelerated encoder by selecting a preset:"
 msgstr ""
+"Gebruik een hardware-aangedreven video-encodering door een voorinstelling te "
+"kiezen:"
 
 #, python-format
 msgid "%(prog)s --input input.mp4 --encoding-preset hevc-nvidia-gpu-hq"
-msgstr ""
+msgstr "%(prog)s --input bestand.mp4 --encoding-preset hevc-nvidia-gpu-hq"
 
 msgid "Set encoding parameters directly without using an encoding preset:"
-msgstr ""
+msgstr "Stel encoderingsopties in zonder voorinstellingen te gebruiken:"
 
 #, python-format
 msgid ""
 "%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 "
 "-preset fast -x265-params log_level=error'"
 msgstr ""
+"%(prog)s --input bestand.mp4 --encoder libx265 --encoder-options '-crf 26 -"
+"preset fast -x265-params log_level=error'"
 
 #, python-format
 msgid "%(prog)s [options]"
@@ -514,6 +520,9 @@ msgid ""
 "Alternatively, you can use the environment variable TMPDIR. (default: "
 "%(default)s)"
 msgstr ""
+"De map waarin tijdelijke bestanden worden opgeslagen tijdens het "
+"herstelproces. Gebruik eventueel de omgevingsvariabale TMPDIR. (standaard: %"
+"(default)s)"
 
 #, python-format, python-brace-format
 msgid ""
