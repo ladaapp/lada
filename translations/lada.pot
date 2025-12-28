@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-19 12:24+0000\n"
+"POT-Creation-Date: 2025-12-28 14:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13,56 +13,34 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: lada/gui/export/export_multiple_files_row.ui:67
-#: lada/gui/export/export_single_file_page.ui:116
-msgid "Open in External Program…"
-msgstr ""
-
-#: lada/gui/export/export_multiple_files_row.ui:79
-#: lada/gui/export/export_single_file_page.ui:132
-msgid "Show Error"
-msgstr ""
-
-#: lada/gui/export/export_multiple_files_row.ui:92
-msgid "Remove"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.ui:19
-#: lada/gui/export/export_single_file_page.py:132
-#: lada/gui/export/export_single_file_page.py:174
-msgid "Export video"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.ui:71
-#: lada/gui/export/export_view.ui:73 lada/gui/export/export_view.py:245
-msgid "Restore"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.ui:83
-#: lada/gui/export/export_view.ui:66
-msgid "Resume"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.ui:93
-#: lada/gui/export/export_view.ui:59
-msgid "Pause"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.ui:103
-#: lada/gui/export/export_view.ui:49 lada/gui/export/export_view.py:599
-msgid "Cancel"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.ui:120
-msgid "Open File"
-msgstr ""
-
 #: lada/gui/export/export_view.ui:36 lada/gui/preview/preview_view.ui:47
 msgid "Settings"
 msgstr ""
 
 #: lada/gui/export/export_view.ui:43
 msgid "Add Files…"
+msgstr ""
+
+#: lada/gui/export/export_view.ui:49
+#: lada/gui/export/export_single_file_page.ui:115
+#: lada/gui/export/export_view.py:602
+msgid "Cancel"
+msgstr ""
+
+#: lada/gui/export/export_view.ui:59
+#: lada/gui/export/export_single_file_page.ui:105
+msgid "Pause"
+msgstr ""
+
+#: lada/gui/export/export_view.ui:66
+#: lada/gui/export/export_single_file_page.ui:95
+msgid "Resume"
+msgstr ""
+
+#: lada/gui/export/export_view.ui:73
+#: lada/gui/export/export_single_file_page.ui:72
+#: lada/gui/export/export_view.py:247
+msgid "Restore"
 msgstr ""
 
 #: lada/gui/export/export_view.ui:140
@@ -77,92 +55,121 @@ msgstr ""
 msgid "About Lada"
 msgstr ""
 
+#: lada/gui/export/export_multiple_files_row.ui:67
+#: lada/gui/export/export_single_file_page.ui:128
+msgid "Open in External Program…"
+msgstr ""
+
+#: lada/gui/export/export_multiple_files_row.ui:79
+#: lada/gui/export/export_single_file_page.ui:144
+msgid "Show Error"
+msgstr ""
+
+#: lada/gui/export/export_multiple_files_row.ui:89
+#: lada/gui/export/export_single_file_page.ui:84
+msgid "Preview"
+msgstr ""
+
+#: lada/gui/export/export_multiple_files_row.ui:105
+msgid "Remove"
+msgstr ""
+
+#: lada/gui/export/export_single_file_page.py:107
+#: lada/gui/export/export_single_file_page.py:190
+msgid "Restoring video…"
+msgstr ""
+
+#: lada/gui/export/export_single_file_page.py:139
+msgid "Finished video restoration!"
+msgstr ""
+
+#: lada/gui/export/export_single_file_page.py:152
+#: lada/gui/export/export_utils.py:56
+msgid "Restoration failed"
+msgstr ""
+
+#: lada/gui/export/export_single_file_page.py:163
+#: lada/gui/export/export_single_file_page.py:206
+#: lada/gui/export/export_single_file_page.ui:19
+msgid "Export video"
+msgstr ""
+
+#: lada/gui/export/export_single_file_page.py:179
+msgid "Restoration paused"
+msgstr ""
+
+#: lada/gui/export/export_single_file_page.ui:132
+msgid "Open File"
+msgstr ""
+
 #: lada/gui/export/export_utils.py:29
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
 msgstr ""
 
-#: lada/gui/export/export_utils.py:53
-#: lada/gui/export/export_single_file_page.py:123
-msgid "Restoration failed"
-msgstr ""
-
-#: lada/gui/export/export_utils.py:54
+#: lada/gui/export/export_utils.py:57
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
 msgstr ""
 
-#: lada/gui/export/export_utils.py:63 lada/gui/export/export_view.py:583
+#: lada/gui/export/export_utils.py:66 lada/gui/export/export_view.py:586
 msgid "Okay"
 msgstr ""
 
-#: lada/gui/export/export_utils.py:69
+#: lada/gui/export/export_utils.py:72
 msgid "Failed"
 msgstr ""
 
-#: lada/gui/export/export_utils.py:74
+#: lada/gui/export/export_utils.py:77
 #, python-brace-format
 msgid "Finished  |  Processed: {time_done} ({frames_done} frames)"
 msgstr ""
 
-#: lada/gui/export/export_utils.py:82
+#: lada/gui/export/export_utils.py:85
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: {time_remaining} ({frames_remaining} frames)  |  Speed: {speed_fps} FPS"
 msgstr ""
 
-#: lada/gui/export/export_utils.py:90
+#: lada/gui/export/export_utils.py:93
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: Estimating… |  Speed: Estimating…"
 msgstr ""
 
-#: lada/gui/export/export_utils.py:96
+#: lada/gui/export/export_utils.py:99
 #, python-brace-format
 msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
 msgstr ""
 
-#: lada/gui/export/export_view.py:245
+#: lada/gui/export/export_view.py:247
 msgid "Restore…"
 msgstr ""
 
-#: lada/gui/export/export_view.py:528
+#: lada/gui/export/export_view.py:531
 msgid "Save restored video file"
 msgstr ""
 
-#: lada/gui/export/export_view.py:535
+#: lada/gui/export/export_view.py:538
 msgid "Save restored video files"
 msgstr ""
 
-#: lada/gui/export/export_view.py:565
+#: lada/gui/export/export_view.py:568
 msgid "Shutdown System"
 msgstr ""
 
-#: lada/gui/export/export_view.py:566
+#: lada/gui/export/export_view.py:569
 msgid "Export has finished. The system will shutdown in 30 seconds."
 msgstr ""
 
-#: lada/gui/export/export_view.py:580
+#: lada/gui/export/export_view.py:583
 msgid "Shutdown Failed"
 msgstr ""
 
-#: lada/gui/export/export_view.py:581
+#: lada/gui/export/export_view.py:584
 msgid "Failed to initiate system shutdown. Please check system permissions."
 msgstr ""
 
-#: lada/gui/export/export_view.py:600
+#: lada/gui/export/export_view.py:603
 msgid "Shutdown now"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.py:94
-#: lada/gui/export/export_single_file_page.py:158
-msgid "Restoring video…"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.py:112
-msgid "Finished video restoration!"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.py:147
-msgid "Restoration paused"
 msgstr ""
 
 #: lada/gui/config/no_gpu_banner.ui:17
@@ -199,23 +206,6 @@ msgstr ""
 
 #: lada/gui/config/encoding_preset_dialog.ui:106
 msgid "Enter encoder options…"
-msgstr ""
-
-#: lada/gui/config/config_sidebar.py:143 lada/gui/config/config_sidebar.py:249
-#: lada/gui/config/config_sidebar.ui:151
-msgid "Click the folder button to choose a default"
-msgstr ""
-
-#: lada/gui/config/config_sidebar.py:482
-msgid "Create Preset…"
-msgstr ""
-
-#: lada/gui/config/config_sidebar.py:492
-msgid "Select a folder where restored videos should be saved"
-msgstr ""
-
-#: lada/gui/config/config_sidebar.py:513
-msgid "Select a folder for temporary files"
 msgstr ""
 
 #: lada/gui/config/config_sidebar.ui:22
@@ -315,6 +305,11 @@ msgstr ""
 msgid "Use this folder"
 msgstr ""
 
+#: lada/gui/config/config_sidebar.ui:151 lada/gui/config/config_sidebar.py:143
+#: lada/gui/config/config_sidebar.py:253
+msgid "Click the folder button to choose a default"
+msgstr ""
+
 #: lada/gui/config/config_sidebar.ui:172
 msgid "Temporary Directory"
 msgstr ""
@@ -412,6 +407,18 @@ msgstr ""
 
 #: lada/gui/config/config_sidebar.ui:355
 msgid "Reset to factory settings"
+msgstr ""
+
+#: lada/gui/config/config_sidebar.py:486
+msgid "Create Preset…"
+msgstr ""
+
+#: lada/gui/config/config_sidebar.py:496
+msgid "Select a folder where restored videos should be saved"
+msgstr ""
+
+#: lada/gui/config/config_sidebar.py:517
+msgid "Select a folder for temporary files"
 msgstr ""
 
 #: lada/gui/fileselection/file_selection_view.ui:37
@@ -745,9 +752,37 @@ msgid "Invalid encoding preset"
 msgstr ""
 
 #: lada/cli/main.py:207
-msgid "Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-options\" must be used"
+msgid "Either \"--encoding-preset\" or \"--encoder\" together with \"--encoder-options\" must be used"
 msgstr ""
 
 #: lada/cli/main.py:229
 msgid "Received Ctrl-C, stopping restoration."
+msgstr ""
+
+#: lada/utils/encoding_presets.csv:2
+msgid "H.264 / AVC, x264 software encoder, Indistinguishable Quality, Slow, Very Large File Size"
+msgstr ""
+
+#: lada/utils/encoding_presets.csv:3
+msgid "H.264 / AVC, x264 software encoder, Fast, Medium File Size"
+msgstr ""
+
+#: lada/utils/encoding_presets.csv:4
+msgid "H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size"
+msgstr ""
+
+#: lada/utils/encoding_presets.csv:5
+msgid "H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size"
+msgstr ""
+
+#: lada/utils/encoding_presets.csv:6
+msgid "H.265 / HEVC, Nvidia hardware encoder, High Quality, Medium File Size"
+msgstr ""
+
+#: lada/utils/encoding_presets.csv:7
+msgid "H.265 / HEVC, Nvidia hardware encoder, Indistinguishable Quality, Large File Size"
+msgstr ""
+
+#: lada/utils/encoding_presets.csv:8
+msgid "AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size"
 msgstr ""
