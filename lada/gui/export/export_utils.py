@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Lada Authors
 # SPDX-License-Identifier: AGPL-3.0
-
+import os
 from dataclasses import dataclass
 from fractions import Fraction
 
@@ -30,6 +30,9 @@ def get_video_metadata_string(file: Gio.File):
         duration=_format_duration(meta_data.duration),
         resolution=f"{meta_data.video_width}x{meta_data.video_height}",
         fps=f"{meta_data.video_fps_exact:.2f}")
+
+def preview_file_available(file_path: str | None) -> bool:
+    return file_path and os.path.exists(file_path) and os.path.getsize(file_path) > 4096
 
 def open_error_dialog(parent: Gtk.Widget, filename:str, details:str|None):
     extra_child = None

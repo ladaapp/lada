@@ -41,6 +41,9 @@ class ExportMultipleFilesPage(Gtk.Widget):
                 original_file=obj.original_file,
                 restored_file=obj.restored_file,
             )
+            list_row.progress = obj.progress
+            list_row.state = obj.state
+
             list_row.connect("remove-requested", lambda *args: self.on_export_item_remove_requested(list_row))
             list_row.connect("show-error-requested", lambda *args: self.on_show_error_requested(list_row))
             return list_row
@@ -67,8 +70,10 @@ class ExportMultipleFilesPage(Gtk.Widget):
         view_item = self.list_box.get_row_at_index(idx)
         view_item.progress = progress
 
-    def show_video_export_started(self, idx: int):
+    def show_video_export_started(self, idx: int, temp_file_path: str | None, mp4_fast_start_enabled: bool = False):
         view_item = self.list_box.get_row_at_index(idx)
+        if mp4_fast_start_enabled:
+            view_item.temp_file_path = temp_file_path
         view_item.state = ExportItemState.PROCESSING
 
     def on_video_export_stopped(self, idx: int):

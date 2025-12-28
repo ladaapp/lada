@@ -57,6 +57,7 @@ class ExportView(Gtk.Widget):
         self.resume_info: ResumeInformation | None = None
         self.video_writer: video_utils.VideoWriter | None = None
         self.progress_calculator: export_utils.ProgressCalculator | None = None
+        self.temp_file_path: str | None = None
 
         self.connect("video-export-finished", self.on_video_export_finished)
         self.connect("video-export-failed", self.on_video_export_failed)
@@ -224,6 +225,7 @@ class ExportView(Gtk.Widget):
         item = self.model[self.in_progress_idx]
         self._start_export(item.original_file, item.restored_file)
 
+
     def on_show_error_requested(self, obj, idx):
         model_item = self.model[idx]
         export_utils.open_error_dialog(self, model_item.original_file.get_basename(), model_item.error_details)
@@ -280,8 +282,8 @@ class ExportView(Gtk.Widget):
         model_item.state = ExportItemState.PROCESSING
 
         if self.single_file:
-            self.single_file_page.show_video_export_started(save_file)
-        self.multiple_files_page.show_video_export_started(idx)
+            self.single_file_page.show_video_export_started(save_file, self.temp_file_path, self._config.mp4_fast_start)
+        self.multiple_files_page.show_video_export_started(idx, self.temp_file_path, self._config.mp4_fast_start)
 
     def on_video_export_finished(self, obj):
         assert self.in_progress_idx is not None
@@ -399,10 +401,17 @@ class ExportView(Gtk.Widget):
 
     def _start_export(self, source_file: Gio.File, restore_file: Gio.File):
         assert os.path.isfile(source_file.get_path())
+        restore_file_path = restore_file.get_path()
+        temp_dir = self._config.temp_directory
+        video_tmp_file_output_path = os.path.join(temp_dir, f"{os.path.basename(os.path.splitext(restore_file_path)[0])}.tmp{os.path.splitext(restore_file_path)[1]}")
+        self.temp_file_path = video_tmp_file_output_path
+
         if not self.resume_info:
             self.show_video_export_started(restore_file)
 
         def run_export():
+            success = True
+            progress_update_step_size = 100
             frame_restorer_options = FrameRestorerOptions(self._config.mosaic_restoration_model,
                                                           self._config.mosaic_detection_model,
                                                           video_utils.get_video_meta_data(source_file.get_path()),
@@ -416,12 +425,6 @@ class ExportView(Gtk.Widget):
             frame_restorer_provider = FRAME_RESTORER_PROVIDER
             frame_restorer_provider.init(frame_restorer_options)
             frame_restorer = frame_restorer_provider.get()
-            restore_file_path = restore_file.get_path()
-
-            progress_update_step_size = 100
-            success = True
-            temp_dir = self._config.temp_directory
-            video_tmp_file_output_path = os.path.join(temp_dir, f"{os.path.basename(os.path.splitext(restore_file_path)[0])}.tmp{os.path.splitext(restore_file_path)[1]}")
             try:
                 if self.resume_info:
                     start_ns = self.resume_info.get_resume_timestamp_ns()

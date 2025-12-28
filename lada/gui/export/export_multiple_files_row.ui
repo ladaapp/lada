@@ -61,8 +61,8 @@ SPDX-License-Identifier: AGPL-3.0
                         </child>
                         <child>
                             <object class="GtkButton" id="button_open">
-                                <property name="valign">3</property>
-                                <property name="halign">2</property>
+                                <property name="valign">center</property>
+                                <property name="halign">end</property>
                                 <property name="icon-name">external-link-symbolic</property>
                                 <property name="tooltip-text" translatable="true">Open in External Program…</property>
                                 <property name="visible">false</property>
@@ -85,9 +85,22 @@ SPDX-License-Identifier: AGPL-3.0
                             </object>
                         </child>
                         <child>
+                            <object class="SpinnerButton" id="button_preview">
+                                <property name="label" translatable="true">Preview</property>
+                                <property name="valign">center</property>
+                                <property name="halign">end</property>
+                                <property name="margin-top">2</property>
+                                <property name="margin-end">2</property>
+                                <property name="visible">false</property>
+                                <signal name="clicked" handler="on_button_preview_clicked"/>
+                                <style>
+                                </style>
+                            </object>
+                        </child>
+                        <child>
                             <object class="GtkButton" id="button_remove">
-                                <property name="valign">3</property>
-                                <property name="halign">2</property>
+                                <property name="valign">center</property>
+                                <property name="halign">end</property>
                                 <property name="icon-name">cross-large-symbolic</property>
                                 <property name="tooltip-text" translatable="true">Remove</property>
                                 <property name="visible">true</property>
