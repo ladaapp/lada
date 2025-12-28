@@ -4,9 +4,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-06 14:43+0000\n"
-"PO-Revision-Date: 2025-12-09 13:11+0000\n"
-"Last-Translator: kkkdel <kkkdel@noreply.codeberg.org>\n"
+"POT-Creation-Date: 2025-12-19 12:24+0000\n"
+"PO-Revision-Date: 2025-12-23 01:44+0000\n"
+"Last-Translator: xl <xl@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://"
 "translate.codeberg.org/projects/lada/lada/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.14.3\n"
+"X-Generator: Weblate 5.15.1\n"
 
 msgid "Open in External Program…"
 msgstr "用外部程序打开…"
@@ -55,21 +55,12 @@ msgstr "键盘快捷键"
 msgid "About Lada"
 msgstr "关于 Lada"
 
-msgid "Restoring video…"
-msgstr "正在修复视频…"
-
-msgid "Finished video restoration!"
-msgstr "视频修复已完成！"
-
-msgid "Restoration failed"
-msgstr "修复失败"
-
-msgid "Restoration paused"
-msgstr "修复已暂停"
-
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
 msgstr "时长：{duration}，分辨率：{resolution}，帧率：{fps} 帧/秒"
+
+msgid "Restoration failed"
+msgstr "修复失败"
 
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
@@ -110,37 +101,73 @@ msgid "Restore…"
 msgstr "修复…"
 
 msgid "Save restored video file"
-msgstr "保存修复后的视频"
+msgstr "保存已修复视频"
 
 msgid "Save restored video files"
-msgstr "保存修复后的视频文件"
+msgstr "保存所有已修复视频"
 
 msgid "Shutdown System"
 msgstr "关闭系统"
 
 msgid "Export has finished. The system will shutdown in 30 seconds."
-msgstr "导出已完成.系统将在30秒后关闭."
+msgstr "导出已完成，系统将在30秒后关闭。"
 
 msgid "Shutdown Failed"
 msgstr "关机失败"
 
 msgid "Failed to initiate system shutdown. Please check system permissions."
-msgstr "无法启动系统关机.请检查系统权限."
+msgstr "无法执行关机，请检查系统权限。"
 
 msgid "Shutdown now"
 msgstr "立即关机"
 
+msgid "Restoring video…"
+msgstr "正在修复视频…"
+
+msgid "Finished video restoration!"
+msgstr "视频修复已完成！"
+
+msgid "Restoration paused"
+msgstr "修复已暂停"
+
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
-msgstr "未检测到 GPU！在 CPU 上运行程序，速度会非常缓慢。"
+msgstr "未检测到显卡！在 CPU 上运行程序，速度会非常慢。"
+
+msgid "Create Preset"
+msgstr "新建编码预设"
+
+msgid "Edit Preset"
+msgstr "编辑预设"
+
+msgid "Save"
+msgstr "保存"
+
+msgid "<big>Description</big>"
+msgstr "<big>描述</big>"
+
+msgid "<big>Encoder</big>"
+msgstr "<big>选择编码器</big>"
+
+msgid "<big>Encoder Help</big>"
+msgstr "<big>编码器帮助</big>"
+
+msgid "<big>Encoder Options</big>"
+msgstr "<big>编码器参数</big>"
+
+msgid "Enter encoder options…"
+msgstr "输入自定义编码参数…"
 
 msgid "Click the folder button to choose a default"
 msgstr "点击文件夹按钮选择默认位置"
+
+msgid "Create Preset…"
+msgstr "新建编码预设…"
 
 msgid "Select a folder where restored videos should be saved"
 msgstr "选择修复后视频的保存位置"
 
 msgid "Select a folder for temporary files"
-msgstr "请选择一个用于临时文件的文件夹"
+msgstr "选择缓存文件夹"
 
 msgid "Mosaic Removal"
 msgstr "马赛克修复"
@@ -148,14 +175,18 @@ msgstr "马赛克修复"
 msgid "Detection model"
 msgstr "检测模型"
 
-msgid "Model used for detecting mosaic areas."
-msgstr "用于检测马赛克区域的模型。"
-
 msgid "Restoration model"
 msgstr "修复模型"
 
-msgid "Model used for restoring mosaic areas."
-msgstr "用于修复马赛克区域的模型。"
+msgid "Detect face mosaics"
+msgstr "面部检测"
+
+msgid ""
+"Detect and ignore areas of pixelated faces. Can prevent restoration "
+"artifacts but may worsen detection of NSFW mosaics."
+msgstr ""
+"检测并跳过人脸马赛克，可防止产生修复伪影，但可能会降低马赛克识别率，造成漏码"
+"。"
 
 msgid "Maximum clip duration"
 msgstr "切片帧数"
@@ -168,18 +199,18 @@ msgstr ""
 "用。"
 
 msgid "GPU"
-msgstr "GPU"
+msgstr "显卡"
 
 msgid "Selected GPU for model processing."
-msgstr "用于模型处理的 GPU。"
+msgstr "用于模型处理的显卡型号。"
 
 msgid "FP16 precision"
-msgstr "FP16 精度"
+msgstr "FP16 半精度开关"
 
 msgid ""
 "Reduces VRAM usage and may increase speed on modern GPUs, with negligible "
 "quality difference."
-msgstr "降低显存（VRAM）占用，在现代 GPU 上可能提升速度，且对质量影响微乎其微。"
+msgstr "开启可降低显存占用，在一些支持的显卡上可能会提升速度（有轻微画质损失）。"
 
 msgid "Playback"
 msgstr "播放设置"
@@ -190,56 +221,32 @@ msgstr "缓冲时长"
 msgid ""
 "How much video is pre-loaded for playback, measured in seconds. If set to 0 "
 "this value will be chosen automatically."
-msgstr "播放前预加载的秒数，设为 0 则自动加载。"
+msgstr "播放前的预加载秒数，设为 0 则自动加载。"
 
 msgid "Mute audio by default"
 msgstr "默认静音"
 
 msgid ""
 "When enabled, audio will be muted automatically when a new file is opened."
-msgstr "启用后，打开新文件时将自动静音。"
+msgstr "启用后，预览视频时将自动静音。"
 
 msgid "Enable seek preview"
 msgstr "启用时间轴预览"
 
 msgid "Show a preview of the video frame when hovering over the timeline."
-msgstr "在时间轴上悬停时显示视频帧预览."
+msgstr "鼠标在时间轴上悬停时显示预览图。"
 
 msgid "Export"
 msgstr "导出"
 
-msgid "Codec"
-msgstr "编码器"
-
-msgid "Video Codec used for encoding the restored video."
-msgstr "用于编码修复后视频的编码器。"
-
-msgid "CRF (Constant Rate Factor)"
-msgstr "CRF (恒定码率因子)"
-
-msgid ""
-"Quality setting of the video encoder. Lower values will result in higher "
-"quality but larger file sizes."
-msgstr "视频编码质量，值越低，质量越高文件也越大。"
-
-msgid ""
-"Custom FFmpeg encoder options (Optional).\n"
-"Example: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</"
-"tt></span>"
-msgstr ""
-"自定义 FFmpeg 编码器参数 (可选)\n"
-"例如: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</tt></"
-"span>"
-
-msgid ""
-"FFmpeg Codecs Documentation:\n"
-"https://ffmpeg.org/ffmpeg-codecs.html"
-msgstr ""
-"FFmpeg 官方文档：\n"
-"https://ffmpeg.org/ffmpeg-codecs.html"
+msgid "Encoding Preset"
+msgstr "编码预设"
 
 msgid "Output Directory"
 msgstr "输出目录"
+
+msgid "Directory where restored files will be saved"
+msgstr "修复后视频的保存目录"
 
 msgid "Always ask"
 msgstr "每次询问"
@@ -248,10 +255,10 @@ msgid "Use this folder"
 msgstr "使用此目录"
 
 msgid "Temporary Directory"
-msgstr "临时目录"
+msgstr "缓存位置"
 
 msgid "Directory for temporary video files during restoration process"
-msgstr "恢复过程中用于临时视频文件的目录"
+msgstr "修复过程中的缓存文件夹"
 
 msgid ""
 "File name pattern for restored files.\n"
@@ -263,16 +270,16 @@ msgstr ""
 "span>。"
 
 msgid "Post-Export Action"
-msgstr "导出后操作"
+msgstr "导出完成后执行"
 
-msgid "Action to be run after all queued files have been restored"
-msgstr "在所有排队的文件恢复完成后要执行的操作"
+msgid "Action to be run after all queued files have been restored."
+msgstr "全部视频导出完成后执行的操作。"
 
 msgid "Shutdown system"
 msgstr "关闭系统"
 
 msgid "Automatically shutdown the system after export is completed."
-msgstr "导出完成后自动关闭系统."
+msgstr "导出完成后自动关机。"
 
 msgid "Execute custom command"
 msgstr "执行自定义命令"
@@ -282,6 +289,12 @@ msgstr "导出完成后执行自定义 Shell 命令。"
 
 msgid "Custom command"
 msgstr "自定义命令"
+
+msgid "Enable .mp4 Fast Start"
+msgstr "启用 MP4 边修边播"
+
+msgid "Allows playing the file while it's being written."
+msgstr "开启后可在视频修复过程中边修边播。"
 
 msgid "Troubleshooting"
 msgstr "故障诊断"
@@ -297,7 +310,7 @@ msgid "UI"
 msgstr "软件界面"
 
 msgid "Color Scheme"
-msgstr "配色方案"
+msgstr "主题颜色"
 
 msgid "Follow System style"
 msgstr "跟随系统"
@@ -341,50 +354,63 @@ msgstr "播放/暂停"
 msgid "Enable/Disable fullscreen"
 msgstr "启用/禁用全屏"
 
-msgid "Select one or multiple video files"
-msgstr "选择一个或多个视频文件"
-
 msgid "Switch to Export View"
 msgstr "切换到导出视图"
 
 msgid "Switch to Watch View"
 msgstr "切换到预览视图"
 
+msgid "Select one or multiple video files"
+msgstr "选择一个或多个视频文件"
+
+#, python-brace-format
+msgid "Custom Preset {custom_preset_num}"
+msgstr "自定义预设 {custom_preset_num}"
+
 msgid "No video files found"
 msgstr "找不到视频文件"
 
-msgid "PyAV version:"
-msgstr "PyAV 版本："
-
-msgid "Available video encoders:"
-msgstr "可用视频编码器："
-
-msgid "Encoders with support for hardware acceleration (GPU):"
-msgstr "支持硬件加速（GPU）的编码器："
-
-msgid "Device"
-msgstr "设备"
-
-msgid "Description"
-msgstr "描述"
-
-msgid "Available devices:"
-msgstr "可用设备："
-
-msgid "Available detection models:"
-msgstr "可用检测模型："
-
-msgid "None!"
-msgstr "无！"
+msgid "Yes"
+msgstr "确定"
 
 msgid "Name"
 msgstr "名称"
 
-msgid "Path"
-msgstr "路径"
+msgid "Description"
+msgstr "描述"
+
+msgid "Hardware-accelerated"
+msgstr "硬件加速"
+
+msgid "Hardware devices"
+msgstr "硬件加速设备"
+
+msgid "Available video encoders:"
+msgstr "可用视频编码器："
+
+msgid "Device"
+msgstr "设备"
+
+msgid "Available devices:"
+msgstr "可用设备："
 
 msgid "Available restoration models:"
 msgstr "可用修复模型："
+
+msgid "None!"
+msgstr "无！"
+
+msgid "Path"
+msgstr "路径"
+
+msgid "Available encoding presets:"
+msgstr "可用编码预设："
+
+msgid "Encoder Name"
+msgstr "编码器名称"
+
+msgid "Encoder Options"
+msgstr "编码参数选项"
 
 msgid "Usage: "
 msgstr "用法： "
@@ -425,12 +451,23 @@ msgstr "修复指定目录中的所有视频，并保存到另一个文件夹：
 msgid "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
 msgstr "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
 
-msgid "Use a GPU-accelerated codec for encoding the restored video:"
-msgstr "使用 GPU 编码器编码视频："
+msgid "Use Nvidia hardware-accelerated encoder by selecting a preset:"
+msgstr "使用 NVIDIA 硬件加速编码器（请选择预设）："
 
 #, python-format
-msgid "%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20"
-msgstr "%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20"
+msgid "%(prog)s --input input.mp4 --encoding-preset hevc-nvidia-gpu-hq"
+msgstr "%(prog)s --input input.mp4 --encoding-preset hevc-nvidia-gpu-hq"
+
+msgid "Set encoding parameters directly without using an encoding preset:"
+msgstr "直接设置编码参数（不使用预设）："
+
+#, python-format
+msgid ""
+"%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 "
+"-preset fast -x265-params log_level=error'"
+msgstr ""
+"%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 -"
+"preset fast -x265-params log_level=error'"
 
 #, python-format
 msgid "%(prog)s [options]"
@@ -453,6 +490,13 @@ msgstr ""
 "输出文件保存路径。若指定路径为目录，将根据 --output-file-pattern 自动生成文件"
 "名。若未指定输出路径，则默认使用输入文件的目录"
 
+#, python-format
+msgid ""
+"Directory for temporary video files during restoration process. "
+"Alternatively, you can use the environment variable TMPDIR. (default: "
+"%(default)s)"
+msgstr "缓存位置，可使用环境变量 TMPDIR 指定（默认：%(default)s）"
+
 #, python-format, python-brace-format
 msgid ""
 "Pattern used to determine output file name(s). Used when input is a "
@@ -460,7 +504,7 @@ msgid ""
 "placeholder '{orig_file_name}'. (default: %(default)s)"
 msgstr ""
 "用于确定输出文件名的模式。当输入为目录，或输入文件未指定输出路径时，将使用此"
-"模式。必须包含占位符 {orig_file_name}。（默认值：%(default)s）"
+"模式。必须包含占位符 {orig_file_name}。（默认：%(default)s）"
 
 #, python-format
 msgid ""
@@ -468,15 +512,16 @@ msgid ""
 "\"cuda\". If you have multiple GPUs you can select a specific one via index "
 "e.g. \"cuda:0\" (default: %(default)s)"
 msgstr ""
-"运行检测和修复模型的设备。使用 \"cpu\" 或 \"cuda\"。若有多个 GPU，可通过索引"
+"运行检测和修复模型的设备。使用 \"cpu\" 或 \"cuda\"。若有多个显卡，可通过索引"
 "来指定，例如 \"cuda:0\" (默认: %(default)s)"
 
 #, python-format
 msgid ""
 "Reduces VRAM usage and may increase speed on modern GPUs, with negligible "
 "quality difference. (default: %(default)s)"
-msgstr "降低显存占用，在新款/高性能显卡上可能提升处理速度，画质差异不大."
-"(default: %(default)s)"
+msgstr ""
+"开启可降低显存占用，在一些支持的显卡上可能会提升速度（有轻微画质损失）(默认: "
+"%(default)s)"
 
 msgid "List available devices and exit"
 msgstr "列出可用设备"
@@ -487,80 +532,71 @@ msgstr "显示版本信息并退出"
 msgid "Show this help message and exit"
 msgstr "显示帮助信息并退出"
 
-msgid "Export (Encoder settings)"
-msgstr "导出设置 (视频编码设置)"
+#, python-format
+msgid ""
+"Select encoding preset by name. Use \"--list-encoding-presets\" to see "
+"what's available. Ignored if \"--encoder\" and \"--encoder-options\" are "
+"used (default: %(default)s)"
+msgstr ""
+"按名称选择编码预设，使用 \"--list-encoding-presets\" 查看可用选项。若已设定 "
+"\"--encoder\" 和 \"--encoder-options\" 则忽略此项。（默认：%(default)s）"
+
+msgid "List available encoding presets and exit"
+msgstr "列出可用编码预设并退出"
 
 #, python-format
 msgid ""
-"FFmpeg video codec. E.g. \"h264, \"hevc\" or \"hevc_nvenc\". Use \"--list-"
-"codecs\" to see what's available. (default: %(default)s)"
+"Select video encoder by name. Use \"--list-encoders\" to see what's "
+"available. (default: %(default)s)"
 msgstr ""
-"FFmpeg 视频编码器，如“h264”“hevc”或“hevc_nvenc”。使用“--list-codecs” 查看可用"
-"编码器。默认：%(default)s"
+"按名称选择视频编码器，使用 \"--list-encoders\" 查看可用选项。（默认：%"
+"(default)s）"
 
-msgid ""
-"List available codecs and hardware devices / GPUs for hardware-accelerated "
-"video encoding"
-msgstr "列出可用编码器及 GPU 硬件加速设备"
+msgid "List available encoders and exit"
+msgstr "列出可用编码器并退出"
 
 #, python-format
 msgid ""
-"Constant rate factor (CRF). Quality setting of the video encoder. Lower "
-"values will result in higher quality but larger file sizes. If you have "
-"selected GPU codecs \"h264_nvenc\" or \"hevc_nvenc\" then the option \"qp\" "
-"will be used instead as those encoders don't support the \"crf\" option. "
-"(default: %(default)s)"
+"Space-separated list of options for the encoder set via \"--encoder\". Use "
+"\"--list-encoder-options\" to see what's available. (default: %(default)s)"
 msgstr ""
-"恒定码率因子 (CRF)。用于控制视频编码质量，数值越低，画质越高但文件体积也越"
-"大。若使用 GPU 编码器 \"h264_nvenc\" 或 \"hevc_nvenc\"，程序将自动使用参数 "
-"\"qp\"，因为这些编码器不支持 \"crf\"。 (默认: %(default)s)"
+"\"--encoder\" 编码器选项列表（以空格分隔）使用 \"--list-encoder-options\" 查"
+"看可用选项。（默认：%(default)s）"
+
+msgid "List available options of the given encoder and exit"
+msgstr "列出指定编码器的可用选项并退出"
 
 #, python-format
 msgid ""
-"Encoder preset. Mostly affects file-size and speed. (default: %(default)s)"
-msgstr "编码器预设。主要影响文件大小与编码速度。 (默认: %(default)s)"
-
-#, python-format
-msgid ""
-"Sets ffmpeg mov flags 'frag_keyframe+empty_moov+faststart'. Enables playing "
-"the output video while it's being written (default: %(default)s)"
+"Allows playing the file while it's being written. Sets .mp4 mov flags "
+"\"frag_keyframe+empty_moov+faststart\". (default: %(default)s)"
 msgstr ""
-"设置 FFmpeg movflags 'frag_keyframe+empty_moov+faststart'，使输出视频在写入过"
-"程中可边写边播 (默认: %(default)s)"
-
-msgid ""
-"Pass arbitrary encoder options. Pass it like you'd specify them using "
-"ffmpeg. For example: --custom-encoder-options \"-rc-lookahead 32 -rc "
-"vbr_hq\". Official FFmpeg Codecs Documentation: https://ffmpeg.org/ffmpeg-"
-"codecs.html"
-msgstr ""
-"传递任意编码器选项，语法同 FFmpeg。示例：--custom-encoder-options \"-rc-"
-"lookahead 32 -rc vbr_hq\"。参见：https://ffmpeg.org/ffmpeg-codecs.html"
+"允许视频在导出过程中支持边修边播。设置 MP4 movflags 为 "
+"\"frag_keyframe+empty_moov+faststart\"。（默认：%(default)s）"
 
 msgid "Mosaic Restoration"
 msgstr "马赛克修复"
-
-#, python-format
-msgid "Model used to restore mosaic clips (default: %(default)s)"
-msgstr "用于修复马赛克区域的模型 (默认: %(default)s)"
 
 msgid ""
 "List available restoration models found in model weights directory and exit "
 "(default location is './model_weights' if not overwritten by environment "
 "variable LADA_MODEL_WEIGHTS_DIR)"
 msgstr ""
-"列举模型权重目录中可用的修复模型并退出（若环境变量 LADA_MODEL_WEIGETS_DIR 未"
-"被覆盖，默认位置为“./model_weights”）"
+"列出模型权重目录中可用的修复模型并退出（若变量 LADA_MODEL_WEIGETS_DIR 未被覆"
+"盖，默认位置为“./model_weights”）"
 
 #, python-format
-msgid "Path to restoration model weights file (default: %(default)s)"
-msgstr "修复模型文件的路径 (默认: %(default)s)"
+msgid ""
+"Name of detection model or path to model weights file. Use \"--list-mosaic-"
+"restoration-models\" to see what's available. (default: %(default)s)"
+msgstr ""
+"修复模型名称或权重文件路径。使用 \"--list-mosaic-restoration-models\" 查看可"
+"用模型。（默认：%(default)s）"
 
 msgid ""
 "Path to restoration model configuration file. You'll not have to set this "
 "unless you're training your own custom models"
-msgstr ""
-"还原模型配置文件的路径。除非你正在训练自己的自定义模型，否则无需设置此项"
+msgstr "修复模型的配置文件路径。除非你有自己的自定义模型，否则无需设定"
 
 #, python-format
 msgid ""
@@ -574,20 +610,37 @@ msgstr ""
 msgid "Mosaic Detection"
 msgstr "马赛克检测"
 
+#, python-format
+msgid ""
+"Name of detection model or path to model weights file. Use \"--list-mosaic-"
+"detection-models\" to see what's available. (default: %(default)s)"
+msgstr ""
+"检测模型名称或权重文件路径。使用 \"--list-mosaic-detection-models\" 查看可用"
+"模型。（默认：%(default)s）"
+
 msgid ""
 "List available detection models found in model weights directory and exit "
 "(default location is './model_weights' if not overwritten by environment "
 "variable LADA_MODEL_WEIGHTS_DIR)"
 msgstr ""
-"列出在模型权重目录中找到的可用检测模型并退出（默认位置为'./model_weights'，除"
-"非被环境变量LADA_MODEL_WEIGHTS_DIR覆盖）"
+"列出模型权重目录中的可用检测模型并退出（默认位置为'./model_weights'，除非被变"
+"量LADA_MODEL_WEIGHTS_DIR覆盖）"
+
+#, python-format
+msgid ""
+"Detect and ignore areas of pixelated faces. Can prevent restoration "
+"artifacts but may worsen detection of NSFW mosaics. Available for models v3 "
+"and newer. (default: %(default)s)"
+msgstr ""
+"检测并跳过人脸马赛克，可防止产生修复伪影，但可能会降低马赛克识别率，造成漏码"
+"。适用于v3以上新模型。(默认: %(default)s)"
 
 msgid "Processing audio"
-msgstr "正在处理音频"
+msgstr "正在合并音频"
 
 #, python-brace-format
 msgid "GPU {device} selected but CUDA is not available"
-msgstr "GPU {device} 已选择，但 CUDA 不可用"
+msgstr "已选中 GPU {device} 但 CUDA 不可用"
 
 #, python-brace-format
 msgid ""
@@ -604,8 +657,141 @@ msgstr "无效的输出目录。若输入为目录，则 --output 也必须指�
 msgid "Invalid input. No file or directory at {input_path}"
 msgstr "输入无效。在 {input_path} 处未找到文件或目录"
 
+#, python-brace-format
+msgid "Temporary directory {temporary_path} doesn't exist. Creating…"
+msgstr "缓存目录 {temporary_path} 不存在，正在创建…"
+
+msgid "Invalid mosaic detection model"
+msgstr "无效的检测模型"
+
+msgid "Invalid mosaic restoration model"
+msgstr "无效的修复模型"
+
+msgid "Invalid encoding preset"
+msgstr "无效的编码预设"
+
+msgid ""
+"Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"
+"options\" must be used"
+msgstr ""
+"必须使用 \"--encoding-preset\"，或同时使用 \"--encoder\" 和 \"--encoding-"
+"options\""
+
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "检测到 Ctrl-C 信号，正在终止修复。"
+
+#~ msgid "Model used for detecting mosaic areas."
+#~ msgstr "用于检测马赛克区域的模型。"
+
+#~ msgid "Model used for restoring mosaic areas."
+#~ msgstr "用于修复马赛克区域的模型。"
+
+#~ msgid "Codec"
+#~ msgstr "编码器"
+
+#~ msgid "Video Codec used for encoding the restored video."
+#~ msgstr "用于编码修复后视频的编码器。"
+
+#~ msgid "CRF (Constant Rate Factor)"
+#~ msgstr "CRF (恒定码率因子)"
+
+#~ msgid ""
+#~ "Quality setting of the video encoder. Lower values will result in higher "
+#~ "quality but larger file sizes."
+#~ msgstr "视频编码质量，值越低，质量越高文件也越大。"
+
+#~ msgid ""
+#~ "Custom FFmpeg encoder options (Optional).\n"
+#~ "Example: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</"
+#~ "tt></span>"
+#~ msgstr ""
+#~ "自定义 FFmpeg 编码器参数 (可选)\n"
+#~ "例如: <span background=\"#D3D3D350\"><tt>-rc-lookahead 32 -rc vbr_hq</"
+#~ "tt></span>"
+
+#~ msgid ""
+#~ "FFmpeg Codecs Documentation:\n"
+#~ "https://ffmpeg.org/ffmpeg-codecs.html"
+#~ msgstr ""
+#~ "FFmpeg 官方文档：\n"
+#~ "https://ffmpeg.org/ffmpeg-codecs.html"
+
+#~ msgid "Action to be run after all queued files have been restored"
+#~ msgstr "在所有排队的文件恢复完成后要执行的操作"
+
+#~ msgid "PyAV version:"
+#~ msgstr "PyAV 版本："
+
+#~ msgid "Encoders with support for hardware acceleration (GPU):"
+#~ msgstr "支持硬件加速（GPU）的编码器："
+
+#~ msgid "Available detection models:"
+#~ msgstr "可用检测模型："
+
+#~ msgid "Use a GPU-accelerated codec for encoding the restored video:"
+#~ msgstr "使用 GPU 编码器编码视频："
+
+#, python-format
+#~ msgid "%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20"
+#~ msgstr "%(prog)s --input input.mp4 --codec hevc_nvenc --crf 20"
+
+#~ msgid "Export (Encoder settings)"
+#~ msgstr "导出设置 (视频编码设置)"
+
+#, python-format
+#~ msgid ""
+#~ "FFmpeg video codec. E.g. \"h264, \"hevc\" or \"hevc_nvenc\". Use \"--list-"
+#~ "codecs\" to see what's available. (default: %(default)s)"
+#~ msgstr ""
+#~ "FFmpeg 视频编码器，如“h264”“hevc”或“hevc_nvenc”。使用“--list-codecs” 查看"
+#~ "可用编码器。默认：%(default)s"
+
+#~ msgid ""
+#~ "List available codecs and hardware devices / GPUs for hardware-"
+#~ "accelerated video encoding"
+#~ msgstr "列出可用编码器及 GPU 硬件加速设备"
+
+#, python-format
+#~ msgid ""
+#~ "Constant rate factor (CRF). Quality setting of the video encoder. Lower "
+#~ "values will result in higher quality but larger file sizes. If you have "
+#~ "selected GPU codecs \"h264_nvenc\" or \"hevc_nvenc\" then the option "
+#~ "\"qp\" will be used instead as those encoders don't support the \"crf\" "
+#~ "option. (default: %(default)s)"
+#~ msgstr ""
+#~ "恒定码率因子 (CRF)。用于控制视频编码质量，数值越低，画质越高但文件体积也越"
+#~ "大。若使用 GPU 编码器 \"h264_nvenc\" 或 \"hevc_nvenc\"，程序将自动使用参"
+#~ "数 \"qp\"，因为这些编码器不支持 \"crf\"。 (默认: %(default)s)"
+
+#, python-format
+#~ msgid ""
+#~ "Encoder preset. Mostly affects file-size and speed. (default: %(default)s)"
+#~ msgstr "编码器预设。主要影响文件大小与编码速度。 (默认: %(default)s)"
+
+#, python-format
+#~ msgid ""
+#~ "Sets ffmpeg mov flags 'frag_keyframe+empty_moov+faststart'. Enables "
+#~ "playing the output video while it's being written (default: %(default)s)"
+#~ msgstr ""
+#~ "设置 FFmpeg movflags 'frag_keyframe+empty_moov+faststart'，使输出视频在写"
+#~ "入过程中可边写边播 (默认: %(default)s)"
+
+#~ msgid ""
+#~ "Pass arbitrary encoder options. Pass it like you'd specify them using "
+#~ "ffmpeg. For example: --custom-encoder-options \"-rc-lookahead 32 -rc "
+#~ "vbr_hq\". Official FFmpeg Codecs Documentation: https://ffmpeg.org/ffmpeg-"
+#~ "codecs.html"
+#~ msgstr ""
+#~ "传递任意编码器选项，语法同 FFmpeg。示例：--custom-encoder-options \"-rc-"
+#~ "lookahead 32 -rc vbr_hq\"。参见：https://ffmpeg.org/ffmpeg-codecs.html"
+
+#, python-format
+#~ msgid "Model used to restore mosaic clips (default: %(default)s)"
+#~ msgstr "用于修复马赛克区域的模型 (默认: %(default)s)"
+
+#, python-format
+#~ msgid "Path to restoration model weights file (default: %(default)s)"
+#~ msgstr "修复模型文件的路径 (默认: %(default)s)"
 
 #~ msgid ""
 #~ "Use FP16 precision for restoration and detection models. Reduces memory "
