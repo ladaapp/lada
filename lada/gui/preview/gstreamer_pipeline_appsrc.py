@@ -91,9 +91,12 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
                 self._set_video_metadata(value)
             else:
                 with self.appsrc_lock:
+                    should_start = self.appsource_thread is not None and not self.appsource_thread_stop_requested
                     self._stop_appsource_worker()
                     self.current_timestamp_ns = 0
                     self._set_video_metadata(value)
+                    if should_start:
+                        self._start_appsource_worker()
         elif prop.name == 'frame-restorer-provider':
             self.frame_restorer_provider = value
         else:
