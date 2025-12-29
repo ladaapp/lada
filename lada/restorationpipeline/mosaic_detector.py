@@ -261,11 +261,6 @@ class MosaicDetector:
             self.clip_counter += 1
 
     def _create_or_append_scenes_based_on_prediction_result(self, results: UltralyticsResults, scenes: list[Scene], frame_num):
-        mosaic_detected = len(results.boxes) > 0
-        self.frame_detection_queue.put((frame_num, mosaic_detected))
-        if self.stop_requested:
-            logger.debug("frame detector worker: frame_detection_queue producer unblocked")
-            return
         for i in range(len(results.boxes)):
             mask = convert_yolo_mask_tensor(results.masks[i], results.orig_shape).to(device=results.orig_img.device)
             box = convert_yolo_box(results.boxes[i], results.orig_shape)
@@ -374,6 +369,11 @@ class MosaicDetector:
                 assert len(preprocessed_frames) == len(batch_prediction_results)
                 for i, results in enumerate(batch_prediction_results):
                     self._create_or_append_scenes_based_on_prediction_result(results, scenes, frame_num)
+                    num_scenes_containing_frame = len([scene for scene in scenes if scene.frame_start <= frame_num <= scene.frame_end])
+                    self.frame_detection_queue.put((frame_num, num_scenes_containing_frame))
+                    if self.stop_requested:
+                        logger.debug("frame detector worker: frame_detection_queue producer unblocked")
+                        break
                     self._create_clips_for_completed_scenes(scenes, frame_num, eof=False)
                     frame_num += 1
         if eof:

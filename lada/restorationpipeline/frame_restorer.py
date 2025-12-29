@@ -224,8 +224,10 @@ class FrameRestorer:
         if has_processed_clips and self.device.type == 'cuda':
             torch.cuda.empty_cache()
 
-    def _contains_at_least_one_clip_starting_after_frame_num(self, frame_num, clip_buffer):
-        return len(clip_buffer) > 0 and frame_num < max(clip_buffer, key=lambda c: c.frame_start).frame_start
+    def _clip_buffer_contains_all_cips_needed_for_current_restoration(self, current_frame_num, num_mosaic_detections, clip_buffer):
+        num_clips_starting_at_frame = len([clip for clip in clip_buffer if clip.frame_start == current_frame_num])
+        assert num_clips_starting_at_frame <= num_mosaic_detections
+        return num_clips_starting_at_frame == num_mosaic_detections
 
     def _clip_restoration_worker(self):
         logger.debug("clip restoration worker: started")
@@ -252,7 +254,7 @@ class FrameRestorer:
         else:
             logger.debug("clip restoration worker: stopped by request")
 
-    def _read_next_frame(self, video_frames_generator, expected_frame_num) -> tuple[bool, np.ndarray, int] | StopMarker | EofMarker:
+    def _read_next_frame(self, video_frames_generator, expected_frame_num) -> tuple[int, np.ndarray, int] | StopMarker | EofMarker:
         try:
             frame, frame_pts = next(video_frames_generator)
         except StopIteration:
@@ -267,9 +269,9 @@ class FrameRestorer:
             logger.debug("frame restoration worker: frame_detection_queue consumer unblocked")
             return STOP_MARKER
         assert elem is not EOF_MARKER and elem is not STOP_MARKER, f"Illegal state: Expected to read detection result from detection queue but received {elem}"
-        detection_frame_num, mosaic_detected = elem
+        detection_frame_num, num_mosaics_detected = elem
         assert detection_frame_num == expected_frame_num, f"frame detection queue out of sync: received {detection_frame_num} expected {expected_frame_num}"
-        return mosaic_detected, frame, frame_pts
+        return num_mosaics_detected, frame, frame_pts
 
     def _read_next_clip(self, current_frame_num, clip_buffer) -> StopMarker | EofMarker | None:
         clip = self.restored_clip_queue.get()
@@ -302,11 +304,9 @@ class FrameRestorer:
                     self.eof = True
                     self.frame_restoration_queue.put(EOF_MARKER)
                     break
-                mosaic_detected, frame, frame_pts = _frame_result
-                if mosaic_detected:
-                    # As we don't know how many clips starting with the current frame we'll read and buffer restored clips until we receive a clip
-                    # that starts after the current frame. This makes sure that we've gather all restored clips necessary to restore the current frame.
-                    while queue_marker is None and not self._contains_at_least_one_clip_starting_after_frame_num(frame_num, clip_buffer):
+                num_mosaics_detected, frame, frame_pts = _frame_result
+                if num_mosaics_detected > 0:
+                    while queue_marker is None and not self._clip_buffer_contains_all_cips_needed_for_current_restoration(frame_num, num_mosaics_detected, clip_buffer):
                         queue_marker = self._read_next_clip(frame_num, clip_buffer)
                     if queue_marker is STOP_MARKER:
                         break
