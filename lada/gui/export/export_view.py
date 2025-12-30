@@ -200,10 +200,17 @@ class ExportView(Gtk.Widget):
 
     @Gtk.Template.Callback()
     def on_button_cancel_export_clicked(self, button_clicked):
-        self.stop_requested = True
-        self.button_pause_export.set_sensitive(False)
-        self.button_cancel_export.set_sensitive(False)
-        self.button_cancel_export.set_spinner_visible(True)
+        if self.resume_info is None:
+            # in-progress
+            self.stop_requested = True
+            self.button_pause_export.set_sensitive(False)
+            self.button_cancel_export.set_sensitive(False)
+            self.button_cancel_export.set_spinner_visible(True)
+        else:
+            # paused, so already stopped
+            logger.debug("Cancelled paused export")
+            self.resume_info = None
+            self.emit('video-export-stopped')
 
     @Gtk.Template.Callback()
     def on_button_pause_export_clicked(self, button_clicked):
