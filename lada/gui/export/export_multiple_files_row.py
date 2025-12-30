@@ -37,7 +37,7 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
         self._state: ExportItemState = ExportItemState.QUEUED
         self._subtitle = ""
         self._temp_file_path: str | None = None
-        self._temp_file_path_check_ready_timeout_id: int | None = None
+        self._temp_file_ready: bool = False
 
         self.set_title(original_file.get_basename())
         self._handler_id_button_open_clicked = None
@@ -58,6 +58,10 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
         fraction = max(MIN_VISIBLE_PROGRESS_FRACTION, self._progress.fraction) if self._state != ExportItemState.QUEUED else self._progress.fraction
         self.progressbar.set_fraction(fraction)
         self.progressbar.set_text(export_utils.get_progressbar_text(self._state, self._progress))
+        if self._temp_file_path is not None and not self._temp_file_ready:
+            self._temp_file_ready = export_utils.is_preview_file_ready(self._temp_file_path, self._progress)
+            self.button_preview.set_sensitive(self._temp_file_ready)
+            self.button_preview.set_spinner_visible(not self._temp_file_ready)
 
     @GObject.Property(type=ExportItemState, default=ExportItemState.QUEUED)
     def state(self):
@@ -75,9 +79,7 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
             self.button_show_error.set_visible(False)
             self.progressbar.set_text(export_utils.get_progressbar_text(self._state, self._progress))
             self.progressbar.set_show_text(True)
-            if self._temp_file_path_check_ready_timeout_id:
-                GLib.source_remove(self._temp_file_path_check_ready_timeout_id)
-                self._temp_file_path_check_ready_timeout_id = None
+            self._temp_file_ready = False
         elif value == ExportItemState.QUEUED:
             self.progressbar.remove_css_class("finished")
             self.progressbar.remove_css_class("failed")
@@ -86,9 +88,7 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
             self.button_remove.set_visible(True)
             self.button_show_error.set_visible(False)
             self.progressbar.set_show_text(False)
-            if self._temp_file_path_check_ready_timeout_id:
-                GLib.source_remove(self._temp_file_path_check_ready_timeout_id)
-                self._temp_file_path_check_ready_timeout_id = None
+            self._temp_file_ready = False
         elif value == ExportItemState.PROCESSING:
             self.progressbar.remove_css_class("finished")
             self.progressbar.remove_css_class("failed")
@@ -99,24 +99,14 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
             self.progressbar.set_text(export_utils.get_progressbar_text(self._state, self._progress))
             self.progressbar.set_show_text(True)
             if self._temp_file_path is not None:
-                self.button_preview.set_sensitive(False)
-                self.button_preview.set_spinner_visible(True)
+                self.button_preview.set_sensitive(self._temp_file_ready)
+                self.button_preview.set_spinner_visible(not self._temp_file_ready)
                 self.button_preview.set_visible(True)
-                # Check every second if file exists and has content
-                def check_file_ready():
-                    if export_utils.preview_file_available(self._temp_file_path):
-                        self.button_preview.set_sensitive(True)
-                        self.button_preview.set_spinner_visible(False)
-                        return GLib.SOURCE_REMOVE
-                    return GLib.SOURCE_CONTINUE
-                self._temp_file_path_check_ready_timeout_id = GLib.timeout_add_seconds(1, check_file_ready)
             else:
                 self.button_preview.set_sensitive(True)
                 self.button_preview.set_spinner_visible(False)
                 self.button_preview.set_visible(False)
-                if self._temp_file_path_check_ready_timeout_id:
-                    GLib.source_remove(self._temp_file_path_check_ready_timeout_id)
-                    self._temp_file_path_check_ready_timeout_id = None
+                self._temp_file_ready = False
         elif value == ExportItemState.FAILED:
             self.progressbar.remove_css_class("finished")
             self.progressbar.add_css_class("failed")
@@ -126,9 +116,7 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
             self.button_show_error.set_visible(True)
             self.progressbar.set_text(export_utils.get_progressbar_text(self._state, self._progress))
             self.progressbar.set_show_text(True)
-            if self._temp_file_path_check_ready_timeout_id:
-                GLib.source_remove(self._temp_file_path_check_ready_timeout_id)
-                self._temp_file_path_check_ready_timeout_id = None
+            self._temp_file_ready = False
         elif value == ExportItemState.PAUSED:
             self.progressbar.remove_css_class("finished")
             self.progressbar.remove_css_class("failed")
@@ -164,7 +152,10 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
 
     @temp_file_path.setter
     def temp_file_path(self, value: str | None):
+        if value == self._temp_file_path:
+            return
         self._temp_file_path = value
+        self._temp_file_ready = False
 
     def _attach_file_launcher_to_open_button(self):
         file_launcher = Gtk.FileLauncher(
@@ -185,7 +176,6 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
 
     @Gtk.Template.Callback()
     def on_button_preview_clicked(self, button):
-        assert export_utils.preview_file_available(self._temp_file_path)
         temp_file = Gio.File.new_for_path(self._temp_file_path)
         preview_launcher = Gtk.FileLauncher(
             always_ask=False,

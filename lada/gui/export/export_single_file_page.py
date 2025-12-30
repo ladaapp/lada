@@ -64,7 +64,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
 
     @Gtk.Template.Callback()
     def on_button_preview_export_clicked(self, button_clicked):
-        assert self.item.state in [ExportItemState.PROCESSING, ExportItemState.PAUSED] and export_utils.preview_file_available(self._temp_file_path)
+        assert self.item.state in [ExportItemState.PROCESSING, ExportItemState.PAUSED]
         temp_file = Gio.File.new_for_path(self._temp_file_path)
         preview_launcher = Gtk.FileLauncher(
             always_ask=False,
@@ -114,14 +114,6 @@ class ExportSingleFileStatusPage(Gtk.Widget):
             self.button_preview_export.set_visible(True)
             self.button_preview_export.set_sensitive(False)
             self.button_preview_export.set_spinner_visible(True)
-            # Check every second if file exists and has content
-            def check_file_ready():
-                if export_utils.preview_file_available(self._temp_file_path):
-                    self.button_preview_export.set_sensitive(True)
-                    self.button_preview_export.set_spinner_visible(False)
-                    return GLib.SOURCE_REMOVE
-                return GLib.SOURCE_CONTINUE
-            GLib.timeout_add_seconds(1, check_file_ready)
         else:
             self.button_preview_export.set_visible(False)
         self.button_start_export.set_visible(False)
@@ -200,6 +192,10 @@ class ExportSingleFileStatusPage(Gtk.Widget):
     def on_video_export_progress(self, progress: ExportItemDataProgress):
         self.progress_bar.set_fraction(max(MIN_VISIBLE_PROGRESS_FRACTION, progress.fraction))
         self.progress_bar.set_text(export_utils.get_progressbar_text(self.item.state, self.item.progress))
+        if self._temp_file_path is not None and not self.button_preview_export.props.sensitive:
+            ready = export_utils.is_preview_file_ready(self._temp_file_path, progress)
+            self.button_preview_export.set_sensitive(ready)
+            self.button_preview_export.set_spinner_visible(not ready)
 
     def on_add_file(self, item: ExportItemData):
         self.item = item

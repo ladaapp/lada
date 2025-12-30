@@ -8,6 +8,7 @@ from gi.repository import Gtk, Gio, GObject
 
 from lada import LOG_LEVEL
 from lada.gui import utils
+from lada.gui.export import export_utils
 from lada.gui.export.export_item_data import ExportItemData, ExportItemDataProgress, ExportItemState
 from lada.gui.export.export_multiple_files_row import ExportMultipleFilesRow
 
@@ -72,8 +73,8 @@ class ExportMultipleFilesPage(Gtk.Widget):
 
     def show_video_export_started(self, idx: int, temp_file_path: str | None, mp4_fast_start_enabled: bool = False):
         view_item = self.list_box.get_row_at_index(idx)
-        if mp4_fast_start_enabled:
-            view_item.temp_file_path = temp_file_path
+        view_item.temp_file_path = temp_file_path if mp4_fast_start_enabled else None
+        view_item.temp_file_ready = False
         view_item.state = ExportItemState.PROCESSING
 
     def on_video_export_stopped(self, idx: int):
