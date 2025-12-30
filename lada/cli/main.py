@@ -92,14 +92,14 @@ def process_video_file(input_path: str, output_path: str, temp_dir_path: str, de
     success = True
     video_tmp_file_output_path = os.path.join(temp_dir_path, f"{os.path.basename(os.path.splitext(output_path)[0])}.tmp{os.path.splitext(output_path)[1]}")
     pathlib.Path(output_path).parent.mkdir(exist_ok=True, parents=True)
+    frame_restorer_progressbar = utils.Progressbar(video_metadata)
     try:
         frame_restorer.start()
-
+        frame_restorer_progressbar.init()
         with VideoWriter(video_tmp_file_output_path, video_metadata.video_width, video_metadata.video_height,
                          video_metadata.video_fps_exact, encoder=encoder, encoder_options=encoder_options,
                          time_base=video_metadata.time_base, mp4_fast_start=mp4_fast_start) as video_writer:
-            frame_restorer_progressbar = utils.Progressbar(video_metadata, frame_restorer)
-            for elem in frame_restorer_progressbar:
+            for elem in frame_restorer:
                 if elem is None:
                     success = False
                     frame_restorer_progressbar.error = True
@@ -108,7 +108,6 @@ def process_video_file(input_path: str, output_path: str, temp_dir_path: str, de
                 (restored_frame, restored_frame_pts) = elem
                 video_writer.write(restored_frame, restored_frame_pts, bgr2rgb=True)
                 frame_restorer_progressbar.update()
-                frame_restorer_progressbar.update_time_remaining_and_speed()
     except (Exception, KeyboardInterrupt) as e:
         success = False
         if isinstance(e, KeyboardInterrupt):
@@ -117,6 +116,7 @@ def process_video_file(input_path: str, output_path: str, temp_dir_path: str, de
             print("Error on export", e)
     finally:
         frame_restorer.stop()
+        frame_restorer_progressbar.close(ensure_completed_bar=success)
 
     if success:
         print(_("Processing audio"))

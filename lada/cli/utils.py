@@ -171,7 +171,7 @@ class TranslatableHelpFormatter(argparse.RawDescriptionHelpFormatter):
         self._add_item(self._format_usage, args)
 
 class Progressbar:
-    def __init__(self, video_metadata: VideoMetadata, frame_restorer: FrameRestorer):
+    def __init__(self, video_metadata: VideoMetadata):
         self.frame_processing_durations_buffer = []
         self.video_metadata = video_metadata
         self.frame_processing_durations_buffer_min_len = min(video_metadata.frames_count - 1, int(video_metadata.video_fps * 15))
@@ -182,22 +182,21 @@ class Progressbar:
         BAR_FORMAT = _("Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}")
         BAR_FORMAT_TQDM = BAR_FORMAT.format(done_percent="{percentage:3.0f}", bar="{bar}", time_done="{elapsed}", frames_done="{n_fmt}", bar_suffix="{desc}")
         initial_estimating_bar_suffix = _(" | Remaining: ? | Speed: ?")
-        self.tqdm_iterable = tqdm(frame_restorer, dynamic_ncols=True, total=video_metadata.frames_count, bar_format=BAR_FORMAT_TQDM, desc=initial_estimating_bar_suffix)
-        orig_close = self.tqdm_iterable.close
-        def ensure_completed_bar_then_close():
-            # On some media files the frame count, which is used to set up total of the progressbar, is not correct.
-            # To prevent not showing not 100% completed bar update total to actual number of frames and refresh before closing
-            if not self.error and self.tqdm_iterable.total != self.tqdm_iterable.n:
-                self.tqdm_iterable.total = self.tqdm_iterable.n
-                self.update_time_remaining_and_speed(completed=True)
-                self.tqdm_iterable.refresh()
-            orig_close()
-        self.tqdm_iterable.close = ensure_completed_bar_then_close
+        self.tqdm = tqdm(dynamic_ncols=True, total=video_metadata.frames_count, bar_format=BAR_FORMAT_TQDM, desc=initial_estimating_bar_suffix)
         self.duration_start = None
 
-    def __iter__(self):
+    def init(self):
         self.duration_start = time.time()
-        return self.tqdm_iterable.__iter__()
+
+    def close(self, ensure_completed_bar=False):
+        if ensure_completed_bar:
+            # On some media files the frame count, which is used to set up total of the progressbar, is not correct.
+            # To prevent not showing not 100% completed bar update total to actual number of frames and refresh before closing
+            if not self.error and self.tqdm.total != self.tqdm.n:
+                self.tqdm.total = self.tqdm.n
+                self._update_time_remaining_and_speed(completed=True)
+                self.tqdm.refresh()
+        self.tqdm.close()
 
     def update(self):
         duration_end = time.time()
@@ -207,6 +206,10 @@ class Progressbar:
         if len(self.frame_processing_durations_buffer) >= self.frame_processing_durations_buffer_max_len:
             self.frame_processing_durations_buffer.pop(0)
         self.frame_processing_durations_buffer.append(duration)
+
+        self._update_time_remaining_and_speed()
+
+        self.tqdm.update()
 
     def _get_mean_processing_duration(self):
         return sum(self.frame_processing_durations_buffer) / len(self.frame_processing_durations_buffer)
@@ -223,12 +226,12 @@ class Progressbar:
         time = f"{minutes}:{seconds:02d}" if hours == 0 else f"{hours}:{minutes:02d}:{seconds:02d}"
         return time
 
-    def update_time_remaining_and_speed(self, completed=False) -> float | None:
-        frames_remaining = self.tqdm_iterable.format_dict['total']-self.tqdm_iterable.format_dict['n'] if not completed else 0
+    def _update_time_remaining_and_speed(self, completed=False) -> float | None:
+        frames_remaining = self.tqdm.format_dict['total'] - self.tqdm.format_dict['n'] if not completed else 0
         enough_datapoints =  len(self.frame_processing_durations_buffer) > self.frame_processing_durations_buffer_min_len
         if enough_datapoints:
             mean_duration = self._get_mean_processing_duration()
             time_remaining_s = frames_remaining * mean_duration
             time_remaining = self._format_duration(time_remaining_s)
             speed_fps = f"{1. / mean_duration:.1f}"
-            self.tqdm_iterable.desc = _(" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps").format(time_remaining=time_remaining, frames_remaining=frames_remaining, speed_fps=speed_fps)
+            self.tqdm.desc = _(" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps").format(time_remaining=time_remaining, frames_remaining=frames_remaining, speed_fps=speed_fps)
