@@ -64,7 +64,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
 
     @Gtk.Template.Callback()
     def on_button_preview_export_clicked(self, button_clicked):
-        assert self.item.state == ExportItemState.PROCESSING and export_utils.preview_file_available(self._temp_file_path)
+        assert self.item.state in [ExportItemState.PROCESSING, ExportItemState.PAUSED] and export_utils.preview_file_available(self._temp_file_path)
         temp_file = Gio.File.new_for_path(self._temp_file_path)
         preview_launcher = Gtk.FileLauncher(
             always_ask=False,
