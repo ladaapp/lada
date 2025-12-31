@@ -159,7 +159,7 @@ def get_selected_preset(config: Config) -> EncodingPreset:
             return preset
     raise ValueError("Selected preset not found")
 
-def get_preset_by_name(config: Config, name: str):
+def get_preset_by_name(config: Config, name: str) -> EncodingPreset:
     presets = []
     presets.extend(video_utils.get_encoding_presets())
     presets.extend(config.custom_encoding_presets)

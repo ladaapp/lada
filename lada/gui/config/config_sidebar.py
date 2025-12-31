@@ -100,7 +100,7 @@ class ConfigSidebar(Gtk.Box):
         # init encoding presets
         selected_preset = utils.get_selected_preset(config)
         self._active_preset_button_group = Gtk.CheckButton.new()
-        self.expander_row_encoding_presets.set_subtitle(selected_preset.description)
+        self.expander_row_encoding_presets.set_subtitle(selected_preset.description if selected_preset.user_preset else _(selected_preset.description))
         while len(self._presets_action_rows) > 0:
             self.delete_preset_row(0)
         assert len(self._presets_action_rows) == 0 and len(self._presets_radio_buttons) == 0
@@ -390,7 +390,7 @@ class ConfigSidebar(Gtk.Box):
 
     def on_preset_selected(self, _check_button, preset_name: str):
         preset = utils.get_preset_by_name(self.config, preset_name)
-        self.expander_row_encoding_presets.set_subtitle(preset.description)
+        self.expander_row_encoding_presets.set_subtitle(preset.description if preset.user_preset else _(preset.description))
         self._config.encoding_preset_name = preset_name
 
     def on_preset_changed(self, _dialog, preset_now: EncodingPreset, preset_old: EncodingPreset, action_row: Adw.ActionRow):
