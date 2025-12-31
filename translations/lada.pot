@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-28 14:38+0000\n"
+"POT-Creation-Date: 2025-12-31 09:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,7 @@ msgstr ""
 
 #: lada/gui/export/export_view.ui:49
 #: lada/gui/export/export_single_file_page.ui:115
-#: lada/gui/export/export_view.py:602
+#: lada/gui/export/export_view.py:609
 msgid "Cancel"
 msgstr ""
 
@@ -39,7 +39,7 @@ msgstr ""
 
 #: lada/gui/export/export_view.ui:73
 #: lada/gui/export/export_single_file_page.ui:72
-#: lada/gui/export/export_view.py:247
+#: lada/gui/export/export_view.py:254
 msgid "Restore"
 msgstr ""
 
@@ -74,32 +74,32 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: lada/gui/export/export_single_file_page.py:107
-#: lada/gui/export/export_single_file_page.py:190
-msgid "Restoring video…"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.py:139
-msgid "Finished video restoration!"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.py:152
-#: lada/gui/export/export_utils.py:56
-msgid "Restoration failed"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.py:163
-#: lada/gui/export/export_single_file_page.py:206
 #: lada/gui/export/export_single_file_page.ui:19
+#: lada/gui/export/export_single_file_page.py:155
+#: lada/gui/export/export_single_file_page.py:202
 msgid "Export video"
-msgstr ""
-
-#: lada/gui/export/export_single_file_page.py:179
-msgid "Restoration paused"
 msgstr ""
 
 #: lada/gui/export/export_single_file_page.ui:132
 msgid "Open File"
+msgstr ""
+
+#: lada/gui/export/export_single_file_page.py:107
+#: lada/gui/export/export_single_file_page.py:182
+msgid "Restoring video…"
+msgstr ""
+
+#: lada/gui/export/export_single_file_page.py:131
+msgid "Finished video restoration!"
+msgstr ""
+
+#: lada/gui/export/export_single_file_page.py:144
+#: lada/gui/export/export_utils.py:62
+msgid "Restoration failed"
+msgstr ""
+
+#: lada/gui/export/export_single_file_page.py:171
+msgid "Restoration paused"
 msgstr ""
 
 #: lada/gui/export/export_utils.py:29
@@ -107,68 +107,68 @@ msgstr ""
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
 msgstr ""
 
-#: lada/gui/export/export_utils.py:57
+#: lada/gui/export/export_utils.py:63
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
 msgstr ""
 
-#: lada/gui/export/export_utils.py:66 lada/gui/export/export_view.py:586
+#: lada/gui/export/export_utils.py:72 lada/gui/export/export_view.py:593
 msgid "Okay"
 msgstr ""
 
-#: lada/gui/export/export_utils.py:72
+#: lada/gui/export/export_utils.py:78
 msgid "Failed"
 msgstr ""
 
-#: lada/gui/export/export_utils.py:77
+#: lada/gui/export/export_utils.py:83
 #, python-brace-format
 msgid "Finished  |  Processed: {time_done} ({frames_done} frames)"
 msgstr ""
 
-#: lada/gui/export/export_utils.py:85
+#: lada/gui/export/export_utils.py:91
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: {time_remaining} ({frames_remaining} frames)  |  Speed: {speed_fps} FPS"
 msgstr ""
 
-#: lada/gui/export/export_utils.py:93
+#: lada/gui/export/export_utils.py:99
 #, python-brace-format
 msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: Estimating… |  Speed: Estimating…"
 msgstr ""
 
-#: lada/gui/export/export_utils.py:99
+#: lada/gui/export/export_utils.py:105
 #, python-brace-format
 msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
 msgstr ""
 
-#: lada/gui/export/export_view.py:247
+#: lada/gui/export/export_view.py:254
 msgid "Restore…"
 msgstr ""
 
-#: lada/gui/export/export_view.py:531
+#: lada/gui/export/export_view.py:538
 msgid "Save restored video file"
 msgstr ""
 
-#: lada/gui/export/export_view.py:538
+#: lada/gui/export/export_view.py:545
 msgid "Save restored video files"
 msgstr ""
 
-#: lada/gui/export/export_view.py:568
+#: lada/gui/export/export_view.py:575
 msgid "Shutdown System"
 msgstr ""
 
-#: lada/gui/export/export_view.py:569
+#: lada/gui/export/export_view.py:576
 msgid "Export has finished. The system will shutdown in 30 seconds."
 msgstr ""
 
-#: lada/gui/export/export_view.py:583
+#: lada/gui/export/export_view.py:590
 msgid "Shutdown Failed"
 msgstr ""
 
-#: lada/gui/export/export_view.py:584
+#: lada/gui/export/export_view.py:591
 msgid "Failed to initiate system shutdown. Please check system permissions."
 msgstr ""
 
-#: lada/gui/export/export_view.py:603
+#: lada/gui/export/export_view.py:610
 msgid "Shutdown now"
 msgstr ""
 
@@ -467,85 +467,6 @@ msgstr ""
 msgid "Custom Preset {custom_preset_num}"
 msgstr ""
 
-#: lada/cli/utils.py:49
-msgid "No video files found"
-msgstr ""
-
-#: lada/cli/utils.py:78
-msgid "Yes"
-msgstr ""
-
-#: lada/cli/utils.py:79 lada/cli/utils.py:115 lada/cli/utils.py:139
-msgid "Name"
-msgstr ""
-
-#: lada/cli/utils.py:80 lada/cli/utils.py:100 lada/cli/utils.py:116
-#: lada/cli/utils.py:140
-msgid "Description"
-msgstr ""
-
-#: lada/cli/utils.py:81
-msgid "Hardware-accelerated"
-msgstr ""
-
-#: lada/cli/utils.py:82
-msgid "Hardware devices"
-msgstr ""
-
-#: lada/cli/utils.py:87
-msgid "Available video encoders:"
-msgstr ""
-
-#: lada/cli/utils.py:99
-msgid "Device"
-msgstr ""
-
-#: lada/cli/utils.py:103
-msgid "Available devices:"
-msgstr ""
-
-#: lada/cli/utils.py:111
-msgid "Available restoration models:"
-msgstr ""
-
-#: lada/cli/utils.py:113 lada/cli/utils.py:137
-msgid "None!"
-msgstr ""
-
-#: lada/cli/utils.py:117
-msgid "Path"
-msgstr ""
-
-#: lada/cli/utils.py:134
-msgid "Available encoding presets:"
-msgstr ""
-
-#: lada/cli/utils.py:141
-msgid "Encoder Name"
-msgstr ""
-
-#: lada/cli/utils.py:142
-msgid "Encoder Options"
-msgstr ""
-
-#: lada/cli/utils.py:169
-msgid "Usage: "
-msgstr ""
-
-#: lada/cli/utils.py:182
-#, python-brace-format
-msgid "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}"
-msgstr ""
-
-#: lada/cli/utils.py:184
-msgid " | Remaining: ? | Speed: ?"
-msgstr ""
-
-#: lada/cli/utils.py:234
-#, python-brace-format
-msgid " | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
-
 #: lada/cli/main.py:22
 msgid "Examples:"
 msgstr ""
@@ -757,6 +678,101 @@ msgstr ""
 
 #: lada/cli/main.py:229
 msgid "Received Ctrl-C, stopping restoration."
+msgstr ""
+
+#: lada/cli/utils.py:49
+msgid "No video files found"
+msgstr ""
+
+#: lada/cli/utils.py:78
+msgid "Yes"
+msgstr ""
+
+#: lada/cli/utils.py:79 lada/cli/utils.py:115 lada/cli/utils.py:139
+msgid "Name"
+msgstr ""
+
+#: lada/cli/utils.py:80 lada/cli/utils.py:100 lada/cli/utils.py:116
+#: lada/cli/utils.py:140
+msgid "Description"
+msgstr ""
+
+#: lada/cli/utils.py:81
+msgid "Hardware-accelerated"
+msgstr ""
+
+#: lada/cli/utils.py:82
+msgid "Hardware devices"
+msgstr ""
+
+#: lada/cli/utils.py:87
+msgid "Available video encoders:"
+msgstr ""
+
+#: lada/cli/utils.py:99
+msgid "Device"
+msgstr ""
+
+#: lada/cli/utils.py:103
+msgid "Available devices:"
+msgstr ""
+
+#: lada/cli/utils.py:111
+msgid "Available restoration models:"
+msgstr ""
+
+#: lada/cli/utils.py:113 lada/cli/utils.py:137
+msgid "None!"
+msgstr ""
+
+#: lada/cli/utils.py:117
+msgid "Path"
+msgstr ""
+
+#: lada/cli/utils.py:134
+msgid "Available encoding presets:"
+msgstr ""
+
+#: lada/cli/utils.py:141
+msgid "Encoder Name"
+msgstr ""
+
+#: lada/cli/utils.py:142
+msgid "Encoder Options"
+msgstr ""
+
+#: lada/cli/utils.py:169
+msgid "Usage: "
+msgstr ""
+
+#: lada/cli/utils.py:182
+#, python-brace-format
+msgid "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}"
+msgstr ""
+
+#: lada/cli/utils.py:184
+msgid " | Remaining: ? | Speed: ?"
+msgstr ""
+
+#: lada/cli/utils.py:237
+#, python-brace-format
+msgid " | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr ""
+
+#: lada/__init__.py:64
+msgid "Latest Lada restoration model. Recommended"
+msgstr ""
+
+#: lada/__init__.py:65
+msgid "Restoration model from abandoned DeepMosaics project"
+msgstr ""
+
+#: lada/__init__.py:72
+msgid "Fast and efficient. Recommended"
+msgstr ""
+
+#: lada/__init__.py:73
+msgid "Can be slightly more accurate than v4-fast but slower"
 msgstr ""
 
 #: lada/utils/encoding_presets.csv:2
