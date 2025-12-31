@@ -276,7 +276,7 @@ class PipelineManager(GObject.Object):
         if self.has_audio:
             if audio_pipeline_already_added:
                 self.audio_uridecodebin.set_property('uri', self.path_to_gst_uri(self.video_metadata.video_file))
-                # Explicitly set mute property to ensure prior mute state is preserved. Without it, audio got muted occasionally when switching to a new source
+                # Restore mute state as we muted audio when closing (previously opened) file
                 self.audio_volume.set_property("mute", self._muted)
             else:
                 self.pipeline_add_audio()
