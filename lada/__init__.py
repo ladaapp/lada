@@ -21,6 +21,36 @@ if is_running_inside_flatpak and "TMPDIR" not in os.environ:
     # We need this so that the media player launched on the host is able to access the file if .mp4 Fast start is enabled and the Export Preview button is clicked.
     os.environ["TMPDIR"] = os.path.join(os.environ["XDG_RUNTIME_DIR"], "app", os.environ["FLATPAK_ID"])
 
+def _get_language_from_os() -> str:
+    if sys.platform == "win32":
+        # source: https://stackoverflow.com/questions/3425294/how-to-detect-the-os-default-language-in-python/25691701#25691701
+        import ctypes
+        import locale
+        windll = ctypes.windll.kernel32
+        if language := locale.windows_locale.get(windll.GetUserDefaultUILanguage()):
+            return language
+    return ""
+
+def _init_translations():
+    import gettext
+    DOMAIN = 'lada'
+    if "LOCALE_DIR" in os.environ:
+        LOCALE_DIR = os.environ["LOCALE_DIR"]
+    else:
+        LOCALE_DIR = os.path.join(os.path.dirname(__file__), "locale")
+    is_language_set = False
+    for var_name in ["LANGUAGE", "LANG"]:
+        if var_name in os.environ:
+            is_language_set = True
+            break
+    if not is_language_set:
+        os.environ["LANGUAGE"] = _get_language_from_os()
+    gettext.bindtextdomain(DOMAIN, LOCALE_DIR)
+    gettext.textdomain(DOMAIN)
+    gettext.install(DOMAIN, LOCALE_DIR)
+
+_init_translations()
+
 @dataclass(frozen=True)
 class ModelFile:
     name: str
@@ -31,16 +61,16 @@ class ModelFiles:
     _WELL_KNOWN_RESTORATION_MODELS = [
         ModelFile('basicvsrpp-v1.0', None, os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_restoration_model_generic.pth')),
         ModelFile('basicvsrpp-v1.1', None, os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_restoration_model_generic_v1.1.pth')),
-        ModelFile('basicvsrpp-v1.2', "Latest Lada restoration model. Recommended", os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_restoration_model_generic_v1.2.pth')),
-        ModelFile('deepmosaics', "Restoration model from abandoned DeepMosaics project", os.path.join(MODEL_WEIGHTS_DIR, '3rd_party', 'clean_youknow_video.pth')),
+        ModelFile('basicvsrpp-v1.2', _("Latest Lada restoration model. Recommended"), os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_restoration_model_generic_v1.2.pth')),
+        ModelFile('deepmosaics', _("Restoration model from abandoned DeepMosaics project"), os.path.join(MODEL_WEIGHTS_DIR, '3rd_party', 'clean_youknow_video.pth')),
     ]
     _WELL_KNOWN_DETECTION_MODELS = [
         ModelFile('v2', None, os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v2.pt')),
         ModelFile('v3', None, os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v3.pt')),
         ModelFile('v3.1-fast', None, os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v3.1_fast.pt')),
         ModelFile('v3.1-accurate', None, os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v3.1_accurate.pt')),
-        ModelFile('v4-fast', "Fast and efficient. Recommended", os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v4_fast.pt')),
-        ModelFile('v4-accurate', "Can be slightly more accurate than v4-fast but slower", os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v4_accurate.pt')),
+        ModelFile('v4-fast', _("Fast and efficient. Recommended"), os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v4_fast.pt')),
+        ModelFile('v4-accurate', _("Can be slightly more accurate than v4-fast but slower"), os.path.join(MODEL_WEIGHTS_DIR, 'lada_mosaic_detection_model_v4_accurate.pt')),
     ]
 
     @staticmethod
@@ -123,33 +153,3 @@ class ModelFiles:
             if model.path == model_path:
                 return model
         return None
-
-def _get_language_from_os() -> str:
-    if sys.platform == "win32":
-        # source: https://stackoverflow.com/questions/3425294/how-to-detect-the-os-default-language-in-python/25691701#25691701
-        import ctypes
-        import locale
-        windll = ctypes.windll.kernel32
-        if language := locale.windows_locale.get(windll.GetUserDefaultUILanguage()):
-            return language
-    return ""
-
-def _init_translations():
-    import gettext
-    DOMAIN = 'lada'
-    if "LOCALE_DIR" in os.environ:
-        LOCALE_DIR = os.environ["LOCALE_DIR"]
-    else:
-        LOCALE_DIR = os.path.join(os.path.dirname(__file__), "locale")
-    is_language_set = False
-    for var_name in ["LANGUAGE", "LANG"]:
-        if var_name in os.environ:
-            is_language_set = True
-            break
-    if not is_language_set:
-        os.environ["LANGUAGE"] = _get_language_from_os()
-    gettext.bindtextdomain(DOMAIN, LOCALE_DIR)
-    gettext.textdomain(DOMAIN)
-    gettext.install(DOMAIN, LOCALE_DIR)
-
-_init_translations()

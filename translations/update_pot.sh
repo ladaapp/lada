@@ -17,7 +17,7 @@ xgettext \
     --msgid-bugs-address=https://codeberg.org/ladaapp/lada/issues \
     --from-code=UTF-8 \
     --no-wrap \
-    -f <( find lada/gui lada/cli -name "*.ui" -or -name "*.py" ) \
+    -f <( find lada/gui lada/cli lada/__init__.py -name "*.ui" -or -name "*.py" ) \
     -o $translations_dir/lada.pot
 
 python3 $translations_dir/extract_csv_strings.py lada/utils/encoding_presets.csv $translations_dir/csv_strings.pot 'preset_description(translatable)'
