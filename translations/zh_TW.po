@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-19 12:24+0000\n"
+"POT-Creation-Date: 2025-12-28 14:38+0000\n"
 "PO-Revision-Date: 2025-12-20 08:20+0000\n"
 "Last-Translator: tetsukasinobu <tetsukasinobu@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Traditional Han script) <https://"
@@ -16,38 +16,23 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 5.15.1\n"
 
-msgid "Open in External Program…"
-msgstr "開啟於外部程式…"
-
-msgid "Show Error"
-msgstr "顯示錯誤訊息"
-
-msgid "Remove"
-msgstr "移除"
-
-msgid "Export video"
-msgstr "輸出影片"
-
-msgid "Restore"
-msgstr "修復"
-
-msgid "Resume"
-msgstr "繼續"
-
-msgid "Pause"
-msgstr "暫停"
-
-msgid "Cancel"
-msgstr "取消"
-
-msgid "Open File"
-msgstr "開啟檔案"
-
 msgid "Settings"
 msgstr "設定"
 
 msgid "Add Files…"
 msgstr "新增檔案…"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "Pause"
+msgstr "暫停"
+
+msgid "Resume"
+msgstr "繼續"
+
+msgid "Restore"
+msgstr "修復"
 
 msgid "Keyboard Shortcuts"
 msgstr "鍵盤快速鍵"
@@ -55,12 +40,39 @@ msgstr "鍵盤快速鍵"
 msgid "About Lada"
 msgstr "關於 Lada"
 
-#, python-brace-format
-msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
-msgstr "影片長度: {duration}, 解析度: {resolution}, Frame rate: {fps} FPS"
+msgid "Open in External Program…"
+msgstr "開啟於外部程式…"
+
+msgid "Show Error"
+msgstr "顯示錯誤訊息"
+
+msgid "Preview"
+msgstr ""
+
+msgid "Remove"
+msgstr "移除"
+
+msgid "Restoring video…"
+msgstr "正在修復影片…"
+
+msgid "Finished video restoration!"
+msgstr "影片修復完成!"
 
 msgid "Restoration failed"
 msgstr "修復失敗"
+
+msgid "Export video"
+msgstr "輸出影片"
+
+msgid "Restoration paused"
+msgstr "修復暫停"
+
+msgid "Open File"
+msgstr "開啟檔案"
+
+#, python-brace-format
+msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
+msgstr "影片長度: {duration}, 解析度: {resolution}, Frame rate: {fps} FPS"
 
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
@@ -121,15 +133,6 @@ msgstr "無法啟動系統關機. 請檢查系統權限."
 msgid "Shutdown now"
 msgstr "立即關機"
 
-msgid "Restoring video…"
-msgstr "正在修復影片…"
-
-msgid "Finished video restoration!"
-msgstr "影片修復完成!"
-
-msgid "Restoration paused"
-msgstr "修復暫停"
-
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr "偵測不到GPU! 使用CPU運行此軟體將會非常緩慢."
 
@@ -156,18 +159,6 @@ msgstr "<big>編碼器選項</big>"
 
 msgid "Enter encoder options…"
 msgstr "輸入編碼器選項…"
-
-msgid "Click the folder button to choose a default"
-msgstr "點擊資料夾按鈕以選取預設"
-
-msgid "Create Preset…"
-msgstr "建立預設…"
-
-msgid "Select a folder where restored videos should be saved"
-msgstr "選擇修復影片檔儲存資料夾"
-
-msgid "Select a folder for temporary files"
-msgstr "選擇暫存用資料夾"
 
 msgid "Mosaic Removal"
 msgstr "馬賽克移除"
@@ -252,6 +243,9 @@ msgstr "總是詢問"
 msgid "Use this folder"
 msgstr "使用此資料夾"
 
+msgid "Click the folder button to choose a default"
+msgstr "點擊資料夾按鈕以選取預設"
+
 msgid "Temporary Directory"
 msgstr "暫存目錄"
 
@@ -330,6 +324,15 @@ msgstr "觀看"
 
 msgid "Reset to factory settings"
 msgstr "重設為初始設置"
+
+msgid "Create Preset…"
+msgstr "建立預設…"
+
+msgid "Select a folder where restored videos should be saved"
+msgstr "選擇修復影片檔儲存資料夾"
+
+msgid "Select a folder for temporary files"
+msgstr "選擇暫存用資料夾"
 
 msgid "Restore pixelated adult videos"
 msgstr "修復馬賽克AV"
@@ -464,8 +467,8 @@ msgid ""
 "%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 "
 "-preset fast -x265-params log_level=error'"
 msgstr ""
-"%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 -"
-"preset fast -x265-params log_level=error'"
+"%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 "
+"-preset fast -x265-params log_level=error'"
 
 #, python-format
 msgid "%(prog)s [options]"
@@ -494,8 +497,8 @@ msgid ""
 "Alternatively, you can use the environment variable TMPDIR. (default: "
 "%(default)s)"
 msgstr ""
-"修復過程中影片暫存檔的存放目錄. 或者,您可以使用環境變數 TMPDIR. (預設: %"
-"(default)s)"
+"修復過程中影片暫存檔的存放目錄. 或者,您可以使用環境變數 TMPDIR. (預設: "
+"%(default)s)"
 
 #, python-format, python-brace-format
 msgid ""
@@ -549,8 +552,8 @@ msgid ""
 "Select video encoder by name. Use \"--list-encoders\" to see what's "
 "available. (default: %(default)s)"
 msgstr ""
-"按名稱選擇視訊編碼器. 使用 “--list-encoders” 查看可用編碼器. (預設: %"
-"(default)s)"
+"按名稱選擇視訊編碼器. 使用 “--list-encoders” 查看可用編碼器. (預設: "
+"%(default)s)"
 
 msgid "List available encoders and exit"
 msgstr "列出可用編碼器並退出"
@@ -671,14 +674,46 @@ msgid "Invalid encoding preset"
 msgstr "無效的編碼預設"
 
 msgid ""
-"Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"
+"Either \"--encoding-preset\" or \"--encoder\" together with \"--encoder-"
 "options\" must be used"
 msgstr ""
-"必須同時使用 \"--encoding-preset\" 或 \"--encoder\" 以及 \"--encoding-"
-"options\""
 
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "接收到Ctrl-C及停止修復."
+
+msgid ""
+"H.264 / AVC, x264 software encoder, Indistinguishable Quality, Slow, Very "
+"Large File Size"
+msgstr ""
+
+msgid "H.264 / AVC, x264 software encoder, Fast, Medium File Size"
+msgstr ""
+
+msgid "H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size"
+msgstr ""
+
+msgid ""
+"H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size"
+msgstr ""
+
+msgid "H.265 / HEVC, Nvidia hardware encoder, High Quality, Medium File Size"
+msgstr ""
+
+msgid ""
+"H.265 / HEVC, Nvidia hardware encoder, Indistinguishable Quality, Large File "
+"Size"
+msgstr ""
+
+msgid ""
+"AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size"
+msgstr ""
+
+#~ msgid ""
+#~ "Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"
+#~ "options\" must be used"
+#~ msgstr ""
+#~ "必須同時使用 \"--encoding-preset\" 或 \"--encoder\" 以及 \"--encoding-"
+#~ "options\""
 
 #~ msgid "Model used for detecting mosaic areas."
 #~ msgstr "模型用來進行馬賽克偵測."
