@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-19 12:24+0000\n"
-"PO-Revision-Date: 2025-12-21 11:03+0000\n"
+"POT-Creation-Date: 2025-12-28 14:38+0000\n"
+"PO-Revision-Date: 2025-12-29 04:56+0000\n"
 "Last-Translator: softasa <softasa@noreply.codeberg.org>\n"
 "Language-Team: Japanese <https://translate.codeberg.org/projects/lada/lada/"
 "ja/>\n"
@@ -16,38 +16,23 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 5.15.1\n"
 
-msgid "Open in External Program…"
-msgstr "別のプログラムで開く…"
-
-msgid "Show Error"
-msgstr "エラーを表示"
-
-msgid "Remove"
-msgstr "削除"
-
-msgid "Export video"
-msgstr "ビデオをエクスポート"
-
-msgid "Restore"
-msgstr "復元する"
-
-msgid "Resume"
-msgstr "再開"
-
-msgid "Pause"
-msgstr "一時停止"
-
-msgid "Cancel"
-msgstr "キャンセル"
-
-msgid "Open File"
-msgstr "ファイルを開く"
-
 msgid "Settings"
 msgstr "設定"
 
 msgid "Add Files…"
 msgstr "ファイルを追加…"
+
+msgid "Cancel"
+msgstr "キャンセル"
+
+msgid "Pause"
+msgstr "一時停止"
+
+msgid "Resume"
+msgstr "再開"
+
+msgid "Restore"
+msgstr "復元する"
 
 msgid "Keyboard Shortcuts"
 msgstr "キーボードショートカット"
@@ -55,12 +40,39 @@ msgstr "キーボードショートカット"
 msgid "About Lada"
 msgstr "Ladaについて"
 
-#, python-brace-format
-msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
-msgstr "再生時間: {duration},解像度: {resolution},フレームレート: {fps} FPS"
+msgid "Open in External Program…"
+msgstr "別のプログラムで開く…"
+
+msgid "Show Error"
+msgstr "エラーを表示"
+
+msgid "Preview"
+msgstr "プレビュー"
+
+msgid "Remove"
+msgstr "削除"
+
+msgid "Restoring video…"
+msgstr "動画を復元中…"
+
+msgid "Finished video restoration!"
+msgstr "動画の復元が完了しました！"
 
 msgid "Restoration failed"
 msgstr "復元に失敗しました"
+
+msgid "Export video"
+msgstr "ビデオをエクスポート"
+
+msgid "Restoration paused"
+msgstr "復元を一時停止しました"
+
+msgid "Open File"
+msgstr "ファイルを開く"
+
+#, python-brace-format
+msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
+msgstr "再生時間: {duration},解像度: {resolution},フレームレート: {fps} FPS"
 
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
@@ -116,22 +128,15 @@ msgid "Shutdown Failed"
 msgstr "シャットダウンに失敗しました"
 
 msgid "Failed to initiate system shutdown. Please check system permissions."
-msgstr "システムのシャットダウンを開始できませんでした.権限設定を確認してください."
+msgstr ""
+"システムのシャットダウンを開始できませんでした.権限設定を確認してください."
 
 msgid "Shutdown now"
 msgstr "今すぐシャットダウン"
 
-msgid "Restoring video…"
-msgstr "動画を復元中…"
-
-msgid "Finished video restoration!"
-msgstr "動画の復元が完了しました！"
-
-msgid "Restoration paused"
-msgstr "復元を一時停止しました"
-
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
-msgstr "GPU が検出されませんでした！CPU でアプリを実行すると、非常に遅くなります."
+msgstr ""
+"GPU が検出されませんでした！CPU でアプリを実行すると、非常に遅くなります."
 
 msgid "Create Preset"
 msgstr "プリセットを作成"
@@ -156,18 +161,6 @@ msgstr "<big>エンコーダオプション</big>"
 
 msgid "Enter encoder options…"
 msgstr "エンコーダーのオプションを入力してください…"
-
-msgid "Click the folder button to choose a default"
-msgstr "フォルダボタンをクリックしてデフォルトを選択してください"
-
-msgid "Create Preset…"
-msgstr "プリセットを作成…"
-
-msgid "Select a folder where restored videos should be saved"
-msgstr "復元済み動画を保存するフォルダを選択"
-
-msgid "Select a folder for temporary files"
-msgstr "一時ファイル用のフォルダを選択"
 
 msgid "Mosaic Removal"
 msgstr "モザイク除去"
@@ -240,7 +233,8 @@ msgid "Enable seek preview"
 msgstr "シークプレビューを有効にする"
 
 msgid "Show a preview of the video frame when hovering over the timeline."
-msgstr "タイムライン上にカーソルを合わせると、動画フレームのプレビューを表示します."
+msgstr ""
+"タイムライン上にカーソルを合わせると、動画フレームのプレビューを表示します."
 
 msgid "Export"
 msgstr "エクスポート"
@@ -259,6 +253,9 @@ msgstr "毎回確認する"
 
 msgid "Use this folder"
 msgstr "このフォルダを使用する"
+
+msgid "Click the folder button to choose a default"
+msgstr "フォルダボタンをクリックしてデフォルトを選択してください"
 
 msgid "Temporary Directory"
 msgstr "一時ディレクトリ"
@@ -310,7 +307,8 @@ msgstr "モザイク検出を表示"
 
 msgid ""
 "Show detected mosaic areas. Useful to evaluate quality of detection model."
-msgstr "検出されたモザイク領域を表示します.検出モデルの品質を評価するのに役立ちます."
+msgstr ""
+"検出されたモザイク領域を表示します.検出モデルの品質を評価するのに役立ちます."
 
 msgid "UI"
 msgstr "UI"
@@ -338,6 +336,15 @@ msgstr "視聴"
 
 msgid "Reset to factory settings"
 msgstr "初期設定にリセット"
+
+msgid "Create Preset…"
+msgstr "プリセットを作成…"
+
+msgid "Select a folder where restored videos should be saved"
+msgstr "復元済み動画を保存するフォルダを選択"
+
+msgid "Select a folder for temporary files"
+msgstr "一時ファイル用のフォルダを選択"
 
 msgid "Restore pixelated adult videos"
 msgstr "アダルトビデオのピクセルモザイクを復元"
@@ -450,14 +457,16 @@ msgstr "%(prog)s --input input.mp4"
 msgid ""
 "Restore all videos found in the specified directory and save them to a "
 "different folder:"
-msgstr "指定されたディレクトリ内にあるすべての動画を復元し、別のフォルダに保存します:"
+msgstr ""
+"指定されたディレクトリ内にあるすべての動画を復元し、別のフォルダに保存します:"
 
 #, python-format
 msgid "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
 msgstr "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
 
 msgid "Use Nvidia hardware-accelerated encoder by selecting a preset:"
-msgstr "プリセットを選択してNvidiaハードウェアアクセラレーションエンコーダを使用する:"
+msgstr ""
+"プリセットを選択してNvidiaハードウェアアクセラレーションエンコーダを使用する:"
 
 #, python-format
 msgid "%(prog)s --input input.mp4 --encoding-preset hevc-nvidia-gpu-hq"
@@ -471,8 +480,8 @@ msgid ""
 "%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 "
 "-preset fast -x265-params log_level=error'"
 msgstr ""
-"%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 -"
-"preset fast -x265-params log_level=error'"
+"%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 "
+"-preset fast -x265-params log_level=error'"
 
 #, python-format
 msgid "%(prog)s [options]"
@@ -523,8 +532,8 @@ msgid ""
 "e.g. \"cuda:0\" (default: %(default)s)"
 msgstr ""
 "復元および検出モデルの実行に使用するデバイス.\"cpu\" または \"cuda\" を指定し"
-"てください.複数のGPUがある場合、インデックスで特定のGPUを選択できま"
-"す.インデックス 例 \"cuda:0\" デフォルト: (%(default)s)"
+"てください.複数のGPUがある場合、インデックスで特定のGPUを選択できます.イン"
+"デックス 例 \"cuda:0\" デフォルト: (%(default)s)"
 
 #, python-format
 msgid ""
@@ -549,8 +558,8 @@ msgid ""
 "what's available. Ignored if \"--encoder\" and \"--encoder-options\" are "
 "used (default: %(default)s)"
 msgstr ""
-"エンコードプリセットを名前で選択します. 使用可能なプリセットを確認するには"
-"、\"--list-encoding-presets\" を使用してください. \"--encoder\"と\"--encoder-"
+"エンコードプリセットを名前で選択します. 使用可能なプリセットを確認するには、"
+"\"--list-encoding-presets\" を使用してください. \"--encoder\"と\"--encoder-"
 "options\"が使用されている場合は無視されます(デフォルト: %(default)s)"
 
 msgid "List available encoding presets and exit"
@@ -573,8 +582,8 @@ msgid ""
 "\"--list-encoder-options\" to see what's available. (default: %(default)s)"
 msgstr ""
 "スペース区切られた\"--encoder\"で設定されたエンコーダオプションのリスト. 利用"
-"可能なオプションを確認するには、\"--list-encoder-options\" を使用します. "
-"(デフォルト: %(default)s)"
+"可能なオプションを確認するには、\"--list-encoder-options\" を使用します. (デ"
+"フォルト: %(default)s)"
 
 msgid "List available options of the given encoder and exit"
 msgstr "指定されたエンコーダの利用可能なオプションを一覧表示して終了します"
@@ -604,9 +613,9 @@ msgid ""
 "Name of detection model or path to model weights file. Use \"--list-mosaic-"
 "restoration-models\" to see what's available. (default: %(default)s)"
 msgstr ""
-"モデル名またはモデルファイルのパスを検出する. 利用可能なモデルを確認するには"
-"、\"--list-mosaic-restoration-models\" を使用してください. (デフォルト: %"
-"(default)s)"
+"モデル名またはモデルファイルのパスを検出する. 利用可能なモデルを確認するに"
+"は、\"--list-mosaic-restoration-models\" を使用してください. (デフォルト: "
+"%(default)s)"
 
 msgid ""
 "Path to restoration model configuration file. You'll not have to set this "
@@ -633,9 +642,9 @@ msgid ""
 "Name of detection model or path to model weights file. Use \"--list-mosaic-"
 "detection-models\" to see what's available. (default: %(default)s)"
 msgstr ""
-"モデル名またはモデルファイルパスを検出する. 利用可能なものを確認するには"
-"、\"--list-mosaic-detection-models\" を使用してください. (デフォルト: %"
-"(default)s)"
+"モデル名またはモデルファイルパスを検出する. 利用可能なものを確認するには、"
+"\"--list-mosaic-detection-models\" を使用してください. (デフォルト: "
+"%(default)s)"
 
 msgid ""
 "List available detection models found in model weights directory and exit "
@@ -643,8 +652,8 @@ msgid ""
 "variable LADA_MODEL_WEIGHTS_DIR)"
 msgstr ""
 "model weights directoryで見つかった利用可能な検出モデルの一覧を表示し、終了し"
-"ます（環境変数 LADA_MODEL_WEIGHTS_DIR で上書きされていない場合、デフォルトは "
-"./model_weights）"
+"ます（環境変数 LADA_MODEL_WEIGHTS_DIR で上書きされていない場合、デフォルト"
+"は ./model_weights）"
 
 #, python-format
 msgid ""
@@ -668,8 +677,8 @@ msgid ""
 "Invalid file name pattern. It must include the template string "
 "'{orig_file_name}' and a file extension"
 msgstr ""
-"無効なファイル名パターンです. テンプレート文字列 '{orig_file_name}' と"
-"ファイル拡張子を含める必要があります"
+"無効なファイル名パターンです. テンプレート文字列 '{orig_file_name}' とファイ"
+"ル拡張子を含める必要があります"
 
 msgid ""
 "Invalid output directory. If input is a directory then --output must also be "
@@ -696,14 +705,56 @@ msgid "Invalid encoding preset"
 msgstr "無効なエンコードプリセット"
 
 msgid ""
-"Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"
+"Either \"--encoding-preset\" or \"--encoder\" together with \"--encoder-"
 "options\" must be used"
 msgstr ""
-"\"--encoding-preset\" または \"--encoder\"のいずれかを\"--encoding-"
-"options\"と一緒に使用する必要があります"
+"\"--encoding-preset\" または \"--encoder\" together with \"のいずれかを\"--"
+"encoder-options\"と一緒に使用する必要があります"
 
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "Ctrl-C が押されました,処理を停止します。"
+
+msgid ""
+"H.264 / AVC, x264 software encoder, Indistinguishable Quality, Slow, Very "
+"Large File Size"
+msgstr ""
+"H.264 / AVC, x264 ソフトウェア エンコーダー, 見分けがつかない程の品質,低速,非"
+"常に大きなファイル サイズ"
+
+msgid "H.264 / AVC, x264 software encoder, Fast, Medium File Size"
+msgstr "H.264 / AVC, x264 ソフトウェア エンコーダー,高速,中程度のファイル サイズ"
+
+msgid "H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size"
+msgstr "H.264 / AVC, Nvidia ハードウェア エンコーダー,高速,中程度のファイル サイズ"
+
+msgid ""
+"H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size"
+msgstr ""
+"H.265 / HEVC, Nvidia ハードウェア エンコーダー,優れた品質,小さい"
+"ファイルサイズ"
+
+msgid "H.265 / HEVC, Nvidia hardware encoder, High Quality, Medium File Size"
+msgstr "H.265 / HEVC, Nvidia ハードウェア エンコーダー,高品質,中程度のファイルサイズ"
+
+msgid ""
+"H.265 / HEVC, Nvidia hardware encoder, Indistinguishable Quality, Large File "
+"Size"
+msgstr ""
+"H.265 / HEVC, Nvidia ハードウェア エンコーダー,見分けがつかない程の品質,大き"
+"なファイルサイズ"
+
+msgid ""
+"AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size"
+msgstr ""
+"AV1, SVT-AV1 ソフトウェア エンコーダー,見分けがつかない程の品質,小さい"
+"ファイル サイズ"
+
+#~ msgid ""
+#~ "Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"
+#~ "options\" must be used"
+#~ msgstr ""
+#~ "\"--encoding-preset\" または \"--encoder\"のいずれかを\"--encoding-"
+#~ "options\"と一緒に使用する必要があります"
 
 #~ msgid "Model used for detecting mosaic areas."
 #~ msgstr "モザイク範囲の検出に使用されるモデル。"

@@ -4,9 +4,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-19 12:24+0000\n"
-"PO-Revision-Date: 2025-12-22 12:53+0000\n"
-"Last-Translator: Vistaus <vistaus@noreply.codeberg.org>\n"
+"POT-Creation-Date: 2025-12-28 14:38+0000\n"
+"PO-Revision-Date: 2025-12-31 08:52+0000\n"
+"Last-Translator: softasa <softasa@noreply.codeberg.org>\n"
 "Language-Team: Dutch <https://translate.codeberg.org/projects/lada/lada/nl/>"
 "\n"
 "Language: nl\n"
@@ -16,38 +16,23 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 5.15.1\n"
 
-msgid "Open in External Program…"
-msgstr "Openen in extern programma…"
-
-msgid "Show Error"
-msgstr "Foutmelding tonen"
-
-msgid "Remove"
-msgstr "Verwijderen"
-
-msgid "Export video"
-msgstr "Video exporteren"
-
-msgid "Restore"
-msgstr "Herstellen"
-
-msgid "Resume"
-msgstr "Hervatten"
-
-msgid "Pause"
-msgstr "Onderbreken"
-
-msgid "Cancel"
-msgstr "Annuleren"
-
-msgid "Open File"
-msgstr "Bestand openen"
-
 msgid "Settings"
 msgstr "Instellingen"
 
 msgid "Add Files…"
 msgstr "Bestanden toevoegen…"
+
+msgid "Cancel"
+msgstr "Annuleren"
+
+msgid "Pause"
+msgstr "Onderbreken"
+
+msgid "Resume"
+msgstr "Hervatten"
+
+msgid "Restore"
+msgstr "Herstellen"
 
 msgid "Keyboard Shortcuts"
 msgstr "Sneltoetsen"
@@ -55,12 +40,39 @@ msgstr "Sneltoetsen"
 msgid "About Lada"
 msgstr "Over Lada"
 
-#, python-brace-format
-msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
-msgstr "Duur: {duration} — Resolutie: {resolution} — Framesnelheid: {fps} fps"
+msgid "Open in External Program…"
+msgstr "Openen in extern programma…"
+
+msgid "Show Error"
+msgstr "Foutmelding tonen"
+
+msgid "Preview"
+msgstr "voorbeeld"
+
+msgid "Remove"
+msgstr "Verwijderen"
+
+msgid "Restoring video…"
+msgstr "Bezig met herstellen…"
+
+msgid "Finished video restoration!"
+msgstr "De video is hersteld!"
 
 msgid "Restoration failed"
 msgstr "Het herstellen is mislukt"
+
+msgid "Export video"
+msgstr "Video exporteren"
+
+msgid "Restoration paused"
+msgstr "Het herstellen is onderbroken"
+
+msgid "Open File"
+msgstr "Bestand openen"
+
+#, python-brace-format
+msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
+msgstr "Duur: {duration} — Resolutie: {resolution} — Framesnelheid: {fps} fps"
 
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
@@ -126,15 +138,6 @@ msgstr "Het afsluiten is mislukt — controleer de bevoegdheden."
 msgid "Shutdown now"
 msgstr "Nu afsluiten"
 
-msgid "Restoring video…"
-msgstr "Bezig met herstellen…"
-
-msgid "Finished video restoration!"
-msgstr "De video is hersteld!"
-
-msgid "Restoration paused"
-msgstr "Het herstellen is onderbroken"
-
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr ""
 "Er is geen videokaart aangetroffen. Het programma zal daardoor erg traag "
@@ -163,18 +166,6 @@ msgstr "<big>Encoderingsopties</big>"
 
 msgid "Enter encoder options…"
 msgstr "Voer encoderingsopties in…"
-
-msgid "Click the folder button to choose a default"
-msgstr "Klik op de mapknop om een standaardmap te kiezen"
-
-msgid "Create Preset…"
-msgstr "Voorinstelling maken…"
-
-msgid "Select a folder where restored videos should be saved"
-msgstr "Kies de map waarin herstelde videobestanden moeten worden opgeslagen"
-
-msgid "Select a folder for temporary files"
-msgstr "Kies de map met tijdelijke bestanden"
 
 msgid "Mosaic Removal"
 msgstr "Mozaïeken verwijderen"
@@ -268,6 +259,9 @@ msgstr "Altijd vragen"
 msgid "Use this folder"
 msgstr "Deze map gebruiken"
 
+msgid "Click the folder button to choose a default"
+msgstr "Klik op de mapknop om een standaardmap te kiezen"
+
 msgid "Temporary Directory"
 msgstr "Tijdelijke map"
 
@@ -351,6 +345,15 @@ msgstr "Bekijken"
 msgid "Reset to factory settings"
 msgstr "Standaardwaarden herstellen"
 
+msgid "Create Preset…"
+msgstr "Voorinstelling maken…"
+
+msgid "Select a folder where restored videos should be saved"
+msgstr "Kies de map waarin herstelde videobestanden moeten worden opgeslagen"
+
+msgid "Select a folder for temporary files"
+msgstr "Kies de map met tijdelijke bestanden"
+
 msgid "Restore pixelated adult videos"
 msgstr "Herstel gepixelde 18+-video's"
 
@@ -428,7 +431,7 @@ msgid "Encoder Name"
 msgstr "Naam van encodering"
 
 msgid "Encoder Options"
-msgstr "Encoderingsopties"
+msgstr "Encoderings opties"
 
 msgid "Usage: "
 msgstr "Gebruik: "
@@ -482,15 +485,15 @@ msgid "%(prog)s --input input.mp4 --encoding-preset hevc-nvidia-gpu-hq"
 msgstr "%(prog)s --input bestand.mp4 --encoding-preset hevc-nvidia-gpu-hq"
 
 msgid "Set encoding parameters directly without using an encoding preset:"
-msgstr "Stel encoderingsopties in zonder voorinstellingen te gebruiken:"
+msgstr "Stel coderings opties in zonder voorinstellingen te gebruiken:"
 
 #, python-format
 msgid ""
 "%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 "
 "-preset fast -x265-params log_level=error'"
 msgstr ""
-"%(prog)s --input bestand.mp4 --encoder libx265 --encoder-options '-crf 26 -"
-"preset fast -x265-params log_level=error'"
+"%(prog)s --input bestand.mp4 --encoder libx265 --encoder-options '-crf 26 "
+"-preset fast -x265-params log_level=error'"
 
 #, python-format
 msgid "%(prog)s [options]"
@@ -521,8 +524,8 @@ msgid ""
 "%(default)s)"
 msgstr ""
 "De map waarin tijdelijke bestanden worden opgeslagen tijdens het "
-"herstelproces. Gebruik eventueel de omgevingsvariabale TMPDIR. (standaard: %"
-"(default)s)"
+"herstelproces. Gebruik eventueel de omgevingsvariabale TMPDIR. (standaard: "
+"%(default)s)"
 
 #, python-format, python-brace-format
 msgid ""
@@ -567,33 +570,45 @@ msgid ""
 "what's available. Ignored if \"--encoder\" and \"--encoder-options\" are "
 "used (default: %(default)s)"
 msgstr ""
+"Selecteer een coderingsvoorinstelling op naam. Gebruik \"--list-encoding-"
+"presets\" om te zien welke voorinstellingen beschikbaar zijn. Wordt "
+"genegeerd als \"--encoder\" en \"--encoder-options\" worden gebruikt "
+"(standaard: %(default)s)"
 
 msgid "List available encoding presets and exit"
-msgstr ""
+msgstr "Toon beschikbare codering voorinstellingen en sluit af sluit af"
 
 #, python-format
 msgid ""
 "Select video encoder by name. Use \"--list-encoders\" to see what's "
 "available. (default: %(default)s)"
 msgstr ""
+"Selecteer een video-encoder op naam. Gebruik \"--list-encoders\" om te zien "
+"welke encoders beschikbaar zijn. (standaard: %(default)s)"
 
 msgid "List available encoders and exit"
-msgstr ""
+msgstr "Toon beschikbare encoders en sluit af"
 
 #, python-format
 msgid ""
 "Space-separated list of options for the encoder set via \"--encoder\". Use "
 "\"--list-encoder-options\" to see what's available. (default: %(default)s)"
 msgstr ""
+"Een lijst met door spaties gescheiden opties voor de encoder die is "
+"ingesteld via \"--encoder\". Gebruik \"--list-encoder-options\" om te zien "
+"wat er beschikbaar is. (standaard: %(default)s)"
 
 msgid "List available options of the given encoder and exit"
-msgstr ""
+msgstr "Toon de beschikbare opties van de opgegeven encoder en sluit af"
 
 #, python-format
 msgid ""
 "Allows playing the file while it's being written. Sets .mp4 mov flags "
 "\"frag_keyframe+empty_moov+faststart\". (default: %(default)s)"
 msgstr ""
+"Hiermee kan het bestand worden afgespeeld terwijl het wordt geschreven. "
+"Stelt de .mp4 mov-vlaggen in op \"frag_keyframe+empty_moov+faststart\". "
+"(standaard: %(default)s)"
 
 msgid "Mosaic Restoration"
 msgstr "Mozaïekherstel"
@@ -612,6 +627,9 @@ msgid ""
 "Name of detection model or path to model weights file. Use \"--list-mosaic-"
 "restoration-models\" to see what's available. (default: %(default)s)"
 msgstr ""
+"Naam van het detectiemodel of pad naar het bestand met modelgewichten. "
+"Gebruik \"--list-mosaic-restoration-models\" om te zien wat er beschikbaar "
+"is. (standaard: %(default)s)"
 
 msgid ""
 "Path to restoration model configuration file. You'll not have to set this "
@@ -638,6 +656,9 @@ msgid ""
 "Name of detection model or path to model weights file. Use \"--list-mosaic-"
 "detection-models\" to see what's available. (default: %(default)s)"
 msgstr ""
+"Naam van het detectiemodel of pad naar het bestand met modelgewichten. "
+"Gebruik \"--list-mosaic-detection-models\" om te zien welke modellen "
+"beschikbaar zijn. (standaard: %(default)s)"
 
 msgid ""
 "List available detection models found in model weights directory and exit "
@@ -654,6 +675,10 @@ msgid ""
 "artifacts but may worsen detection of NSFW mosaics. Available for models v3 "
 "and newer. (default: %(default)s)"
 msgstr ""
+"Gebieden met gepixelde gezichten detecteren en negeren. Kan "
+"restauratieartefacten voorkomen, maar kan de detectie van NSFW-mozaïeken "
+"verslechteren. Beschikbaar voor modellen v3 en nieuwer. (standaard: %"
+"(default)s)"
 
 msgid "Processing audio"
 msgstr "Audioverwerking"
@@ -684,24 +709,63 @@ msgstr "Ongeldige invoer: geen bestand of map in {input_path}"
 
 #, python-brace-format
 msgid "Temporary directory {temporary_path} doesn't exist. Creating…"
-msgstr ""
+msgstr "De tijdelijke map {temporary_path} bestaat niet. Aanmaken…"
 
 msgid "Invalid mosaic detection model"
-msgstr ""
+msgstr "Ongeldig mozaïek detectie model"
 
 msgid "Invalid mosaic restoration model"
-msgstr ""
+msgstr "Ongeldig mozaïek restauratie model"
 
 msgid "Invalid encoding preset"
-msgstr ""
+msgstr "Ongeldige codering voorinstelling"
 
 msgid ""
-"Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"
+"Either \"--encoding-preset\" or \"--encoder\" together with \"--encoder-"
 "options\" must be used"
 msgstr ""
+"Ofwel \"--encoding-preset\" ofwel \"--encoder\" in combinatie met \"--"
+"encoder-options\" moet worden gebruikt"
 
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "Ctrl+C gedetecteerd — het herstel wordt afgebroken."
+
+msgid ""
+"H.264 / AVC, x264 software encoder, Indistinguishable Quality, Slow, Very "
+"Large File Size"
+msgstr ""
+"H.264 / AVC, x264 software-encoder, ononderscheidbare kwaliteit, traag, zeer "
+"grote bestandsgrootte"
+
+msgid "H.264 / AVC, x264 software encoder, Fast, Medium File Size"
+msgstr "H.264 / AVC, x264 software-encoder, snel, gemiddelde bestandsgrootte"
+
+msgid "H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size"
+msgstr "H.264 / AVC, Nvidia hardware-encoder, snel, gemiddelde bestandsgrootte"
+
+msgid ""
+"H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size"
+msgstr ""
+"H.265 / HEVC, Nvidia hardware-encoder, uitstekende kwaliteit, kleinere "
+"bestandsgrootte"
+
+msgid "H.265 / HEVC, Nvidia hardware encoder, High Quality, Medium File Size"
+msgstr ""
+"H.265 / HEVC, Nvidia hardware-encoder, hoge kwaliteit, gemiddelde "
+"bestandsgrootte"
+
+msgid ""
+"H.265 / HEVC, Nvidia hardware encoder, Indistinguishable Quality, Large File "
+"Size"
+msgstr ""
+"H.265 / HEVC, Nvidia hardware-encoder, ononderscheidbare kwaliteit, groot "
+"bestandsformaat"
+
+msgid ""
+"AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size"
+msgstr ""
+"AV1, SVT-AV1 software-encoder, ononderscheidbare kwaliteit, kleinere "
+"bestandsgrootte"
 
 #~ msgid "Model used for detecting mosaic areas."
 #~ msgstr "Het model waarmee mozaïeken worden vastgesteld."

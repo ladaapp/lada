@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-19 12:24+0000\n"
-"PO-Revision-Date: 2025-12-20 08:20+0000\n"
+"POT-Creation-Date: 2025-12-28 14:38+0000\n"
+"PO-Revision-Date: 2025-12-28 19:05+0000\n"
 "Last-Translator: tetsukasinobu <tetsukasinobu@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Traditional Han script) <https://"
 "translate.codeberg.org/projects/lada/lada/zh_Hant/>\n"
@@ -16,38 +16,23 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 5.15.1\n"
 
-msgid "Open in External Program…"
-msgstr "開啟於外部程式…"
-
-msgid "Show Error"
-msgstr "顯示錯誤訊息"
-
-msgid "Remove"
-msgstr "移除"
-
-msgid "Export video"
-msgstr "輸出影片"
-
-msgid "Restore"
-msgstr "修復"
-
-msgid "Resume"
-msgstr "繼續"
-
-msgid "Pause"
-msgstr "暫停"
-
-msgid "Cancel"
-msgstr "取消"
-
-msgid "Open File"
-msgstr "開啟檔案"
-
 msgid "Settings"
 msgstr "設定"
 
 msgid "Add Files…"
 msgstr "新增檔案…"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "Pause"
+msgstr "暫停"
+
+msgid "Resume"
+msgstr "繼續"
+
+msgid "Restore"
+msgstr "修復"
 
 msgid "Keyboard Shortcuts"
 msgstr "鍵盤快速鍵"
@@ -55,12 +40,39 @@ msgstr "鍵盤快速鍵"
 msgid "About Lada"
 msgstr "關於 Lada"
 
-#, python-brace-format
-msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
-msgstr "影片長度: {duration}, 解析度: {resolution}, Frame rate: {fps} FPS"
+msgid "Open in External Program…"
+msgstr "開啟於外部程式…"
+
+msgid "Show Error"
+msgstr "顯示錯誤訊息"
+
+msgid "Preview"
+msgstr "預覽"
+
+msgid "Remove"
+msgstr "移除"
+
+msgid "Restoring video…"
+msgstr "正在修復影片…"
+
+msgid "Finished video restoration!"
+msgstr "影片修復完成!"
 
 msgid "Restoration failed"
 msgstr "修復失敗"
+
+msgid "Export video"
+msgstr "輸出影片"
+
+msgid "Restoration paused"
+msgstr "修復暫停"
+
+msgid "Open File"
+msgstr "開啟檔案"
+
+#, python-brace-format
+msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
+msgstr "影片長度: {duration}, 解析度: {resolution}, Frame rate: {fps} FPS"
 
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
@@ -121,15 +133,6 @@ msgstr "無法啟動系統關機. 請檢查系統權限."
 msgid "Shutdown now"
 msgstr "立即關機"
 
-msgid "Restoring video…"
-msgstr "正在修復影片…"
-
-msgid "Finished video restoration!"
-msgstr "影片修復完成!"
-
-msgid "Restoration paused"
-msgstr "修復暫停"
-
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr "偵測不到GPU! 使用CPU運行此軟體將會非常緩慢."
 
@@ -157,18 +160,6 @@ msgstr "<big>編碼器選項</big>"
 msgid "Enter encoder options…"
 msgstr "輸入編碼器選項…"
 
-msgid "Click the folder button to choose a default"
-msgstr "點擊資料夾按鈕以選取預設"
-
-msgid "Create Preset…"
-msgstr "建立預設…"
-
-msgid "Select a folder where restored videos should be saved"
-msgstr "選擇修復影片檔儲存資料夾"
-
-msgid "Select a folder for temporary files"
-msgstr "選擇暫存用資料夾"
-
 msgid "Mosaic Removal"
 msgstr "馬賽克移除"
 
@@ -185,8 +176,8 @@ msgid ""
 "Detect and ignore areas of pixelated faces. Can prevent restoration "
 "artifacts but may worsen detection of NSFW mosaics."
 msgstr ""
-"偵測並忽略像素化臉部區域. 可以防止修復過程中出現偽影，但可能會降低馬賽克圖案"
-"的檢出率."
+"偵測並忽略像素化臉部區域. 可以防止修復過程中出現偽影,但可能會降低馬賽克圖案的"
+"檢出率."
 
 msgid "Maximum clip duration"
 msgstr "最大剪輯持續時間"
@@ -194,7 +185,7 @@ msgstr "最大剪輯持續時間"
 msgid ""
 "Maximum number of frames for restoration. Higher values improve temporal "
 "stability. Lower values reduce memory footprint."
-msgstr "修復時的最大幀數。較高的值可提高時間穩定性。較低的值可減少記憶體佔用。"
+msgstr "修復時的最大幀數. 較高的值可提高時間穩定性. 較低的值可減少記憶體佔用."
 
 msgid "GPU"
 msgstr "GPU"
@@ -251,6 +242,9 @@ msgstr "總是詢問"
 
 msgid "Use this folder"
 msgstr "使用此資料夾"
+
+msgid "Click the folder button to choose a default"
+msgstr "點擊資料夾按鈕以選取預設"
 
 msgid "Temporary Directory"
 msgstr "暫存目錄"
@@ -330,6 +324,15 @@ msgstr "觀看"
 
 msgid "Reset to factory settings"
 msgstr "重設為初始設置"
+
+msgid "Create Preset…"
+msgstr "建立預設…"
+
+msgid "Select a folder where restored videos should be saved"
+msgstr "選擇修復影片檔儲存資料夾"
+
+msgid "Select a folder for temporary files"
+msgstr "選擇暫存用資料夾"
 
 msgid "Restore pixelated adult videos"
 msgstr "修復馬賽克AV"
@@ -443,7 +446,7 @@ msgstr "%(prog)s --input input.mp4"
 msgid ""
 "Restore all videos found in the specified directory and save them to a "
 "different folder:"
-msgstr "修復指定目錄中找到的所有影片並將其保存到不同的資料夾："
+msgstr "修復指定目錄中找到的所有影片並將其保存到不同的資料夾:"
 
 #, python-format
 msgid "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
@@ -464,8 +467,8 @@ msgid ""
 "%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 "
 "-preset fast -x265-params log_level=error'"
 msgstr ""
-"%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 -"
-"preset fast -x265-params log_level=error'"
+"%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 "
+"-preset fast -x265-params log_level=error'"
 
 #, python-format
 msgid "%(prog)s [options]"
@@ -485,8 +488,8 @@ msgid ""
 "be chosen automatically (see --output-file-pattern). If no output path was "
 "given then the directory of the input file will be used"
 msgstr ""
-"保存輸出檔的路徑。如果路徑是目錄，則會自動命名（請參閱 --output-file-"
-"pattern）。如果沒有指定輸出路徑，則使用檔案的輸入目錄"
+"保存輸出檔的路徑. 如果路徑是目錄,則會自動命名 (請參閱 --output-file-pattern)"
+". 如果沒有指定輸出路徑,則使用檔案的輸入目錄"
 
 #, python-format
 msgid ""
@@ -494,8 +497,8 @@ msgid ""
 "Alternatively, you can use the environment variable TMPDIR. (default: "
 "%(default)s)"
 msgstr ""
-"修復過程中影片暫存檔的存放目錄. 或者,您可以使用環境變數 TMPDIR. (預設: %"
-"(default)s)"
+"修復過程中影片暫存檔的存放目錄. 或者,您可以使用環境變數 TMPDIR. (預設: "
+"%(default)s)"
 
 #, python-format, python-brace-format
 msgid ""
@@ -503,8 +506,8 @@ msgid ""
 "directory, or a file but no output path was specified. Must include the "
 "placeholder '{orig_file_name}'. (default: %(default)s)"
 msgstr ""
-"用來決定輸出檔名的模式。當輸入是目錄或檔案但未指定輸出路徑時，會使用此方法。"
-"必須包含佔位符 '{orig_file_name}'. (預設值: %(default)s)"
+"用來決定輸出檔名的模式. 當輸入是目錄或檔案但未指定輸出路徑時,會使用此方法. 必"
+"須包含佔位符 '{orig_file_name}'. (預設值: %(default)s)"
 
 #, python-format
 msgid ""
@@ -512,8 +515,8 @@ msgid ""
 "\"cuda\". If you have multiple GPUs you can select a specific one via index "
 "e.g. \"cuda:0\" (default: %(default)s)"
 msgstr ""
-"運行修復和偵測模型的設備。使用 \"cpu\" 或 \"cuda\"。如果您有多個 GPU，您可以"
-"透過索引選擇一個特定的 GPU e.g. \"cuda:0\" (預設值: %(default)s)"
+"運行修復和偵測模型的設備. 使用 \"cpu\" 或 \"cuda\". 如果您有多個 GPU,您可以透"
+"過索引選擇一個特定的 GPU e.g. \"cuda:0\" (預設值: %(default)s)"
 
 #, python-format
 msgid ""
@@ -549,8 +552,8 @@ msgid ""
 "Select video encoder by name. Use \"--list-encoders\" to see what's "
 "available. (default: %(default)s)"
 msgstr ""
-"按名稱選擇視訊編碼器. 使用 “--list-encoders” 查看可用編碼器. (預設: %"
-"(default)s)"
+"按名稱選擇視訊編碼器. 使用 “--list-encoders” 查看可用編碼器. (預設: "
+"%(default)s)"
 
 msgid "List available encoders and exit"
 msgstr "列出可用編碼器並退出"
@@ -560,7 +563,7 @@ msgid ""
 "Space-separated list of options for the encoder set via \"--encoder\". Use "
 "\"--list-encoder-options\" to see what's available. (default: %(default)s)"
 msgstr ""
-"透過 \"--encoder\" 設定的編碼器選項列表，以空格分隔. 使用 “--list-encoder-"
+"透過 \"--encoder\" 設定的編碼器選項列表,以空格分隔. 使用 “--list-encoder-"
 "options” 查看可用選項. (預設: %(default)s)"
 
 msgid "List available options of the given encoder and exit"
@@ -582,7 +585,7 @@ msgid ""
 "(default location is './model_weights' if not overwritten by environment "
 "variable LADA_MODEL_WEIGHTS_DIR)"
 msgstr ""
-"列出模型權重目錄中可用的修復模型，並退出 (預設位置為 './model_weights' 若未被"
+"列出模型權重目錄中可用的修復模型,並退出 (預設位置為 './model_weights' 若未被"
 "環境變數 LADA_MODEL_WEIGHTS_DIR 覆蓋)"
 
 #, python-format
@@ -596,7 +599,7 @@ msgstr ""
 msgid ""
 "Path to restoration model configuration file. You'll not have to set this "
 "unless you're training your own custom models"
-msgstr "修復模型設定檔的路徑. 除非你自己有訓練自訂模型，否則不需要設定"
+msgstr "修復模型設定檔的路徑. 除非你自己有訓練自訂模型,否則不需要設定"
 
 #, python-format
 msgid ""
@@ -604,8 +607,8 @@ msgid ""
 "stability. Lower values reduce memory footprint. If set too low flickering "
 "could appear (default: %(default)s)"
 msgstr ""
-"修復時的最大幀數。較高的值可提高時間穩定性。較低的值可減少記憶體佔用。如果設"
-"定過低，可能會出現閃爍（預設值：%(default)s）"
+"修復時的最大幀數. 較高的值可提高時間穩定性. 較低的值可減少記憶體佔用. 如果設"
+"定過低,可能會出現閃爍 (預設值: %(default)s)"
 
 msgid "Mosaic Detection"
 msgstr "馬賽克偵測"
@@ -640,22 +643,22 @@ msgstr "音訊處理"
 
 #, python-brace-format
 msgid "GPU {device} selected but CUDA is not available"
-msgstr "GPU {device} 已選擇但CUDA不可用"
+msgstr "GPU {device} 已選擇但CUDA無法使用"
 
 #, python-brace-format
 msgid ""
 "Invalid file name pattern. It must include the template string "
 "'{orig_file_name}' and a file extension"
-msgstr "檔案名稱模式無效。必須包含模板字串'{orig_file_name}'和檔案副檔名"
+msgstr "檔案名稱模式無效. 必須包含模板字串 '{orig_file_name}' 和檔案副檔名"
 
 msgid ""
 "Invalid output directory. If input is a directory then --output must also be "
 "set to a directory"
-msgstr "無效輸出目錄。如果輸入是目錄，則 --output 也必須設定為目錄"
+msgstr "無效輸出目錄. 如果輸入是目錄,則 --output 也必須設定為目錄"
 
 #, python-brace-format
 msgid "Invalid input. No file or directory at {input_path}"
-msgstr "無效輸入。沒有檔案或目錄在{input_path}"
+msgstr "無效輸入. 沒有檔案或目錄在 {input_path}"
 
 #, python-brace-format
 msgid "Temporary directory {temporary_path} doesn't exist. Creating…"
@@ -671,14 +674,48 @@ msgid "Invalid encoding preset"
 msgstr "無效的編碼預設"
 
 msgid ""
-"Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"
+"Either \"--encoding-preset\" or \"--encoder\" together with \"--encoder-"
 "options\" must be used"
 msgstr ""
-"必須同時使用 \"--encoding-preset\" 或 \"--encoder\" 以及 \"--encoding-"
+"必須同時使用 \"--encoding-preset\" 或 \"--encoder\" 以及 \"--encoder-"
 "options\""
 
 msgid "Received Ctrl-C, stopping restoration."
-msgstr "接收到Ctrl-C及停止修復."
+msgstr "接收到 Ctrl-C, 停止修復."
+
+msgid ""
+"H.264 / AVC, x264 software encoder, Indistinguishable Quality, Slow, Very "
+"Large File Size"
+msgstr "H.264 / AVC, x264 軟體編碼器,畫質無明顯差異,慢速,檔案容量非常大"
+
+msgid "H.264 / AVC, x264 software encoder, Fast, Medium File Size"
+msgstr "H.264 / AVC, x264 軟體編碼器,快速,檔案大小適中"
+
+msgid "H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size"
+msgstr "H.264 / AVC, Nvidia 硬體編碼器,快速,檔案大小適中"
+
+msgid ""
+"H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size"
+msgstr "H.265 / HEVC, Nvidia 硬體編碼器,品質優良,檔案較小"
+
+msgid "H.265 / HEVC, Nvidia hardware encoder, High Quality, Medium File Size"
+msgstr "H.265 / HEVC, Nvidia 硬體編碼器,高品質,中等檔案大小"
+
+msgid ""
+"H.265 / HEVC, Nvidia hardware encoder, Indistinguishable Quality, Large File "
+"Size"
+msgstr "H.265 / HEVC, Nvidia 硬體編碼器,畫質無明顯差異,檔案較大"
+
+msgid ""
+"AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size"
+msgstr "AV1, SVT-AV1 軟體編碼器,畫質無明顯差異,檔案更小"
+
+#~ msgid ""
+#~ "Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"
+#~ "options\" must be used"
+#~ msgstr ""
+#~ "必須同時使用 \"--encoding-preset\" 或 \"--encoder\" 以及 \"--encoding-"
+#~ "options\""
 
 #~ msgid "Model used for detecting mosaic areas."
 #~ msgstr "模型用來進行馬賽克偵測."

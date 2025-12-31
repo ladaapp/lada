@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-19 12:24+0000\n"
-"PO-Revision-Date: 2025-12-22 12:53+0000\n"
+"POT-Creation-Date: 2025-12-28 14:38+0000\n"
+"PO-Revision-Date: 2025-12-29 10:31+0000\n"
 "Last-Translator: Abraxax <abraxax@noreply.codeberg.org>\n"
 "Language-Team: Spanish <https://translate.codeberg.org/projects/lada/lada/"
 "es/>\n"
@@ -16,38 +16,23 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 5.15.1\n"
 
-msgid "Open in External Program…"
-msgstr "Abrir con un programa externo…"
-
-msgid "Show Error"
-msgstr "Mostrar error"
-
-msgid "Remove"
-msgstr "Eliminar"
-
-msgid "Export video"
-msgstr "Exportar Video"
-
-msgid "Restore"
-msgstr "Restaurar"
-
-msgid "Resume"
-msgstr "Continuar"
-
-msgid "Pause"
-msgstr "Pausa"
-
-msgid "Cancel"
-msgstr "Cancelar"
-
-msgid "Open File"
-msgstr "Abrir Fichero"
-
 msgid "Settings"
 msgstr "Configuración"
 
 msgid "Add Files…"
 msgstr "Añadir Ficheros…"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Pause"
+msgstr "Pausa"
+
+msgid "Resume"
+msgstr "Continuar"
+
+msgid "Restore"
+msgstr "Restaurar"
 
 msgid "Keyboard Shortcuts"
 msgstr "Atajos de Teclado"
@@ -55,14 +40,41 @@ msgstr "Atajos de Teclado"
 msgid "About Lada"
 msgstr "Acerca de Lada"
 
+msgid "Open in External Program…"
+msgstr "Abrir con un programa externo…"
+
+msgid "Show Error"
+msgstr "Mostrar error"
+
+msgid "Preview"
+msgstr "Previsualizar"
+
+msgid "Remove"
+msgstr "Eliminar"
+
+msgid "Restoring video…"
+msgstr "Procesando Video…"
+
+msgid "Finished video restoration!"
+msgstr "¡Procesado de Video Terminado!"
+
+msgid "Restoration failed"
+msgstr "Fallo en la Restauración"
+
+msgid "Export video"
+msgstr "Exportar Video"
+
+msgid "Restoration paused"
+msgstr "Procesado Pausado"
+
+msgid "Open File"
+msgstr "Abrir Fichero"
+
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
 msgstr ""
 "Duración: {duration}, Resolución: {resolution}, Velocidad Fotogramas {fps} "
 "FPS"
-
-msgid "Restoration failed"
-msgstr "Fallo en la Restauración"
 
 #, python-brace-format
 msgid "Error while processing <span><tt>{filename}</tt></span>"
@@ -125,15 +137,6 @@ msgstr ""
 msgid "Shutdown now"
 msgstr "Apagar ahora"
 
-msgid "Restoring video…"
-msgstr "Procesando Video…"
-
-msgid "Finished video restoration!"
-msgstr "¡Procesado de Video Terminado!"
-
-msgid "Restoration paused"
-msgstr "Procesado Pausado"
-
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr ""
 "No se detecta GPU. Ejecutando la aplicación con la CPU aunque será más lento."
@@ -161,18 +164,6 @@ msgstr "<big>Opciones Codificador</big>"
 
 msgid "Enter encoder options…"
 msgstr "Introduce las Opciones del Codificador…"
-
-msgid "Click the folder button to choose a default"
-msgstr "Elige la carpeta destino por defecto"
-
-msgid "Create Preset…"
-msgstr "Crear Configuración…"
-
-msgid "Select a folder where restored videos should be saved"
-msgstr "Selecciona la carpeta donde se guardarán los videos"
-
-msgid "Select a folder for temporary files"
-msgstr "Selecciona una carpeta para los ficheros temporales"
 
 msgid "Mosaic Removal"
 msgstr "Eliminación de mosaico"
@@ -268,6 +259,9 @@ msgstr "Preguntar Siempre"
 msgid "Use this folder"
 msgstr "Usar esta carpeta"
 
+msgid "Click the folder button to choose a default"
+msgstr "Elige la carpeta destino por defecto"
+
 msgid "Temporary Directory"
 msgstr "Carpeta Temporal"
 
@@ -348,6 +342,15 @@ msgstr "Ver"
 
 msgid "Reset to factory settings"
 msgstr "Restaurar configuración de fábrica"
+
+msgid "Create Preset…"
+msgstr "Crear Configuración…"
+
+msgid "Select a folder where restored videos should be saved"
+msgstr "Selecciona la carpeta donde se guardarán los videos"
+
+msgid "Select a folder for temporary files"
+msgstr "Selecciona una carpeta para los ficheros temporales"
 
 msgid "Restore pixelated adult videos"
 msgstr "Restaurar Videos Adultos Pixelados"
@@ -715,14 +718,55 @@ msgid "Invalid encoding preset"
 msgstr "Configuración codificador inválida"
 
 msgid ""
-"Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"
+"Either \"--encoding-preset\" or \"--encoder\" together with \"--encoder-"
 "options\" must be used"
 msgstr ""
-"Ya sea \"--encoding-preset\" o \"--encoder\" juntos con \"--encoding-"
-"options\" debe ser usado"
+"Ya sea \"--encoding-preset\" o \"--encoder\" junto con \"--encoder-options\" "
+"debe usarse"
 
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "Ctrl-C detectado. Deteniendo Procesado."
+
+msgid ""
+"H.264 / AVC, x264 software encoder, Indistinguishable Quality, Slow, Very "
+"Large File Size"
+msgstr ""
+"H.264 / AVC, x264 codificador, Indistinguible Calidad, Lento, Ficheros "
+"Grandes"
+
+msgid "H.264 / AVC, x264 software encoder, Fast, Medium File Size"
+msgstr "H.264 / AVC, x264 codificador Rápido, Fichero Tamaño Medio"
+
+msgid "H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size"
+msgstr "H.264 / AVC, Codificador Nvidia, Rápido, Fichero Tamaño Medio"
+
+msgid ""
+"H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size"
+msgstr ""
+"H.265 / HEVC, Codificador NVidia, Calidad Excelente, Tamaño Fichero Pequeño"
+
+msgid "H.265 / HEVC, Nvidia hardware encoder, High Quality, Medium File Size"
+msgstr "H.265 / HEVC, Codificador NVidia, Alta Calidad, Tamaño Fichero Medio"
+
+msgid ""
+"H.265 / HEVC, Nvidia hardware encoder, Indistinguishable Quality, Large File "
+"Size"
+msgstr ""
+"H.265 / HEVC, Codificador Nvidia, Calidad Indistinguible, Tamaño Fichero "
+"Grande"
+
+msgid ""
+"AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size"
+msgstr ""
+"AV1, SVT-AV1 Codificador por Software, Calidad Indistinguible, Tamaño "
+"Fichero Pequeño"
+
+#~ msgid ""
+#~ "Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"
+#~ "options\" must be used"
+#~ msgstr ""
+#~ "Ya sea \"--encoding-preset\" o \"--encoder\" juntos con \"--encoding-"
+#~ "options\" debe ser usado"
 
 #~ msgid "Model used for detecting mosaic areas."
 #~ msgstr "Modelo usado para detectar áreas con mosaico."
