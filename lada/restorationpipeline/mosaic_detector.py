@@ -17,7 +17,7 @@ from lada.utils import image_utils
 from lada.utils import video_utils
 from lada.utils.box_utils import box_overlap
 from lada.utils.scene_utils import crop_to_box_v3
-from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, PipelineQueue
+from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, PipelineQueue, StopMarker
 from lada.utils.ultralytics_utils import convert_yolo_box, convert_yolo_mask_tensor, UltralyticsResults
 
 logger = logging.getLogger(__name__)
@@ -240,7 +240,7 @@ class MosaicDetector:
 
         logger.debug(f"MosaicDetector: stopped, took: {time.time() - start}")
 
-    def _create_clips_for_completed_scenes(self, scenes, frame_num, eof):
+    def _create_clips_for_completed_scenes(self, scenes, frame_num, eof) -> StopMarker | None:
         completed_scenes = []
         for current_scene in scenes:
             if (current_scene.frame_end < frame_num or len(current_scene) >= self.max_clip_length or eof) and current_scene not in completed_scenes:
@@ -255,10 +255,11 @@ class MosaicDetector:
             self.mosaic_clip_queue.put(clip)
             if self.stop_requested:
                 logger.debug("frame detector worker: mosaic_clip_queue producer unblocked")
-                return
+                return STOP_MARKER
             #print(f"frame {frame_num}, yielding clip starting {clip.frame_start}, ending {clip.frame_end}, all scene starts: {[s.frame_start for s in scenes]}, completed scenes: {[s.frame_start for s in completed_scenes]}")
             scenes.remove(completed_scene)
             self.clip_counter += 1
+        return None
 
     def _create_or_append_scenes_based_on_prediction_result(self, results: UltralyticsResults, scenes: list[Scene], frame_num):
         for i in range(len(results.boxes)):
@@ -374,7 +375,9 @@ class MosaicDetector:
                     if self.stop_requested:
                         logger.debug("frame detector worker: frame_detection_queue producer unblocked")
                         break
-                    self._create_clips_for_completed_scenes(scenes, frame_num, eof=False)
+                    queue_marker = self._create_clips_for_completed_scenes(scenes, frame_num, eof=False)
+                    if queue_marker is STOP_MARKER:
+                        break
                     frame_num += 1
         if eof:
             logger.debug("frame detector worker: stopped itself, EOF")
