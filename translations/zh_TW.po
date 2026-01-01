@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-28 14:38+0000\n"
+"POT-Creation-Date: 2025-12-31 09:23+0000\n"
 "PO-Revision-Date: 2025-12-28 19:05+0000\n"
 "Last-Translator: tetsukasinobu <tetsukasinobu@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Traditional Han script) <https://"
@@ -52,6 +52,12 @@ msgstr "預覽"
 msgid "Remove"
 msgstr "移除"
 
+msgid "Export video"
+msgstr "輸出影片"
+
+msgid "Open File"
+msgstr "開啟檔案"
+
 msgid "Restoring video…"
 msgstr "正在修復影片…"
 
@@ -61,14 +67,8 @@ msgstr "影片修復完成!"
 msgid "Restoration failed"
 msgstr "修復失敗"
 
-msgid "Export video"
-msgstr "輸出影片"
-
 msgid "Restoration paused"
 msgstr "修復暫停"
-
-msgid "Open File"
-msgstr "開啟檔案"
 
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
@@ -368,71 +368,6 @@ msgstr "選擇單個或多個影片檔"
 msgid "Custom Preset {custom_preset_num}"
 msgstr "自訂預設 {custom_preset_num}"
 
-msgid "No video files found"
-msgstr "找不到影片檔"
-
-msgid "Yes"
-msgstr "確定"
-
-msgid "Name"
-msgstr "名稱"
-
-msgid "Description"
-msgstr "描述"
-
-msgid "Hardware-accelerated"
-msgstr "硬體加速"
-
-msgid "Hardware devices"
-msgstr "硬體設備"
-
-msgid "Available video encoders:"
-msgstr "可用的影片編碼器："
-
-msgid "Device"
-msgstr "設備"
-
-msgid "Available devices:"
-msgstr "可用設備:"
-
-msgid "Available restoration models:"
-msgstr "可用修復模型:"
-
-msgid "None!"
-msgstr "沒有!"
-
-msgid "Path"
-msgstr "路徑"
-
-msgid "Available encoding presets:"
-msgstr "可用的編碼預設:"
-
-msgid "Encoder Name"
-msgstr "編碼器名稱"
-
-msgid "Encoder Options"
-msgstr "編碼器選項"
-
-msgid "Usage: "
-msgstr "用量: "
-
-#, python-brace-format
-msgid ""
-"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
-"f){bar_suffix}"
-msgstr ""
-"處理中影片: {done_percent}%|{bar}|已處理: {time_done} ({frames_done}f)"
-"{bar_suffix}"
-
-msgid " | Remaining: ? | Speed: ?"
-msgstr " | 剩餘的: ? | 速度: ?"
-
-#, python-brace-format
-msgid ""
-" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
-" | 剩餘的: {time_remaining} ({frames_remaining}f) | 速度: {speed_fps}fps"
-
 msgid "Examples:"
 msgstr "範例:"
 
@@ -488,8 +423,8 @@ msgid ""
 "be chosen automatically (see --output-file-pattern). If no output path was "
 "given then the directory of the input file will be used"
 msgstr ""
-"保存輸出檔的路徑. 如果路徑是目錄,則會自動命名 (請參閱 --output-file-pattern)"
-". 如果沒有指定輸出路徑,則使用檔案的輸入目錄"
+"保存輸出檔的路徑. 如果路徑是目錄,則會自動命名 (請參閱 --output-file-"
+"pattern). 如果沒有指定輸出路徑,則使用檔案的輸入目錄"
 
 #, python-format
 msgid ""
@@ -682,6 +617,83 @@ msgstr ""
 
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "接收到 Ctrl-C, 停止修復."
+
+msgid "No video files found"
+msgstr "找不到影片檔"
+
+msgid "Yes"
+msgstr "確定"
+
+msgid "Name"
+msgstr "名稱"
+
+msgid "Description"
+msgstr "描述"
+
+msgid "Hardware-accelerated"
+msgstr "硬體加速"
+
+msgid "Hardware devices"
+msgstr "硬體設備"
+
+msgid "Available video encoders:"
+msgstr "可用的影片編碼器："
+
+msgid "Device"
+msgstr "設備"
+
+msgid "Available devices:"
+msgstr "可用設備:"
+
+msgid "Available restoration models:"
+msgstr "可用修復模型:"
+
+msgid "None!"
+msgstr "沒有!"
+
+msgid "Path"
+msgstr "路徑"
+
+msgid "Available encoding presets:"
+msgstr "可用的編碼預設:"
+
+msgid "Encoder Name"
+msgstr "編碼器名稱"
+
+msgid "Encoder Options"
+msgstr "編碼器選項"
+
+msgid "Usage: "
+msgstr "用量: "
+
+#, python-brace-format
+msgid ""
+"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
+"f){bar_suffix}"
+msgstr ""
+"處理中影片: {done_percent}%|{bar}|已處理: {time_done} ({frames_done}f)"
+"{bar_suffix}"
+
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | 剩餘的: ? | 速度: ?"
+
+#, python-brace-format
+msgid ""
+" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr ""
+" | 剩餘的: {time_remaining} ({frames_remaining}f) | 速度: {speed_fps}fps"
+
+msgid "Latest Lada restoration model. Recommended"
+msgstr ""
+
+msgid "Restoration model from abandoned DeepMosaics project"
+msgstr ""
+
+msgid "Fast and efficient. Recommended"
+msgstr ""
+
+msgid "Can be slightly more accurate than v4-fast but slower"
+msgstr ""
 
 msgid ""
 "H.264 / AVC, x264 software encoder, Indistinguishable Quality, Slow, Very "

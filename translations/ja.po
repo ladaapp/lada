@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-28 14:38+0000\n"
+"POT-Creation-Date: 2025-12-31 09:23+0000\n"
 "PO-Revision-Date: 2025-12-29 04:56+0000\n"
 "Last-Translator: softasa <softasa@noreply.codeberg.org>\n"
 "Language-Team: Japanese <https://translate.codeberg.org/projects/lada/lada/"
@@ -52,6 +52,12 @@ msgstr "プレビュー"
 msgid "Remove"
 msgstr "削除"
 
+msgid "Export video"
+msgstr "ビデオをエクスポート"
+
+msgid "Open File"
+msgstr "ファイルを開く"
+
 msgid "Restoring video…"
 msgstr "動画を復元中…"
 
@@ -61,14 +67,8 @@ msgstr "動画の復元が完了しました！"
 msgid "Restoration failed"
 msgstr "復元に失敗しました"
 
-msgid "Export video"
-msgstr "ビデオをエクスポート"
-
 msgid "Restoration paused"
 msgstr "復元を一時停止しました"
-
-msgid "Open File"
-msgstr "ファイルを開く"
 
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
@@ -380,70 +380,6 @@ msgstr "1つまたは複数の動画ファイルを選択"
 msgid "Custom Preset {custom_preset_num}"
 msgstr "カスタムプリセット {custom_preset_num}"
 
-msgid "No video files found"
-msgstr "ビデオファイルが見つかりません"
-
-msgid "Yes"
-msgstr "Yes"
-
-msgid "Name"
-msgstr "名前"
-
-msgid "Description"
-msgstr "説明"
-
-msgid "Hardware-accelerated"
-msgstr "ハードウェアアクセラレーション"
-
-msgid "Hardware devices"
-msgstr "ハードウェアデバイス"
-
-msgid "Available video encoders:"
-msgstr "利用可能なビデオエンコーダ:"
-
-msgid "Device"
-msgstr "デバイス"
-
-msgid "Available devices:"
-msgstr "利用可能なデバイス:"
-
-msgid "Available restoration models:"
-msgstr "利用可能な除去モデル:"
-
-msgid "None!"
-msgstr "なし！"
-
-msgid "Path"
-msgstr "パス"
-
-msgid "Available encoding presets:"
-msgstr "利用可能なエンコードプリセット:"
-
-msgid "Encoder Name"
-msgstr "エンコーダ名"
-
-msgid "Encoder Options"
-msgstr "エンコーダオプション"
-
-msgid "Usage: "
-msgstr "使用法: "
-
-#, python-brace-format
-msgid ""
-"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
-"f){bar_suffix}"
-msgstr ""
-"ビデオの処理中: {done_percent}%|{bar}|処理済み: {time_done} ({frames_done}f)"
-"{bar_suffix}"
-
-msgid " | Remaining: ? | Speed: ?"
-msgstr " | 残り: ? | 速度: ?"
-
-#, python-brace-format
-msgid ""
-" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr " | 残り: {time_remaining} ({frames_remaining}f) | 速度: {speed_fps}fps"
-
 msgid "Examples:"
 msgstr "例:"
 
@@ -714,6 +650,82 @@ msgstr ""
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "Ctrl-C が押されました,処理を停止します。"
 
+msgid "No video files found"
+msgstr "ビデオファイルが見つかりません"
+
+msgid "Yes"
+msgstr "Yes"
+
+msgid "Name"
+msgstr "名前"
+
+msgid "Description"
+msgstr "説明"
+
+msgid "Hardware-accelerated"
+msgstr "ハードウェアアクセラレーション"
+
+msgid "Hardware devices"
+msgstr "ハードウェアデバイス"
+
+msgid "Available video encoders:"
+msgstr "利用可能なビデオエンコーダ:"
+
+msgid "Device"
+msgstr "デバイス"
+
+msgid "Available devices:"
+msgstr "利用可能なデバイス:"
+
+msgid "Available restoration models:"
+msgstr "利用可能な除去モデル:"
+
+msgid "None!"
+msgstr "なし！"
+
+msgid "Path"
+msgstr "パス"
+
+msgid "Available encoding presets:"
+msgstr "利用可能なエンコードプリセット:"
+
+msgid "Encoder Name"
+msgstr "エンコーダ名"
+
+msgid "Encoder Options"
+msgstr "エンコーダオプション"
+
+msgid "Usage: "
+msgstr "使用法: "
+
+#, python-brace-format
+msgid ""
+"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
+"f){bar_suffix}"
+msgstr ""
+"ビデオの処理中: {done_percent}%|{bar}|処理済み: {time_done} ({frames_done}f)"
+"{bar_suffix}"
+
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | 残り: ? | 速度: ?"
+
+#, python-brace-format
+msgid ""
+" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr " | 残り: {time_remaining} ({frames_remaining}f) | 速度: {speed_fps}fps"
+
+msgid "Latest Lada restoration model. Recommended"
+msgstr ""
+
+msgid "Restoration model from abandoned DeepMosaics project"
+msgstr ""
+
+msgid "Fast and efficient. Recommended"
+msgstr ""
+
+msgid "Can be slightly more accurate than v4-fast but slower"
+msgstr ""
+
 msgid ""
 "H.264 / AVC, x264 software encoder, Indistinguishable Quality, Slow, Very "
 "Large File Size"
@@ -722,19 +734,22 @@ msgstr ""
 "常に大きなファイル サイズ"
 
 msgid "H.264 / AVC, x264 software encoder, Fast, Medium File Size"
-msgstr "H.264 / AVC, x264 ソフトウェア エンコーダー,高速,中程度のファイル サイズ"
+msgstr ""
+"H.264 / AVC, x264 ソフトウェア エンコーダー,高速,中程度のファイル サイズ"
 
 msgid "H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size"
-msgstr "H.264 / AVC, Nvidia ハードウェア エンコーダー,高速,中程度のファイル サイズ"
+msgstr ""
+"H.264 / AVC, Nvidia ハードウェア エンコーダー,高速,中程度のファイル サイズ"
 
 msgid ""
 "H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size"
 msgstr ""
-"H.265 / HEVC, Nvidia ハードウェア エンコーダー,優れた品質,小さい"
-"ファイルサイズ"
+"H.265 / HEVC, Nvidia ハードウェア エンコーダー,優れた品質,小さいファイルサイ"
+"ズ"
 
 msgid "H.265 / HEVC, Nvidia hardware encoder, High Quality, Medium File Size"
-msgstr "H.265 / HEVC, Nvidia ハードウェア エンコーダー,高品質,中程度のファイルサイズ"
+msgstr ""
+"H.265 / HEVC, Nvidia ハードウェア エンコーダー,高品質,中程度のファイルサイズ"
 
 msgid ""
 "H.265 / HEVC, Nvidia hardware encoder, Indistinguishable Quality, Large File "
@@ -746,8 +761,8 @@ msgstr ""
 msgid ""
 "AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size"
 msgstr ""
-"AV1, SVT-AV1 ソフトウェア エンコーダー,見分けがつかない程の品質,小さい"
-"ファイル サイズ"
+"AV1, SVT-AV1 ソフトウェア エンコーダー,見分けがつかない程の品質,小さいファイ"
+"ル サイズ"
 
 #~ msgid ""
 #~ "Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"

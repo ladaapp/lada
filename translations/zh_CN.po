@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-28 14:38+0000\n"
+"POT-Creation-Date: 2025-12-31 09:23+0000\n"
 "PO-Revision-Date: 2025-12-29 17:47+0000\n"
 "Last-Translator: xl <xl@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://"
@@ -52,6 +52,12 @@ msgstr "预览"
 msgid "Remove"
 msgstr "移除"
 
+msgid "Export video"
+msgstr "导出视频"
+
+msgid "Open File"
+msgstr "打开文件"
+
 msgid "Restoring video…"
 msgstr "正在修复视频…"
 
@@ -61,14 +67,8 @@ msgstr "视频修复已完成！"
 msgid "Restoration failed"
 msgstr "修复失败"
 
-msgid "Export video"
-msgstr "导出视频"
-
 msgid "Restoration paused"
 msgstr "修复已暂停"
-
-msgid "Open File"
-msgstr "打开文件"
 
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
@@ -371,71 +371,6 @@ msgstr "选择一个或多个视频文件"
 msgid "Custom Preset {custom_preset_num}"
 msgstr "自定义预设 {custom_preset_num}"
 
-msgid "No video files found"
-msgstr "找不到视频文件"
-
-msgid "Yes"
-msgstr "确定"
-
-msgid "Name"
-msgstr "名称"
-
-msgid "Description"
-msgstr "描述"
-
-msgid "Hardware-accelerated"
-msgstr "硬件加速"
-
-msgid "Hardware devices"
-msgstr "硬件加速设备"
-
-msgid "Available video encoders:"
-msgstr "可用视频编码器："
-
-msgid "Device"
-msgstr "设备"
-
-msgid "Available devices:"
-msgstr "可用设备："
-
-msgid "Available restoration models:"
-msgstr "可用修复模型："
-
-msgid "None!"
-msgstr "无！"
-
-msgid "Path"
-msgstr "路径"
-
-msgid "Available encoding presets:"
-msgstr "可用编码预设："
-
-msgid "Encoder Name"
-msgstr "编码器名称"
-
-msgid "Encoder Options"
-msgstr "编码参数选项"
-
-msgid "Usage: "
-msgstr "用法： "
-
-#, python-brace-format
-msgid ""
-"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
-"f){bar_suffix}"
-msgstr ""
-"正在处理视频：{done_percent}%|{bar}|已处理： {time_done} ({frames_done}帧)"
-"{bar_suffix}"
-
-msgid " | Remaining: ? | Speed: ?"
-msgstr " | 剩余时间：？ | 处理速度：？"
-
-#, python-brace-format
-msgid ""
-" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
-" | 剩余： {time_remaining} ({frames_remaining}帧) | 速度：{speed_fps} 帧/秒"
-
 msgid "Examples:"
 msgstr "示例："
 
@@ -683,6 +618,83 @@ msgstr ""
 
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "检测到 Ctrl-C 信号，正在终止修复。"
+
+msgid "No video files found"
+msgstr "找不到视频文件"
+
+msgid "Yes"
+msgstr "确定"
+
+msgid "Name"
+msgstr "名称"
+
+msgid "Description"
+msgstr "描述"
+
+msgid "Hardware-accelerated"
+msgstr "硬件加速"
+
+msgid "Hardware devices"
+msgstr "硬件加速设备"
+
+msgid "Available video encoders:"
+msgstr "可用视频编码器："
+
+msgid "Device"
+msgstr "设备"
+
+msgid "Available devices:"
+msgstr "可用设备："
+
+msgid "Available restoration models:"
+msgstr "可用修复模型："
+
+msgid "None!"
+msgstr "无！"
+
+msgid "Path"
+msgstr "路径"
+
+msgid "Available encoding presets:"
+msgstr "可用编码预设："
+
+msgid "Encoder Name"
+msgstr "编码器名称"
+
+msgid "Encoder Options"
+msgstr "编码参数选项"
+
+msgid "Usage: "
+msgstr "用法： "
+
+#, python-brace-format
+msgid ""
+"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
+"f){bar_suffix}"
+msgstr ""
+"正在处理视频：{done_percent}%|{bar}|已处理： {time_done} ({frames_done}帧)"
+"{bar_suffix}"
+
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | 剩余时间：？ | 处理速度：？"
+
+#, python-brace-format
+msgid ""
+" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr ""
+" | 剩余： {time_remaining} ({frames_remaining}帧) | 速度：{speed_fps} 帧/秒"
+
+msgid "Latest Lada restoration model. Recommended"
+msgstr ""
+
+msgid "Restoration model from abandoned DeepMosaics project"
+msgstr ""
+
+msgid "Fast and efficient. Recommended"
+msgstr ""
+
+msgid "Can be slightly more accurate than v4-fast but slower"
+msgstr ""
 
 msgid ""
 "H.264 / AVC, x264 software encoder, Indistinguishable Quality, Slow, Very "
