@@ -55,6 +55,37 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release date="2026-01-01" version="0.10.0">
+            <description>
+                <p>Features / Improvements:</p>
+                <ul>
+                    <li>CLI: Add encoding presets. There are options available for selecting and listing presets. Alternatively, you can specify encoder and encoder options if the provided presets don't cover your use case</li>
+                    <li>GUI: Add encoding presets. View and select presets via Sidebar. If the provided presets don't cover your use case you can create custom presets</li>
+                    <li>CLI+GUI: Add new v4 mosaic detection models. Default model: v4-fast</li>
+                    <li>CLI+GUI: Reduce VRAM usage of restoration pipeline</li>
+                    <li>CLI+GUI: Add option to enable detect and ignore SFW face mosaics. Experimental</li>
+                    <li>GUI: Add option to toggle .mp4 Fast Start. If enabled a Preview button will be shown while export is running allowing watching the temporary file while it's being written</li>
+                    <li>CLI: Rename --moov-front to --mp4-fast-start</li>
+                    <li>CLI: Add option to set temporary directory</li>
+                    <li>CLI: Ensure to draw 100% completed progressbar after restoration of files with incorrect frame count metadata</li>
+                    <li>CLI: Update progress bar width and redraw if window got resized</li>
+                    <li>CLI: Remove --mosaic-detection-model-path and add --mosaic-detection-model which accepts either a name or a path</li>
+                    <li>CLI: Remove --mosaic-restoration-model and --mosaic-restoration-model-path and add --mosaic-restoration-model which accepts either a name or a path</li>
+                    <li>CLI+GUI: Added short descriptions for mosaic detection and restoration models (was previously documented only in README)</li>
+                </ul>
+                <p>Fixes:</p>
+                <ul>
+                    <li>GUI: Fix FP16 Setting Changes Not Take Effect Immediately Without Restart</li>
+                    <li>GUI: Fix occasional freeze when closing</li>
+                    <li>GUI: Fix occasional long wait times in GUI Watch mode when opening or seeking a file</li>
+                    <li>GUI: Don't stretch color scheme and initial view buttons in sidebar</li>
+                    <li>CLI+GUI: Fix parsing of encoder options if they contain "=" like "-x264opts deblock=-3,-3"</li>
+                    <li>GUI: Fix playback sometimes not being started after changing active file</li>
+                    <li>GUI: Fix Cancel export button not cancelling export if currently paused</li>
+                    <li>GUI: Fix Audio sometimes getting muted when switching/opening new files</li>
+                </ul>
+            </description>
+        </release>
         <release date="2025-12-08" version="0.9.1">
             <description>
                 <p>Features:</p>
