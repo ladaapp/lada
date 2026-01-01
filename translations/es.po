@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-28 14:38+0000\n"
-"PO-Revision-Date: 2025-12-29 10:31+0000\n"
+"POT-Creation-Date: 2025-12-31 09:23+0000\n"
+"PO-Revision-Date: 2026-01-01 10:21+0000\n"
 "Last-Translator: Abraxax <abraxax@noreply.codeberg.org>\n"
 "Language-Team: Spanish <https://translate.codeberg.org/projects/lada/lada/"
 "es/>\n"
@@ -52,6 +52,12 @@ msgstr "Previsualizar"
 msgid "Remove"
 msgstr "Eliminar"
 
+msgid "Export video"
+msgstr "Exportar Video"
+
+msgid "Open File"
+msgstr "Abrir Fichero"
+
 msgid "Restoring video…"
 msgstr "Procesando Video…"
 
@@ -61,14 +67,8 @@ msgstr "¡Procesado de Video Terminado!"
 msgid "Restoration failed"
 msgstr "Fallo en la Restauración"
 
-msgid "Export video"
-msgstr "Exportar Video"
-
 msgid "Restoration paused"
 msgstr "Procesado Pausado"
-
-msgid "Open File"
-msgstr "Abrir Fichero"
 
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
@@ -386,72 +386,6 @@ msgstr "Selecciona uno o más videos"
 msgid "Custom Preset {custom_preset_num}"
 msgstr "Configuración por Defecto Preset {custom_preset_num}"
 
-msgid "No video files found"
-msgstr "No hay videos"
-
-msgid "Yes"
-msgstr "Si"
-
-msgid "Name"
-msgstr "Nombre"
-
-msgid "Description"
-msgstr "Descripción"
-
-msgid "Hardware-accelerated"
-msgstr "Acelerado por Hardware"
-
-msgid "Hardware devices"
-msgstr "Dispositivos Hardware"
-
-msgid "Available video encoders:"
-msgstr "Códecs Disponibles:"
-
-msgid "Device"
-msgstr "Dispositivo"
-
-msgid "Available devices:"
-msgstr "Dispositivos disponibles:"
-
-msgid "Available restoration models:"
-msgstr "Modelos de restauración disponibles:"
-
-msgid "None!"
-msgstr "¡Nada!"
-
-msgid "Path"
-msgstr "Ruta"
-
-msgid "Available encoding presets:"
-msgstr "Configuraciones Codificación Disponibles:"
-
-msgid "Encoder Name"
-msgstr "Nombre Codificador"
-
-msgid "Encoder Options"
-msgstr "Opciones Codificador"
-
-msgid "Usage: "
-msgstr "Uso: "
-
-#, python-brace-format
-msgid ""
-"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
-"f){bar_suffix}"
-msgstr ""
-"Procesando video: {done_percent}%|{bar}|Procesado: {time_done} ({frames_done}"
-"f){bar_suffix}"
-
-msgid " | Remaining: ? | Speed: ?"
-msgstr " | Restante: ? | Velocidad: ?"
-
-#, python-brace-format
-msgid ""
-" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
-" | Restante: {time_remaining} ({frames_remaining}f) | Velocidad: {speed_fps}"
-"fps"
-
 msgid "Examples:"
 msgstr "Ejemplos:"
 
@@ -726,6 +660,84 @@ msgstr ""
 
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "Ctrl-C detectado. Deteniendo Procesado."
+
+msgid "No video files found"
+msgstr "No hay videos"
+
+msgid "Yes"
+msgstr "Si"
+
+msgid "Name"
+msgstr "Nombre"
+
+msgid "Description"
+msgstr "Descripción"
+
+msgid "Hardware-accelerated"
+msgstr "Acelerado por Hardware"
+
+msgid "Hardware devices"
+msgstr "Dispositivos Hardware"
+
+msgid "Available video encoders:"
+msgstr "Códecs Disponibles:"
+
+msgid "Device"
+msgstr "Dispositivo"
+
+msgid "Available devices:"
+msgstr "Dispositivos disponibles:"
+
+msgid "Available restoration models:"
+msgstr "Modelos de restauración disponibles:"
+
+msgid "None!"
+msgstr "¡Nada!"
+
+msgid "Path"
+msgstr "Ruta"
+
+msgid "Available encoding presets:"
+msgstr "Configuraciones Codificación Disponibles:"
+
+msgid "Encoder Name"
+msgstr "Nombre Codificador"
+
+msgid "Encoder Options"
+msgstr "Opciones Codificador"
+
+msgid "Usage: "
+msgstr "Uso: "
+
+#, python-brace-format
+msgid ""
+"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
+"f){bar_suffix}"
+msgstr ""
+"Procesando video: {done_percent}%|{bar}|Procesado: {time_done} ({frames_done}"
+"f){bar_suffix}"
+
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | Restante: ? | Velocidad: ?"
+
+#, python-brace-format
+msgid ""
+" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr ""
+" | Restante: {time_remaining} ({frames_remaining}f) | Velocidad: {speed_fps}"
+"fps"
+
+msgid "Latest Lada restoration model. Recommended"
+msgstr "Último modelo restaurado de Lada. Recomendado"
+
+msgid "Restoration model from abandoned DeepMosaics project"
+msgstr "Modelo de restauración abandonado DeepMosaics"
+
+msgid "Fast and efficient. Recommended"
+msgstr "Rápido y Eficiente. Recomendado"
+
+msgid "Can be slightly more accurate than v4-fast but slower"
+msgstr "Puede ser algo más preciso que v4-fast, pero más lento"
 
 msgid ""
 "H.264 / AVC, x264 software encoder, Indistinguishable Quality, Slow, Very "

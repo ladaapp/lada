@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-28 14:38+0000\n"
-"PO-Revision-Date: 2025-12-31 08:52+0000\n"
+"POT-Creation-Date: 2025-12-31 09:23+0000\n"
+"PO-Revision-Date: 2026-01-01 10:21+0000\n"
 "Last-Translator: softasa <softasa@noreply.codeberg.org>\n"
 "Language-Team: Dutch <https://translate.codeberg.org/projects/lada/lada/nl/>"
 "\n"
@@ -52,6 +52,12 @@ msgstr "voorbeeld"
 msgid "Remove"
 msgstr "Verwijderen"
 
+msgid "Export video"
+msgstr "Video exporteren"
+
+msgid "Open File"
+msgstr "Bestand openen"
+
 msgid "Restoring video…"
 msgstr "Bezig met herstellen…"
 
@@ -61,14 +67,8 @@ msgstr "De video is hersteld!"
 msgid "Restoration failed"
 msgstr "Het herstellen is mislukt"
 
-msgid "Export video"
-msgstr "Video exporteren"
-
 msgid "Restoration paused"
 msgstr "Het herstellen is onderbroken"
-
-msgid "Open File"
-msgstr "Bestand openen"
 
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
@@ -388,72 +388,6 @@ msgstr "Kies een of meerdere videobestanden"
 msgid "Custom Preset {custom_preset_num}"
 msgstr "Eigen voorinstelling {custom_preset_num}"
 
-msgid "No video files found"
-msgstr "Er zijn geen videobestanden aangetroffen"
-
-msgid "Yes"
-msgstr "Ja"
-
-msgid "Name"
-msgstr "Naam"
-
-msgid "Description"
-msgstr "Beschrijving"
-
-msgid "Hardware-accelerated"
-msgstr "Hardwareversnelling gebruiken"
-
-msgid "Hardware devices"
-msgstr "Hardwareapparaten"
-
-msgid "Available video encoders:"
-msgstr "Beschikbare video-encoderingen:"
-
-msgid "Device"
-msgstr "Apparaat"
-
-msgid "Available devices:"
-msgstr "Beschikbare apparaten:"
-
-msgid "Available restoration models:"
-msgstr "Beschikbaar herstelmodellen:"
-
-msgid "None!"
-msgstr "Geen!"
-
-msgid "Path"
-msgstr "Locatie"
-
-msgid "Available encoding presets:"
-msgstr "Beschikbare voorinstellingen:"
-
-msgid "Encoder Name"
-msgstr "Naam van encodering"
-
-msgid "Encoder Options"
-msgstr "Encoderings opties"
-
-msgid "Usage: "
-msgstr "Gebruik: "
-
-#, python-brace-format
-msgid ""
-"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
-"f){bar_suffix}"
-msgstr ""
-"Videoverwerking: {done_percent}%|{bar}|Verwerkt: {time_done} ({frames_done}f)"
-"{bar_suffix}"
-
-msgid " | Remaining: ? | Speed: ?"
-msgstr " | Resterend: ? | Snelheid: ?"
-
-#, python-brace-format
-msgid ""
-" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
-" | Resterend: {time_remaining} ({frames_remaining}f) | Snelheid: {speed_fps}"
-"fps"
-
 msgid "Examples:"
 msgstr "Voorbeelden:"
 
@@ -677,8 +611,8 @@ msgid ""
 msgstr ""
 "Gebieden met gepixelde gezichten detecteren en negeren. Kan "
 "restauratieartefacten voorkomen, maar kan de detectie van NSFW-mozaïeken "
-"verslechteren. Beschikbaar voor modellen v3 en nieuwer. (standaard: %"
-"(default)s)"
+"verslechteren. Beschikbaar voor modellen v3 en nieuwer. (standaard: "
+"%(default)s)"
 
 msgid "Processing audio"
 msgstr "Audioverwerking"
@@ -729,6 +663,84 @@ msgstr ""
 
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "Ctrl+C gedetecteerd — het herstel wordt afgebroken."
+
+msgid "No video files found"
+msgstr "Er zijn geen videobestanden aangetroffen"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "Name"
+msgstr "Naam"
+
+msgid "Description"
+msgstr "Beschrijving"
+
+msgid "Hardware-accelerated"
+msgstr "Hardwareversnelling gebruiken"
+
+msgid "Hardware devices"
+msgstr "Hardwareapparaten"
+
+msgid "Available video encoders:"
+msgstr "Beschikbare video-encoderingen:"
+
+msgid "Device"
+msgstr "Apparaat"
+
+msgid "Available devices:"
+msgstr "Beschikbare apparaten:"
+
+msgid "Available restoration models:"
+msgstr "Beschikbaar herstelmodellen:"
+
+msgid "None!"
+msgstr "Geen!"
+
+msgid "Path"
+msgstr "Locatie"
+
+msgid "Available encoding presets:"
+msgstr "Beschikbare voorinstellingen:"
+
+msgid "Encoder Name"
+msgstr "Naam van encodering"
+
+msgid "Encoder Options"
+msgstr "Encoderings opties"
+
+msgid "Usage: "
+msgstr "Gebruik: "
+
+#, python-brace-format
+msgid ""
+"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
+"f){bar_suffix}"
+msgstr ""
+"Videoverwerking: {done_percent}%|{bar}|Verwerkt: {time_done} ({frames_done}f)"
+"{bar_suffix}"
+
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | Resterend: ? | Snelheid: ?"
+
+#, python-brace-format
+msgid ""
+" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr ""
+" | Resterend: {time_remaining} ({frames_remaining}f) | Snelheid: {speed_fps}"
+"fps"
+
+msgid "Latest Lada restoration model. Recommended"
+msgstr "Het nieuwste Lada restauratie model. Aanbevolen"
+
+msgid "Restoration model from abandoned DeepMosaics project"
+msgstr "Restauratie model van het afgebroken DeepMosaics project"
+
+msgid "Fast and efficient. Recommended"
+msgstr "Snel en efficiënt. Aanbevolen"
+
+msgid "Can be slightly more accurate than v4-fast but slower"
+msgstr "Kan iets nauwkeuriger zijn dan v4-fast, maar is wel trager"
 
 msgid ""
 "H.264 / AVC, x264 software encoder, Indistinguishable Quality, Slow, Very "
