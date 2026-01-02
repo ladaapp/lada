@@ -40,7 +40,7 @@ def pad_image(img: Image | ImageTensor, max_height, max_width, mode='zero') -> t
     pad_w_l = math.ceil(pad_w / 2)
     pad_w_r = math.floor(pad_w / 2)
     pad = (pad_h_t, pad_h_b,pad_w_l, pad_w_r)
-    if isinstance(img, torch.Tensor) and img.device.type == 'cuda':
+    if isinstance(img, torch.Tensor) and img.device.type in ['cuda', 'xpu']:
         padded_image = pad_image_tensor_by_pad(img, pad, mode)
     else:
         return_pt = False
@@ -213,7 +213,7 @@ def resize(img: Image | ImageTensor, size: int | tuple[int, int], interpolation=
             return img
         new_h, new_w = size
 
-    if isinstance(img, torch.Tensor) and img.device.type == 'cuda':
+    if isinstance(img, torch.Tensor) and img.device.type in ['cuda', 'xpu']:
         if interpolation == cv2.INTER_LINEAR:
             interpolation = InterpolationMode.BILINEAR
         elif interpolation == cv2.INTER_NEAREST:

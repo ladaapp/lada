@@ -49,6 +49,9 @@ version = { attr = "lada.VERSION" }
 [project.optional-dependencies]
 cu128 = ["torch==2.8.0", "torchvision==0.23.0"]
 gui = ["pycairo", "PyGObject"]
+xpu = [
+    "av @ https://github.com/YotsukiNatsume/PyAV-qsv/releases/latest/download/av-16.0.1-cp312-cp312-win_amd64.whl",
+]
 
 [dependency-groups]
 dev = [

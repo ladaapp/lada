@@ -26,3 +26,28 @@ def has_modern_nvidia_gpu(device_index: int = 0) -> bool:
     if "gtx 16" in name:
         return False
     return True
+
+def has_modern_intel_gpu(device_index: int = 0) -> bool:
+    if not (hasattr(torch, 'xpu') and torch.xpu.is_available()):
+        return False
+    if device_index >= torch.xpu.device_count():
+        return False
+
+    return True
+
+def gpu_has_tensor_cores(device: torch.device = None) -> bool:
+    if device is None:
+        if has_modern_intel_gpu(0):
+            return True
+        if torch.cuda.is_available():
+            return has_modern_nvidia_gpu(0)
+        return False
+
+    if device.type == 'xpu':
+        idx = device.index if device.index is not None else 0
+        return has_modern_intel_gpu(idx)
+        
+    if device.type == 'cuda':
+        idx = device.index if device.index is not None else 0
+        return has_modern_nvidia_gpu(idx)
+    return False

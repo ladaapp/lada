@@ -279,6 +279,12 @@ class VideoWriter:
         output_container = av.open(output_path, "w", options=container_options)
         video_stream_out: av.VideoStream = output_container.add_stream(encoder, fps)
 
+        if 'qsv' in encoder.lower():
+            target_pix_fmt = 'nv12'
+
+        video_stream_out.pix_fmt = target_pix_fmt
+        video_stream_out.codec_context.pix_fmt = target_pix_fmt
+
         video_stream_out.width = width
         video_stream_out.height = height
         video_stream_out.thread_count = 0

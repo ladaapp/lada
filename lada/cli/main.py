@@ -13,7 +13,7 @@ import torch
 from lada import VERSION, ModelFiles
 from lada.cli import utils
 from lada.utils import audio_utils, video_utils
-from lada.utils.os_utils import has_modern_nvidia_gpu
+from lada.utils.os_utils import has_modern_nvidia_gpu, gpu_has_tensor_cores, has_modern_intel_gpu
 from lada.restorationpipeline.frame_restorer import FrameRestorer
 from lada.restorationpipeline import load_models
 from lada.utils.video_utils import get_video_meta_data, VideoWriter
@@ -55,8 +55,8 @@ def setup_argparser() -> argparse.ArgumentParser:
     group_general.add_argument('--output', type=str, help=_('Path used to save output file(s). If path is a directory then file name will be chosen automatically (see --output-file-pattern). If no output path was given then the directory of the input file will be used'))
     group_general.add_argument('--temporary-directory', type=str, default=tempfile.gettempdir(), help=_('Directory for temporary video files during restoration process. Alternatively, you can use the environment variable TMPDIR. (default: %(default)s)'))
     group_general.add_argument('--output-file-pattern', type=str, default="{orig_file_name}.restored.mp4", help=_("Pattern used to determine output file name(s). Used when input is a directory, or a file but no output path was specified. Must include the placeholder '{orig_file_name}'. (default: %(default)s)"))
-    group_general.add_argument('--device', type=str, default="cuda:0", help=_('Device used for running Restoration and Detection models. Use "cpu" or "cuda". If you have multiple GPUs you can select a specific one via index e.g. "cuda:0" (default: %(default)s)'))
-    group_general.add_argument('--fp16', action=argparse.BooleanOptionalAction, default=has_modern_nvidia_gpu(), help=_("Reduces VRAM usage and may increase speed on modern GPUs, with negligible quality difference. (default: %(default)s)"))
+    group_general.add_argument('--device', type=str, default="auto", help=_('Device used for running Restoration and Detection models. Use "auto", "cpu", "cuda", or "xpu". If set to "auto", will automatically select the best available device in order: XPU > CUDA > CPU. If you have multiple GPUs you can select a specific one via index e.g. "cuda:0" (default: %(default)s)'))
+    group_general.add_argument('--fp16', action=argparse.BooleanOptionalAction, default=gpu_has_tensor_cores(), help=_("Reduces VRAM usage and may increase speed on modern GPUs with tensor cores, with negligible quality difference. (default: %(default)s)"))
     group_general.add_argument('--list-devices', action='store_true', help=_("List available devices and exit"))
     group_general.add_argument('--version', action='store_true', help=_("Display version and exit"))
     group_general.add_argument('--help', action='store_true', help=_("Show this help message and exit"))
@@ -128,6 +128,7 @@ def process_video_file(input_path: str, output_path: str, temp_dir_path: str, de
 def main():
     argparser = setup_argparser()
     args = argparser.parse_args()
+
     if args.version:
         print("Lada: ", VERSION)
         sys.exit(0)
@@ -142,6 +143,9 @@ def main():
         sys.exit(0)
     if args.list_devices:
         utils.dump_torch_devices()
+        if hasattr(torch, 'xpu') and torch.xpu.is_available():
+            for i in range(torch.xpu.device_count()):
+                print(f"{'xpu:'+str(i):<12}{torch.xpu.get_device_name(i)}")
         sys.exit(0)
     if args.list_encoding_presets:
         utils.dump_available_encoding_presets()
@@ -152,9 +156,26 @@ def main():
     if args.help or not args.input:
         argparser.print_help()
         sys.exit(0)
-    if args.device.startswith("cuda") and not torch.cuda.is_available():
-        print(_("GPU {device} selected but CUDA is not available").format(device=args.device))
+
+    device_str = args.device
+    if device_str == "auto":
+        if hasattr(torch, 'xpu') and torch.xpu.is_available():
+            device_str = "xpu"
+            print(f"Auto-selected XPU device: {torch.xpu.get_device_name(0)}")
+        elif torch.cuda.is_available():
+            device_str = "cuda"
+            print(f"Auto-selected CUDA device: {torch.cuda.get_device_name(0)}")
+        else:
+            device_str = "cpu"
+            print("Auto-selected CPU device")
+
+    if device_str.startswith("cuda") and not torch.cuda.is_available():
+        print(_("GPU {device} selected but CUDA is not available").format(device=device_str))
         sys.exit(1)
+    if device_str.startswith("xpu") and (not hasattr(torch, 'xpu') or not torch.xpu.is_available()):
+        print(_("XPU {device} selected but XPU is not available").format(device=device_str))
+        sys.exit(1)
+    
     if "{orig_file_name}" not in args.output_file_pattern or "." not in args.output_file_pattern:
         print(_("Invalid file name pattern. It must include the template string '{orig_file_name}' and a file extension"))
         sys.exit(1)
@@ -208,7 +229,7 @@ def main():
         sys.exit(1)
     assert encoder is not None and encoder_options is not None
 
-    device = torch.device(args.device)
+    device = torch.device(device_str)
     mosaic_detection_model, mosaic_restoration_model, preferred_pad_mode = load_models(
         device, mosaic_restoration_model_name, mosaic_restoration_model_path, args.mosaic_restoration_config_path,
         mosaic_detection_model_path, args.fp16, args.detect_face_mosaics
@@ -231,3 +252,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
