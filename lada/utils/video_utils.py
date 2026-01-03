@@ -279,8 +279,14 @@ class VideoWriter:
         output_container = av.open(output_path, "w", options=container_options)
         video_stream_out: av.VideoStream = output_container.add_stream(encoder, fps)
 
+        encoder_lower = encoder.lower()
+        target_pix_fmt = 'yuv420p'
+
         if 'qsv' in encoder.lower():
             target_pix_fmt = 'nv12'
+
+        elif 'nvenc' in encoder_lower:
+            target_pix_fmt = 'yuv420p'
 
         video_stream_out.pix_fmt = target_pix_fmt
         video_stream_out.codec_context.pix_fmt = target_pix_fmt
