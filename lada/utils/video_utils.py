@@ -258,7 +258,7 @@ def get_encoding_presets() -> list[EncodingPreset]:
     with open(encoding_presets_csv_path, mode='r', newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile, delimiter='|')
         for row in reader:
-            preset = EncodingPreset(row["preset_name"], row["preset_description(translatable)"], False, row["encoder_name"], row["encoder_options"])
+            preset = EncodingPreset(row["preset_name"], _(row["preset_description(translatable)"]), False, row["encoder_name"], row["encoder_options"])
             presets.append(preset)
         return presets
 
