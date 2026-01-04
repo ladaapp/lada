@@ -13,13 +13,13 @@ import torch
 from tqdm import tqdm
 from wcwidth import wcswidth
 
-from lada import ModelFiles, ModelFile
+from lada import ModelFiles
 from lada.utils import VideoMetadata, video_utils
 
-COL_SEP = "\t"
+COL_SEP = "  "
 
-def wcljust(text, length, padding=' '):
-    return padding * max(0, (length - wcswidth(text))) + text
+def wcrjust(text, length, padding=' '):
+    return text + padding * max(0, (length - wcswidth(text)))
 
 def _filter_video_files(directory_path: str):
     video_files = []
@@ -77,89 +77,78 @@ def setup_input_and_output_paths(input_arg, output_arg, output_file_pattern):
 
     return input_files, output_files
 
+def _dump_table(table):
+    row_count = len(table)
+    col_count = len(table[0])
+    col_widths = [0] * col_count
+    for row in table:
+        for col_i, col in enumerate(row):
+            col_widths[col_i] = max(wcswidth(col), col_widths[col_i])
+    s = ""
+    for row_i, row in enumerate(table):
+        for col_i, col in enumerate(row):
+            s += f"{COL_SEP}{wcrjust(col, col_widths[col_i])}"
+        if row_i < (row_count - 1):
+            s += "\n"
+        if row_i == 0:
+            for col_i, col in enumerate(row):
+                s += f"{COL_SEP}{col_widths[col_i] * "-"}"
+            s += "\n"
+    print(s)
+
 def dump_encoders():
     from lada.utils.video_utils import get_video_encoder_codecs
     encoders = get_video_encoder_codecs()
-    is_hardware_accelerated = _("Yes")
-    name_header = _("Name")
-    description_header = _("Description")
-    hardware_header = _("Hardware-accelerated")
-    devices_header = _("Hardware devices")
-    name_column_width = max([wcswidth(e.name) for e in encoders] + [wcswidth(name_header)])
-    description_column_width = max([wcswidth(e.long_name) for e in encoders] + [wcswidth(description_header)])
-    hardware_column_width = max([wcswidth(is_hardware_accelerated), wcswidth(hardware_header)])
-    devices_column_width = max([wcswidth(max(e.hardware_devices, key=wcswidth) if len(e.hardware_devices) > 0 else "") for e in encoders] + [wcswidth(devices_header)])
-    s = _("Available video encoders:")
-    s += f"\n{COL_SEP}{wcljust(name_header, name_column_width)}{COL_SEP}{wcljust(description_header, description_column_width)}{COL_SEP}{wcljust(hardware_header, hardware_column_width)}{COL_SEP}{wcljust(devices_header, devices_column_width)}"
-    s += f"\n{COL_SEP}{name_column_width*"-"}{COL_SEP}{description_column_width*"-"}{COL_SEP}{hardware_column_width*"-"}{COL_SEP}{devices_column_width*"-"}"
+    print(_("Available video encoders:"))
+    table = [[_("Name"), _("Description"), _("Hardware-accelerated"), _("Hardware devices")]]
     for e in encoders:
-        hardware = is_hardware_accelerated if e.hardware_encoder else ""
+        hardware = _("Yes") if e.hardware_encoder else ""
         devices = str(e.hardware_devices) if len(e.hardware_devices) > 0 else ""
-        s += f"\n{COL_SEP}{wcljust(e.name, name_column_width)}{COL_SEP}{wcljust(e.long_name, description_column_width)}{COL_SEP}{wcljust(hardware, hardware_column_width)}{COL_SEP}{wcljust(devices, wcswidth(devices))}"
-    print(s)
+        table.append([e.name, e.long_name, hardware, devices])
+    _dump_table(table)
 
 def dump_torch_devices():
+    print(_("Available devices:"))
     cuda_device_count = torch.cuda.device_count()
     devices = ["cpu"] + [f"cuda:{i}" for i in range(cuda_device_count)]
     descriptions = ["CPU"] + [torch.cuda.get_device_properties(i).name for i in range(cuda_device_count)]
-    device_header = _("Device")
-    description_header = _("Description")
-    device_header_width = max([wcswidth(item) for item in devices + [device_header]])
-    description_header_width = max([wcswidth(item) for item in descriptions + [description_header]])
-    s = _("Available devices:")
-    s += f"\n{COL_SEP}{wcljust(device_header, device_header_width)}{COL_SEP}{wcljust(description_header, description_header_width)}"
-    s += f"\n{COL_SEP}{device_header_width*"-"}{COL_SEP}{description_header_width*"-"}"
+    table = [[_("Device"), _("Description")]]
     for device, description in zip(devices, descriptions):
-        s += f"\n{COL_SEP}{wcljust(device, device_header_width)}{COL_SEP}{wcljust(description, description_header_width)}"
-    print(s)
-
-def _dump_available_models(modelfiles: list[ModelFile], s=""):
-    if len(modelfiles) == 0:
-        s += f"\n{COL_SEP}{_("None!")}"
-    else:
-        model_name_header = _("Name")
-        model_description_header = _("Description")
-        model_path_header = _("Path")
-        model_name_column_width = max([wcswidth(item.name) for item in modelfiles] + [wcswidth(model_name_header)])
-        model_description_column_width = max([wcswidth(item.description) if item.description else 0 for item in modelfiles] + [wcswidth(model_name_header)])
-        model_path_column_width = max([wcswidth(item.path) for item in modelfiles] + [wcswidth(model_path_header)])
-        s += f"\n{COL_SEP}{wcljust(model_name_header, model_name_column_width)}{COL_SEP}{wcljust(model_description_header, model_description_column_width)}{COL_SEP}{wcljust(model_path_header, model_path_column_width)}"
-        s += f"\n{COL_SEP}{model_name_column_width * "-"}{COL_SEP}{model_description_column_width * "-"}{COL_SEP}{model_path_column_width * "-"}"
-        for modelfile in modelfiles:
-            s += f"\n{COL_SEP}{wcljust(modelfile.name, model_name_column_width)}{COL_SEP}{wcljust(modelfile.description if modelfile.description else "", model_description_column_width)}{COL_SEP}{modelfile.path}"
-    print(s)
+        table.append([device, description])
+    _dump_table(table)
 
 def dump_available_detection_models():
-    _dump_available_models(ModelFiles.get_detection_models(), _("Available detection models:"))
+    modelfiles = ModelFiles.get_detection_models()
+    print(_("Available detection models:"))
+    if len(modelfiles) == 0:
+        print(f"{COL_SEP}{_("None!")}")
+    else:
+        table = [[_("Name"), _("Description"), _("Path")]]
+        for modelfile in modelfiles:
+            table.append([modelfile.name, modelfile.description if modelfile.description else "", modelfile.path])
+        _dump_table(table)
 
 def dump_available_restoration_models():
-    _dump_available_models(ModelFiles.get_restoration_models(), _("Available restoration models:"))
+    modelfiles = ModelFiles.get_restoration_models()
+    print(_("Available restoration models:"))
+    if len(modelfiles) == 0:
+        print(f"{COL_SEP}{_("None!")}")
+    else:
+        table = [[_("Name"), _("Description"), _("Path")]]
+        for modelfile in modelfiles:
+            table.append([modelfile.name, modelfile.description if modelfile.description else "", modelfile.path])
+        _dump_table(table)
 
-def dump_available_encoding_presets(show_encoder_details=False):
-    s = _("Available encoding presets:")
+def dump_available_encoding_presets():
+    print(_("Available encoding presets:"))
     encoding_presets = video_utils.get_encoding_presets()
     if len(encoding_presets) == 0:
         s += f"\n{COL_SEP}{_("None!")}"
     else:
-        preset_name_header = _("Name")
-        preset_description_header = _("Description")
-        encoder_name_header = _("Encoder Name")
-        encoder_options_header = _("Encoder Options")
-        preset_name_column_width = max([wcswidth(preset.name) for preset in encoding_presets] + [wcswidth(preset_name_header)])
-        preset_description_column_width = max([wcswidth(preset.description) for preset in encoding_presets] + [wcswidth(preset_description_header)])
-        encoder_name_column_width = max([wcswidth(preset.encoder_name) for preset in encoding_presets] + [wcswidth(encoder_name_header)])
-        encoder_options_column_width = max([wcswidth(preset.encoder_options) for preset in encoding_presets] + [wcswidth(encoder_options_header)])
-        if show_encoder_details:
-            s += f"\n{COL_SEP}{wcljust(preset_name_header, preset_name_column_width)}{COL_SEP}{wcljust(preset_description_header, preset_description_column_width)}{COL_SEP}{wcljust(encoder_name_header, encoder_name_column_width)}{COL_SEP}{wcljust(encoder_options_header, encoder_options_column_width)}"
-            s += f"\n{COL_SEP}{preset_name_column_width * "-"}{COL_SEP}{preset_description_column_width * "-"}{COL_SEP}{encoder_name_column_width * "-"}{COL_SEP}{encoder_options_column_width * "-"}"
-            for preset in encoding_presets:
-                s += f"\n{COL_SEP}{wcljust(preset.name, preset_name_column_width)}{COL_SEP}{wcljust(preset.description, preset_description_column_width)}{COL_SEP}{wcljust(preset.encoder_name, encoder_name_column_width)}{COL_SEP}{wcljust(preset.encoder_options, encoder_name_column_width)}"
-        else:
-            s += f"\n{COL_SEP}{wcljust(preset_name_header, preset_name_column_width)}{COL_SEP}{wcljust(preset_description_header, preset_description_column_width)}"
-            s += f"\n{COL_SEP}{preset_name_column_width * "-"}{COL_SEP}{preset_description_column_width * "-"}"
-            for preset in encoding_presets:
-                s += f"\n{COL_SEP}{wcljust(preset.name, preset_name_column_width)}{COL_SEP}{wcljust(preset.description, preset_description_column_width)}"
-    print(s)
+        table = [[_("Name"), _("Description")]]
+        for preset in encoding_presets:
+            table.append([preset.name, preset.description])
+        _dump_table(table)
 
 def dump_encoder_options(encoder: str):
     result = subprocess.run(["ffmpeg", "-loglevel", "quiet", "-h", f"encoder={encoder}"], capture_output=True, text=True)
