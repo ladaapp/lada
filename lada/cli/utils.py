@@ -11,10 +11,15 @@ import time
 
 import torch
 from tqdm import tqdm
+from wcwidth import wcswidth
 
-from lada import MODEL_WEIGHTS_DIR, ModelFiles, ModelFile
+from lada import ModelFiles, ModelFile
 from lada.utils import VideoMetadata, video_utils
-from lada.restorationpipeline.frame_restorer import FrameRestorer
+
+COL_SEP = "\t"
+
+def wcljust(text, length, padding=' '):
+    return padding * max(0, (length - wcswidth(text))) + text
 
 def _filter_video_files(directory_path: str):
     video_files = []
@@ -80,16 +85,17 @@ def dump_encoders():
     description_header = _("Description")
     hardware_header = _("Hardware-accelerated")
     devices_header = _("Hardware devices")
-    name_column_width = max([len(e.name) for e in encoders] + [len(name_header)])
-    description_column_width = max([len(e.long_name) for e in encoders] + [len(description_header)])
-    hardware_column_width = max([len(is_hardware_accelerated), len(hardware_header)])
-    devices_column_width = max([len(e.hardware_devices) for e in encoders] + [len(devices_header)])
+    name_column_width = max([wcswidth(e.name) for e in encoders] + [wcswidth(name_header)])
+    description_column_width = max([wcswidth(e.long_name) for e in encoders] + [wcswidth(description_header)])
+    hardware_column_width = max([wcswidth(is_hardware_accelerated), wcswidth(hardware_header)])
+    devices_column_width = max([wcswidth(max(e.hardware_devices, key=wcswidth) if len(e.hardware_devices) > 0 else "") for e in encoders] + [wcswidth(devices_header)])
     s = _("Available video encoders:")
-    s += f"\n\t{name_header.ljust(name_column_width)}\t{description_header.ljust(description_column_width)}\t{hardware_header.ljust(hardware_column_width)}\t{devices_header}"
-    s += f"\n\t{name_column_width*"-"}\t{description_column_width*"-"}\t{hardware_column_width*"-"}\t{devices_column_width*"-"}"
+    s += f"\n{COL_SEP}{wcljust(name_header, name_column_width)}{COL_SEP}{wcljust(description_header, description_column_width)}{COL_SEP}{wcljust(hardware_header, hardware_column_width)}{COL_SEP}{wcljust(devices_header, devices_column_width)}"
+    s += f"\n{COL_SEP}{name_column_width*"-"}{COL_SEP}{description_column_width*"-"}{COL_SEP}{hardware_column_width*"-"}{COL_SEP}{devices_column_width*"-"}"
     for e in encoders:
         hardware = is_hardware_accelerated if e.hardware_encoder else ""
-        s += f"\n\t{e.name.ljust(name_column_width)}\t{e.long_name.ljust(description_column_width)}\t{hardware.ljust(hardware_column_width)}\t{e.hardware_devices if len(e.hardware_devices) > 0 else ''}"
+        devices = str(e.hardware_devices) if len(e.hardware_devices) > 0 else ""
+        s += f"\n{COL_SEP}{wcljust(e.name, name_column_width)}{COL_SEP}{wcljust(e.long_name, description_column_width)}{COL_SEP}{wcljust(hardware, hardware_column_width)}{COL_SEP}{wcljust(devices, wcswidth(devices))}"
     print(s)
 
 def dump_torch_devices():
@@ -98,62 +104,61 @@ def dump_torch_devices():
     descriptions = ["CPU"] + [torch.cuda.get_device_properties(i).name for i in range(cuda_device_count)]
     device_header = _("Device")
     description_header = _("Description")
-    device_header_width = max([len(item) for item in devices + [device_header]])
-    description_header_width = max([len(item) for item in descriptions + [description_header]])
+    device_header_width = max([wcswidth(item) for item in devices + [device_header]])
+    description_header_width = max([wcswidth(item) for item in descriptions + [description_header]])
     s = _("Available devices:")
-    s += f"\n\t{device_header.ljust(device_header_width)}\t{description_header}"
-    s += f"\n\t{device_header_width*"-"}\t{description_header_width*"-"}"
+    s += f"\n{COL_SEP}{wcljust(device_header, device_header_width)}{COL_SEP}{wcljust(description_header, description_header_width)}"
+    s += f"\n{COL_SEP}{device_header_width*"-"}{COL_SEP}{description_header_width*"-"}"
     for device, description in zip(devices, descriptions):
-        s += f"\n\t{device.ljust(device_header_width)}\t{description}"
+        s += f"\n{COL_SEP}{wcljust(device, device_header_width)}{COL_SEP}{wcljust(description, description_header_width)}"
     print(s)
 
-def _dump_available_models(modelfiles: list[ModelFile]):
-    s = _("Available restoration models:")
+def _dump_available_models(modelfiles: list[ModelFile], s=""):
     if len(modelfiles) == 0:
-        s += f"\n\t{_("None!")}"
+        s += f"\n{COL_SEP}{_("None!")}"
     else:
         model_name_header = _("Name")
         model_description_header = _("Description")
         model_path_header = _("Path")
-        model_name_column_width = max([len(item.name) for item in modelfiles] + [len(model_name_header)])
-        model_description_column_width = max([len(item.description) if item.description else 0 for item in modelfiles] + [len(model_name_header)])
-        model_path_column_width = max([len(item.path) for item in modelfiles] + [len(model_path_header)])
-        s += f"\n\t{model_name_header.ljust(model_name_column_width)}\t{model_description_header.ljust(model_description_column_width)}\t{model_path_header}"
-        s += f"\n\t{model_name_column_width * "-"}\t{model_description_column_width * "-"}\t{model_path_column_width * "-"}"
+        model_name_column_width = max([wcswidth(item.name) for item in modelfiles] + [wcswidth(model_name_header)])
+        model_description_column_width = max([wcswidth(item.description) if item.description else 0 for item in modelfiles] + [wcswidth(model_name_header)])
+        model_path_column_width = max([wcswidth(item.path) for item in modelfiles] + [wcswidth(model_path_header)])
+        s += f"\n{COL_SEP}{wcljust(model_name_header, model_name_column_width)}{COL_SEP}{wcljust(model_description_header, model_description_column_width)}{COL_SEP}{wcljust(model_path_header, model_path_column_width)}"
+        s += f"\n{COL_SEP}{model_name_column_width * "-"}{COL_SEP}{model_description_column_width * "-"}{COL_SEP}{model_path_column_width * "-"}"
         for modelfile in modelfiles:
-            s += f"\n\t{modelfile.name.ljust(model_name_column_width)}\t{(modelfile.description if modelfile.description else "").ljust(model_description_column_width)}\t{modelfile.path}"
+            s += f"\n{COL_SEP}{wcljust(modelfile.name, model_name_column_width)}{COL_SEP}{wcljust(modelfile.description if modelfile.description else "", model_description_column_width)}{COL_SEP}{modelfile.path}"
     print(s)
 
 def dump_available_detection_models():
-    _dump_available_models(ModelFiles.get_detection_models())
+    _dump_available_models(ModelFiles.get_detection_models(), _("Available detection models:"))
 
 def dump_available_restoration_models():
-    _dump_available_models(ModelFiles.get_restoration_models())
+    _dump_available_models(ModelFiles.get_restoration_models(), _("Available restoration models:"))
 
 def dump_available_encoding_presets(show_encoder_details=False):
     s = _("Available encoding presets:")
     encoding_presets = video_utils.get_encoding_presets()
     if len(encoding_presets) == 0:
-        s += f"\n\t{_("None!")}"
+        s += f"\n{COL_SEP}{_("None!")}"
     else:
         preset_name_header = _("Name")
         preset_description_header = _("Description")
         encoder_name_header = _("Encoder Name")
         encoder_options_header = _("Encoder Options")
-        preset_name_column_width = max([len(preset.name) for preset in encoding_presets] + [len(preset_name_header)])
-        preset_description_column_width = max([len(preset.description) for preset in encoding_presets] + [len(preset_description_header)])
-        encoder_name_column_width = max([len(preset.encoder_name) for preset in encoding_presets] + [len(encoder_name_header)])
-        encoder_options_column_width = max([len(preset.encoder_options) for preset in encoding_presets] + [len(encoder_options_header)])
+        preset_name_column_width = max([wcswidth(preset.name) for preset in encoding_presets] + [wcswidth(preset_name_header)])
+        preset_description_column_width = max([wcswidth(preset.description) for preset in encoding_presets] + [wcswidth(preset_description_header)])
+        encoder_name_column_width = max([wcswidth(preset.encoder_name) for preset in encoding_presets] + [wcswidth(encoder_name_header)])
+        encoder_options_column_width = max([wcswidth(preset.encoder_options) for preset in encoding_presets] + [wcswidth(encoder_options_header)])
         if show_encoder_details:
-            s += f"\n\t{preset_name_header.ljust(preset_name_column_width)}\t{preset_description_header.ljust(preset_description_column_width)}\t{encoder_name_header.ljust(encoder_name_column_width)}\t{encoder_options_header}"
-            s += f"\n\t{preset_name_column_width * "-"}\t{preset_description_column_width * "-"}\t{encoder_name_column_width * "-"}\t{encoder_options_column_width * "-"}"
+            s += f"\n{COL_SEP}{wcljust(preset_name_header, preset_name_column_width)}{COL_SEP}{wcljust(preset_description_header, preset_description_column_width)}{COL_SEP}{wcljust(encoder_name_header, encoder_name_column_width)}{COL_SEP}{wcljust(encoder_options_header, encoder_options_column_width)}"
+            s += f"\n{COL_SEP}{preset_name_column_width * "-"}{COL_SEP}{preset_description_column_width * "-"}{COL_SEP}{encoder_name_column_width * "-"}{COL_SEP}{encoder_options_column_width * "-"}"
             for preset in encoding_presets:
-                s += f"\n\t{preset.name.ljust(preset_name_column_width)}\t{preset.description.ljust(preset_description_column_width)}\t{preset.encoder_name.ljust(encoder_name_column_width)}\t{preset.encoder_options}"
+                s += f"\n{COL_SEP}{wcljust(preset.name, preset_name_column_width)}{COL_SEP}{wcljust(preset.description, preset_description_column_width)}{COL_SEP}{wcljust(preset.encoder_name, encoder_name_column_width)}{COL_SEP}{wcljust(preset.encoder_options, encoder_name_column_width)}"
         else:
-            s += f"\n\t{preset_name_header.ljust(preset_name_column_width)}\t{preset_description_header}"
-            s += f"\n\t{preset_name_column_width * "-"}\t{preset_description_column_width * "-"}"
+            s += f"\n{COL_SEP}{wcljust(preset_name_header, preset_name_column_width)}{COL_SEP}{wcljust(preset_description_header, preset_description_column_width)}"
+            s += f"\n{COL_SEP}{preset_name_column_width * "-"}{COL_SEP}{preset_description_column_width * "-"}"
             for preset in encoding_presets:
-                s += f"\n\t{preset.name.ljust(preset_name_column_width)}\t{preset.description.ljust(preset_description_column_width)}"
+                s += f"\n{COL_SEP}{wcljust(preset.name, preset_name_column_width)}{COL_SEP}{wcljust(preset.description, preset_description_column_width)}"
     print(s)
 
 def dump_encoder_options(encoder: str):
