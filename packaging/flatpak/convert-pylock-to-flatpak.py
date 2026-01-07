@@ -4,7 +4,7 @@
 # /// script
 # dependencies = [
 #   "toml",
-#   "wheel-filename",
+#   "wheel-filename>=2.0.0",
 #   "pyyaml",
 # ]
 # ///
@@ -25,7 +25,7 @@ from urllib.parse import unquote
 
 import toml
 import yaml
-from wheel_filename import parse_wheel_filename
+from wheel_filename import WheelFilename
 
 # Define variables for marker eval
 platform_machine = platform.machine()
@@ -121,7 +121,7 @@ def get_compatible_wheels(wheels: list[dict], glib_major: int, glib_minor: int, 
     compatible_wheels = []
     for wheel in wheels:
         wheel_url = wheel['url']
-        parsed_wheel = parse_wheel_filename(unquote(wheel_url))
+        parsed_wheel = WheelFilename.parse(unquote(wheel_url))
         is_compatible = is_compatible_wheel(parsed_wheel, glib_major, glib_minor, python_major, python_minor)
         if isinstance(is_compatible, tuple) and is_compatible[0]:
             _, binary_wheel, wheel_glib_version_comparitor = is_compatible

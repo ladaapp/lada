@@ -1,5 +1,5 @@
 build-commands:
-- pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}" --prefix=${FLATPAK_DEST} --no-build-isolation addict av certifi charset-normalizer contourpy cycler filelock fonttools fsspec idna jinja2 kiwisolver markdown-it-py markupsafe matplotlib mdurl mmengine mpmath networkx numpy nvidia-cublas-cu12 nvidia-cuda-cupti-cu12 nvidia-cuda-nvrtc-cu12 nvidia-cuda-runtime-cu12 nvidia-cudnn-cu12 nvidia-cufft-cu12 nvidia-cufile-cu12 nvidia-curand-cu12 nvidia-cusolver-cu12 nvidia-cusparse-cu12 nvidia-cusparselt-cu12 nvidia-nccl-cu12 nvidia-nvjitlink-cu12 nvidia-nvtx-cu12 opencv-python packaging pillow platformdirs polars polars-runtime-32 psutil pygments pyparsing python-dateutil pyyaml requests rich scipy setuptools six sympy termcolor torch torchvision tqdm triton typing-extensions ultralytics ultralytics-thop urllib3 yapf
+- pip3 install --verbose --exists-action=i --no-index --find-links="file://${PWD}" --prefix=${FLATPAK_DEST} --no-build-isolation addict av certifi charset-normalizer contourpy cycler filelock fonttools fsspec idna jinja2 kiwisolver markdown-it-py markupsafe matplotlib mdurl mmengine mpmath networkx numpy nvidia-cublas-cu12 nvidia-cuda-cupti-cu12 nvidia-cuda-nvrtc-cu12 nvidia-cuda-runtime-cu12 nvidia-cudnn-cu12 nvidia-cufft-cu12 nvidia-cufile-cu12 nvidia-curand-cu12 nvidia-cusolver-cu12 nvidia-cusparse-cu12 nvidia-cusparselt-cu12 nvidia-nccl-cu12 nvidia-nvjitlink-cu12 nvidia-nvtx-cu12 opencv-python packaging pillow platformdirs polars polars-runtime-32 psutil pygments pyparsing python-dateutil pyyaml requests rich scipy setuptools six sympy termcolor torch torchvision tqdm triton typing-extensions ultralytics ultralytics-thop urllib3 wcwidth yapf
 buildsystem: simple
 cleanup:
 - /bin
@@ -246,6 +246,10 @@ sources:
   sha256: e6b01673c0fa6a13e374b50871808eb3bf7046c4b125b216f6bf1cc604cff0dc
   type: file
   url: https://files.pythonhosted.org/packages/a7/c2/fe1e52489ae3122415c51f387e221dd0773709bad6c6cdaa599e8a2c5185/urllib3-2.5.0-py3-none-any.whl
+- dest-filename: wcwidth-0.2.14-py2.py3-none-any.whl
+  sha256: a7bb560c8aee30f9957e5f9895805edd20602f2d7f720186dfd906e82b4982e1
+  type: file
+  url: https://files.pythonhosted.org/packages/af/b5/123f13c975e9f27ab9c0770f514345bd406d0e8d3b7a0723af9d43f710af/wcwidth-0.2.14-py2.py3-none-any.whl
 - dest-filename: yapf-0.43.0-py3-none-any.whl
   sha256: 224faffbc39c428cb095818cf6ef5511fdab6f7430a10783fdfb292ccf2852ca
   type: file
