@@ -3,9 +3,11 @@
 
 import logging
 import time
+import traceback
 from queue import Queue, Full, Empty
 import concurrent.futures as concurrent_futures
 from threading import Thread
+from typing import Callable
 
 from lada import LOG_LEVEL
 
@@ -18,8 +20,26 @@ class StopMarker:
 class EofMarker:
     pass
 
+class ErrorMarker(Exception):
+    def __init__(self, message, stack_trace: str):
+        super().__init__(message)
+        self.stack_trace = stack_trace
+
 STOP_MARKER = StopMarker()
 EOF_MARKER = EofMarker()
+
+class PipelineThread(Thread):
+    def __init__(self, name: str, target: Callable[[],None], error_handler: Callable[[ErrorMarker],None]):
+        super().__init__(target=target, daemon=True)
+        self.error_handler = error_handler
+        self.name = name
+
+    def run(self):
+        try:
+            super().run()
+        except Exception as e:
+            logger.error(f"{self.name}: Crashed", exc_info=True)
+            self.error_handler(ErrorMarker(message=str(e), stack_trace=traceback.format_exc()))
 
 class PipelineQueue(Queue):
     def __init__(self, name: str, maxsize=0):

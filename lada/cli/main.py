@@ -16,6 +16,7 @@ from lada.utils import audio_utils, video_utils
 from lada.utils.os_utils import has_modern_nvidia_gpu
 from lada.restorationpipeline.frame_restorer import FrameRestorer
 from lada.restorationpipeline import load_models
+from lada.utils.threading_utils import STOP_MARKER, ErrorMarker
 from lada.utils.video_utils import get_video_meta_data, VideoWriter
 
 def setup_argparser() -> argparse.ArgumentParser:
@@ -100,7 +101,7 @@ def process_video_file(input_path: str, output_path: str, temp_dir_path: str, de
                          video_metadata.video_fps_exact, encoder=encoder, encoder_options=encoder_options,
                          time_base=video_metadata.time_base, mp4_fast_start=mp4_fast_start) as video_writer:
             for elem in frame_restorer:
-                if elem is None:
+                if elem is STOP_MARKER or isinstance(elem, ErrorMarker):
                     success = False
                     frame_restorer_progressbar.error = True
                     print("Error on export: frame restorer stopped prematurely")

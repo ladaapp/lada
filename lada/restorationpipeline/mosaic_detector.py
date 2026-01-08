@@ -2,9 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0
 
 import logging
-import threading
 import time
-from typing import List, Tuple
+from typing import List, Tuple, Callable
 
 import cv2
 import torch
@@ -17,7 +16,7 @@ from lada.utils import image_utils
 from lada.utils import video_utils
 from lada.utils.box_utils import box_overlap
 from lada.utils.scene_utils import crop_to_box_v3
-from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, PipelineQueue, StopMarker
+from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, PipelineQueue, StopMarker, PipelineThread, ErrorMarker
 from lada.utils.ultralytics_utils import convert_yolo_box, convert_yolo_mask_tensor, UltralyticsResults
 
 logger = logging.getLogger(__name__)
@@ -163,7 +162,7 @@ class Clip:
         return self.frames[item], self.masks[item], self.boxes[item]
 
 class MosaicDetector:
-    def __init__(self, model: Yolo11SegmentationModel, video_metadata: VideoMetadata, frame_detection_queue: PipelineQueue, mosaic_clip_queue: PipelineQueue, max_clip_length=30, clip_size=256, device: torch.device | None = None, pad_mode='reflect', batch_size=4):
+    def __init__(self, model: Yolo11SegmentationModel, video_metadata: VideoMetadata, frame_detection_queue: PipelineQueue, mosaic_clip_queue: PipelineQueue, error_handler: Callable[[ErrorMarker], None], max_clip_length=30, clip_size=256, device: torch.device | None = None, pad_mode='reflect', batch_size=4):
         self.model = model
         self.video_meta_data = video_metadata
         self.device = torch.device(device) if device is not None else device
@@ -178,9 +177,10 @@ class MosaicDetector:
         self.mosaic_clip_queue = mosaic_clip_queue
         self.frame_feeder_queue = PipelineQueue(name="frame_feeder_queue", maxsize=8)
         self.inference_queue = PipelineQueue(name="frame_feeder_queue", maxsize=8)
-        self.frame_detector_thread: threading.Thread | None = None
-        self.frame_feeder_thread: threading.Thread | None = None
-        self.inference_thread: threading.Thread | None = None
+        self.error_handler = error_handler
+        self.frame_detector_thread: PipelineThread | None = None
+        self.frame_feeder_thread: PipelineThread | None = None
+        self.inference_thread: PipelineThread | None = None
         self.stop_requested = False
         self.batch_size = batch_size
 
@@ -192,13 +192,13 @@ class MosaicDetector:
         self.start_frame = video_utils.offset_ns_to_frame_num(self.start_ns, self.video_meta_data.video_fps_exact)
         self.stop_requested = False
 
-        self.frame_detector_thread = threading.Thread(target=self._frame_detector_worker, daemon=True)
+        self.frame_detector_thread = PipelineThread(name="frame detector worker", target=self._frame_detector_worker, error_handler=self.error_handler)
         self.frame_detector_thread.start()
 
-        self.inference_thread = threading.Thread(target=self._frame_inference_worker, daemon=True)
+        self.inference_thread = PipelineThread(name="frame inference worker", target=self._frame_inference_worker, error_handler=self.error_handler)
         self.inference_thread.start()
 
-        self.frame_feeder_thread = threading.Thread(target=self._frame_feeder_worker, daemon=True)
+        self.frame_feeder_thread = PipelineThread(name="frame feeder worker", target=self._frame_feeder_worker, error_handler=self.error_handler)
         self.frame_feeder_thread.start()
 
     def stop(self):

@@ -23,6 +23,7 @@ from lada.gui.export.shutdown_manager import ShutdownManager, ShutdownError
 from lada.gui.export.spinner_button import SpinnerButton
 from lada.gui.frame_restorer_provider import FrameRestorerOptions, FRAME_RESTORER_PROVIDER
 from lada.utils import audio_utils, video_utils
+from lada.utils.threading_utils import STOP_MARKER, ErrorMarker
 
 here = pathlib.Path(__file__).parent.resolve()
 
@@ -456,9 +457,14 @@ class ExportView(Gtk.Widget):
                         success = False
                         logger.warning("Stop requested: Stopping FrameRestorer")
                         break
-                    if elem is None:
+                    if elem is STOP_MARKER or isinstance(elem, ErrorMarker):
                         success = False
-                        logger.error("Error on export: frame restorer stopped prematurely")
+                        if elem is STOP_MARKER:
+                            err_msg = "frame restorer stopped prematurely"
+                        else:
+                            err_msg = elem.stack_trace
+                        logger.error(f"Error on export: {err_msg}")
+                        GLib.idle_add(lambda: self.emit('video-export-failed', err_msg))
                         break
 
                     (restored_frame, restored_frame_pts) = elem
