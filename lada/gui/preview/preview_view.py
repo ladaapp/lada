@@ -429,14 +429,14 @@ class PreviewView(Gtk.Widget):
                 self.pipeline_manager.close_video_file()
                 self.close_thumbnailer()
                 self.seek_preview_popover.clear_thumbnail()
-            GLib.idle_add(lambda: self._open_file(file))
+            video_metadata = video_utils.get_video_meta_data(file.get_path())
+            GLib.idle_add(lambda: self._open_file(video_metadata))
 
         threading.Thread(target=run, daemon=True).start()
 
-    def _open_file(self, file: Gio.File):
+    def _open_file(self, video_metadata: video_utils.VideoMetadata):
         assert not self._video_preview_init_done
-        file_path = file.get_path()
-        self.video_metadata = video_utils.get_video_meta_data(file_path)
+        self.video_metadata = video_metadata
         self.frame_restorer_options = FrameRestorerOptions(self.config.mosaic_restoration_model,
                                                            self.config.mosaic_detection_model, self.video_metadata,
                                                            self.config.device,
@@ -469,8 +469,8 @@ class PreviewView(Gtk.Widget):
             self.pipeline_manager = PipelineManager(self.frame_restorer_provider, buffer_queue_min_thresh_time, buffer_queue_max_thresh_time, self.config.mute_audio)
             self.pipeline_manager.init_pipeline(self.video_metadata)
             self.picture_video_preview.set_paintable(self.pipeline_manager.paintable)
-            self.pipeline_manager.connect("paintable-size-changed", lambda obj: self.emit("window-resize-requested", self.pipeline_manager.paintable, self.box_playback_controls, self.header_bar))
-            self.pipeline_manager.connect("eos", self.on_eos)
+            self.pipeline_manager.connect("paintable-size-changed", lambda obj: GLib.idle_add(lambda: self.emit("window-resize-requested", self.pipeline_manager.paintable, self.box_playback_controls, self.header_bar)))
+            self.pipeline_manager.connect("eos", lambda obj: GLib.idle_add(lambda: self.on_eos()))
             self.pipeline_manager.connect("waiting-for-data", lambda obj, waiting_for_data: self.on_waiting_for_data(waiting_for_data))
             self.pipeline_manager.connect("notify::state", lambda obj, spec: GLib.idle_add(lambda: self.on_pipeline_state(obj.get_property(spec.name))))
             GLib.timeout_add(100, self.update_current_position)
@@ -481,7 +481,7 @@ class PreviewView(Gtk.Widget):
 
         threading.Thread(target=play).start()
 
-    def on_eos(self, *args):
+    def on_eos(self):
         self.eos = True
         self.button_image_play_pause.set_property("icon-name", "media-playback-start-symbolic")
 
@@ -627,4 +627,4 @@ class PreviewView(Gtk.Widget):
         if block:
             self.pipeline_manager.close_video_file()
         else:
-            GLib.idle_add(self.pipeline_manager.close_video_file)
+            threading.Thread(target=self.pipeline_manager.close_video_file).start()
