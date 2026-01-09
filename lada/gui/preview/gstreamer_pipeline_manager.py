@@ -172,6 +172,8 @@ class PipelineManager(GObject.Object):
 
         audio_uridecodebin = Gst.ElementFactory.make('uridecodebin', None)
         audio_uridecodebin.set_property('uri', self.path_to_gst_uri(self.video_metadata.video_file))
+        audio_uridecodebin.set_property('caps', Gst.Caps.from_string("audio/x-raw(ANY)"))
+        audio_uridecodebin.set_property('expose-all-streams', False)
 
         def on_pad_added(decodebin, decoder_src_pad, audio_queue):
             caps = decoder_src_pad.get_current_caps()
