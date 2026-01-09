@@ -71,6 +71,8 @@ class PreviewView(Gtk.Widget):
         self._thread_counter_lock = threading.Lock()
         self._thumbnail_size = (220, 124)
 
+        self.pipeline_connection_handler_ids = []
+
         self.eos = False
 
         self.frame_restorer_provider: FrameRestorerProvider = FRAME_RESTORER_PROVIDER
@@ -425,10 +427,12 @@ class PreviewView(Gtk.Widget):
     def _reinit_open_file_async(self, file: Gio.File):
         def run():
             if self._video_preview_init_done:
+                for id in self.pipeline_connection_handler_ids: self.pipeline_manager.handler_block(id)
                 self._video_preview_init_done = False
                 self.pipeline_manager.close_video_file()
                 self.close_thumbnailer()
                 self.seek_preview_popover.clear_thumbnail()
+                for id in self.pipeline_connection_handler_ids: self.pipeline_manager.handler_unblock(id)
             video_metadata = video_utils.get_video_meta_data(file.get_path())
             GLib.idle_add(lambda: self._open_file(video_metadata))
 
@@ -469,10 +473,12 @@ class PreviewView(Gtk.Widget):
             self.pipeline_manager = PipelineManager(self.frame_restorer_provider, buffer_queue_min_thresh_time, buffer_queue_max_thresh_time, self.config.mute_audio)
             self.pipeline_manager.init_pipeline(self.video_metadata)
             self.picture_video_preview.set_paintable(self.pipeline_manager.paintable)
-            self.pipeline_manager.connect("paintable-size-changed", lambda obj: GLib.idle_add(lambda: self.emit("window-resize-requested", self.pipeline_manager.paintable, self.box_playback_controls, self.header_bar)))
-            self.pipeline_manager.connect("eos", lambda obj: GLib.idle_add(lambda: self.on_eos()))
-            self.pipeline_manager.connect("waiting-for-data", lambda obj, waiting_for_data: self.on_waiting_for_data(waiting_for_data))
-            self.pipeline_manager.connect("notify::state", lambda obj, spec: GLib.idle_add(lambda: self.on_pipeline_state(obj.get_property(spec.name))))
+            self.pipeline_connection_handler_ids = [
+                self.pipeline_manager.connect("paintable-size-changed", lambda obj: GLib.idle_add(lambda: self.emit("window-resize-requested", self.pipeline_manager.paintable, self.box_playback_controls, self.header_bar))),
+                self.pipeline_manager.connect("eos", lambda obj: GLib.idle_add(lambda: self.on_eos())),
+                self.pipeline_manager.connect("waiting-for-data", lambda obj, waiting_for_data: GLib.idle_add(lambda: self.on_waiting_for_data(waiting_for_data))),
+                self.pipeline_manager.connect("notify::state", lambda obj, spec: GLib.idle_add(lambda: self.on_pipeline_state(obj.get_property(spec.name)))),
+            ]
             GLib.timeout_add(100, self.update_current_position)
 
         def play():
@@ -504,7 +510,7 @@ class PreviewView(Gtk.Widget):
     def grab_focus(self):
         self.button_play_pause.grab_focus()
 
-    def on_waiting_for_data(self, waiting_for_data):
+    def on_waiting_for_data(self, waiting_for_data: bool):
         self.waiting_for_data = waiting_for_data
         self.spinner_overlay.set_visible(waiting_for_data)
         if waiting_for_data:
