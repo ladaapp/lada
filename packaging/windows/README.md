@@ -8,7 +8,8 @@ Script options:
 * `--skip-winget`: Skip installing/upgrading system dependencies via winget
 * `--skip-gvsbuild`: Skip installing/upgrading system dependencies via gvsbuild
 * `--clean-gvsbuild`: Does a clean build of gvsbuild
-* `--cli-only`: Skips gvsbuild and builds only `lada-cli.exe`
+* `--cli-only`: Builds only `lada-cli.exe`
+* `--skip-translations`: Skip compiling translations. If set no translations will be included in the release
 
 > [!TIP]
 > If you updated `gvsbuild`, `uv` or `python` do a clean build (`--clean-gvsbuild`)

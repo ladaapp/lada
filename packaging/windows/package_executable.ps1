@@ -21,17 +21,22 @@ function Ask-YesNo {
 }
 
 function Install-SystemDependencies {
+    param([Parameter(Mandatory)] [boolean]$cli_only)
+
     Write-Host "Installing system dependencies..."
 
     winget install --id Gyan.FFmpeg -e --source winget
     winget install --id Git.Git -e --source winget
     winget install --id=astral-sh.uv -e --source winget --version $global:UV_VERSION --force
-    winget install --id MSYS2.MSYS2 -e --source winget
-    winget install --id Microsoft.VisualStudio.2022.BuildTools -e --source winget --silent --override "--wait --quiet --add ProductLang En-us --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
-    winget install --id Rustlang.Rustup -e --source winget
-    winget install --id Microsoft.VCRedist.2013.x64  -e --source winget
-    winget install --id Microsoft.VCRedist.2013.x86  -e --source winget
     winget install --id=7zip.7zip -e --source winget
+
+    if (-Not ($cli_only)) {
+        winget install --id MSYS2.MSYS2 -e --source winget
+        winget install --id Microsoft.VisualStudio.2022.BuildTools -e --source winget --silent --override "--wait --quiet --add ProductLang En-us --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+        winget install --id Rustlang.Rustup -e --source winget
+        winget install --id Microsoft.VCRedist.2013.x64  -e --source winget
+        winget install --id Microsoft.VCRedist.2013.x86  -e --source winget
+    }
 }
 
 function Build-SystemDependencies {
@@ -99,6 +104,8 @@ function Download-ModelWeights {
 }
 
 function Install-PythonDependencies {
+    param([Parameter(Mandatory)] [boolean]$cli_only)
+
     Write-Host "Installing Python dependencies..."
 
     uv venv --clear --python $global:PYTHON_VERSION venv_release_win
@@ -112,10 +119,13 @@ function Install-PythonDependencies {
     uv pip uninstall polars
     uv pip install polars-lts-cpu
 
-    uv pip install --force-reinstall (Resolve-Path ".\build_gtk_release\gtk\x64\release\python\pygobject*.whl").Path
-    uv pip install --force-reinstall (Resolve-Path ".\build_gtk_release\gtk\x64\release\python\pycairo*.whl").Path
-
-    uv pip install --no-deps '.[gui]'
+    if ($cli_only) {
+        uv pip install --no-deps '.'
+    } else {
+        uv pip install --force-reinstall (Resolve-Path ".\build_gtk_release\gtk\x64\release\python\pygobject*.whl").Path
+        uv pip install --force-reinstall (Resolve-Path ".\build_gtk_release\gtk\x64\release\python\pycairo*.whl").Path
+        uv pip install --no-deps '.[gui]'
+    }
 
     uv pip install pyinstaller==$global:PYINSTALLER_VERSION
 
@@ -194,7 +204,7 @@ $ErrorActionPreference = "Stop"
 Check-ProjectRoot
 
 if ($args -notcontains "--skip-winget") {
-    Install-SystemDependencies
+    Install-SystemDependencies ($args -contains "--cli-only")
     if (!(Ask-YesNo "Installing/Upgrading winget programs finished. Check the winget install output above. You may want to stop and restart this script in a new shell for certain installs/updates. Do you want to continue?")) {
         exit 0
     }
@@ -202,8 +212,10 @@ if ($args -notcontains "--skip-winget") {
 if (($args -notcontains "--skip-gvsbuild") -And ($args -notcontains "--cli-only")) {
     Build-SystemDependencies ($args -contains "--clean-gvsbuild")
 }
-Compile-Translations
+if ($args -notcontains "--skip-translations") {
+    Compile-Translations
+}
 Download-ModelWeights
-Install-PythonDependencies
+Install-PythonDependencies ($args -contains "--cli-only")
 Create-EXE ($args -contains "--cli-only")
 Create-7ZArchive
