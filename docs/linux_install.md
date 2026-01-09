@@ -34,6 +34,11 @@ This section describes how to install the app (CLI and GUI) from source.
 4) [Install PyTorch](https://pytorch.org/get-started/locally)
 
 > [!TIP]
+> If you're using some older hardware you should check out [RELEASE.md](https://github.com/pytorch/pytorch/blob/main/RELEASE.md). It contains support and compatibility information for all official PyTorch builds helping you to decide which version you need to install.
+> 
+> If your hardware is not supported in the latest release you might need to choose an older PyTorch version (You can select a specific release tag on GitHub to see an older version of that document).
+
+> [!TIP]
 > Before continuing let's test if the PyTorch installation was successful by checking if your GPU is detected (Skip this step if you're running on CPU)
 > ```bash
 > python -c "import torch ; print(torch.cuda.is_available())"
