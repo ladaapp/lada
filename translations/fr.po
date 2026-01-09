@@ -1,0 +1,924 @@
+# SPDX-FileCopyrightText: Lada Authors
+# SPDX-License-Identifier: AGPL-3.0
+msgid ""
+msgstr ""
+"Project-Id-Version: lada\n"
+"Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
+"POT-Creation-Date: 2025-12-31 09:23+0000\n"
+"PO-Revision-Date: 2026-01-05 13:54+0000\n"
+"Last-Translator: OpenSourceMoe <opensourcemoe@noreply.codeberg.org>\n"
+"Language-Team: French <https://translate.codeberg.org/projects/lada/lada/fr/>"
+"\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.15.1\n"
+
+#: lada/gui/export/export_view.ui:36 lada/gui/preview/preview_view.ui:47
+msgid "Settings"
+msgstr "Paramètres"
+
+#: lada/gui/export/export_view.ui:43
+msgid "Add Files…"
+msgstr "Ajouter des fichiers…"
+
+#: lada/gui/export/export_view.ui:49
+#: lada/gui/export/export_single_file_page.ui:115
+#: lada/gui/export/export_view.py:609
+msgid "Cancel"
+msgstr "Annuler"
+
+#: lada/gui/export/export_view.ui:59
+#: lada/gui/export/export_single_file_page.ui:105
+msgid "Pause"
+msgstr "Pause"
+
+#: lada/gui/export/export_view.ui:66
+#: lada/gui/export/export_single_file_page.ui:95
+msgid "Resume"
+msgstr "Reprendre"
+
+#: lada/gui/export/export_view.ui:73
+#: lada/gui/export/export_single_file_page.ui:72
+#: lada/gui/export/export_view.py:254
+msgid "Restore"
+msgstr "Restaurer"
+
+#: lada/gui/export/export_view.ui:140
+#: lada/gui/fileselection/file_selection_view.ui:60
+#: lada/gui/preview/preview_view.ui:220
+msgid "Keyboard Shortcuts"
+msgstr "Raccourcis clavier"
+
+#: lada/gui/export/export_view.ui:144
+#: lada/gui/fileselection/file_selection_view.ui:64
+#: lada/gui/preview/preview_view.ui:224
+msgid "About Lada"
+msgstr "À propos de Lada"
+
+#: lada/gui/export/export_multiple_files_row.ui:67
+#: lada/gui/export/export_single_file_page.ui:128
+msgid "Open in External Program…"
+msgstr "Ouvrir dans un programme externe…"
+
+#: lada/gui/export/export_multiple_files_row.ui:79
+#: lada/gui/export/export_single_file_page.ui:144
+msgid "Show Error"
+msgstr "Afficher l'erreur"
+
+#: lada/gui/export/export_multiple_files_row.ui:89
+#: lada/gui/export/export_single_file_page.ui:84
+msgid "Preview"
+msgstr "Aperçu"
+
+#: lada/gui/export/export_multiple_files_row.ui:105
+msgid "Remove"
+msgstr "Supprimer"
+
+#: lada/gui/export/export_single_file_page.ui:19
+#: lada/gui/export/export_single_file_page.py:155
+#: lada/gui/export/export_single_file_page.py:202
+msgid "Export video"
+msgstr "Exporter la vidéo"
+
+#: lada/gui/export/export_single_file_page.ui:132
+msgid "Open File"
+msgstr "Ouvrir le fichier"
+
+#: lada/gui/export/export_single_file_page.py:107
+#: lada/gui/export/export_single_file_page.py:182
+msgid "Restoring video…"
+msgstr "Restauration de la vidéo…"
+
+#: lada/gui/export/export_single_file_page.py:131
+msgid "Finished video restoration!"
+msgstr "Restauration de la vidéo terminée !"
+
+#: lada/gui/export/export_single_file_page.py:144
+#: lada/gui/export/export_utils.py:62
+msgid "Restoration failed"
+msgstr "La restauration a échoué"
+
+#: lada/gui/export/export_single_file_page.py:171
+msgid "Restoration paused"
+msgstr "Restauration en pause"
+
+#: lada/gui/export/export_utils.py:29
+#, python-brace-format
+msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
+msgstr ""
+"Durée : {duration}, Résolution : {resolution}, Fréquence d'images : {fps} FPS"
+
+#: lada/gui/export/export_utils.py:63
+#, python-brace-format
+msgid "Error while processing <span><tt>{filename}</tt></span>"
+msgstr "Erreur lors du traitement de <span><tt>{filename}</tt></span>"
+
+#: lada/gui/export/export_utils.py:72 lada/gui/export/export_view.py:593
+msgid "Okay"
+msgstr "D'accord"
+
+#: lada/gui/export/export_utils.py:78
+msgid "Failed"
+msgstr "Échec"
+
+#: lada/gui/export/export_utils.py:83
+#, python-brace-format
+msgid "Finished  |  Processed: {time_done} ({frames_done} frames)"
+msgstr "Terminé  |  Traité : {time_done} ({frames_done} images)"
+
+#: lada/gui/export/export_utils.py:91
+#, python-brace-format
+msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: {time_remaining} ({frames_remaining} frames)  |  Speed: {speed_fps} FPS"
+msgstr ""
+"Traitement en cours… {done_percent} %  |  Traité : {time_done} ("
+"{frames_done} images)  |  Restant : {time_remaining} ({frames_remaining} "
+"images)  |  Vitesse : {speed_fps} FPS"
+
+#: lada/gui/export/export_utils.py:99
+#, python-brace-format
+msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: Estimating… |  Speed: Estimating…"
+msgstr ""
+"Traitement en cours… {done_percent}%  |  Traité : {time_done} ({frames_done} "
+"images)  |  Reste : Estimation en cours… |  Vitesse : Estimation en cours…"
+
+#: lada/gui/export/export_utils.py:105
+#, python-brace-format
+msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
+msgstr "En pause  |  Traité : {time_done} ({frames_done} images)"
+
+#: lada/gui/export/export_view.py:254
+msgid "Restore…"
+msgstr "Restaurer…"
+
+#: lada/gui/export/export_view.py:538
+msgid "Save restored video file"
+msgstr "Enregistrer le fichier vidéo restauré"
+
+#: lada/gui/export/export_view.py:545
+msgid "Save restored video files"
+msgstr "Enregistrer les fichiers vidéo restaurés"
+
+#: lada/gui/export/export_view.py:575
+msgid "Shutdown System"
+msgstr "Éteindre l'ordinateur"
+
+#: lada/gui/export/export_view.py:576
+msgid "Export has finished. The system will shutdown in 30 seconds."
+msgstr "L'exportation est terminée. Le système s'éteindra dans 30 secondes."
+
+#: lada/gui/export/export_view.py:590
+msgid "Shutdown Failed"
+msgstr "Échec de l'arrêt"
+
+#: lada/gui/export/export_view.py:591
+msgid "Failed to initiate system shutdown. Please check system permissions."
+msgstr ""
+"Échec de l'arrêt du système. Veuillez vérifier les autorisations système."
+
+#: lada/gui/export/export_view.py:610
+msgid "Shutdown now"
+msgstr "Éteindre maintenant"
+
+#: lada/gui/config/no_gpu_banner.ui:17
+msgid "No GPU detected! Running the app on CPU will be painfully slow."
+msgstr ""
+"Aucun GPU détecté ! L'exécution de l'application sur le CPU sera extrêmement "
+"lente."
+
+#: lada/gui/config/encoding_preset_dialog.py:44
+msgid "Create Preset"
+msgstr "Créer un préréglage"
+
+#: lada/gui/config/encoding_preset_dialog.py:44
+msgid "Edit Preset"
+msgstr "Modifier le préréglage"
+
+#: lada/gui/config/encoding_preset_dialog.ui:24
+msgid "Save"
+msgstr "Enregistrer"
+
+#: lada/gui/config/encoding_preset_dialog.ui:45
+msgid "<big>Description</big>"
+msgstr "<big>Description</big>"
+
+#: lada/gui/config/encoding_preset_dialog.ui:59
+msgid "<big>Encoder</big>"
+msgstr "<big>Encodeur</big>"
+
+#: lada/gui/config/encoding_preset_dialog.ui:75
+msgid "<big>Encoder Help</big>"
+msgstr "<big>Aide sur l'encodeur</big>"
+
+#: lada/gui/config/encoding_preset_dialog.ui:98
+msgid "<big>Encoder Options</big>"
+msgstr "<big>Options de l'encodeur</big>"
+
+#: lada/gui/config/encoding_preset_dialog.ui:106
+msgid "Enter encoder options…"
+msgstr "Définir les options de l'encodeur…"
+
+#: lada/gui/config/config_sidebar.ui:22
+msgid "Mosaic Removal"
+msgstr "Enlèvement de mosaïque"
+
+#: lada/gui/config/config_sidebar.ui:25
+msgid "Detection model"
+msgstr "Modèle de détection"
+
+#: lada/gui/config/config_sidebar.ui:32
+msgid "Restoration model"
+msgstr "Modèle de restauration"
+
+#: lada/gui/config/config_sidebar.ui:39
+msgid "Detect face mosaics"
+msgstr "Détecter les face mosaics"
+
+#: lada/gui/config/config_sidebar.ui:40
+msgid "Detect and ignore areas of pixelated faces. Can prevent restoration artifacts but may worsen detection of NSFW mosaics."
+msgstr ""
+"Détecte et ignore les zones de visages pixélisés. Peut empêcher les "
+"artefacts de restauration, mais peut nuire à la détection des mosaïques NSFW."
+
+#: lada/gui/config/config_sidebar.ui:46
+msgid "Maximum clip duration"
+msgstr "Durée maximale du clip"
+
+#: lada/gui/config/config_sidebar.ui:47
+msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint."
+msgstr ""
+"Nombre maximal d'images pour la restauration. Des valeurs plus élevées "
+"améliorent la stabilité temporelle. Des valeurs plus faibles réduisent "
+"l'empreinte mémoire."
+
+#: lada/gui/config/config_sidebar.ui:62
+msgid "GPU"
+msgstr "GPU"
+
+#: lada/gui/config/config_sidebar.ui:63
+msgid "Selected GPU for model processing."
+msgstr "GPU sélectionné pour le traitement du modèle."
+
+#: lada/gui/config/config_sidebar.ui:76
+msgid "FP16 precision"
+msgstr "Précision FP16"
+
+#: lada/gui/config/config_sidebar.ui:77
+msgid "Reduces VRAM usage and may increase speed on modern GPUs, with negligible quality difference."
+msgstr ""
+"Réduit l'utilisation de la mémoire VRAM et peut augmenter la vitesse sur les "
+"GPU modernes, avec une différence de qualité négligeable."
+
+#: lada/gui/config/config_sidebar.ui:85
+msgid "Playback"
+msgstr "Lecture"
+
+#: lada/gui/config/config_sidebar.ui:89
+msgid "Buffer duration"
+msgstr "Durée du tampon"
+
+#: lada/gui/config/config_sidebar.ui:90
+msgid "How much video is pre-loaded for playback, measured in seconds. If set to 0 this value will be chosen automatically."
+msgstr ""
+"Quantité de vidéo préchargée pour la lecture, mesurée en secondes. Si cette "
+"valeur est définie sur 0, elle sera choisie automatiquement."
+
+#: lada/gui/config/config_sidebar.ui:104
+msgid "Mute audio by default"
+msgstr "Désactiver le son par défaut"
+
+#: lada/gui/config/config_sidebar.ui:105
+msgid "When enabled, audio will be muted automatically when a new file is opened."
+msgstr ""
+"Lorsque cette option est activée, le son sera automatiquement coupé "
+"lorsqu'un nouveau fichier sera ouvert."
+
+#: lada/gui/config/config_sidebar.ui:112
+msgid "Enable seek preview"
+msgstr "Activer l'aperçu de vidéo"
+
+#: lada/gui/config/config_sidebar.ui:113
+msgid "Show a preview of the video frame when hovering over the timeline."
+msgstr ""
+"Afficher un aperçu de l'image vidéo lorsque le curseur passe sur la timeline."
+
+#: lada/gui/config/config_sidebar.ui:122 lada/gui/config/config_sidebar.ui:331
+#: lada/gui/window.ui:54 lada/cli/main.py:64
+msgid "Export"
+msgstr "Exporter"
+
+#: lada/gui/config/config_sidebar.ui:126
+msgid "Encoding Preset"
+msgstr "Préréglage d'encodage"
+
+#: lada/gui/config/config_sidebar.ui:133
+msgid "Output Directory"
+msgstr "Répertoire de sortie"
+
+#: lada/gui/config/config_sidebar.ui:134
+msgid "Directory where restored files will be saved"
+msgstr "Répertoire dans lequel les fichiers restaurés seront enregistrés"
+
+#: lada/gui/config/config_sidebar.ui:139
+msgid "Always ask"
+msgstr "Toujours demandez"
+
+#: lada/gui/config/config_sidebar.ui:150
+msgid "Use this folder"
+msgstr "Utilisez ce dossier"
+
+#: lada/gui/config/config_sidebar.ui:151 lada/gui/config/config_sidebar.py:143
+#: lada/gui/config/config_sidebar.py:253
+msgid "Click the folder button to choose a default"
+msgstr "Cliquez sur le bouton dossier pour choisir un dossier par défaut"
+
+#: lada/gui/config/config_sidebar.ui:172
+msgid "Temporary Directory"
+msgstr "Répertoire temporaire"
+
+#: lada/gui/config/config_sidebar.ui:173
+msgid "Directory for temporary video files during restoration process"
+msgstr ""
+"Répertoire pour les fichiers vidéo temporaires pendant le processus de "
+"restauration"
+
+#: lada/gui/config/config_sidebar.ui:185
+msgid ""
+"File name pattern for restored files.\n"
+"Must include placeholder <span background=\"#D3D3D350\"><tt>{orig_file_name}</tt></span>."
+msgstr ""
+"Paterne de nom de fichier pour les fichiers restaurés.\n"
+"Doit inclure l'espace réservé <span background=\"#D3D3D350\"><tt>"
+"{orig_file_name}</tt></span>."
+
+#: lada/gui/config/config_sidebar.ui:193
+msgid "Post-Export Action"
+msgstr "Action post-exportation"
+
+#: lada/gui/config/config_sidebar.ui:194
+msgid "Action to be run after all queued files have been restored."
+msgstr ""
+"Action à exécuter après la restauration de tous les fichiers en file "
+"d'attente."
+
+#: lada/gui/config/config_sidebar.ui:201
+msgid "Shutdown system"
+msgstr "Arrêter le système"
+
+#: lada/gui/config/config_sidebar.ui:202
+msgid "Automatically shutdown the system after export is completed."
+msgstr ""
+"Arrêter automatiquement le système d'exploitation une fois l'exportation "
+"terminée."
+
+#: lada/gui/config/config_sidebar.ui:212
+msgid "Execute custom command"
+msgstr "Exécuter une commande personnalisée"
+
+#: lada/gui/config/config_sidebar.ui:213
+msgid "Run a custom shell command after export is completed."
+msgstr ""
+"Exécutez une commande shell personnalisée une fois l'exportation terminée."
+
+#: lada/gui/config/config_sidebar.ui:224
+msgid "Custom command"
+msgstr "Commande personnalisée"
+
+#: lada/gui/config/config_sidebar.ui:233
+msgid "Enable .mp4 Fast Start"
+msgstr "Activer le démarrage rapide .mp4"
+
+#: lada/gui/config/config_sidebar.ui:234
+msgid "Allows playing the file while it's being written."
+msgstr "Permet de lire le fichier pendant son écriture."
+
+#: lada/gui/config/config_sidebar.ui:242
+msgid "Troubleshooting"
+msgstr "Dépannage"
+
+#: lada/gui/config/config_sidebar.ui:246
+msgid "Show mosaic detections"
+msgstr "Affiche les détections de mosaïques"
+
+#: lada/gui/config/config_sidebar.ui:247
+msgid "Show detected mosaic areas. Useful to evaluate quality of detection model."
+msgstr ""
+"Affiche les zones de mosaïque. Utile pour évaluer la qualité du modèle de "
+"détection."
+
+#: lada/gui/config/config_sidebar.ui:260
+msgid "UI"
+msgstr "UI"
+
+#: lada/gui/config/config_sidebar.ui:263
+msgid "Color Scheme"
+msgstr "Palette de couleurs"
+
+#: lada/gui/config/config_sidebar.ui:267
+msgid "Follow System style"
+msgstr "Suivre le style du système"
+
+#: lada/gui/config/config_sidebar.ui:280
+msgid "Light style"
+msgstr "Thème Blanc"
+
+#: lada/gui/config/config_sidebar.ui:293
+msgid "Dark style"
+msgstr "Thème Sombre"
+
+#: lada/gui/config/config_sidebar.ui:306
+msgid "Default View"
+msgstr "Affichage par défaut"
+
+#: lada/gui/config/config_sidebar.ui:307
+msgid "View shown after opening files"
+msgstr "Vue affichée après l'ouverture des fichiers"
+
+#: lada/gui/config/config_sidebar.ui:315 lada/gui/preview/preview_view.py:610
+#: lada/gui/window.ui:44
+msgid "Watch"
+msgstr "Regarder"
+
+#: lada/gui/config/config_sidebar.ui:355
+msgid "Reset to factory settings"
+msgstr "Réinitialiser aux paramètres d'usine"
+
+#: lada/gui/config/config_sidebar.py:486
+msgid "Create Preset…"
+msgstr "Créer un préréglage…"
+
+#: lada/gui/config/config_sidebar.py:496
+msgid "Select a folder where restored videos should be saved"
+msgstr ""
+"Sélectionnez un dossier dans lequel les vidéos restaurées doivent être "
+"enregistrées"
+
+#: lada/gui/config/config_sidebar.py:517
+msgid "Select a folder for temporary files"
+msgstr "Sélectionnez un dossier pour les fichiers temporaires"
+
+#: lada/gui/fileselection/file_selection_view.ui:37
+msgid "Restore pixelated adult videos"
+msgstr "Restaurer des vidéos pour adultes pixélisées"
+
+#: lada/gui/fileselection/file_selection_view.ui:38
+msgid "Drop one or more videos here"
+msgstr "Déposez une ou plusieurs vidéos ici"
+
+#: lada/gui/fileselection/file_selection_view.ui:41
+#: lada/gui/preview/preview_view.ui:54
+msgid "Open Files…"
+msgstr "Ouvrir les fichiers…"
+
+#: lada/gui/preview/preview_view.ui:35
+msgid "Toggle Fullscreen"
+msgstr "Basculer en mode plein écran"
+
+#: lada/gui/preview/preview_view.py:611
+msgid "Mute/Unmute"
+msgstr "Activer/Désactiver le son"
+
+#: lada/gui/preview/preview_view.py:612
+msgid "Play/Pause"
+msgstr "Lecture/Pause"
+
+#: lada/gui/preview/preview_view.py:613
+msgid "Enable/Disable fullscreen"
+msgstr "Activer/Désactiver le plein écran"
+
+#: lada/gui/window.py:108
+msgid "Switch to Export View"
+msgstr "Passer à l'affichage Export"
+
+#: lada/gui/window.py:109
+msgid "Switch to Watch View"
+msgstr "Passer à l'affichage Lecture"
+
+#: lada/gui/utils.py:107
+msgid "Select one or multiple video files"
+msgstr "Sélectionnez un ou plusieurs fichiers vidéo"
+
+#: lada/gui/utils.py:150
+#, python-brace-format
+msgid "Custom Preset {custom_preset_num}"
+msgstr "Préréglage personnalisé {custom_preset_num}"
+
+#: lada/cli/main.py:22
+msgid "Examples:"
+msgstr "Exemples :"
+
+#: lada/cli/main.py:24
+msgid "Restore video with default settings:"
+msgstr "Restaurer la vidéo avec les paramètres par défaut :"
+
+#: lada/cli/main.py:25
+#, python-format
+msgid "%(prog)s --input input.mp4"
+msgstr "%(prog)s --input input.mp4"
+
+#: lada/cli/main.py:27
+msgid "Restore all videos found in the specified directory and save them to a different folder:"
+msgstr ""
+"Restaurer toutes les vidéos trouvées dans le répertoire spécifié et les "
+"enregistrer dans un autre dossier :"
+
+#: lada/cli/main.py:28
+#, python-format
+msgid "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
+msgstr "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
+
+#: lada/cli/main.py:30
+msgid "Use Nvidia hardware-accelerated encoder by selecting a preset:"
+msgstr "Utilisez l'encodeur accéléré Nvidia en sélectionnant un préréglage :"
+
+#: lada/cli/main.py:31
+#, python-format
+msgid "%(prog)s --input input.mp4 --encoding-preset hevc-nvidia-gpu-hq"
+msgstr "%(prog)s --input input.mp4 --encoding-preset hevc-nvidia-gpu-hq"
+
+#: lada/cli/main.py:33
+msgid "Set encoding parameters directly without using an encoding preset:"
+msgstr ""
+"Définissez les paramètres d'encodage directement sans utiliser de préréglage "
+"d'encodage :"
+
+#: lada/cli/main.py:34
+#, python-format
+msgid "%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 -preset fast -x265-params log_level=error'"
+msgstr ""
+"%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 -"
+"preset fast -x265-params log_level=error'"
+
+#: lada/cli/main.py:37
+#, python-format
+msgid "%(prog)s [options]"
+msgstr "%(prog)s [options]"
+
+#: lada/cli/main.py:38
+msgid "Restore pixelated adult videos (JAV)"
+msgstr "Restaurer des vidéos pour adultes pixélisées (JAV)"
+
+#: lada/cli/main.py:53
+msgid "General"
+msgstr "Général"
+
+#: lada/cli/main.py:54
+msgid "Path to pixelated video file or directory containing video files"
+msgstr ""
+"Chemin d'accès au fichier vidéo pixélisé ou au répertoire contenant les "
+"fichiers vidéo"
+
+#: lada/cli/main.py:55
+msgid "Path used to save output file(s). If path is a directory then file name will be chosen automatically (see --output-file-pattern). If no output path was given then the directory of the input file will be used"
+msgstr ""
+"Chemin utilisé pour enregistrer le(s) fichier(s) de sortie. Si le chemin est "
+"un répertoire, le nom du fichier sera choisi automatiquement (voir --output-"
+"file-pattern). Si aucun chemin de sortie n'a été spécifié, le répertoire du "
+"fichier d'entrée sera utilisé"
+
+#: lada/cli/main.py:56
+#, python-format
+msgid "Directory for temporary video files during restoration process. Alternatively, you can use the environment variable TMPDIR. (default: %(default)s)"
+msgstr ""
+"Répertoire pour les fichiers vidéo temporaires pendant le processus de "
+"restauration. Vous pouvez également utiliser la variable d'environnement "
+"TMPDIR. (par défaut : %(default)s)"
+
+#: lada/cli/main.py:57
+#, python-format, python-brace-format
+msgid "Pattern used to determine output file name(s). Used when input is a directory, or a file but no output path was specified. Must include the placeholder '{orig_file_name}'. (default: %(default)s)"
+msgstr ""
+"Modèle utilisé pour déterminer le(s) nom(s) de(s) fichier(s) de sortie. "
+"Utilisé lorsque l'entrée est un répertoire ou un fichier, mais qu'aucun "
+"chemin de sortie n'a été spécifié. Doit inclure l'espace réservé « "
+"{orig_file_name} ». (par défaut : %(default)s)"
+
+#: lada/cli/main.py:58
+#, python-format
+msgid "Device used for running Restoration and Detection models. Use \"cpu\" or \"cuda\". If you have multiple GPUs you can select a specific one via index e.g. \"cuda:0\" (default: %(default)s)"
+msgstr ""
+"Device utilisé pour exécuter les modèles de restauration et de détection. "
+"Utilisez « cpu » ou « cuda ». Si vous disposez de plusieurs GPU, vous pouvez "
+"en sélectionner un spécifique via un index, par exemple « cuda:0 » (par "
+"défaut : %(default)s)"
+
+#: lada/cli/main.py:59
+#, python-format
+msgid "Reduces VRAM usage and may increase speed on modern GPUs, with negligible quality difference. (default: %(default)s)"
+msgstr ""
+"Réduit l'utilisation de la VRAM et peut augmenter la vitesse sur les GPU "
+"modernes, avec une différence de qualité négligeable. (par défaut : %"
+"(default)s)"
+
+#: lada/cli/main.py:60
+msgid "List available devices and exit"
+msgstr "Afficher la liste des périphériques disponibles et quitter"
+
+#: lada/cli/main.py:61
+msgid "Display version and exit"
+msgstr "Afficher la version et quitter"
+
+#: lada/cli/main.py:62
+msgid "Show this help message and exit"
+msgstr "Afficher ce message d'aide et quitter"
+
+#: lada/cli/main.py:65
+#, python-format
+msgid "Select encoding preset by name. Use \"--list-encoding-presets\" to see what's available. Ignored if \"--encoder\" and \"--encoder-options\" are used (default: %(default)s)"
+msgstr ""
+"Sélectionnez le préréglage d'encodage par son nom. Utilisez « --list-"
+"encoding-presets » pour voir ce qui est disponible. Ignoré si « --encoder » "
+"et « --encoder-options » sont utilisés (par défaut : %(default)s)"
+
+#: lada/cli/main.py:66
+msgid "List available encoding presets and exit"
+msgstr "Afficher la liste des préréglages d'encodage disponibles et quitter"
+
+#: lada/cli/main.py:67
+#, python-format
+msgid "Select video encoder by name. Use \"--list-encoders\" to see what's available. (default: %(default)s)"
+msgstr ""
+"Sélectionnez l'encodeur vidéo par son nom. Utilisez « --list-encoders » pour "
+"voir ceux qui sont disponibles. (par défaut : %(default)s)"
+
+#: lada/cli/main.py:68
+msgid "List available encoders and exit"
+msgstr "Liste des encodeurs disponibles et sortie"
+
+#: lada/cli/main.py:69
+#, python-format
+msgid "Space-separated list of options for the encoder set via \"--encoder\". Use \"--list-encoder-options\" to see what's available. (default: %(default)s)"
+msgstr ""
+"Liste des options séparées par des espaces pour l'encodeur défini via « --"
+"encoder ». Utilisez « --list-encoder-options » pour voir les options "
+"disponibles. (par défaut : %(default)s)"
+
+#: lada/cli/main.py:70
+msgid "List available options of the given encoder and exit"
+msgstr "Liste des options disponibles pour l'encodeur donné et sortie"
+
+#: lada/cli/main.py:71
+#, python-format
+msgid "Allows playing the file while it's being written. Sets .mp4 mov flags \"frag_keyframe+empty_moov+faststart\". (default: %(default)s)"
+msgstr ""
+"Permet de lire le fichier pendant son écriture. Définit les indicateurs .mp4 "
+"mov « frag_keyframe+empty_moov+faststart ». (par défaut : %(default)s)"
+
+#: lada/cli/main.py:73
+msgid "Mosaic Restoration"
+msgstr "Restauration de mosaïques"
+
+#: lada/cli/main.py:74
+msgid "List available restoration models found in model weights directory and exit (default location is './model_weights' if not overwritten by environment variable LADA_MODEL_WEIGHTS_DIR)"
+msgstr ""
+"Liste des modèles de restauration disponibles dans le répertoire des weights "
+"et ferme l'application (l'emplacement par défaut est « ./model_weights » "
+"s'il n'est pas remplacé par la variable d'environnement "
+"LADA_MODEL_WEIGHTS_DIR)"
+
+#: lada/cli/main.py:75
+#, python-format
+msgid "Name of detection model or path to model weights file. Use \"--list-mosaic-restoration-models\" to see what's available. (default: %(default)s)"
+msgstr ""
+"Nom du modèle de détection ou chemin d'accès au fichier des weights. "
+"Utilisez « --list-mosaic-restoration-models » pour voir ce qui est "
+"disponible. (par défaut : %(default)s)"
+
+#: lada/cli/main.py:76
+msgid "Path to restoration model configuration file. You'll not have to set this unless you're training your own custom models"
+msgstr ""
+"Chemin d'accès au fichier de configuration du modèle de restauration. Vous "
+"n'aurez pas à le définir, sauf si vous entraînez vos propres modèles "
+"personnalisés"
+
+#: lada/cli/main.py:77
+#, python-format
+msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint. If set too low flickering could appear (default: %(default)s)"
+msgstr ""
+"Nombre maximal d'images (FPS) pour la restauration. Des valeurs plus élevées "
+"améliorent la stabilité temporelle. Des valeurs plus faibles réduisent "
+"l'empreinte mémoire. Si la valeur est trop faible, un scintillement peut "
+"apparaître (valeur par défaut : %(default)s)"
+
+#: lada/cli/main.py:79
+msgid "Mosaic Detection"
+msgstr "Détection de mosaïques"
+
+#: lada/cli/main.py:80
+#, python-format
+msgid "Name of detection model or path to model weights file. Use \"--list-mosaic-detection-models\" to see what's available. (default: %(default)s)"
+msgstr ""
+"Nom du modèle de détection ou chemin d'accès au fichier weights. Utilisez "
+"« --list-mosaic-detection-models » pour voir ce qui est disponible. (par "
+"défaut : %(default)s)"
+
+#: lada/cli/main.py:81
+msgid "List available detection models found in model weights directory and exit (default location is './model_weights' if not overwritten by environment variable LADA_MODEL_WEIGHTS_DIR)"
+msgstr ""
+"Liste des modèles de détection disponibles dans le répertoire des weights et "
+"ferme l'application (l'emplacement par défaut est « ./model_weights » s'il "
+"n'est pas remplacé par la variable d'environnement LADA_MODEL_WEIGHTS_DIR)"
+
+#: lada/cli/main.py:82
+#, python-format
+msgid "Detect and ignore areas of pixelated faces. Can prevent restoration artifacts but may worsen detection of NSFW mosaics. Available for models v3 and newer. (default: %(default)s)"
+msgstr ""
+"Détecte et ignore les zones de visages pixélisés. Permet d'éviter les "
+"artefacts de restauration, mais peut nuire à la détection des mosaïques "
+"NSFW. Disponible pour les modèles v3 et plus récents. (par défaut : %"
+"(default)s)"
+
+#: lada/cli/main.py:122
+msgid "Processing audio"
+msgstr "Traitement audio"
+
+#: lada/cli/main.py:156
+#, python-brace-format
+msgid "GPU {device} selected but CUDA is not available"
+msgstr "GPU {device} sélectionné mais CUDA n'est pas disponible"
+
+#: lada/cli/main.py:159
+#, python-brace-format
+msgid "Invalid file name pattern. It must include the template string '{orig_file_name}' and a file extension"
+msgstr ""
+"Paterne de nom de fichier non valide. Il doit inclure la chaîne de "
+"caractères « {orig_file_name} » et une extension de fichier"
+
+#: lada/cli/main.py:162
+msgid "Invalid output directory. If input is a directory then --output must also be set to a directory"
+msgstr ""
+"Répertoire de sortie invalide. Si l'entrée est un répertoire, alors --output "
+"doit également être défini sur un répertoire"
+
+#: lada/cli/main.py:165
+#, python-brace-format
+msgid "Invalid input. No file or directory at {input_path}"
+msgstr "Entrée non valide. Aucun fichier ou répertoire à {input_path}"
+
+#: lada/cli/main.py:168
+#, python-brace-format
+msgid "Temporary directory {temporary_path} doesn't exist. Creating…"
+msgstr ""
+"Le répertoire temporaire {temporary_path} n'existe pas. Création en cours…"
+
+#: lada/cli/main.py:176
+msgid "Invalid mosaic detection model"
+msgstr "Modèle de détection de mosaïque invalide"
+
+#: lada/cli/main.py:186
+msgid "Invalid mosaic restoration model"
+msgstr "Modèle de restauration de mosaïque invalide"
+
+#: lada/cli/main.py:204
+msgid "Invalid encoding preset"
+msgstr "Préréglage d'encodage invalide"
+
+#: lada/cli/main.py:207
+msgid "Either \"--encoding-preset\" or \"--encoder\" together with \"--encoder-options\" must be used"
+msgstr ""
+"Il faut utiliser soit « --encoding-preset », soit « --encoder » avec « --"
+"encoder-options »"
+
+#: lada/cli/main.py:229
+msgid "Received Ctrl-C, stopping restoration."
+msgstr "Réception de Ctrl-C, arrêt de la restauration."
+
+#: lada/cli/utils.py:49
+msgid "No video files found"
+msgstr "Aucun fichier vidéo trouvé"
+
+#: lada/cli/utils.py:78
+msgid "Yes"
+msgstr "Oui"
+
+#: lada/cli/utils.py:79 lada/cli/utils.py:115 lada/cli/utils.py:139
+msgid "Name"
+msgstr "Nom"
+
+#: lada/cli/utils.py:80 lada/cli/utils.py:100 lada/cli/utils.py:116
+#: lada/cli/utils.py:140
+msgid "Description"
+msgstr "Description"
+
+#: lada/cli/utils.py:81
+msgid "Hardware-accelerated"
+msgstr "Accélération matérielle"
+
+#: lada/cli/utils.py:82
+msgid "Hardware devices"
+msgstr "Périphériques matériels"
+
+#: lada/cli/utils.py:87
+msgid "Available video encoders:"
+msgstr "Encodeurs vidéo disponibles :"
+
+#: lada/cli/utils.py:99
+msgid "Device"
+msgstr "Périphérique"
+
+#: lada/cli/utils.py:103
+msgid "Available devices:"
+msgstr "Périphérique disponibles :"
+
+#: lada/cli/utils.py:111
+msgid "Available restoration models:"
+msgstr "Modèles de restauration disponibles :"
+
+#: lada/cli/utils.py:113 lada/cli/utils.py:137
+msgid "None!"
+msgstr "Aucun !"
+
+#: lada/cli/utils.py:117
+msgid "Path"
+msgstr "Chemin"
+
+#: lada/cli/utils.py:134
+msgid "Available encoding presets:"
+msgstr "Préréglages d'encodage disponibles :"
+
+#: lada/cli/utils.py:141
+msgid "Encoder Name"
+msgstr "Nom de l'encodeur"
+
+#: lada/cli/utils.py:142
+msgid "Encoder Options"
+msgstr "Options d'encodeur"
+
+#: lada/cli/utils.py:169
+msgid "Usage: "
+msgstr "Utilisation : "
+
+#: lada/cli/utils.py:182
+#, python-brace-format
+msgid "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}"
+msgstr ""
+"Traitement vidéo : {done_percent} %|{bar}|Traité : {time_done} ({frames_done}"
+"f){bar_suffix}"
+
+#: lada/cli/utils.py:184
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | Restant : ? | Vitesse : ?"
+
+#: lada/cli/utils.py:237
+#, python-brace-format
+msgid " | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr ""
+" | Restant : {time_remaining} ({frames_remaining}f) | Vitesse : {speed_fps}"
+"fps"
+
+#: lada/__init__.py:64
+msgid "Latest Lada restoration model. Recommended"
+msgstr "Dernier modèle de restauration par Lada. Recommandé"
+
+#: lada/__init__.py:65
+msgid "Restoration model from abandoned DeepMosaics project"
+msgstr "Modèle de restauration issu du projet abandonné DeepMosaics"
+
+#: lada/__init__.py:72
+msgid "Fast and efficient. Recommended"
+msgstr "Rapide et efficace. Recommandé"
+
+#: lada/__init__.py:73
+msgid "Can be slightly more accurate than v4-fast but slower"
+msgstr "Peut être légèrement plus précis que v4-fast, mais plus lent"
+
+#: lada/utils/encoding_presets.csv:2
+msgid "H.264 / AVC, x264 software encoder, Indistinguishable Quality, Slow, Very Large File Size"
+msgstr ""
+"H.264 / AVC, encodeur logiciel x264, Qualité Indiscernable, Lent, Fichier "
+"Très Volumineux"
+
+#: lada/utils/encoding_presets.csv:3
+msgid "H.264 / AVC, x264 software encoder, Fast, Medium File Size"
+msgstr "H.264 / AVC, encodeur logiciel x264, Rapide, Taille de Fichier Moyenne"
+
+#: lada/utils/encoding_presets.csv:4
+msgid "H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size"
+msgstr ""
+"H.264 / AVC, encodeur matériel Nvidia, Rapide, Taille de Fichier Moyenne"
+
+#: lada/utils/encoding_presets.csv:5
+msgid "H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size"
+msgstr ""
+"H.265 / HEVC, encodeur matériel Nvidia, Excellente Qualité, Taille de "
+"Fichier Réduite"
+
+#: lada/utils/encoding_presets.csv:6
+msgid "H.265 / HEVC, Nvidia hardware encoder, High Quality, Medium File Size"
+msgstr ""
+"H.265 / HEVC, encodeur matériel Nvidia, Haute Qualité, Taille de Fichier "
+"Moyenne"
+
+#: lada/utils/encoding_presets.csv:7
+msgid "H.265 / HEVC, Nvidia hardware encoder, Indistinguishable Quality, Large File Size"
+msgstr ""
+"H.265 / HEVC, encodeur matériel Nvidia, Qualité Indiscernable, Fichiers "
+"Volumineux"
+
+#: lada/utils/encoding_presets.csv:8
+msgid "AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size"
+msgstr ""
+"AV1, encodeur logiciel SVT-AV1, Qualité Indiscernable, Taille de Fichier "
+"Réduite"
