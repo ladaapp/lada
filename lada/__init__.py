@@ -11,7 +11,7 @@ else:
 os.environ["NO_ALBUMENTATIONS_UPDATE"] = "1"
 os.environ["YOLO_VERBOSE"] = "false"
 
-VERSION = '0.10.1'
+VERSION = '0.10.1-dev'
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
 
