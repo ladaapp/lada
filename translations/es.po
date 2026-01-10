@@ -4,11 +4,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-31 09:23+0000\n"
+"POT-Creation-Date: 2026-01-09 14:23+0000\n"
 "PO-Revision-Date: 2026-01-02 20:21+0000\n"
 "Last-Translator: Abraxax <abraxax@noreply.codeberg.org>\n"
-"Language-Team: Spanish <https://translate.codeberg.org/projects/lada/lada/"
-"es/>\n"
+"Language-Team: Spanish <https://translate.codeberg.org/projects/lada/lada/es/"
+">\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -52,12 +52,6 @@ msgstr "Previsualizar"
 msgid "Remove"
 msgstr "Eliminar"
 
-msgid "Export video"
-msgstr "Exportar Video"
-
-msgid "Open File"
-msgstr "Abrir Fichero"
-
 msgid "Restoring video…"
 msgstr "Procesando Video…"
 
@@ -67,8 +61,14 @@ msgstr "¡Procesado de Video Terminado!"
 msgid "Restoration failed"
 msgstr "Fallo en la Restauración"
 
+msgid "Export video"
+msgstr "Exportar Video"
+
 msgid "Restoration paused"
 msgstr "Procesado Pausado"
+
+msgid "Open File"
+msgstr "Abrir Fichero"
 
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
@@ -140,30 +140,6 @@ msgstr "Apagar ahora"
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr ""
 "No se detecta GPU. Ejecutando la aplicación con la CPU aunque será más lento."
-
-msgid "Create Preset"
-msgstr "Crear Configuración"
-
-msgid "Edit Preset"
-msgstr "Editar Configuración"
-
-msgid "Save"
-msgstr "Grabar"
-
-msgid "<big>Description</big>"
-msgstr "<big>Descripción</big>"
-
-msgid "<big>Encoder</big>"
-msgstr "<big>Codificador</big>"
-
-msgid "<big>Encoder Help</big>"
-msgstr "<big>Ayuda Codificador</big>"
-
-msgid "<big>Encoder Options</big>"
-msgstr "<big>Opciones Codificador</big>"
-
-msgid "Enter encoder options…"
-msgstr "Introduce las Opciones del Codificador…"
 
 msgid "Mosaic Removal"
 msgstr "Eliminación de mosaico"
@@ -343,6 +319,30 @@ msgstr "Ver"
 msgid "Reset to factory settings"
 msgstr "Restaurar configuración de fábrica"
 
+msgid "Create Preset"
+msgstr "Crear Configuración"
+
+msgid "Edit Preset"
+msgstr "Editar Configuración"
+
+msgid "Save"
+msgstr "Grabar"
+
+msgid "<big>Description</big>"
+msgstr "<big>Descripción</big>"
+
+msgid "<big>Encoder</big>"
+msgstr "<big>Codificador</big>"
+
+msgid "<big>Encoder Help</big>"
+msgstr "<big>Ayuda Codificador</big>"
+
+msgid "<big>Encoder Options</big>"
+msgstr "<big>Opciones Codificador</big>"
+
+msgid "Enter encoder options…"
+msgstr "Introduce las Opciones del Codificador…"
+
 msgid "Create Preset…"
 msgstr "Crear Configuración…"
 
@@ -385,6 +385,69 @@ msgstr "Selecciona uno o más videos"
 #, python-brace-format
 msgid "Custom Preset {custom_preset_num}"
 msgstr "Configuración por Defecto Preset {custom_preset_num}"
+
+msgid "No video files found"
+msgstr "No hay videos"
+
+msgid "Available video encoders:"
+msgstr "Códecs Disponibles:"
+
+msgid "Name"
+msgstr "Nombre"
+
+msgid "Description"
+msgstr "Descripción"
+
+msgid "Hardware-accelerated"
+msgstr "Acelerado por Hardware"
+
+msgid "Hardware devices"
+msgstr "Dispositivos Hardware"
+
+msgid "Yes"
+msgstr "Si"
+
+msgid "Available devices:"
+msgstr "Dispositivos disponibles:"
+
+msgid "Device"
+msgstr "Dispositivo"
+
+msgid "Available detection models:"
+msgstr "Modelos de detección disponibles:"
+
+msgid "None!"
+msgstr "¡Nada!"
+
+msgid "Path"
+msgstr "Ruta"
+
+msgid "Available restoration models:"
+msgstr "Modelos de restauración disponibles:"
+
+msgid "Available encoding presets:"
+msgstr "Configuraciones Codificación Disponibles:"
+
+msgid "Usage: "
+msgstr "Uso: "
+
+#, python-brace-format
+msgid ""
+"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
+"f){bar_suffix}"
+msgstr ""
+"Procesando video: {done_percent}%|{bar}|Procesado: {time_done} ({frames_done}"
+"f){bar_suffix}"
+
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | Restante: ? | Velocidad: ?"
+
+#, python-brace-format
+msgid ""
+" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr ""
+" | Restante: {time_remaining} ({frames_remaining}f) | Velocidad: {speed_fps}"
+"fps"
 
 msgid "Examples:"
 msgstr "Ejemplos:"
@@ -660,72 +723,6 @@ msgstr ""
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "Ctrl-C detectado. Deteniendo Procesado."
 
-msgid "No video files found"
-msgstr "No hay videos"
-
-msgid "Yes"
-msgstr "Si"
-
-msgid "Name"
-msgstr "Nombre"
-
-msgid "Description"
-msgstr "Descripción"
-
-msgid "Hardware-accelerated"
-msgstr "Acelerado por Hardware"
-
-msgid "Hardware devices"
-msgstr "Dispositivos Hardware"
-
-msgid "Available video encoders:"
-msgstr "Códecs Disponibles:"
-
-msgid "Device"
-msgstr "Dispositivo"
-
-msgid "Available devices:"
-msgstr "Dispositivos disponibles:"
-
-msgid "Available restoration models:"
-msgstr "Modelos de restauración disponibles:"
-
-msgid "None!"
-msgstr "¡Nada!"
-
-msgid "Path"
-msgstr "Ruta"
-
-msgid "Available encoding presets:"
-msgstr "Configuraciones Codificación Disponibles:"
-
-msgid "Encoder Name"
-msgstr "Nombre Codificador"
-
-msgid "Encoder Options"
-msgstr "Opciones Codificador"
-
-msgid "Usage: "
-msgstr "Uso: "
-
-#, python-brace-format
-msgid ""
-"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
-"f){bar_suffix}"
-msgstr ""
-"Procesando video: {done_percent}%|{bar}|Procesado: {time_done} ({frames_done}"
-"f){bar_suffix}"
-
-msgid " | Remaining: ? | Speed: ?"
-msgstr " | Restante: ? | Velocidad: ?"
-
-#, python-brace-format
-msgid ""
-" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
-" | Restante: {time_remaining} ({frames_remaining}f) | Velocidad: {speed_fps}"
-"fps"
-
 msgid "Latest Lada restoration model. Recommended"
 msgstr "Último modelo restaurado de Lada. Recomendado"
 
@@ -771,6 +768,12 @@ msgid ""
 msgstr ""
 "AV1, SVT-AV1 Codificador por Software, Calidad Indistinguible, Tamaño "
 "Fichero Pequeño"
+
+#~ msgid "Encoder Name"
+#~ msgstr "Nombre Codificador"
+
+#~ msgid "Encoder Options"
+#~ msgstr "Opciones Codificador"
 
 #~ msgid ""
 #~ "Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"
@@ -825,9 +828,6 @@ msgstr ""
 
 #~ msgid "Encoders with support for hardware acceleration (GPU):"
 #~ msgstr "Codificadores que soportan aceleración (GPU):"
-
-#~ msgid "Available detection models:"
-#~ msgstr "Modelos de detección disponibles:"
 
 #~ msgid "Use a GPU-accelerated codec for encoding the restored video:"
 #~ msgstr ""

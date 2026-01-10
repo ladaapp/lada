@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-31 09:23+0000\n"
+"POT-Creation-Date: 2026-01-09 14:23+0000\n"
 "PO-Revision-Date: 2026-01-01 10:21+0000\n"
 "Last-Translator: softasa <softasa@noreply.codeberg.org>\n"
 "Language-Team: Japanese <https://translate.codeberg.org/projects/lada/lada/"
@@ -52,12 +52,6 @@ msgstr "プレビュー"
 msgid "Remove"
 msgstr "削除"
 
-msgid "Export video"
-msgstr "ビデオをエクスポート"
-
-msgid "Open File"
-msgstr "ファイルを開く"
-
 msgid "Restoring video…"
 msgstr "動画を復元中…"
 
@@ -67,8 +61,14 @@ msgstr "動画の復元が完了しました！"
 msgid "Restoration failed"
 msgstr "復元に失敗しました"
 
+msgid "Export video"
+msgstr "ビデオをエクスポート"
+
 msgid "Restoration paused"
 msgstr "復元を一時停止しました"
+
+msgid "Open File"
+msgstr "ファイルを開く"
 
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
@@ -137,30 +137,6 @@ msgstr "今すぐシャットダウン"
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr ""
 "GPU が検出されませんでした！CPU でアプリを実行すると、非常に遅くなります."
-
-msgid "Create Preset"
-msgstr "プリセットを作成"
-
-msgid "Edit Preset"
-msgstr "プリセットを編集"
-
-msgid "Save"
-msgstr "保存"
-
-msgid "<big>Description</big>"
-msgstr "<big>説明</big>"
-
-msgid "<big>Encoder</big>"
-msgstr "<big>エンコーダ</big>"
-
-msgid "<big>Encoder Help</big>"
-msgstr "<big>エンコーダヘルプ</big>"
-
-msgid "<big>Encoder Options</big>"
-msgstr "<big>エンコーダオプション</big>"
-
-msgid "Enter encoder options…"
-msgstr "エンコーダーのオプションを入力してください…"
 
 msgid "Mosaic Removal"
 msgstr "モザイク除去"
@@ -337,6 +313,30 @@ msgstr "視聴"
 msgid "Reset to factory settings"
 msgstr "初期設定にリセット"
 
+msgid "Create Preset"
+msgstr "プリセットを作成"
+
+msgid "Edit Preset"
+msgstr "プリセットを編集"
+
+msgid "Save"
+msgstr "保存"
+
+msgid "<big>Description</big>"
+msgstr "<big>説明</big>"
+
+msgid "<big>Encoder</big>"
+msgstr "<big>エンコーダ</big>"
+
+msgid "<big>Encoder Help</big>"
+msgstr "<big>エンコーダヘルプ</big>"
+
+msgid "<big>Encoder Options</big>"
+msgstr "<big>エンコーダオプション</big>"
+
+msgid "Enter encoder options…"
+msgstr "エンコーダーのオプションを入力してください…"
+
 msgid "Create Preset…"
 msgstr "プリセットを作成…"
 
@@ -379,6 +379,67 @@ msgstr "1つまたは複数の動画ファイルを選択"
 #, python-brace-format
 msgid "Custom Preset {custom_preset_num}"
 msgstr "カスタムプリセット {custom_preset_num}"
+
+msgid "No video files found"
+msgstr "ビデオファイルが見つかりません"
+
+msgid "Available video encoders:"
+msgstr "利用可能なビデオエンコーダ:"
+
+msgid "Name"
+msgstr "名前"
+
+msgid "Description"
+msgstr "説明"
+
+msgid "Hardware-accelerated"
+msgstr "ハードウェアアクセラレーション"
+
+msgid "Hardware devices"
+msgstr "ハードウェアデバイス"
+
+msgid "Yes"
+msgstr "Yes"
+
+msgid "Available devices:"
+msgstr "利用可能なデバイス:"
+
+msgid "Device"
+msgstr "デバイス"
+
+msgid "Available detection models:"
+msgstr "利用可能な検出モデル:"
+
+msgid "None!"
+msgstr "なし！"
+
+msgid "Path"
+msgstr "パス"
+
+msgid "Available restoration models:"
+msgstr "利用可能な除去モデル:"
+
+msgid "Available encoding presets:"
+msgstr "利用可能なエンコードプリセット:"
+
+msgid "Usage: "
+msgstr "使用法: "
+
+#, python-brace-format
+msgid ""
+"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
+"f){bar_suffix}"
+msgstr ""
+"ビデオの処理中: {done_percent}%|{bar}|処理済み: {time_done} ({frames_done}f)"
+"{bar_suffix}"
+
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | 残り: ? | 速度: ?"
+
+#, python-brace-format
+msgid ""
+" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr " | 残り: {time_remaining} ({frames_remaining}f) | 速度: {speed_fps}fps"
 
 msgid "Examples:"
 msgstr "例:"
@@ -650,70 +711,6 @@ msgstr ""
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "Ctrl-C が押されました,処理を停止します。"
 
-msgid "No video files found"
-msgstr "ビデオファイルが見つかりません"
-
-msgid "Yes"
-msgstr "Yes"
-
-msgid "Name"
-msgstr "名前"
-
-msgid "Description"
-msgstr "説明"
-
-msgid "Hardware-accelerated"
-msgstr "ハードウェアアクセラレーション"
-
-msgid "Hardware devices"
-msgstr "ハードウェアデバイス"
-
-msgid "Available video encoders:"
-msgstr "利用可能なビデオエンコーダ:"
-
-msgid "Device"
-msgstr "デバイス"
-
-msgid "Available devices:"
-msgstr "利用可能なデバイス:"
-
-msgid "Available restoration models:"
-msgstr "利用可能な除去モデル:"
-
-msgid "None!"
-msgstr "なし！"
-
-msgid "Path"
-msgstr "パス"
-
-msgid "Available encoding presets:"
-msgstr "利用可能なエンコードプリセット:"
-
-msgid "Encoder Name"
-msgstr "エンコーダ名"
-
-msgid "Encoder Options"
-msgstr "エンコーダオプション"
-
-msgid "Usage: "
-msgstr "使用法: "
-
-#, python-brace-format
-msgid ""
-"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
-"f){bar_suffix}"
-msgstr ""
-"ビデオの処理中: {done_percent}%|{bar}|処理済み: {time_done} ({frames_done}f)"
-"{bar_suffix}"
-
-msgid " | Remaining: ? | Speed: ?"
-msgstr " | 残り: ? | 速度: ?"
-
-#, python-brace-format
-msgid ""
-" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr " | 残り: {time_remaining} ({frames_remaining}f) | 速度: {speed_fps}fps"
-
 msgid "Latest Lada restoration model. Recommended"
 msgstr "最新のLada復元モデル.推奨"
 
@@ -763,6 +760,12 @@ msgid ""
 msgstr ""
 "AV1, SVT-AV1 ソフトウェア エンコーダー,見分けがつかない程の品質,小さいファイ"
 "ル サイズ"
+
+#~ msgid "Encoder Name"
+#~ msgstr "エンコーダ名"
+
+#~ msgid "Encoder Options"
+#~ msgstr "エンコーダオプション"
 
 #~ msgid ""
 #~ "Either \"--encoding-preset\" or \"--encoder\" together with \"--encoding-"
@@ -818,9 +821,6 @@ msgstr ""
 
 #~ msgid "Encoders with support for hardware acceleration (GPU):"
 #~ msgstr "ハードウェアアクセラレーション(GPU)をサポートするエンコーダ:"
-
-#~ msgid "Available detection models:"
-#~ msgstr "利用可能な検出モデル:"
 
 #~ msgid "Use a GPU-accelerated codec for encoding the restored video:"
 #~ msgstr ""
