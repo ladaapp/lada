@@ -40,6 +40,11 @@ class PipelineManager(GObject.Object):
         self.video_buffer_queue: Gst.Queue | None = None
         self.audio_buffer_queue: Gst.Queue | None = None
         self.pipeline_audio_elements = []
+        self.pipeline_subtitle_elements = []
+        self.video_sink: Gst.Element | None = None
+        self.subtitle_filesrc: Gst.Element | None = None
+        self.subtitle_textoverlay: Gst.Element | None = None
+        self.has_subtitles: bool = False
 
     @GObject.Property(type=Gdk.Paintable)
     def paintable(self):
@@ -112,14 +117,15 @@ class PipelineManager(GObject.Object):
                 pass
         return True
 
-    def init_pipeline(self, video_metadata: VideoMetadata):
+    def init_pipeline(self, video_metadata: VideoMetadata, subtitle_path: str | None = None):
         if self.video_metadata:
             logger.debug("Reinit Gst pipeline with new source")
-            self.adjust_pipeline_with_new_source_file(video_metadata)
+            self.adjust_pipeline_with_new_source_file(video_metadata, subtitle_path)
         else:
             logger.debug("Init Gst pipeline")
             self.video_metadata = video_metadata
             self.has_audio = audio_utils.get_audio_codec(self.video_metadata.video_file) is not None
+            self.has_subtitles = subtitle_path is not None
 
             bus = self.pipeline.get_bus()
             bus.add_watch(GLib.PRIORITY_DEFAULT, self.on_bus_msg)
@@ -127,6 +133,12 @@ class PipelineManager(GObject.Object):
             self.pipeline_add_video()
             if self.has_audio:
                 self.pipeline_add_audio()
+            if self.has_subtitles:
+                try:
+                    self.pipeline_add_subtitles(subtitle_path)
+                except Exception as e:
+                    logger.error("Error while adding subtitle. Continue without subs.", e)
+                    self.has_subtitles = False
 
     def close_video_file(self):
         if self.audio_volume:
@@ -257,10 +269,61 @@ class PipelineManager(GObject.Object):
         appsrc.link(buffer_queue)
         buffer_queue.link(video_sink)
 
+        self.video_sink = video_sink
         self.video_buffer_queue = buffer_queue
         self.frame_restorer_app_src = appsrc
         self.paintable = paintable
         self.paintable.connect("invalidate-size", lambda obj: GLib.idle_add(lambda: self.emit("paintable-size-changed")))
+
+    def pipeline_add_subtitles(self, subtitle_path: str):
+        textoverlay = Gst.ElementFactory.make('textoverlay', None)
+        textoverlay.set_property('font-desc', 'Sans 18')
+        textoverlay.set_property('halignment', 'center')
+        textoverlay.set_property('valignment', 'bottom')
+        textoverlay.set_property('shaded-background', True)
+
+        subparse = Gst.ElementFactory.make('subparse', None)
+
+        filesrc = Gst.ElementFactory.make('filesrc', None)
+        filesrc.set_property('location', subtitle_path)
+
+        # Add all elements to pipeline
+        self.pipeline.add(textoverlay)
+        self.pipeline.add(subparse)
+        self.pipeline.add(filesrc)
+
+        # Link the subtitle pipeline: filesrc -> subparse -> textoverlay (text sink)
+        filesrc.link(subparse)
+        subparse.link(textoverlay)
+
+        # Insert textoverlay into video pipeline
+        self.video_buffer_queue.unlink(self.video_sink)
+        self.video_buffer_queue.link(textoverlay)
+        textoverlay.link(self.video_sink)
+
+        self.subtitle_filesrc = filesrc
+        self.subtitle_textoverlay = textoverlay
+        self.pipeline_subtitle_elements = [filesrc, subparse, textoverlay]
+
+    def pipeline_remove_subtitles(self):
+        for subtitle_element in self.pipeline_subtitle_elements:
+            subtitle_element.set_state(Gst.State.NULL)
+
+        # Unlink the subtitle pipeline and restore original video pipeline
+        try:
+            self.video_buffer_queue.unlink(self.subtitle_textoverlay)
+            self.subtitle_textoverlay.unlink(self.video_sink)
+            self.video_buffer_queue.link(self.video_sink)
+        except Exception as e:
+            # This could be fine if there was an error while adding subtitle elements and these aren't actually linked
+            logger.debug("Couldn't unlink subtitle elements",e )
+
+        for subtitle_element in self.pipeline_subtitle_elements:
+            self.pipeline.remove(subtitle_element)
+
+        self.subtitle_filesrc = None
+        self.subtitle_textoverlay = None
+        self.pipeline_subtitle_elements = []
 
     def pipeline_remove_audio(self):
         for audio_element in self.pipeline_audio_elements:
@@ -270,7 +333,7 @@ class PipelineManager(GObject.Object):
         self.audio_volume = None
         self.audio_buffer_queue = None
 
-    def adjust_pipeline_with_new_source_file(self, video_metadata: VideoMetadata):
+    def adjust_pipeline_with_new_source_file(self, video_metadata: VideoMetadata, subtitle_path: str | None = None):
         self.video_metadata = video_metadata
         self.frame_restorer_app_src.set_property('video-metadata', self.video_metadata)
         audio_pipeline_already_added = self.has_audio
@@ -284,6 +347,23 @@ class PipelineManager(GObject.Object):
                 self.pipeline_add_audio()
         else:
             self.pipeline_remove_audio()
+
+        # Handle subtitles
+        subtitle_pipeline_already_added = self.has_subtitles
+        self.has_subtitles = subtitle_path is not None
+
+        if self.has_subtitles:
+            try:
+                if subtitle_pipeline_already_added:
+                    self.subtitle_filesrc.set_property('location', subtitle_path)
+                else:
+                    self.pipeline_add_subtitles(subtitle_path)
+            except Exception as e:
+                logger.error("Error while adding subtitle. Continue without subs.", e)
+                self.pipeline_remove_subtitles()
+                self.has_subtitles = False
+        elif subtitle_pipeline_already_added:
+            self.pipeline_remove_subtitles()
 
     def reinit_appsrc(self):
         self.frame_restorer_app_src.set_property('video-metadata', self.video_metadata)
