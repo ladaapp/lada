@@ -55,6 +55,26 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release date="2026-01-10" version="0.10.1">
+            <description>
+                <p>Features / Improvements:</p>
+                <ul>
+                    <li>CLI+GUI: Add French translations</li>
+                    <li>CLI: Print listings more space efficiently</li>
+                    <li>CLI+GUI: Include legacy v2 mosaic detection model again in releases</li>
+                </ul>
+                <p>Fixes:</p>
+                <ul>
+                    <li>CLI+GUI: Fix performance regression on Nvidia 50-series GPUs if FP16 is enabled</li>
+                    <li>CLI+GUI: Ensure to stop restoration pipeline and show error if any of the workers crashed</li>
+                    <li>GUI: Fix occasional freeze or spinner getting stuck when opening another file</li>
+                    <li>GUI: Ensure to only decode audio streams in gstreamer audio pipeline (Watch mode) to avoid potential issue by unhandled video- or metadata</li>
+                    <li>GUI: Fix short freeze of Spinner while opening another file</li>
+                    <li>CLI: Fix --list-encoding-presets not showing translated preset descriptions</li>
+                    <li>CLI: Fix table alignment of listings when using CJK languages if mixed with Latin letters</li>
+                </ul>
+            </description>
+        </release>
         <release date="2026-01-01" version="0.10.0">
             <description>
                 <p>Features / Improvements:</p>
