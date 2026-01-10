@@ -4,11 +4,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2025-12-31 09:23+0000\n"
+"POT-Creation-Date: 2026-01-09 14:23+0000\n"
 "PO-Revision-Date: 2026-01-01 10:21+0000\n"
 "Last-Translator: softasa <softasa@noreply.codeberg.org>\n"
-"Language-Team: Dutch <https://translate.codeberg.org/projects/lada/lada/nl/>"
-"\n"
+"Language-Team: Dutch <https://translate.codeberg.org/projects/lada/lada/nl/"
+">\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -52,12 +52,6 @@ msgstr "voorbeeld"
 msgid "Remove"
 msgstr "Verwijderen"
 
-msgid "Export video"
-msgstr "Video exporteren"
-
-msgid "Open File"
-msgstr "Bestand openen"
-
 msgid "Restoring video…"
 msgstr "Bezig met herstellen…"
 
@@ -67,8 +61,14 @@ msgstr "De video is hersteld!"
 msgid "Restoration failed"
 msgstr "Het herstellen is mislukt"
 
+msgid "Export video"
+msgstr "Video exporteren"
+
 msgid "Restoration paused"
 msgstr "Het herstellen is onderbroken"
+
+msgid "Open File"
+msgstr "Bestand openen"
 
 #, python-brace-format
 msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
@@ -142,30 +142,6 @@ msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr ""
 "Er is geen videokaart aangetroffen. Het programma zal daardoor erg traag "
 "zijn."
-
-msgid "Create Preset"
-msgstr "Voorinstelling maken"
-
-msgid "Edit Preset"
-msgstr "Voorinstelling bewerken"
-
-msgid "Save"
-msgstr "Opslaan"
-
-msgid "<big>Description</big>"
-msgstr "<big>Beschrijving</big>"
-
-msgid "<big>Encoder</big>"
-msgstr "<big>Encodering</big>"
-
-msgid "<big>Encoder Help</big>"
-msgstr "<big>Hulp bij encodering</big>"
-
-msgid "<big>Encoder Options</big>"
-msgstr "<big>Encoderingsopties</big>"
-
-msgid "Enter encoder options…"
-msgstr "Voer encoderingsopties in…"
 
 msgid "Mosaic Removal"
 msgstr "Mozaïeken verwijderen"
@@ -345,6 +321,30 @@ msgstr "Bekijken"
 msgid "Reset to factory settings"
 msgstr "Standaardwaarden herstellen"
 
+msgid "Create Preset"
+msgstr "Voorinstelling maken"
+
+msgid "Edit Preset"
+msgstr "Voorinstelling bewerken"
+
+msgid "Save"
+msgstr "Opslaan"
+
+msgid "<big>Description</big>"
+msgstr "<big>Beschrijving</big>"
+
+msgid "<big>Encoder</big>"
+msgstr "<big>Encodering</big>"
+
+msgid "<big>Encoder Help</big>"
+msgstr "<big>Hulp bij encodering</big>"
+
+msgid "<big>Encoder Options</big>"
+msgstr "<big>Encoderingsopties</big>"
+
+msgid "Enter encoder options…"
+msgstr "Voer encoderingsopties in…"
+
 msgid "Create Preset…"
 msgstr "Voorinstelling maken…"
 
@@ -387,6 +387,69 @@ msgstr "Kies een of meerdere videobestanden"
 #, python-brace-format
 msgid "Custom Preset {custom_preset_num}"
 msgstr "Eigen voorinstelling {custom_preset_num}"
+
+msgid "No video files found"
+msgstr "Er zijn geen videobestanden aangetroffen"
+
+msgid "Available video encoders:"
+msgstr "Beschikbare video-encoderingen:"
+
+msgid "Name"
+msgstr "Naam"
+
+msgid "Description"
+msgstr "Beschrijving"
+
+msgid "Hardware-accelerated"
+msgstr "Hardwareversnelling gebruiken"
+
+msgid "Hardware devices"
+msgstr "Hardwareapparaten"
+
+msgid "Yes"
+msgstr "Ja"
+
+msgid "Available devices:"
+msgstr "Beschikbare apparaten:"
+
+msgid "Device"
+msgstr "Apparaat"
+
+msgid "Available detection models:"
+msgstr "Beschikbare detectiemodellen:"
+
+msgid "None!"
+msgstr "Geen!"
+
+msgid "Path"
+msgstr "Locatie"
+
+msgid "Available restoration models:"
+msgstr "Beschikbaar herstelmodellen:"
+
+msgid "Available encoding presets:"
+msgstr "Beschikbare voorinstellingen:"
+
+msgid "Usage: "
+msgstr "Gebruik: "
+
+#, python-brace-format
+msgid ""
+"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
+"f){bar_suffix}"
+msgstr ""
+"Videoverwerking: {done_percent}%|{bar}|Verwerkt: {time_done} ({frames_done}f)"
+"{bar_suffix}"
+
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | Resterend: ? | Snelheid: ?"
+
+#, python-brace-format
+msgid ""
+" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr ""
+" | Resterend: {time_remaining} ({frames_remaining}f) | Snelheid: {speed_fps}"
+"fps"
 
 msgid "Examples:"
 msgstr "Voorbeelden:"
@@ -664,72 +727,6 @@ msgstr ""
 msgid "Received Ctrl-C, stopping restoration."
 msgstr "Ctrl+C gedetecteerd — het herstel wordt afgebroken."
 
-msgid "No video files found"
-msgstr "Er zijn geen videobestanden aangetroffen"
-
-msgid "Yes"
-msgstr "Ja"
-
-msgid "Name"
-msgstr "Naam"
-
-msgid "Description"
-msgstr "Beschrijving"
-
-msgid "Hardware-accelerated"
-msgstr "Hardwareversnelling gebruiken"
-
-msgid "Hardware devices"
-msgstr "Hardwareapparaten"
-
-msgid "Available video encoders:"
-msgstr "Beschikbare video-encoderingen:"
-
-msgid "Device"
-msgstr "Apparaat"
-
-msgid "Available devices:"
-msgstr "Beschikbare apparaten:"
-
-msgid "Available restoration models:"
-msgstr "Beschikbaar herstelmodellen:"
-
-msgid "None!"
-msgstr "Geen!"
-
-msgid "Path"
-msgstr "Locatie"
-
-msgid "Available encoding presets:"
-msgstr "Beschikbare voorinstellingen:"
-
-msgid "Encoder Name"
-msgstr "Naam van encodering"
-
-msgid "Encoder Options"
-msgstr "Encoderings opties"
-
-msgid "Usage: "
-msgstr "Gebruik: "
-
-#, python-brace-format
-msgid ""
-"Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}"
-"f){bar_suffix}"
-msgstr ""
-"Videoverwerking: {done_percent}%|{bar}|Verwerkt: {time_done} ({frames_done}f)"
-"{bar_suffix}"
-
-msgid " | Remaining: ? | Speed: ?"
-msgstr " | Resterend: ? | Snelheid: ?"
-
-#, python-brace-format
-msgid ""
-" | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
-msgstr ""
-" | Resterend: {time_remaining} ({frames_remaining}f) | Snelheid: {speed_fps}"
-"fps"
-
 msgid "Latest Lada restoration model. Recommended"
 msgstr "Het nieuwste Lada restauratie model. Aanbevolen"
 
@@ -779,6 +776,12 @@ msgstr ""
 "AV1, SVT-AV1 software-encoder, ononderscheidbare kwaliteit, kleinere "
 "bestandsgrootte"
 
+#~ msgid "Encoder Name"
+#~ msgstr "Naam van encodering"
+
+#~ msgid "Encoder Options"
+#~ msgstr "Encoderings opties"
+
 #~ msgid "Model used for detecting mosaic areas."
 #~ msgstr "Het model waarmee mozaïeken worden vastgesteld."
 
@@ -827,9 +830,6 @@ msgstr ""
 #~ msgid "Encoders with support for hardware acceleration (GPU):"
 #~ msgstr ""
 #~ "Encoderingssoftware met ondersteuning voor hardwareversnelling (gpu):"
-
-#~ msgid "Available detection models:"
-#~ msgstr "Beschikbare detectiemodellen:"
 
 #~ msgid "Use a GPU-accelerated codec for encoding the restored video:"
 #~ msgstr "Gebruik hardwareversnelling om een herstelde video te encoderen:"
