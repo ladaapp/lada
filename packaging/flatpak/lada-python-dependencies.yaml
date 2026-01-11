@@ -10,10 +10,10 @@ sources:
   sha256: 249bb56bbfd3cdc2a004ea0ff4c2b6ddc84d53bc2194761636eb314d5cfa5dfc
   type: file
   url: https://files.pythonhosted.org/packages/6a/00/b08f23b7d7e1e14ce01419a467b583edbb93c6cdb8654e54a9cc579cd61f/addict-2.4.0-py3-none-any.whl
-- dest-filename: av-16.0.1-cp313-cp313-manylinux_2_28_x86_64.whl
-  sha256: 876415470a62e4a3550cc38db2fc0094c25e64eea34d7293b7454125d5958190
+- dest-filename: av-16.1.0-cp313-cp313-manylinux_2_28_x86_64.whl
+  sha256: adbad2b355c2ee4552cac59762809d791bda90586d134a33c6f13727fb86cb3a
   type: file
-  url: https://files.pythonhosted.org/packages/35/fd/867ba4cc3ab504442dc89b0c117e6a994fc62782eb634c8f31304586f93e/av-16.0.1-cp313-cp313-manylinux_2_28_x86_64.whl
+  url: https://files.pythonhosted.org/packages/c4/19/a8528d5bba592b3903f44c28dab9cc653c95fcf7393f382d2751a1d1523e/av-16.1.0-cp313-cp313-manylinux_2_28_x86_64.whl
 - dest-filename: certifi-2025.11.12-py3-none-any.whl
   sha256: 97de8790030bbd5c2d96b7ec782fc2f7820ef8dba6db909ccf95449f2d062d4b
   type: file
