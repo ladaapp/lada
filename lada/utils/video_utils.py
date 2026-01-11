@@ -368,6 +368,17 @@ class Encoder:
 
     def __hash__(self): return hash(self.name)
 
+def get_human_readable_hardware_device_name(device_type_name: str) -> str:
+    if device_type_name == 'qsv':
+        return 'Intel QSV'
+    elif device_type_name == 'amf':
+        return 'AMD AMF'
+    elif device_type_name == 'cuda':
+        return 'Nvidia CUDA'
+    elif device_type_name == 'videotoolbox':
+        return 'Apple VideoToolbox'
+    return device_type_name
+
 def get_video_encoder_codecs() -> list[Encoder]:
     codecs = set()
     for name in av.codec.codecs_available:
@@ -381,10 +392,12 @@ def get_video_encoder_codecs() -> list[Encoder]:
             continue
         codec_long_name = codec.long_name.lower()
         whitelist_video_codecs = ['hevc', 'h265', "h.265", "h264", "h.264", "vp9", "av1", "ffmpeg video codec #1", "huffyuv", "prores", "mpeg-2"]
+        whitelist_hardware_devices = ['qsv', 'cuda', 'amf', 'videotoolbox']
         if not any(name in codec_long_name for name in whitelist_video_codecs):
             continue
-        is_hardware_encoder = bool(codec.capabilities & av.codec.Capabilities.hardware)
-        encoder = Encoder(codec.name, codec.long_name, is_hardware_encoder, set([hwconfig.device_type.name for hwconfig in codec.hardware_configs] if is_hardware_encoder else []))
+        is_hardware_encoder = codec.hardware_configs is not None and len(codec.hardware_configs) > 0
+        hardware_devices = set([hwconfig.device_type.name for hwconfig in filter(lambda hwconfig: hwconfig.device_type.name in whitelist_hardware_devices, codec.hardware_configs)] if is_hardware_encoder else [] if is_hardware_encoder else [])
+        encoder = Encoder(codec.name, codec.long_name, is_hardware_encoder, hardware_devices)
         codecs.add(encoder)
     return sorted(list(codecs), key=lambda e: e.name)
 

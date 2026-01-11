@@ -97,13 +97,13 @@ def _dump_table(table):
     print(s)
 
 def dump_encoders():
-    from lada.utils.video_utils import get_video_encoder_codecs
+    from lada.utils.video_utils import get_video_encoder_codecs, get_human_readable_hardware_device_name
     encoders = get_video_encoder_codecs()
     print(_("Available video encoders:"))
     table = [[_("Name"), _("Description"), _("Hardware-accelerated"), _("Hardware devices")]]
     for e in encoders:
         hardware = _("Yes") if e.hardware_encoder else ""
-        devices = str(e.hardware_devices) if len(e.hardware_devices) > 0 else ""
+        devices = ", ".join([get_human_readable_hardware_device_name(device) for device in e.hardware_devices])
         table.append([e.name, e.long_name, hardware, devices])
     _dump_table(table)
 

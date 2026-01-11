@@ -52,7 +52,8 @@ class EncodingPresetDialog(Adw.Dialog):
         strings = Gtk.StringList()
         self.drop_down_encoders.props.model = strings
         for i, encoder in enumerate(self.encoders):
-            name = f"{encoder.name} ({encoder.long_name}){f" [{" ".join(encoder.hardware_devices)}]" if len(encoder.hardware_devices) > 0 else ""}"
+            hardware_devices = [video_utils.get_human_readable_hardware_device_name(device) for device in encoder.hardware_devices]
+            name = f"{encoder.name} ({encoder.long_name}){f" [{", ".join(hardware_devices)}]" if len(hardware_devices) > 0 else ""}"
             strings.append(name)
             if self._encoding_preset.encoder_name == encoder.name:
                 self.drop_down_encoders.set_selected(i)
