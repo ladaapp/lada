@@ -117,56 +117,75 @@ Now you should be able to run the CLI by calling `lada-cli`.
 
 ### Install GUI
 
-1) Install everything mentioned in [Install CLI](#install-cli)
+1. Install everything mentioned in [Install CLI](#install-cli)
 
-2) Download and install build dependencies
-   
-   Open a PowerShell as Administrator and install the following programs via winget
-   ```Powershell
-   winget install --id MSYS2.MSYS2 -e --source winget
-   winget install --id Microsoft.VisualStudio.2022.BuildTools -e --source winget --silent --override "--wait --quiet --add ProductLang En-us --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
-   winget install --id Rustlang.Rustup -e --source winget
-   winget install --id Microsoft.VCRedist.2013.x64  -e --source winget
-   winget install --id Microsoft.VCRedist.2013.x86  -e --source winget
-   ```
-   Then restart your computer.
+2. Install system dependencies
 
-   We need these tools in order to build the app's system dependencies in the next step.
+   Choose only one of these two steps in order to install system dependencies necessary to run the GUI.
+   The first option to use pre-compiled dependencies is recommended as it's faster and less error-prone than building them yourself.
+   
+   1. Download and install system dependencies
+   
+      As compiling system dependencies and setting up the build system can take quite some time pre-compiled dependencies are available.
+   
+      First download the file [lada_windows_dependencies_python313_gvsbuild2025111.7z](https://pixeldrain.com/u/Y5dDKFUM).
+   
+      Then extract it. Make sure that the extracted `build_gtk` folder is now located in the project root. Your directory should look like this:
+   
+      ```
+      <lada root>
+      ├── pyproject.toml
+      ├── LICENSE.md
+      ├── lada/
+      ├── build_gtk/ # <- extracted from lada_windows_dependencies_python313_gvsbuild2025111.7z
+      ...
+      ```
 
-3) Build and install system dependencies via gvsbuild
-   
-   Open a PowerShell as a regular user. You will not need an Administrator Shell for any of the remaining steps.
-   
-   Prepare the build environment
-   ```Powershell
-   uv venv venv_gtk
-   .\venv_gtk\Scripts\Activate.ps1
-   uv pip install gvsbuild==2025.11.1
-   uv pip install patch
-   uv run --no-project python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_ffmpeg.patch
-   uv pip uninstall patch
-   ```
-   
-   Now we can start building the dependencies with `gvsbuild`. Grab a coffee, this will take a while...
-   
-   ```Powershell
-   gvsbuild build --configuration=release --build-dir='./build_gtk' --enable-gi --py-wheel gtk4 adwaita-icon-theme pygobject libadwaita gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-plugin-gtk4 gst-libav gst-python gettext
-   ```
-   
-   Congrats! If this command finished successfully you've set up all system dependencies so we can now continue installing Lada and it's python dependencies.
-   
-   Let's exit the gvsbuild build environment and re-activate the project venv
-   ```Powershell
-   deactivate
-   .\.venv\Scripts\Activate.ps1
-   ```
+   2. Build and install system dependencies via gvsbuild
 
-> [!TIP]
-> Do not change `--build-dir` parameter of the gvsbuild command. The app expects this exact directory name and location so it can find these build artifacts.
+      Instead of using the pre-compiled dependencies you can build them yourself on your own machine.
+      
+      First, download and install the build dependencies:
+      
+      Open a PowerShell as Administrator and install the following programs via winget
+      ```Powershell
+      winget install --id MSYS2.MSYS2 -e --source winget
+      winget install --id Microsoft.VisualStudio.2022.BuildTools -e --source winget --silent --override "--wait --quiet --add ProductLang En-us --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
+      winget install --id Rustlang.Rustup -e --source winget
+      winget install --id Microsoft.VCRedist.2013.x64  -e --source winget
+      winget install --id Microsoft.VCRedist.2013.x86  -e --source winget
+      ```
+      Then restart your computer.
 
-4) Install python dependencies
+      Open a PowerShell as a regular user. You will not need an Administrator Shell for any of the remaining steps.
+      
+      Prepare the build environment
+      ```Powershell
+      uv venv venv_gtk
+      .\venv_gtk\Scripts\Activate.ps1
+      uv pip install gvsbuild==2025.11.1
+      uv pip install patch
+      uv run --no-project python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_ffmpeg.patch
+      uv pip uninstall patch
+      ```
+      
+      Now we can start building the dependencies with `gvsbuild`. Grab a coffee, this will take a while...
+      
+      ```Powershell
+      gvsbuild build --configuration=release --build-dir='./build_gtk' --enable-gi --py-wheel gtk4 adwaita-icon-theme pygobject libadwaita gstreamer gst-plugins-base gst-plugins-good gst-plugins-bad gst-plugins-ugly gst-plugin-gtk4 gst-libav gst-python gettext
+      ```
+      
+      Congrats! If this command finished successfully you've set up all system dependencies so we can now continue installing Lada and it's python dependencies.
+      
+      Let's exit the gvsbuild build environment and re-activate the project venv
+      ```Powershell
+      deactivate
+      .\.venv\Scripts\Activate.ps1
+      ```
 
-   For the GUI we'll need to install the Python wheels we've just built with gvsbuild
+4. Install python dependencies
+
+   Install the Python wheels we've built (or downloaded) in the previous step
     ```Powershell
     uv pip install --force-reinstall (Resolve-Path ".\build_gtk\gtk\x64\release\python\pygobject*.whl")
     uv pip install --force-reinstall (Resolve-Path ".\build_gtk\gtk\x64\release\python\pycairo*.whl")
