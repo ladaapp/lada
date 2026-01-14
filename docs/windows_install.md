@@ -14,7 +14,7 @@ This section describes how to install the app (CLI and GUI) from source.
    ```Powershell
    winget install --id Gyan.FFmpeg -e --source winget
    winget install --id Git.Git -e --source winget
-   winget install --id Python.Python.3.13 -e --source winget
+   winget install --id astral-sh.uv -e --source winget
    set-ExecutionPolicy RemoteSigned
    ```
    Then close this PowerShell window
@@ -31,7 +31,7 @@ This section describes how to install the app (CLI and GUI) from source.
 3) Create a virtual environment to install python dependencies
    
    ```Powershell
-   py -m venv .venv
+   uv venv
    .\.venv\Scripts\Activate.ps1
    ```
 
@@ -43,9 +43,12 @@ This section describes how to install the app (CLI and GUI) from source.
 > If your hardware is not supported in the latest release you might need to choose an older PyTorch version (You can select a specific release tag on GitHub to see an older version of that document).
 
 > [!TIP]
+> Instead of `pip install ...` as it's documented by PyTorch use `uv pip install ...`. Alternatively you can use `uv pip install torch torchvision --torch-backend auto` to let uv take care of choosing the correct PyTorch installation for your system and available hardware.
+
+> [!TIP]
 > Before continuing let's test if the PyTorch installation was successful by checking if your GPU is detected (Skip this step if you're running on CPU)
 > ```shell
-> python -c "import torch ; print(torch.cuda.is_available())"
+> uv run --no-project python -c "import torch ; print(torch.cuda.is_available())"
 > ```
 > If this prints *True* then you're good. It will display *False* if the GPU is not available to PyTorch. Check your GPU drivers and that you chose the correct PyTorch Installation method for your hardware.
 
@@ -65,17 +68,17 @@ This section describes how to install the app (CLI and GUI) from source.
 5) Install python dependencies
    
     ```Powershell
-    pip install -e '.'
+    uv pip install -e '.'
     ````
 
 6) Apply patches
 
     ```Powershell
-    pip install patch
-    python -m patch -p1 -d .venv/lib/site-packages patches/increase_mms_time_limit.patch
-    python -m patch -p1 -d .venv/lib/site-packages patches/remove_ultralytics_telemetry.patch
-    python -m patch -p1 -d .venv/lib/site-packages patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
-    pip uninstall patch
+    uv pip install patch
+    uv run --no-project python -m patch -p1 -d .venv/lib/site-packages patches/increase_mms_time_limit.patch
+    uv run --no-project python -m patch -p1 -d .venv/lib/site-packages patches/remove_ultralytics_telemetry.patch
+    uv run --no-project python -m patch -p1 -d .venv/lib/site-packages patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
+    uv pip uninstall patch
     ````
 
 > [!TIP]
@@ -85,7 +88,7 @@ This section describes how to install the app (CLI and GUI) from source.
 > 
 > One of our dependencies (mmengine) uses it internally and will crash if `torch.dist` is not available. You can use the following patch to work around that and make Lada work regardless:
 > ```Powershell
-> python -m patch -p1 -d .venv/lib/site-packages patches/remove_use_of_torch_dist_in_mmengine.patch
+> uv run --no-project python -m patch -p1 -d .venv/lib/site-packages patches/remove_use_of_torch_dist_in_mmengine.patch
 > ```
 > If you're reading this and AMD included `torch.dist` in their builds please create a Pull Request or create an issue to update this tip.
 
@@ -110,7 +113,7 @@ Now you should be able to run the CLI by calling `lada-cli`.
 > Remember: To start Lada always make sure to:
 > * `cd` into the project root directory
 > * Activate the virtual environment via `.\.venv\Scripts\Activate.ps1`
-> * Run `lada` to start the CLI
+> * Run `lada-cli` to start the CLI
 
 ### Install GUI
 
@@ -136,12 +139,12 @@ Now you should be able to run the CLI by calling `lada-cli`.
    
    Prepare the build environment
    ```Powershell
-   py -m venv venv_gtk
+   uv venv venv_gtk
    .\venv_gtk\Scripts\Activate.ps1
-   pip install gvsbuild==2025.11.1
-   pip install patch
-   python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_ffmpeg.patch
-   pip uninstall patch
+   uv pip install gvsbuild==2025.11.1
+   uv pip install patch
+   uv run --no-project python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_ffmpeg.patch
+   uv pip uninstall patch
    ```
    
    Now we can start building the dependencies with `gvsbuild`. Grab a coffee, this will take a while...
@@ -165,8 +168,8 @@ Now you should be able to run the CLI by calling `lada-cli`.
 
    For the GUI we'll need to install the Python wheels we've just built with gvsbuild
     ```Powershell
-    pip install --force-reinstall (Resolve-Path ".\build_gtk\gtk\x64\release\python\pygobject*.whl")
-    pip install --force-reinstall (Resolve-Path ".\build_gtk\gtk\x64\release\python\pycairo*.whl")
+    uv pip install --force-reinstall (Resolve-Path ".\build_gtk\gtk\x64\release\python\pygobject*.whl")
+    uv pip install --force-reinstall (Resolve-Path ".\build_gtk\gtk\x64\release\python\pycairo*.whl")
     ````
 
 > [!TIP]

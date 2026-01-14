@@ -15,19 +15,19 @@ This section describes how to install the app (CLI and GUI) from source.
    ```
 
 2) Install system dependencies with your system package manager or compile/install from source
-   * Python >= 3.12, <= 3.13
+   * uv
    * FFmpeg >= 4.4
 
 > [!TIP]
-> Arch Linux: `sudo pacman -Syu python ffmpeg`
+> Arch Linux: `sudo pacman -Syu uv ffmpeg`
 > 
-> Ubuntu 25.04: `sudo apt install python3.13 python3.13-venv ffmpeg` 
+> Ubuntu 25.04: Not packaged by Ubuntu yet, see https://docs.astral.sh/uv/getting-started/installation/ for alternative installation methods
 > 
-> Ubuntu 24.04: `sudo apt install python3.12 python3.12-venv ffmpeg`
+> Ubuntu 24.04: Not packaged by Ubuntu yet, see https://docs.astral.sh/uv/getting-started/installation/ for alternative installation methods
 
 3) Create a virtual environment to install python dependencies
     ```bash
-    python3 -m venv .venv
+    uv venv
     source .venv/bin/activate
     ```
 
@@ -39,23 +39,27 @@ This section describes how to install the app (CLI and GUI) from source.
 > If your hardware is not supported in the latest release you might need to choose an older PyTorch version (You can select a specific release tag on GitHub to see an older version of that document).
 
 > [!TIP]
+> Instead of `pip install ...` as it's documented by PyTorch use `uv pip install ...`. Alternatively you can use `uv pip install torch torchvision --torch-backend auto` to let uv take care of choosing the correct PyTorch installation for your system and available hardware.
+
+> [!TIP]
 > Before continuing let's test if the PyTorch installation was successful by checking if your GPU is detected (Skip this step if you're running on CPU)
 > ```bash
-> python -c "import torch ; print(torch.cuda.is_available())"
+> uv run --no-project python -c "import torch ; print(torch.cuda.is_available())"
 > ```
 > If this prints *True* then you're good. It will display *False* if the GPU is not available to PyTorch. Check your GPU drivers and that you chose the correct PyTorch Installation method for your hardware.
 
+
 5) Install python dependencies
     ```bash
-    python -m pip install -e '.'
+    uv pip install -e '.'
     ````
 
 6) Apply patches
    
     ```bash
-    patch -u -p1 -d .venv/lib/python3.1[23]/site-packages < patches/increase_mms_time_limit.patch
-    patch -u -p1 -d .venv/lib/python3.1[23]/site-packages < patches/remove_ultralytics_telemetry.patch
-    patch -u -p1 -d .venv/lib/python3.1[23]/site-packages < patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
+    patch -u -p1 -d .venv/lib/python3.13/site-packages < patches/increase_mms_time_limit.patch
+    patch -u -p1 -d .venv/lib/python3.13/site-packages < patches/remove_ultralytics_telemetry.patch
+    patch -u -p1 -d .venv/lib/python3.13/site-packages < patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
     ```
 
 7) Download model weights
@@ -79,7 +83,7 @@ Now you should be able to run the CLI by calling `lada-cli`.
 > Remember: To start Lada always make sure to:
 > * `cd` into the project root directory
 > * Activate the virtual environment via `source .venv/bin/activate`
-> * Run `lada` to start the CLI
+> * Run `lada-cli` to start the CLI
 
 ### Install GUI
 
@@ -130,7 +134,7 @@ Now you should be able to run the CLI by calling `lada-cli`.
 
 3) Install python dependencies
     ```bash
-    python -m pip install -e '.[gui]'
+    uv pip install -e '.[gui]'
     ````
 
 > [!TIP]
@@ -151,15 +155,9 @@ If we have a translation file for your language you might want to use it instead
 1) Install system dependencies
 
 > [!TIP]
-> Arch Linux: 
-> ```bash
-> sudo pacman -Syu gettext 
-> ```
->   
-> Ubuntu:
-> ```bash
-> sudo apt install gettext
-> ```
+> Arch Linux: `sudo pacman -Syu gettext`
+> 
+> Ubuntu: `sudo apt install gettext`
 
 2) Compile translations
     ```bash
