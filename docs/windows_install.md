@@ -128,7 +128,7 @@ Now you should be able to run the CLI by calling `lada-cli`.
    
       As compiling system dependencies and setting up the build system can take quite some time pre-compiled dependencies are available.
    
-      First download the file [lada_windows_dependencies_python313_gvsbuild2025111.7z](https://pixeldrain.com/u/Y5dDKFUM).
+      First download the file [lada_windows_dependencies_python313_gvsbuild202611.7z](https://pixeldrain.com/u/SB1nGZJQ) (`sha256: 171152e8df65556f02065e080ec087153aaaa39634346b3dbe08a4f0f0d3ba1f`).
    
       Then extract it. Make sure that the extracted `build_gtk` folder is now located in the project root. Your directory should look like this:
    
@@ -137,7 +137,7 @@ Now you should be able to run the CLI by calling `lada-cli`.
       ├── pyproject.toml
       ├── LICENSE.md
       ├── lada/
-      ├── build_gtk/ # <- extracted from lada_windows_dependencies_python313_gvsbuild2025111.7z
+      ├── build_gtk/ # <- extracted from lada_windows_dependencies_python313_gvsbuild202611.7z
       ...
       ```
 
@@ -163,10 +163,7 @@ Now you should be able to run the CLI by calling `lada-cli`.
       ```Powershell
       uv venv venv_gtk
       .\venv_gtk\Scripts\Activate.ps1
-      uv pip install gvsbuild==2025.11.1
-      uv pip install patch
-      uv run --no-project python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_ffmpeg.patch
-      uv pip uninstall patch
+      uv pip install gvsbuild==2026.1.0
       ```
       
       Now we can start building the dependencies with `gvsbuild`. Grab a coffee, this will take a while...

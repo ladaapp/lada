@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: AGPL-3.0
 
 $global:PYINSTALLER_VERSION = "6.16.0"
-$global:GVSBUILD_VERSION = "2025.11.1"
+$global:GVSBUILD_VERSION = "2026.1.0"
 $global:PYTHON_VERSION = "3.13"
-$global:UV_VERSION = "0.9.10"
+$global:UV_VERSION = "0.9.26"
 
 function Ask-YesNo {
     param([Parameter(Mandatory)] [string]$Question)
@@ -48,9 +48,6 @@ function Build-SystemDependencies {
     .\venv_gtk_release\Scripts\Activate.ps1
 
     uv pip install gvsbuild==$global:GVSBUILD_VERSION
-    uv pip install patch
-    uv run --no-project python -m patch -p1 -d venv_gtk_release/lib/site-packages patches/gvsbuild_ffmpeg.patch
-    uv pip uninstall patch
 
     $cleanArgument = if ($clean) { '--clean' } else { '' }
 
