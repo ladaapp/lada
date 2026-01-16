@@ -15,7 +15,7 @@
 
 ### GUI
 
-After opening a file, you can either watch the restored via in realtime or export it to a new file to watch it later:
+After opening a file, you can either watch the restored video in real time or export it to a new file to watch it later:
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/screenshot_gui_1_dark.png">

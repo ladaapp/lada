@@ -8,22 +8,28 @@ This section describes how to install the app (CLI and GUI) from source.
 
 ### Install CLI
 
-1) Get the code
+1) Install system dependencies with your system package manager or compile/install from source
+   * uv
+   * FFmpeg >= 4.4
+   * git
+
+> [!TIP]
+> Arch Linux: `sudo pacman -Syu uv ffmpeg git`
+> 
+> Ubuntu 25.04: `sudo apt install ffmpeg git`. `uv` is not yet available in Ubuntu/Debian repositories, see [uv | Getting Started](https://docs.astral.sh/uv/getting-started/installation/) for alternative installation methods
+> 
+> Ubuntu 24.04: `sudo apt install ffmpeg git`. `uv` is not yet available in Ubuntu/Debian repositories, see [uv | Getting Started](https://docs.astral.sh/uv/getting-started/installation/) for alternative installation methods
+
+> [!TIP]
+> If you have an Intel GPU and want to use QSV hardware video encoding you'll need to install [Intel VPL GPU Runtime](https://github.com/intel/vpl-gpu-rt).
+> 
+> Arch Linux: `sudo pacman -S vpl-gpu-rt`
+
+2) Get the code
    ```bash
    git clone https://codeberg.org/ladaapp/lada.git
    cd lada
    ```
-
-2) Install system dependencies with your system package manager or compile/install from source
-   * uv
-   * FFmpeg >= 4.4
-
-> [!TIP]
-> Arch Linux: `sudo pacman -Syu uv ffmpeg`
-> 
-> Ubuntu 25.04: Not packaged by Ubuntu yet, see https://docs.astral.sh/uv/getting-started/installation/ for alternative installation methods
-> 
-> Ubuntu 24.04: Not packaged by Ubuntu yet, see https://docs.astral.sh/uv/getting-started/installation/ for alternative installation methods
 
 3) Create a virtual environment to install python dependencies
     ```bash
