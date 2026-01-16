@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Lada Authors
 # SPDX-License-Identifier: AGPL-3.0
 
-$global:PYINSTALLER_VERSION = "6.16.0"
+$global:PYINSTALLER_VERSION = "6.18.0"
 $global:GVSBUILD_VERSION = "2026.1.0"
 $global:PYTHON_VERSION = "3.13"
 $global:UV_VERSION = "0.9.26"
