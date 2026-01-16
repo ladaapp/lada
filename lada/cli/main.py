@@ -13,11 +13,11 @@ import torch
 from lada import VERSION, ModelFiles
 from lada.cli import utils
 from lada.utils import audio_utils, video_utils
-from lada.utils.os_utils import has_modern_nvidia_gpu
+from lada.utils.os_utils import has_modern_nvidia_gpu,gpu_has_fp16_acceleration, default_device
 from lada.restorationpipeline.frame_restorer import FrameRestorer
 from lada.restorationpipeline import load_models
 from lada.utils.threading_utils import STOP_MARKER, ErrorMarker
-from lada.utils.video_utils import get_video_meta_data, VideoWriter
+from lada.utils.video_utils import get_video_meta_data, VideoWriter, get_default_preset_name
 
 def setup_argparser() -> argparse.ArgumentParser:
     examples_header_text = _("Examples:")
@@ -56,14 +56,14 @@ def setup_argparser() -> argparse.ArgumentParser:
     group_general.add_argument('--output', type=str, help=_('Path used to save output file(s). If path is a directory then file name will be chosen automatically (see --output-file-pattern). If no output path was given then the directory of the input file will be used'))
     group_general.add_argument('--temporary-directory', type=str, default=tempfile.gettempdir(), help=_('Directory for temporary video files during restoration process. Alternatively, you can use the environment variable TMPDIR. (default: %(default)s)'))
     group_general.add_argument('--output-file-pattern', type=str, default="{orig_file_name}.restored.mp4", help=_("Pattern used to determine output file name(s). Used when input is a directory, or a file but no output path was specified. Must include the placeholder '{orig_file_name}'. (default: %(default)s)"))
-    group_general.add_argument('--device', type=str, default="cuda:0", help=_('Device used for running Restoration and Detection models. Use "cpu" or "cuda". If you have multiple GPUs you can select a specific one via index e.g. "cuda:0" (default: %(default)s)'))
-    group_general.add_argument('--fp16', action=argparse.BooleanOptionalAction, default=has_modern_nvidia_gpu(), help=_("Reduces VRAM usage and may increase speed on modern GPUs, with negligible quality difference. (default: %(default)s)"))
+    group_general.add_argument('--device', type=str, default=default_device(), help=_('Device used for running Restoration and Detection models. Use "--list-devices" to see what\'s available (default: %(default)s)'))
+    group_general.add_argument('--fp16', action=argparse.BooleanOptionalAction, default=gpu_has_fp16_acceleration(), help=_("Reduces VRAM usage and may increase speed on modern GPUs (with FP16 support), with negligible quality difference. (default: %(default)s)"))
     group_general.add_argument('--list-devices', action='store_true', help=_("List available devices and exit"))
     group_general.add_argument('--version', action='store_true', help=_("Display version and exit"))
     group_general.add_argument('--help', action='store_true', help=_("Show this help message and exit"))
 
     export = parser.add_argument_group(_('Export'))
-    export.add_argument('--encoding-preset', type=str, default="hevc-nvidia-gpu-hq" if has_modern_nvidia_gpu() else "h264-cpu-fast", help=_('Select encoding preset by name. Use "--list-encoding-presets" to see what\'s available. Ignored if "--encoder" and "--encoder-options" are used (default: %(default)s)'))
+    export.add_argument('--encoding-preset', type=str, default=get_default_preset_name(), help=_('Select encoding preset by name. Use "--list-encoding-presets" to see what\'s available. Ignored if "--encoder" and "--encoder-options" are used (default: %(default)s)'))
     export.add_argument('--list-encoding-presets', action='store_true', help=_("List available encoding presets and exit"))
     export.add_argument('--encoder', type=str, help=_('Select video encoder by name. Use "--list-encoders" to see what\'s available. (default: %(default)s)'))
     export.add_argument('--list-encoders', action='store_true', help=_("List available encoders and exit"))

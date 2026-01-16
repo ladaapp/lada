@@ -109,9 +109,21 @@ def dump_encoders():
 
 def dump_torch_devices():
     print(_("Available devices:"))
-    cuda_device_count = torch.cuda.device_count()
-    devices = ["cpu"] + [f"cuda:{i}" for i in range(cuda_device_count)]
-    descriptions = ["CPU"] + [torch.cuda.get_device_properties(i).name for i in range(cuda_device_count)]
+    devices = ["cpu"]
+    descriptions = ["CPU"]
+
+    if torch.cuda.is_available():
+        cuda_device_count = torch.cuda.device_count()
+        for i in range(cuda_device_count):
+            devices.append(f"cuda:{i}")
+            descriptions.append(torch.cuda.get_device_properties(i).name)
+    
+    if hasattr(torch, 'xpu') and torch.xpu.is_available():
+        xpu_device_count = torch.xpu.device_count()
+        for i in range(xpu_device_count):
+            devices.append(f"xpu:{i}")
+            descriptions.append(torch.xpu.get_device_name(i))
+
     table = [[_("Device"), _("Description")]]
     for device, description in zip(devices, descriptions):
         table.append([device, description])
