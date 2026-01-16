@@ -73,9 +73,9 @@ class Yolo11SegmentationModel:
             return self.postprocess(preds, input, orig_imgs)
 
     def postprocess(self, preds, img, orig_imgs: list[ImageTensor]) -> list[Results]:
-        protos = preds[1][-1]
+        protos = preds[0][-1]
         preds = nms.non_max_suppression(
-            preds,
+            preds[0],
             self.args.conf,
             self.args.iou,
             self.args.classes,

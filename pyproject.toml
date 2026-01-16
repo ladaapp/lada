@@ -10,10 +10,10 @@ license = "AGPL-3.0"
 license-files = ["LICENSE.md", "LICENSES/*.txt"]
 readme = "README.md"
 dependencies = [
-    "ultralytics==8.3.203", # Pinned as we apply a patch
+    "ultralytics==8.4.3", # Pinned as we apply a patch
     "numpy",
     "opencv-python",
-    "av>=15.0.0", # Binary wheels before 15.0.0 had either no nvidia encoders or libx265 was broken/missing.
+    "av>=16.1.0", # 16.1.0 wheel is first version that comes with QSV encoders which is default for running Lada on Intel Arc GPU
     "mmengine==0.10.7", # Pinned as we apply a patch
     "tqdm",
     "torch",

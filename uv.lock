@@ -685,7 +685,7 @@ training = [
 
 [package.metadata]
 requires-dist = [
-    { name = "av", specifier = ">=15.0.0" },
+    { name = "av", specifier = ">=16.1.0" },
     { name = "mmengine", specifier = "==0.10.7" },
     { name = "numpy" },
     { name = "opencv-python" },
@@ -696,7 +696,7 @@ requires-dist = [
     { name = "torchvision" },
     { name = "torchvision", marker = "extra == 'cu128'", specifier = "==0.23.0", index = "https://download.pytorch.org/whl/cu128", conflict = { package = "lada", extra = "cu128" } },
     { name = "tqdm" },
-    { name = "ultralytics", specifier = "==8.3.203" },
+    { name = "ultralytics", specifier = "==8.4.3" },
     { name = "wcwidth" },
 ]
 provides-extras = ["cu128", "gui"]
@@ -2153,7 +2153,7 @@ wheels = [
 
 [[package]]
 name = "ultralytics"
-version = "8.3.203"
+version = "8.4.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "matplotlib" },
@@ -2169,9 +2169,9 @@ dependencies = [
     { name = "torchvision" },
     { name = "ultralytics-thop" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/53/df/7801e01ed1beb75ab750d50f13923577fa6255f95cc2d48848a1a4334c4d/ultralytics-8.3.203.tar.gz", hash = "sha256:7d8f8a8c0bec0b3bceafef2d82f853e2c197e85adb7aa0ae92e029dc6d574635", size = 919046, upload-time = "2025-09-22T17:24:50.1Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3e/13/0559afb092ee4c3f0b2ab45c891b02b59a541ca57d1a4843ca0988dcee7d/ultralytics-8.4.3.tar.gz", hash = "sha256:64907ec275dede20f650f6164f155ad21c2eaab61ab4806f9a73d2e0816058a7", size = 1008620, upload-time = "2026-01-15T22:05:20.538Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/19/62/aede3a7915ec845107a9a74f2f4a67f2b2971903e656c2ca38aa15751678/ultralytics-8.3.203-py3-none-any.whl", hash = "sha256:7103994cfb14f8779fa0a6b7e7908708137309645a3723dbe2ceb73ea7afc63c", size = 1072183, upload-time = "2025-09-22T17:24:47.426Z" },
+    { url = "https://files.pythonhosted.org/packages/5a/d9/ced5e20d3d3932f424b3206e861c2ad45b877b22fdc6453358b976242f40/ultralytics-8.4.3-py3-none-any.whl", hash = "sha256:559d6e91fb27e45c8421d50d1d8afcb557aec834b4108aeec4d9bffe4abf74e9", size = 1181163, upload-time = "2026-01-15T22:05:16.886Z" },
 ]
 
 [[package]]

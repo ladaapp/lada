@@ -12,7 +12,6 @@ from ultralytics.engine.results import Boxes as UltralyticsBoxes
 from ultralytics.engine.results import Masks as UltralyticsMasks
 from ultralytics.engine.results import Results as UltralyticsResults
 from ultralytics.utils import JSONDict
-from ultralytics.utils.ops import scale_image
 
 from lada.utils import Box, Mask
 
@@ -72,17 +71,8 @@ def _to_mask_img_tensor(masks: torch.Tensor, class_val=0, pixel_val=255) -> torc
     return masks_tensor[0]
 
 def convert_yolo_mask(yolo_mask: UltralyticsMasks, img_shape) -> Mask:
-    mask_img = _to_mask_img(yolo_mask.data)
-    if mask_img.ndim == 2:
-        mask_img = np.expand_dims(mask_img, axis=-1)
-    mask_img = scale_image(mask_img, img_shape)
-    mask_img = np.where(mask_img > 127, 255, 0).astype(np.uint8)
-    assert mask_img.ndim == 3 and mask_img.shape[2] == 1
-    return mask_img
-
-def _to_mask_img(masks, class_val=0, pixel_val=255) -> Mask:
-    masks_tensor = (masks != class_val).int() * pixel_val
-    mask_img = masks_tensor.cpu().numpy()[0].astype(np.uint8)
+    mask_img = convert_yolo_mask_tensor(yolo_mask, img_shape).cpu().numpy()
+    assert mask_img.ndim == 3 and mask_img.shape[2] == 1 and mask_img.dtype == np.uint8
     return mask_img
 
 def choose_biggest_detection(result: UltralyticsResults, tracking_mode=True) -> tuple[UltralyticsBoxes | None, UltralyticsMasks | None]:
