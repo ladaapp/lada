@@ -908,9 +908,9 @@ typing-extensions==4.15.0 \
     --hash=sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466 \
     --hash=sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548
     # via torch
-ultralytics==8.3.203 \
-    --hash=sha256:7103994cfb14f8779fa0a6b7e7908708137309645a3723dbe2ceb73ea7afc63c \
-    --hash=sha256:7d8f8a8c0bec0b3bceafef2d82f853e2c197e85adb7aa0ae92e029dc6d574635
+ultralytics==8.4.3 \
+    --hash=sha256:559d6e91fb27e45c8421d50d1d8afcb557aec834b4108aeec4d9bffe4abf74e9 \
+    --hash=sha256:64907ec275dede20f650f6164f155ad21c2eaab61ab4806f9a73d2e0816058a7
     # via lada
 ultralytics-thop==2.0.18 \
     --hash=sha256:21103bcd39cc9928477dc3d9374561749b66a1781b35f46256c8d8c4ac01d9cf \

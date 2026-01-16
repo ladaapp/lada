@@ -234,10 +234,10 @@ sources:
   sha256: f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548
   type: file
   url: https://files.pythonhosted.org/packages/18/67/36e9267722cc04a6b9f15c7f3441c2363321a3ea07da7ae0c0707beb2a9c/typing_extensions-4.15.0-py3-none-any.whl
-- dest-filename: ultralytics-8.3.203-py3-none-any.whl
-  sha256: 7103994cfb14f8779fa0a6b7e7908708137309645a3723dbe2ceb73ea7afc63c
+- dest-filename: ultralytics-8.4.3-py3-none-any.whl
+  sha256: 559d6e91fb27e45c8421d50d1d8afcb557aec834b4108aeec4d9bffe4abf74e9
   type: file
-  url: https://files.pythonhosted.org/packages/19/62/aede3a7915ec845107a9a74f2f4a67f2b2971903e656c2ca38aa15751678/ultralytics-8.3.203-py3-none-any.whl
+  url: https://files.pythonhosted.org/packages/5a/d9/ced5e20d3d3932f424b3206e861c2ad45b877b22fdc6453358b976242f40/ultralytics-8.4.3-py3-none-any.whl
 - dest-filename: ultralytics_thop-2.0.18-py3-none-any.whl
   sha256: 2bb44851ad224b116c3995b02dd5e474a5ccf00acf237fe0edb9e1506ede04ec
   type: file
