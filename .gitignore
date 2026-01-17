@@ -1,4 +1,5 @@
 .venv/
+.venv_labelme/
 venv_gtk/
 venv_gtk_release/
 venv_release_win/

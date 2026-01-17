@@ -6,21 +6,21 @@ In order to work on the models and datasets you'll have to install the requireme
 2) Install python dependencies
    
    ```bash
-   pip install -e '.' --group dev
+   uv pip install -e '.' --group dev
    ````
    Fix dependency conflict
    
    albumentations pulls in opencv-python-headless but we depend on opencv-python. Both cannot be used at the same time.
    ```bash
-   pip uninstall opencv-python-headless opencv-python 
-   pip install -e '.'
+   uv pip uninstall opencv-python-headless opencv-python 
+   uv pip install -e '.'
    ````
 
 3) Apply patches
 
     In order to fix resume training of the mosaic restoration model apply the following patch:
     ```bash
-    patch -u -p1 -d .venv/lib/python3.1[23]/site-packages < patches/adjust_mmengine_resume_dataloader.patch
+    patch -u -p1 -d .venv/lib/python3.13/site-packages < patches/adjust_mmengine_resume_dataloader.patch
     ```
 
 4) Download model weights

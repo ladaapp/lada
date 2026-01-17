@@ -1,14 +1,14 @@
 ## Developer Installation (Linux)
-This section describes how to install the app (CLI and GUI) from source.
+This section provides instructions for installing the app (CLI and GUI) from source on Linux.
 
 > [!NOTE]
-> This is the Linux guide. If you're on Windows (and don't want to use WSL) follow the [Windows Installation](windows_install.md).
+> This is for Linux. If you're on Windows (and don't want to use WSL), follow the [Windows Installation](windows_install.md).
 > 
 > Flatpak and Docker Images are available [here](../README.md#using-flatpak)
 
 ### Install CLI
 
-1) Install system dependencies with your system package manager or compile/install from source
+1) Install system dependencies
    * uv
    * FFmpeg >= 4.4
    * git
@@ -25,7 +25,7 @@ This section describes how to install the app (CLI and GUI) from source.
 > 
 > Arch Linux: `sudo pacman -S vpl-gpu-rt`
 
-2) Get the code
+2) Get the code code
    ```bash
    git clone https://codeberg.org/ladaapp/lada.git
    cd lada
@@ -36,24 +36,23 @@ This section describes how to install the app (CLI and GUI) from source.
     uv venv
     source .venv/bin/activate
     ```
+4) Install PyTorch
 
-4) [Install PyTorch](https://pytorch.org/get-started/locally)
+   Follow the instructions to [install PyTorch](https://pytorch.org/get-started/locally). As we're using uv as package manager make sure to use `uv pip` instead of `pip` commands.
 
-> [!TIP]
-> If you're using some older hardware you should check out [RELEASE.md](https://github.com/pytorch/pytorch/blob/main/RELEASE.md). It contains support and compatibility information for all official PyTorch builds helping you to decide which version you need to install.
-> 
-> If your hardware is not supported in the latest release you might need to choose an older PyTorch version (You can select a specific release tag on GitHub to see an older version of that document).
+   Alternatively, you can use uv to select the correct version of PyTorch for your system:
 
-> [!TIP]
-> Instead of `pip install ...` as it's documented by PyTorch use `uv pip install ...`. Alternatively you can use `uv pip install torch torchvision --torch-backend auto` to let uv take care of choosing the correct PyTorch installation for your system and available hardware.
+   ```Powershell
+   uv pip install torch torchvision --torch-backend auto
+   ```
 
-> [!TIP]
-> Before continuing let's test if the PyTorch installation was successful by checking if your GPU is detected (Skip this step if you're running on CPU)
-> ```bash
-> uv run --no-project python -c "import torch ; print(torch.cuda.is_available())"
-> ```
-> If this prints *True* then you're good. It will display *False* if the GPU is not available to PyTorch. Check your GPU drivers and that you chose the correct PyTorch Installation method for your hardware.
-
+   Before continuing let's test if the PyTorch installation was successful by checking if PyTorch detects your GPU (skip if using CPU):
+   
+   > ```Powershell
+   > uv run --no-project python -c "import torch ; print(torch.cuda.is_available())"
+   > ```
+   
+   If this prints *True* then you're good. If *False*, check your GPU drivers and ensure you've selected the correct PyTorch version for your hardware.
 
 5) Install python dependencies
     ```bash
@@ -70,7 +69,7 @@ This section describes how to install the app (CLI and GUI) from source.
 
 7) Download model weights
    
-   Download the models from the GitHub Releases page into the `model_weights` directory. The following commands do just that
+   Download the necessary model weights from HuggingFace
    ```shell
    wget 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v2.pt?download=true' -O model_weights/lada_mosaic_detection_model_v2.pt
    wget 'https://huggingface.co/ladaapp/lada/resolve/main/lada_mosaic_detection_model_v4_accurate.pt?download=true' -O model_weights/lada_mosaic_detection_model_v4_accurate.pt
@@ -83,19 +82,19 @@ This section describes how to install the app (CLI and GUI) from source.
    wget 'https://drive.usercontent.google.com/download?id=1ulct4RhRxQp1v5xwEmUH7xz7AK42Oqlw&export=download&confirm=t' -O model_weights/3rd_party/clean_youknow_video.pth
    ```
 
-Now you should be able to run the CLI by calling `lada-cli`.
+You can now run the CLI with `lada-cli`.
 
 > [!TIP]
-> Remember: To start Lada always make sure to:
+> Remember: To start Lada ensure you:
 > * `cd` into the project root directory
-> * Activate the virtual environment via `source .venv/bin/activate`
-> * Run `lada-cli` to start the CLI
+> * Activate the virtual environment with `.\.venv\Scripts\Activate.ps1`
+> * Run the CLI with `lada-cli`
 
 ### Install GUI
 
-1) Install everything mentioned in [Install CLI](#install-cli)
+1) Install the CLI as per instructions [above](#install-cli)
 
-2) Install system dependencies with your system package manager or compile/install from source
+2) Install system dependencies
    * Gstreamer >= 1.14
    * PyGObject
    * GTK >= 4.0
@@ -144,19 +143,19 @@ Now you should be able to run the CLI by calling `lada-cli`.
     ````
 
 > [!TIP]
-> If you intend to hack on the GUI code install also the `gui-dev` group (`--group gui-dev`).
+> If you intend to hack on the GUI code install also the `gui-dev` group: `uv pip install --group gui-dev`.
 
-Now you should be able to run the GUI by calling `lada`.
+You can now run the GUI with `lada`.
 
 > [!TIP]
-> Remember: To start Lada always make sure to:
+> Remember: To start Lada ensure you:
 > * `cd` into the project root directory
-> * Activate the virtual environment via `source .venv/bin/activate`
-> * Run `lada` to start the GUI
+> * Activate the virtual environment with `.\.venv\Scripts\Activate.ps1`
+> * Run the GUI with `lada`
 
 ### Install Translations (optional)
 
-If we have a translation file for your language you might want to use it instead of using the app in English.
+If you prefer the app in a language other than English, you can use translation files if available.
 
 1) Install system dependencies
 
