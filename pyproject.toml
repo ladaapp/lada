@@ -56,10 +56,7 @@ dev = [
     { include-group = "training" },
     { include-group = "dataset-creation" }
 ]
-gui-dev = [
-    { include-group = "dev" },
-    "pygobject-stubs",
-]
+gui-dev = ["pygobject-stubs"]
 training = [
     "albumentationsx>=2.0.14", # Versions before 2.0.14 caused conflicts with opencv and needed workarounds
     "tensorboard>=2.20.0", # Versions before 2.20.0 were not compatible with Python >= 3.13 without workarounds

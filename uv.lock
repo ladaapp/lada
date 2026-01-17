@@ -663,16 +663,7 @@ docker = [
     { name = "opencv-python-headless" },
 ]
 gui-dev = [
-    { name = "albumentationsx" },
-    { name = "einops" },
-    { name = "lap" },
-    { name = "onnx" },
-    { name = "onnxruntime-gpu" },
-    { name = "pillow" },
     { name = "pygobject-stubs" },
-    { name = "scipy" },
-    { name = "tensorboard" },
-    { name = "timm" },
 ]
 training = [
     { name = "albumentationsx" },
@@ -719,18 +710,7 @@ dev = [
     { name = "timm" },
 ]
 docker = [{ name = "opencv-python-headless" }]
-gui-dev = [
-    { name = "albumentationsx", specifier = ">=2.0.14" },
-    { name = "einops" },
-    { name = "lap", specifier = ">=0.5.12" },
-    { name = "onnx" },
-    { name = "onnxruntime-gpu" },
-    { name = "pillow" },
-    { name = "pygobject-stubs" },
-    { name = "scipy" },
-    { name = "tensorboard", specifier = ">=2.20.0" },
-    { name = "timm" },
-]
+gui-dev = [{ name = "pygobject-stubs" }]
 training = [
     { name = "albumentationsx", specifier = ">=2.0.14" },
     { name = "tensorboard", specifier = ">=2.20.0" },
