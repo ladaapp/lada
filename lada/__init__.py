@@ -8,7 +8,8 @@ if "LADA_MODEL_WEIGHTS_DIR" in os.environ:
 else:
   MODEL_WEIGHTS_DIR = "model_weights"
 
-os.environ["NO_ALBUMENTATIONS_UPDATE"] = "1"
+os.environ["ALBUMENTATIONS_OFFLINE"] = "1"
+os.environ["ALBUMENTATIONS_NO_TELEMETRY"] = "1"
 os.environ["YOLO_VERBOSE"] = "false"
 
 VERSION = '0.10.1-dev'

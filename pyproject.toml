@@ -10,7 +10,7 @@ license = "AGPL-3.0"
 license-files = ["LICENSE.md", "LICENSES/*.txt"]
 readme = "README.md"
 dependencies = [
-    "ultralytics==8.4.3", # Pinned as we apply a patch
+    "ultralytics==8.4.4", # Pinned as we apply a patch
     "numpy",
     "opencv-python",
     "av>=16.1.0", # 16.1.0 wheel is first version that comes with QSV encoders which is default for running Lada on Intel Arc GPU
@@ -60,7 +60,7 @@ gui-dev = [
     { include-group = "dev" },
     "pygobject-stubs",
 ]
-training = ["albumentations", "tensorboard", "standard-imghdr"]
+training = ["albumentationsx>=2.0.14", "tensorboard", "standard-imghdr"]
 dataset-creation = ["lap>=0.5.12", "timm", "einops", "pillow", "scipy", "onnx", "onnxruntime-gpu"]
 docker = ["opencv-python-headless"]
 

@@ -8,13 +8,6 @@ In order to work on the models and datasets you'll have to install the requireme
    ```bash
    uv pip install -e '.' --group dev
    ````
-   Fix dependency conflict
-   
-   albumentations pulls in opencv-python-headless but we depend on opencv-python. Both cannot be used at the same time.
-   ```bash
-   uv pip uninstall opencv-python-headless opencv-python 
-   uv pip install -e '.'
-   ````
 
 3) Apply patches
 

@@ -38,34 +38,33 @@ wheels = [
 
 [[package]]
 name = "albucore"
-version = "0.0.24"
+version = "0.0.35"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
-    { name = "opencv-python-headless" },
     { name = "simsimd" },
     { name = "stringzilla" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/13/69/d4cbcf2a5768bf91cd14ffef783520458431e5d2b22fbc08418d3ba09a88/albucore-0.0.24.tar.gz", hash = "sha256:f2cab5431fadf94abf87fd0c89d9f59046e49fe5de34afea8f89bc8390253746", size = 16981, upload-time = "2025-03-09T18:46:51.409Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f1/b2/db47b557913c7339d4e7e91ace9f84ee7cec92675d7e1fdb3311f77910d3/albucore-0.0.35.tar.gz", hash = "sha256:676f4c2c99c3f4cfb75062299e19cc4314968a09351dd5a731089514a4200dff", size = 21918, upload-time = "2026-01-14T03:49:57.173Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0a/e2/91f145e1f32428e9e1f21f46a7022ffe63d11f549ee55c3b9265ff5207fc/albucore-0.0.24-py3-none-any.whl", hash = "sha256:adef6e434e50e22c2ee127b7a3e71f2e35fa088bcf54431e18970b62d97d0005", size = 15372, upload-time = "2025-03-09T18:46:50.177Z" },
+    { url = "https://files.pythonhosted.org/packages/19/d5/f4b70984a9b318aba8526a853b0996d110021836b980702fd3f6fb6da571/albucore-0.0.35-py3-none-any.whl", hash = "sha256:80c68c9eb192e2a669d4501234d1caccd618c44d53c1e040a4a007d671b93171", size = 19656, upload-time = "2026-01-14T03:49:56.246Z" },
 ]
 
 [[package]]
-name = "albumentations"
-version = "2.0.8"
+name = "albumentationsx"
+version = "2.0.14"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "albucore" },
     { name = "numpy" },
-    { name = "opencv-python-headless" },
     { name = "pydantic" },
     { name = "pyyaml" },
     { name = "scipy" },
+    { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f4/f4/85eb56c3217b53bcfc2d12e840a0b18ca60902086321cafa5a730f9c0470/albumentations-2.0.8.tar.gz", hash = "sha256:4da95e658e490de3c34af8fcdffed09e36aa8a4edd06ca9f9e7e3ea0b0b16856", size = 354460, upload-time = "2025-05-27T21:23:17.415Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/fb/38/7d9afcacb5e4867be987576b138bea0f08ca791a3d2cb0adc887faa21855/albumentationsx-2.0.14.tar.gz", hash = "sha256:68f68f740ebd23ecc5aaeb1e8ff46412b542328f4e4326ec4de308b65175f615", size = 415066, upload-time = "2026-01-14T05:10:49.213Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8e/64/013409c451a44b61310fb757af4527f3de57fc98a00f40448de28b864290/albumentations-2.0.8-py3-none-any.whl", hash = "sha256:c4c4259aaf04a7386ad85c7fdcb73c6c7146ca3057446b745cc035805acb1017", size = 369423, upload-time = "2025-05-27T21:23:15.609Z" },
+    { url = "https://files.pythonhosted.org/packages/5a/f0/6e773ff54667ccbf8ec3ab1b54b78babea2dd82a508160b4acd99b944caa/albumentationsx-2.0.14-py3-none-any.whl", hash = "sha256:93284aa3eb9d09867bb0cb65ac3052c64d9ba32e576e010f8dd10f4b259e2812", size = 422749, upload-time = "2026-01-14T05:10:47.485Z" },
 ]
 
 [[package]]
@@ -650,7 +649,7 @@ dataset-creation = [
     { name = "timm" },
 ]
 dev = [
-    { name = "albumentations" },
+    { name = "albumentationsx" },
     { name = "einops" },
     { name = "lap" },
     { name = "onnx" },
@@ -665,7 +664,7 @@ docker = [
     { name = "opencv-python-headless" },
 ]
 gui-dev = [
-    { name = "albumentations" },
+    { name = "albumentationsx" },
     { name = "einops" },
     { name = "lap" },
     { name = "onnx" },
@@ -678,7 +677,7 @@ gui-dev = [
     { name = "timm" },
 ]
 training = [
-    { name = "albumentations" },
+    { name = "albumentationsx" },
     { name = "standard-imghdr" },
     { name = "tensorboard" },
 ]
@@ -696,7 +695,7 @@ requires-dist = [
     { name = "torchvision" },
     { name = "torchvision", marker = "extra == 'cu128'", specifier = "==0.23.0", index = "https://download.pytorch.org/whl/cu128", conflict = { package = "lada", extra = "cu128" } },
     { name = "tqdm" },
-    { name = "ultralytics", specifier = "==8.4.3" },
+    { name = "ultralytics", specifier = "==8.4.4" },
     { name = "wcwidth" },
 ]
 provides-extras = ["cu128", "gui"]
@@ -712,7 +711,7 @@ dataset-creation = [
     { name = "timm" },
 ]
 dev = [
-    { name = "albumentations" },
+    { name = "albumentationsx" },
     { name = "einops" },
     { name = "lap", specifier = ">=0.5.12" },
     { name = "onnx" },
@@ -725,7 +724,7 @@ dev = [
 ]
 docker = [{ name = "opencv-python-headless" }]
 gui-dev = [
-    { name = "albumentations" },
+    { name = "albumentationsx" },
     { name = "einops" },
     { name = "lap", specifier = ">=0.5.12" },
     { name = "onnx" },
@@ -738,7 +737,7 @@ gui-dev = [
     { name = "timm" },
 ]
 training = [
-    { name = "albumentations" },
+    { name = "albumentationsx" },
     { name = "standard-imghdr" },
     { name = "tensorboard" },
 ]
@@ -2153,7 +2152,7 @@ wheels = [
 
 [[package]]
 name = "ultralytics"
-version = "8.4.3"
+version = "8.4.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "matplotlib" },
@@ -2169,9 +2168,9 @@ dependencies = [
     { name = "torchvision" },
     { name = "ultralytics-thop" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/3e/13/0559afb092ee4c3f0b2ab45c891b02b59a541ca57d1a4843ca0988dcee7d/ultralytics-8.4.3.tar.gz", hash = "sha256:64907ec275dede20f650f6164f155ad21c2eaab61ab4806f9a73d2e0816058a7", size = 1008620, upload-time = "2026-01-15T22:05:20.538Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/92/f5/0f44c0215fa1ac48327a530c528ab534edac859e79871ef999dc295f26bb/ultralytics-8.4.4.tar.gz", hash = "sha256:7938528d67d53a39695f941e35090953db3a6be257bfa2c9f16f87281c3b7095", size = 1008486, upload-time = "2026-01-16T13:54:56.22Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/5a/d9/ced5e20d3d3932f424b3206e861c2ad45b877b22fdc6453358b976242f40/ultralytics-8.4.3-py3-none-any.whl", hash = "sha256:559d6e91fb27e45c8421d50d1d8afcb557aec834b4108aeec4d9bffe4abf74e9", size = 1181163, upload-time = "2026-01-15T22:05:16.886Z" },
+    { url = "https://files.pythonhosted.org/packages/c7/1b/f568d0034b77ac839d64b913841392437d6d970dfb7bbe0857aeeb015213/ultralytics-8.4.4-py3-none-any.whl", hash = "sha256:d2d970a0df6bb28b8426bccb071444b757293c2f9733bdecee0531675134e2ca", size = 1181118, upload-time = "2026-01-16T13:54:52.49Z" },
 ]
 
 [[package]]
