@@ -39,7 +39,7 @@ This section provides instructions for installing the app (CLI and GUI) from sou
 
    Follow the instructions to [install PyTorch](https://pytorch.org/get-started/locally). As we're using uv as package manager make sure to use `uv pip` instead of `pip` commands.
 
-   Alternatively, you can use uv to select the correct version of PyTorch for your system:
+   Alternatively, you can use uv to select the correct version of PyTorch automatically for your system:
 
    ```Powershell
    uv pip install torch torchvision --torch-backend auto
@@ -47,9 +47,9 @@ This section provides instructions for installing the app (CLI and GUI) from sou
 
    Before continuing let's test if the PyTorch installation was successful by checking if PyTorch detects your GPU (skip if using CPU):
    
-   > ```Powershell
-   > uv run --no-project python -c "import torch ; print(torch.cuda.is_available())"
-   > ```
+   ```Powershell
+   uv run --no-project python -c "import torch ; print(torch.cuda.is_available())"
+   ```
    
    If this prints *True* then you're good. If *False*, check your GPU drivers and ensure you've selected the correct PyTorch version for your hardware.
 
