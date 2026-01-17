@@ -32,11 +32,13 @@
             <li>Recover Pixelated Videos: Restore pixelated or mosaic scenes in adult videos.</li>
             <li>Watch/Export Videos: Use either the CLI or GUI to watch or export your restored videos.</li>
         </ul>
-        <p>The process is pretty resource-intensive and this Flatpak package will not run on all hardware. Please read the README file of the project on GitHub.</p>
+        <p>The process is pretty resource-intensive and this Flatpak package will not run on all hardware. Please read the README file of the project on Codeberg.</p>
     </description>
 
     <url type="homepage">https://codeberg.org/ladaapp/lada</url>
     <url type="bugtracker">https://codeberg.org/ladaapp/lada/issues</url>
+	<url type="translate">https://translate.codeberg.org/projects/lada/lada/</url>
+	<url type="vcs-browser">https://codeberg.org/ladaapp/lada</url>
 
     <launchable type="desktop-id">io.github.ladaapp.lada.desktop</launchable>
 
