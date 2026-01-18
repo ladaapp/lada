@@ -36,30 +36,35 @@ This section provides instructions for installing the app (CLI and GUI) from sou
     uv venv
     source .venv/bin/activate
     ```
-4) Install PyTorch
+4) Install Python dependencies
+   
+   | extra        | supported GPU architectures                                                                                                                                          | notes                                                              |
+   |--------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
+   | nvida-legacy | Nvidia Maxwell(5.0), Pascal(6.0), Volta(7.0), Turing(7.5), Ampere(8.0, 8.6), Hopper(9.0)                                                                             | for RTX 10xx, CUDA 12.6                                            |
+   | nvidia       | Nvidia Volta(7.0), Turing(7.5), Ampere(8.0, 8.6), Hopper(9.0), Blackwell(10.0, 12.0)                                                                                 | for RTX 20xx up to including RTX 50xx, CUDA 12.8                   |
+   | intel        | Intel Discrete Arc GPUs: A-series (Alchemist), B-series (Battlemage)<br/>Intel Integrated Arc GPUs of Core Ultra Processors: Meteor Lake-H, Arrow Lake-H, Lunar Lake |                                                                    |
+   | cpu          | -                                                                                                                                                                    | running Lada on CPU will be so slow that it's not really practical |
 
-   Follow the instructions to [install PyTorch](https://pytorch.org/get-started/locally). As we're using uv as package manager make sure to use `uv pip` instead of `pip` commands.
+   Based on your hardware, select the correct *extra* from the table above and install it with uv.
 
-   Alternatively, you can use uv to select the correct version of PyTorch automatically for your system:
+   You have to choose a single option in case your system contains GPUs of multiple vendors like an integrated Intel GPU and a dedicated Nvidia GPU.
 
    ```bash
-   uv pip install torch torchvision --torch-backend auto
+   uv sync --extra nvidia # Adjust extra according to your available hardware
    ```
 
-   Before continuing let's test if the PyTorch installation was successful by checking if PyTorch detects your GPU (skip if using CPU):
-   
+   Before continuing let's test if the installation was successful by checking if [PyTorch](https://pytorch.org) detects your GPU (skip if using CPU):
+
    ```bash
+   # Nvidia
    uv run --no-project python -c "import torch ; print(torch.cuda.is_available())"
+   # Intel
+   uv run --no-project python -c "import torch ; print(torch.xpu.is_available())"
    ```
    
-   If this prints *True* then you're good. If *False*, check your GPU drivers and ensure you've selected the correct PyTorch version for your hardware.
+   If this prints *True* then you're good. If *False*, check your GPU drivers are up-to-date and ensure you've selected the right *extra* for your hardware.
 
-5) Install python dependencies
-    ```bash
-    uv pip install -e '.'
-    ````
-
-6) Apply patches
+5) Apply patches
    
     ```bash
     patch -u -p1 -d .venv/lib/python3.13/site-packages < patches/increase_mms_time_limit.patch
@@ -67,7 +72,7 @@ This section provides instructions for installing the app (CLI and GUI) from sou
     patch -u -p1 -d .venv/lib/python3.13/site-packages < patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
     ```
 
-7) Download model weights
+6) Download model weights
    
    Download the necessary model weights from HuggingFace
    ```shell

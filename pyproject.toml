@@ -16,8 +16,8 @@ dependencies = [
     "av>=16.1.0", # Versions before 16.1.0 didn't come with support for QSV encoders needed for Lada Intel Arc support
     "mmengine==0.10.7", # Pinned as we apply a patch
     "tqdm",
-    "torch",
-    "torchvision",
+#    "torch", # Declared in one of the extras instead
+#    "torchvision", # Declared in one of the extras instead
     "wcwidth",
 ]
 
@@ -48,7 +48,13 @@ packages = { find = { where = ["."], include = ["lada", "lada.*"] } }
 version = { attr = "lada.VERSION" }
 
 [project.optional-dependencies]
-cu128 = ["torch==2.8.0", "torchvision==0.23.0"]
+# Nvidia extras are still on 2.8 as 2.9.[01] causes a performance regression in DeepMosaics caused by conv3d regression in nvidia-cudnn.
+# There would be a workaround though https://github.com/pytorch/pytorch/releases/tag/v2.9.1
+# Will probably skip and wait for PyTorch 2.10 release
+nvidia-legacy = ["torch==2.8.0", "torchvision==0.23.0"]
+nvidia = ["torch==2.8.0", "torchvision==0.23.0"]
+intel = ["torch==2.9.1", "torchvision==0.24.1", "pytorch-triton-xpu ; sys_platform == 'win32' or sys_platform == 'linux'"]
+cpu = ["torch==2.9.1", "torchvision==0.24.1"]
 gui = ["pycairo", "PyGObject"]
 
 [dependency-groups]
@@ -69,20 +75,62 @@ name = "pytorch-cu128"
 url = "https://download.pytorch.org/whl/cu128"
 explicit = true
 
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-xpu"
+url = "https://download.pytorch.org/whl/xpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
 [tool.uv]
 conflicts = [
-    [
-        { package = "torch", extra = "cu128" },
-        { package = "torchvision", extra = "cu128" },
-        { package = "torch" },
-        { package = "torchvision" },
-    ],
+      [
+        { extra = "cpu" },
+        { extra = "nvidia" },
+      ],
+      [
+        { extra = "cpu" },
+        { extra = "nvidia-legacy" },
+      ],
+      [
+        { extra = "cpu" },
+        { extra = "intel" },
+      ],
+      [
+        { extra = "nvidia" },
+        { extra = "nvidia-legacy" },
+      ],
+      [
+        { extra = "nvidia" },
+        { extra = "intel" },
+      ],
+      [
+        { extra = "nvidia-legacy" },
+        { extra = "intel" },
+      ],
 ]
 
 [tool.uv.sources]
 torch = [
-    { index = "pytorch-cu128", extra = "cu128" },
+    { index = "pytorch-cu128", extra = "nvidia" },
+    { index = "pytorch-cu126", extra = "nvidia-legacy" },
+    { index = "pytorch-xpu", extra = "intel" },
+    { index = "pytorch-cpu", extra = "cpu" },
 ]
 torchvision = [
-    { index = "pytorch-cu128", extra = "cu128" },
+    { index = "pytorch-cu128", extra = "nvidia" },
+    { index = "pytorch-cu126", extra = "nvidia-legacy" },
+    { index = "pytorch-xpu", extra = "intel" },
+    { index = "pytorch-cpu", extra = "cpu" },
+]
+pytorch-triton-xpu = [
+  { index = "pytorch-xpu", marker = "sys_platform == 'win32' or sys_platform == 'linux'" },
 ]
