@@ -51,9 +51,9 @@ version = { attr = "lada.VERSION" }
 # Nvidia extras are still on 2.8 as 2.9.[01] causes a performance regression in DeepMosaics caused by conv3d regression in nvidia-cudnn.
 # There would be a workaround though https://github.com/pytorch/pytorch/releases/tag/v2.9.1
 # Will probably skip and wait for PyTorch 2.10 release
-nvidia-legacy = ["torch==2.8.0", "torchvision==0.23.0"]
-nvidia = ["torch==2.8.0", "torchvision==0.23.0"]
-intel = ["torch==2.9.1", "torchvision==0.24.1", "pytorch-triton-xpu ; sys_platform == 'win32' or sys_platform == 'linux'"]
+nvidia-legacy = ["torch==2.8.0; sys_platform == 'linux' or sys_platform == 'win32'", "torchvision==0.23.0; sys_platform == 'linux' or sys_platform == 'win32'"]
+nvidia = ["torch==2.8.0; sys_platform == 'linux' or sys_platform == 'win32'", "torchvision==0.23.0; sys_platform == 'linux' or sys_platform == 'win32'"]
+intel = ["torch==2.9.1; sys_platform == 'linux' or sys_platform == 'win32'", "torchvision==0.24.1; sys_platform == 'linux' or sys_platform == 'win32'", "pytorch-triton-xpu ; sys_platform == 'win32' or sys_platform == 'linux'"]
 cpu = ["torch==2.9.1", "torchvision==0.24.1"]
 gui = ["pycairo", "PyGObject"]
 
