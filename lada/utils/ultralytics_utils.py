@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: Lada Authors
 # SPDX-License-Identifier: AGPL-3.0
-
+import os.path
 from pathlib import Path
 
 import cv2
@@ -16,7 +16,12 @@ from ultralytics.utils import JSONDict
 from lada.utils import Box, Mask
 
 def set_default_settings():
-    settings.update({'runs_dir': './experiments/yolo', 'datasets_dir': './datasets', 'tensorboard': True})
+    settings.update(dict(
+        runs_dir=os.path.join('.', 'experiments', 'yolo'),
+        datasets_dir = os.path.join('.', 'datasets'),
+        weights_dir = os.path.join('.', 'model_weights', '3rd_party'),
+        tensorboard = True,
+    ))
 
 def get_settings() -> JSONDict:
     return settings
