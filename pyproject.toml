@@ -117,6 +117,7 @@ conflicts = [
         { extra = "intel" },
       ],
 ]
+default-groups = []
 
 [tool.uv.sources]
 torch = [

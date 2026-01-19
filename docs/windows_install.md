@@ -44,7 +44,7 @@ This section provides instructions for installing the app (CLI and GUI) from sou
    | intel        | Intel Discrete Arc GPUs: A-series (Alchemist), B-series (Battlemage)<br/>Intel Integrated Arc GPUs of Core Ultra Processors: Meteor Lake-H, Arrow Lake-H, Lunar Lake |                                                                    |
    | cpu          | -                                                                                                                                                                    | running Lada on CPU will be so slow that it's not really practical |
 
-   Based on your hardware, select the correct *extra* from the table above and install it with uv.
+   Based on your hardware, select the appropriate *extra* from the table above and install it with uv.
 
    You have to choose a single option in case your system contains GPUs of multiple vendors like an integrated Intel GPU and a dedicated Nvidia GPU.
 
@@ -157,7 +157,7 @@ You can now run the CLI with `lada-cli`.
     ````
 
 > [!TIP]
-> If you intend to hack on the GUI code install also the `gui-dev` group: `uv pip install --group gui-dev`.
+> If you intend to hack on the GUI code install also the `gui-dev` group: `uv sync --group gui-dev --inexact`.
 
 You can now run the GUI with `lada`.
 

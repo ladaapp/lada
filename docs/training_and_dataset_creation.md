@@ -6,7 +6,7 @@ In order to work on the models and datasets you'll have to install the requireme
 2) Install python dependencies
    
    ```bash
-   uv pip install -e '.' --group dev
+   uv sync --group dev --inexact
    ````
 
 3) Apply patches
