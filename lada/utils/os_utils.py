@@ -52,7 +52,7 @@ def gpu_has_fp16_acceleration(device: torch.device = None) -> bool:
         return has_modern_nvidia_gpu(idx)
     return False
 
-def default_device() -> str:
+def get_default_torch_device() -> str:
     if torch.cuda.is_available() and torch.cuda.device_count() > 0:
         return "cuda:0"
     if hasattr(torch, 'xpu') and torch.xpu.is_available() and torch.xpu.device_count() > 0:

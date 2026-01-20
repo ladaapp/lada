@@ -23,25 +23,37 @@ def is_device_available(device: str) -> bool:
     if device == 'cpu':
         return True
     elif device.startswith("cuda:"):
-        return device_to_gpu_id(device) < torch.cuda.device_count()
+        return torch.cuda.is_available() and device_to_gpu_id(device) < torch.cuda.device_count()
+    elif device.startswith("xpu:"):
+        return hasattr(torch, 'xpu') and torch.xpu.is_available() and device_to_gpu_id(device) < torch.xpu.device_count()
     return False
 
 
 def device_to_gpu_id(device) -> int | None:
-    if device.startswith("cuda:"):
-        return int(device.split(":")[-1])
+    if ":" in device:
+        prefix, id = device.split(":")
+        return int(id)
     return None
 
 
-def get_available_gpus():
+def get_available_gpus() -> list[tuple[str, str]]:
     gpus = []
-    for id in range(torch.cuda.device_count()):
-        gpu_name = torch.cuda.get_device_properties(id).name
-        # We're using these GPU names in a ComboBox but libadwaita sets up the label with max-width-chars: 20 and there does not
-        # seem to be a way to overwrite this. So let's try to make sure GPU names are below 20 characters to be readable
-        if gpu_name.startswith("NVIDIA GeForce RTX"):
-            gpu_name = gpu_name.replace("NVIDIA GeForce RTX", "RTX")
-        gpus.append((id, gpu_name))
+
+    if torch.cuda.is_available():
+        cuda_device_count = torch.cuda.device_count()
+        for i in range(cuda_device_count):
+            gpu_name = torch.cuda.get_device_name(i)
+            # We're using these GPU names in a ComboBox but libadwaita sets up the label with max-width-chars: 20 and there does not
+            # seem to be a way to overwrite this. So let's try to make sure GPU names are below 20 characters to be readable
+            if gpu_name.startswith("NVIDIA GeForce RTX"):
+                gpu_name = gpu_name.replace("NVIDIA GeForce RTX", "RTX")
+            gpus.append((f"cuda:{i}", gpu_name))
+
+    if hasattr(torch, 'xpu') and torch.xpu.is_available():
+        xpu_device_count = torch.xpu.device_count()
+        for i in range(xpu_device_count):
+            gpu_name = torch.xpu.get_device_name(i)
+            gpus.append((f"xpu:{i}", gpu_name))
     return gpus
 
 def skip_if_uninitialized(f):

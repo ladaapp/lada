@@ -73,9 +73,9 @@ class ConfigSidebar(Gtk.Box):
         combo_row_gpu_list = Gtk.StringList.new([])
         available_gpus = utils.get_available_gpus()
         configured_gpu_selection_idx = None
-        for gpu_selection_idx, (device_id, device_name) in enumerate(available_gpus):
+        for gpu_selection_idx, (device, device_name) in enumerate(available_gpus):
             combo_row_gpu_list.append(device_name)
-            if config.device and utils.device_to_gpu_id(config.device) == device_id:
+            if config.device == device:
                 configured_gpu_selection_idx = gpu_selection_idx
         self.combo_row_gpu.set_model(combo_row_gpu_list)
         if configured_gpu_selection_idx:
@@ -203,9 +203,9 @@ class ConfigSidebar(Gtk.Box):
             # CPU device, no GPU available
             return
         selected_gpu_name = selected_item.get_string()
-        for id, name in utils.get_available_gpus():
-            if name == selected_gpu_name:
-                self._config.device = f"cuda:{id}"
+        for device, device_name in utils.get_available_gpus():
+            if device_name == selected_gpu_name:
+                self._config.device = device
                 break
 
     @Gtk.Template.Callback()

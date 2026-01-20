@@ -30,12 +30,12 @@ class PostExportAction(Enum):
 class Config(GObject.Object):
     _defaults = {
         'color_scheme': ColorScheme.SYSTEM,
-        'device': 'cuda:0',
+        'device': os_utils.get_default_torch_device(),
         'custom_encoding_presets': set(),
-        'encoding_preset_name': "hevc-nvidia-gpu-hq" if os_utils.has_modern_nvidia_gpu() else "h264-cpu-fast",
+        'encoding_preset_name': video_utils.get_default_preset_name(),
         'export_directory': None,
         'file_name_pattern': "{orig_file_name}.restored.mp4",
-        'fp16_enabled': os_utils.has_modern_nvidia_gpu(),
+        'fp16_enabled': os_utils.gpu_has_fp16_acceleration(),
         'initial_view': 'preview',
         'max_clip_duration': 180,
         'mosaic_detection_model': 'v4-fast',
@@ -445,7 +445,7 @@ class Config(GObject.Object):
                 else:
                     logger.info(
                         f"Configured device {configured_device} is not available choose {self._device} instead. Available gpus: {available_gpus}")
-                self._device = f"cuda:{available_gpus[0][0]}"
+                self._device = available_gpus[0][0]
 
     def validate_and_set_restoration_model(self, restoration_model_name: str):
         available_models = [modelfile.name for modelfile in ModelFiles.get_restoration_models()]

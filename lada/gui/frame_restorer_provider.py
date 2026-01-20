@@ -154,7 +154,10 @@ class FrameRestorerProvider:
         if "mosaic_restoration_model" in self.models_cache: del self.models_cache["mosaic_restoration_model"]
         gc.collect()
         try:
-            torch.cuda.empty_cache()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            elif hasattr(torch, 'xpu') and torch.xpu.is_available():
+                torch.xpu.empty_cache()
         except:
             pass
         self.models_cache = None
