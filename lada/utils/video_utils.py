@@ -93,6 +93,11 @@ class VideoReader:
         self.container.close()
 
     def frames(self) -> Iterator[Tuple[torch.Tensor, int]]:
+        # Print to console via FFmpegs log callback instead of utilizing Pythons logging system
+        # Unfortunately we need this to prevent deadlocks. On certain corrupt video files decode() would hang indefinitely after
+        # encountering an error (always reproducible). See https://github.com/PyAV-Org/PyAV/issues/751 and https://codeberg.org/ladaapp/lada/issues/247
+        # Alternatively, setting thread_type to 'SLICE' would also avoid the deadlock even with av logs enabled but may negatively impact performance.
+        av.logging.restore_default_callback()
         self.container.streams.video[0].thread_type = 'AUTO'
 
         for frame in self.container.decode(video=0):
