@@ -1,1 +1,1 @@
-zh_CN zh_TW nl ja es fr
+zh_CN zh_TW nl ja es fr ko
