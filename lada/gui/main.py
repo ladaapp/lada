@@ -70,12 +70,12 @@ class LadaApplication(Adw.Application):
         win = self.props.active_window
         if not win:
             win = MainWindow(application=self)
-            self.bind_property("style-manager", win.preview_view.widget_timeline, "style-manager", flags=GObject.BindingFlags.SYNC_CREATE)
-            self.bind_property("shortcuts-manager", win.preview_view, "shortcuts-manager", flags=GObject.BindingFlags.SYNC_CREATE)
-            self.bind_property("config", win.preview_view, "config", flags=GObject.BindingFlags.SYNC_CREATE)
+            self.bind_property("style-manager", win.watch_view.widget_timeline, "style-manager", flags=GObject.BindingFlags.SYNC_CREATE)
+            self.bind_property("shortcuts-manager", win.watch_view, "shortcuts-manager", flags=GObject.BindingFlags.SYNC_CREATE)
+            self.bind_property("config", win.watch_view, "config", flags=GObject.BindingFlags.SYNC_CREATE)
             self.bind_property("config", win.export_view, "config", flags=GObject.BindingFlags.SYNC_CREATE)
             self.bind_property("config", win, "config", flags=GObject.BindingFlags.SYNC_CREATE)
-            self.bind_property("shortcuts-manager", win.preview_view, "shortcuts-manager", flags=GObject.BindingFlags.SYNC_CREATE)
+            self.bind_property("shortcuts-manager", win.watch_view, "shortcuts-manager", flags=GObject.BindingFlags.SYNC_CREATE)
             self.bind_property("shortcuts-manager", win, "shortcuts-manager", flags=GObject.BindingFlags.SYNC_CREATE)
             self.window = win
 

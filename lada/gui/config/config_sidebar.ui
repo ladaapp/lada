@@ -315,7 +315,7 @@ SPDX-License-Identifier: AGPL-3.0
                                                         <property name="label" translatable="true">Watch</property>
                                                     </object>
                                                 </property>
-                                                <signal name="clicked" handler="toggle_button_initial_view_preview_callback"/>
+                                                <signal name="clicked" handler="toggle_button_initial_view_watch_callback"/>
                                                 <style>
                                                     <class name="flat"/>
                                                 </style>

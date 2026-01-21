@@ -11,7 +11,7 @@ from gi.repository import GObject, GLib, Gst, GstApp, Gdk, Gio
 
 from lada import LOG_LEVEL
 from lada.gui.frame_restorer_provider import FrameRestorerProvider
-from lada.gui.preview.gstreamer_pipeline_appsrc import FrameRestorerAppSrc
+from lada.gui.watch.gstreamer_pipeline_appsrc import FrameRestorerAppSrc
 from lada.utils import VideoMetadata, audio_utils
 
 logger = logging.getLogger(__name__)

@@ -9,7 +9,7 @@ SPDX-License-Identifier: AGPL-3.0
     <requires lib="gtk" version="4.0"/>
     <requires lib="Adw" version="1.0"/>
 
-    <template class="PreviewView" parent="GtkWidget">
+    <template class="WatchView" parent="GtkWidget">
         <property name="layout-manager">
             <object class="GtkBinLayout"/>
         </property>
@@ -20,7 +20,7 @@ SPDX-License-Identifier: AGPL-3.0
                         <property name="title-widget">
                             <object class="AdwViewSwitcher" id="view_switcher">
                                 <property name="policy">1</property>
-                                <property name="stack" bind-source="PreviewView" bind-property="view-stack"/>
+                                <property name="stack" bind-source="WatchView" bind-property="view-stack"/>
                             </object>
                         </property>
                         <child type="start">
@@ -68,7 +68,7 @@ SPDX-License-Identifier: AGPL-3.0
                         <property name="max-sidebar-width">500.0</property>
                         <property name="sidebar">
                             <object class="ConfigSidebar" id="config_sidebar">
-                                <property name="config" bind-source="PreviewView" bind-property="config"/>
+                                <property name="config" bind-source="WatchView" bind-property="config"/>
                                 <property name="show-export-section">False</property>
                             </object>
                         </property>
@@ -77,11 +77,11 @@ SPDX-License-Identifier: AGPL-3.0
                                 <property name="orientation">vertical</property>
                                 <child>
                                     <object class="NoGpuBanner" id="banner_no_gpu">
-                                        <property name="config" bind-source="PreviewView" bind-property="config"/>
+                                        <property name="config" bind-source="WatchView" bind-property="config"/>
                                     </object>
                                 </child>
                                 <child>
-                                    <object class="GtkStack" id="stack_video_preview">
+                                    <object class="GtkStack" id="stack_video_player">
                                         <property name="vexpand">true</property>
                                         <property name="transition-type">none</property>
                                         <child>
@@ -93,12 +93,12 @@ SPDX-License-Identifier: AGPL-3.0
                                                         <child>
                                                             <object class="GtkOverlay">
                                                                 <child>
-                                                                    <object class="GtkBox" id="box_video_preview">
+                                                                    <object class="GtkBox" id="box_video_player">
                                                                         <property name="orientation">vertical</property>
                                                                         <property name="valign">center</property>
                                                                         <property name="vexpand">True</property>
                                                                         <child>
-                                                                            <object class="GtkPicture" id="picture_video_preview"/>
+                                                                            <object class="GtkPicture" id="picture_video_player"/>
                                                                         </child>
                                                                     </object>
                                                                 </child>

@@ -149,7 +149,7 @@ class ConfigSidebar(Gtk.Box):
         # init temp directory
         self.action_row_temp_directory.set_subtitle(config.temp_directory)
 
-        self.toggle_button_initial_view_preview.set_active(config.initial_view == "preview")
+        self.toggle_button_initial_view_preview.set_active(config.initial_view == "watch")
         self.toggle_button_initial_view_export.set_active(config.initial_view == "export")
 
         # init post-export action
@@ -285,8 +285,8 @@ class ConfigSidebar(Gtk.Box):
 
     @Gtk.Template.Callback()
     @skip_if_uninitialized
-    def toggle_button_initial_view_preview_callback(self, button_clicked):
-        self._config.initial_view = "preview"
+    def toggle_button_initial_view_watch_callback(self, button_clicked):
+        self._config.initial_view = "watch"
 
     @Gtk.Template.Callback()
     @skip_if_uninitialized

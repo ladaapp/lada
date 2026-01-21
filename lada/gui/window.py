@@ -13,7 +13,7 @@ from lada.gui import utils
 from lada.gui.config.config import Config
 from lada.gui.export.export_view import ExportView
 from lada.gui.fileselection.file_selection_view import FileSelectionView
-from lada.gui.preview.preview_view import PreviewView
+from lada.gui.watch.watch_view import WatchView
 from lada.gui.shortcuts import ShortcutsManager
 
 here = pathlib.Path(__file__).parent.resolve()
@@ -27,7 +27,7 @@ class MainWindow(Adw.ApplicationWindow):
 
     file_selection_view: FileSelectionView = Gtk.Template.Child()
     export_view: ExportView = Gtk.Template.Child()
-    preview_view: PreviewView = Gtk.Template.Child()
+    watch_view: WatchView = Gtk.Template.Child()
     view_stack: Adw.ViewStack = Gtk.Template.Child()
     stack: Gtk.Stack = Gtk.Template.Child()
     shortcut_controller = Gtk.Template.Child()
@@ -59,34 +59,34 @@ class MainWindow(Adw.ApplicationWindow):
 
         self.connect("close-request", self.close)
         self.file_selection_view.connect("files-selected", lambda obj, files: self.on_files_selected(files))
-        self.preview_view.connect("toggle-fullscreen-requested", lambda *args: self.on_toggle_fullscreen())
-        self.preview_view.connect("window-resize-requested", self.on_window_resize_requested)
+        self.watch_view.connect("toggle-fullscreen-requested", lambda *args: self.on_toggle_fullscreen())
+        self.watch_view.connect("window-resize-requested", self.on_window_resize_requested)
         self.connect("notify::fullscreened", lambda object, spec: self.on_fullscreened(object.get_property(spec.name)))
 
         self.export_view.props.view_stack = self.view_stack
         self.export_view.connect("video-export-requested", lambda obj, restore_directory_or_file: self.on_video_export_requested(restore_directory_or_file))
         self.export_view.connect("shutdown-confirmation-requested", lambda *args: self.present())
-        self.preview_view.props.view_stack = self.view_stack
+        self.watch_view.props.view_stack = self.view_stack
 
     def on_video_export_requested(self, restore_directory_or_file: Gio.File):
         self.stack.props.visible_child_name = "main"
         self.view_stack.props.visible_child_name = "export"
         def run():
-            self.preview_view.close(block=True)
+            self.watch_view.close(block=True)
             GLib.idle_add(lambda: self.export_view.start_export(restore_directory_or_file))
         threading.Thread(target=run).start()
 
     def on_files_selected(self, files: list[Gio.File]):
         self.stack.props.visible_child_name = "main"
-        self.view_stack.props.visible_child_name = "preview" if self._config.initial_view == "preview" else "export"
-        self.preview_view.add_files(files)
-        if self.view_stack.props.visible_child_name == "preview":
-            self.preview_view.play_file(0)
+        self.view_stack.props.visible_child_name = "watch" if self._config.initial_view == "watch" else "export"
+        self.watch_view.add_files(files)
+        if self.view_stack.props.visible_child_name == "watch":
+            self.watch_view.play_file(0)
         self.export_view.add_files(files)
 
     def on_fullscreened(self, fullscreened: bool):
-        if self.stack.props.visible_child_name == "main" and self.view_stack.props.visible_child_name == "preview":
-            self.preview_view.on_fullscreened(fullscreened)
+        if self.stack.props.visible_child_name == "main" and self.view_stack.props.visible_child_name == "watch":
+            self.watch_view.on_fullscreened(fullscreened)
 
     def on_toggle_fullscreen(self):
         if self.is_fullscreen():
@@ -106,10 +106,10 @@ class MainWindow(Adw.ApplicationWindow):
             if self.stack.props.visible_child_name == "main":
                 self.view_stack.set_visible_child_name(child_name)
         self._shortcuts_manager.add("ui", "show-export-view", "e", lambda *args: switch_views('export'), _("Switch to Export View"))
-        self._shortcuts_manager.add("ui", "show-preview-view", "p", lambda *args: switch_views('preview'), _("Switch to Watch View"))
+        self._shortcuts_manager.add("ui", "show-watch-view", "p", lambda *args: switch_views('watch'), _("Switch to Watch View"))
 
     def close(self, *args):
-        self.preview_view.close()
+        self.watch_view.close()
         self.export_view.close()
 
     def _resize_window(self, paintable: Gdk.Paintable, playback_controls: Gtk.Widget, headerbar: Gtk.Widget, initial: bool | None = False) -> None:

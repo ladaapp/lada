@@ -40,11 +40,11 @@ SPDX-License-Identifier: AGPL-3.0
                             <object class="AdwViewStack" id="view_stack">
                                 <child>
                                     <object class="AdwViewStackPage">
-                                        <property name="name">preview</property>
+                                        <property name="name">watch</property>
                                         <property name="title" translatable="true">Watch</property>
                                         <property name="icon-name">playback-symbolic</property>
                                         <property name="child">
-                                            <object class="PreviewView" id="preview_view"/>
+                                            <object class="WatchView" id="watch_view"/>
                                         </property>
                                     </object>
                                 </child>

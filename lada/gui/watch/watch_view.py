@@ -13,11 +13,11 @@ from lada.gui.config.config import Config
 from lada.gui.config.config_sidebar import ConfigSidebar
 from lada.gui.config.no_gpu_banner import NoGpuBanner
 from lada.gui.frame_restorer_provider import FrameRestorerProvider, FrameRestorerOptions, FRAME_RESTORER_PROVIDER, FrameRestorerOptionsBuilder
-from lada.gui.preview.fullscreen_mouse_activity_controller import FullscreenMouseActivityController
-from lada.gui.preview.gstreamer_pipeline_manager import PipelineManager, PipelineState
-from lada.gui.preview.headerbar_files_drop_down import HeaderbarFilesDropDown
-from lada.gui.preview.seek_preview_popover import SeekPreviewPopover
-from lada.gui.preview.timeline import Timeline
+from lada.gui.watch.fullscreen_mouse_activity_controller import FullscreenMouseActivityController
+from lada.gui.watch.gstreamer_pipeline_manager import PipelineManager, PipelineState
+from lada.gui.watch.headerbar_files_drop_down import HeaderbarFilesDropDown
+from lada.gui.watch.seek_preview_popover import SeekPreviewPopover
+from lada.gui.watch.timeline import Timeline
 from lada.gui.shortcuts import ShortcutsManager
 from lada.utils import audio_utils, video_utils
 
@@ -26,27 +26,27 @@ here = pathlib.Path(__file__).parent.resolve()
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
 
-@Gtk.Template(string=utils.translate_ui_xml(here / 'preview_view.ui'))
-class PreviewView(Gtk.Widget):
-    __gtype_name__ = 'PreviewView'
+@Gtk.Template(string=utils.translate_ui_xml(here / 'watch_view.ui'))
+class WatchView(Gtk.Widget):
+    __gtype_name__ = 'WatchView'
 
     button_play_pause = Gtk.Template.Child()
     button_mute_unmute = Gtk.Template.Child()
-    picture_video_preview: Gtk.Picture = Gtk.Template.Child()
+    picture_video_player: Gtk.Picture = Gtk.Template.Child()
     widget_timeline: Timeline = Gtk.Template.Child()
     button_image_play_pause = Gtk.Template.Child()
     button_image_mute_unmute = Gtk.Template.Child()
     label_current_time = Gtk.Template.Child()
     label_cursor_time = Gtk.Template.Child()
     box_playback_controls: Gtk.Box = Gtk.Template.Child()
-    box_video_preview = Gtk.Template.Child()
+    box_video_player = Gtk.Template.Child()
     drop_down_files: HeaderbarFilesDropDown = Gtk.Template.Child()
     spinner_overlay = Gtk.Template.Child()
     banner_no_gpu: NoGpuBanner = Gtk.Template.Child()
     config_sidebar: ConfigSidebar = Gtk.Template.Child()
     header_bar: Adw.HeaderBar = Gtk.Template.Child()
     button_toggle_fullscreen: Gtk.Button = Gtk.Template.Child()
-    stack_video_preview: Gtk.Stack = Gtk.Template.Child()
+    stack_video_player: Gtk.Stack = Gtk.Template.Child()
     view_switcher: Adw.ViewSwitcher = Gtk.Template.Child()
     button_open_files: Gtk.Button = Gtk.Template.Child()
 
@@ -95,7 +95,7 @@ class PreviewView(Gtk.Widget):
 
         self.pipeline_manager: PipelineManager | None = None
 
-        self.stack_video_preview.set_visible_child_name("spinner")
+        self.stack_video_player.set_visible_child_name("spinner")
 
         self._view_stack: Adw.ViewStack | None = None
 
@@ -159,7 +159,7 @@ class PreviewView(Gtk.Widget):
         self._view_stack = value
         def on_visible_child_name_changed(object, spec):
             visible_child_name = object.get_property(spec.name)
-            if visible_child_name != "preview":
+            if visible_child_name != "watch":
                 self.should_be_paused = True
                 self.pause_if_currently_playing()
             else:
@@ -229,7 +229,7 @@ class PreviewView(Gtk.Widget):
             self.buffer_queue_min_thresh_time_auto = float(value.max_clip_length / value.video_metadata.video_fps_exact)
         self._frame_restorer_options = value
         if self._video_preview_init_done:
-            if self._view_stack.props.visible_child_name == "preview":
+            if self._view_stack.props.visible_child_name == "watch":
                 self.reset_appsource_worker()
             else:
                 self.appsource_worker_reset_requested = True
@@ -255,7 +255,7 @@ class PreviewView(Gtk.Widget):
                     # double-click
                     self.emit("toggle-fullscreen-requested")
             click_gesture.connect( "pressed", on_click)
-            self.box_video_preview.add_controller(click_gesture)
+            self.box_video_player.add_controller(click_gesture)
 
     def setup_config_signal_handlers(self):
         def on_show_mosaic_detections(*args):
@@ -473,7 +473,7 @@ class PreviewView(Gtk.Widget):
             buffer_queue_min_thresh_time, buffer_queue_max_thresh_time = self.get_gst_buffer_bounds()
             self.pipeline_manager = PipelineManager(self.frame_restorer_provider, buffer_queue_min_thresh_time, buffer_queue_max_thresh_time, self.config.mute_audio)
             self.pipeline_manager.init_pipeline(self.video_metadata, subtitle_path)
-            self.picture_video_preview.set_paintable(self.pipeline_manager.paintable)
+            self.picture_video_player.set_paintable(self.pipeline_manager.paintable)
             self.pipeline_connection_handler_ids = [
                 self.pipeline_manager.connect("paintable-size-changed", lambda obj: GLib.idle_add(lambda: self.emit("window-resize-requested", self.pipeline_manager.paintable, self.box_playback_controls, self.header_bar))),
                 self.pipeline_manager.connect("eos", lambda obj: GLib.idle_add(lambda: self.on_eos())),
@@ -582,17 +582,17 @@ class PreviewView(Gtk.Widget):
 
     def on_fullscreened(self, fullscreened: bool):
         if fullscreened:
-            self.fullscreen_mouse_activity_controller = FullscreenMouseActivityController(self, self.box_video_preview)
+            self.fullscreen_mouse_activity_controller = FullscreenMouseActivityController(self, self.box_video_player)
             self.banner_no_gpu.set_revealed(False)
             self.button_toggle_fullscreen.set_property("icon-name", "view-restore-symbolic")
-            self.box_video_preview.set_css_classes(["fullscreen-preview"])
+            self.box_video_player.set_css_classes(["fullscreen-video-player"])
         else:
             self.header_bar.set_visible(True)
             self.set_cursor_from_name("default")
             self.button_toggle_fullscreen.set_property("icon-name", "view-fullscreen-symbolic")
             self.box_playback_controls.set_visible(True)
             self.button_play_pause.grab_focus()
-            self.box_video_preview.remove_css_class("fullscreen-preview")
+            self.box_video_player.remove_css_class("fullscreen-video-player")
             if self._config.get_property('device') == 'cpu':
                 self.banner_no_gpu.set_revealed(True)
         self.fullscreen_mouse_activity_controller.on_fullscreened(fullscreened)
@@ -603,21 +603,21 @@ class PreviewView(Gtk.Widget):
         self.drop_down_files.set_sensitive(False)
         self.view_switcher.set_sensitive(False)
         self.button_open_files.set_sensitive(False)
-        self.stack_video_preview.set_visible_child_name("spinner")
+        self.stack_video_player.set_visible_child_name("spinner")
 
     def _show_video_preview(self, *args):
         self.config_sidebar.set_property("disabled", False)
         self.drop_down_files.set_sensitive(True)
         self.view_switcher.set_sensitive(True)
         self.button_open_files.set_sensitive(True)
-        self.stack_video_preview.set_visible_child_name("video-player")
+        self.stack_video_player.set_visible_child_name("video-player")
         self.grab_focus()
 
     def _setup_shortcuts(self):
-        self._shortcuts_manager.register_group("preview", _("Watch"))
-        self._shortcuts_manager.add("preview", "toggle-mute-unmute", "m", lambda *args: self.button_mute_unmute_callback(self.button_mute_unmute), _("Mute/Unmute"))
-        self._shortcuts_manager.add("preview", "toggle-play-pause", "<Ctrl>space", lambda *args: self.button_play_pause_callback(self.button_play_pause), _("Play/Pause"))
-        self._shortcuts_manager.add("preview", "toggle-fullscreen", "f", lambda *args: self.emit("toggle-fullscreen-requested"), _("Enable/Disable fullscreen"))
+        self._shortcuts_manager.register_group("watch", _("Watch"))
+        self._shortcuts_manager.add("watch", "toggle-mute-unmute", "m", lambda *args: self.button_mute_unmute_callback(self.button_mute_unmute), _("Mute/Unmute"))
+        self._shortcuts_manager.add("watch", "toggle-play-pause", "<Ctrl>space", lambda *args: self.button_play_pause_callback(self.button_play_pause), _("Play/Pause"))
+        self._shortcuts_manager.add("watch", "toggle-fullscreen", "f", lambda *args: self.emit("toggle-fullscreen-requested"), _("Enable/Disable fullscreen"))
 
     def _find_subtitle_file(self, video_file_path: str) -> str | None:
         """Find SRT subtitle file with the same name as video file."""
