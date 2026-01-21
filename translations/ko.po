@@ -1,0 +1,873 @@
+# SPDX-FileCopyrightText: Lada Authors
+# SPDX-License-Identifier: AGPL-3.0
+msgid ""
+msgstr ""
+"Project-Id-Version: lada\n"
+"Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
+"POT-Creation-Date: 2026-01-09 14:23+0000\n"
+"PO-Revision-Date: 2026-01-21 18:48+0000\n"
+"Last-Translator: JLIB <jlib@noreply.codeberg.org>\n"
+"Language-Team: Korean <https://translate.codeberg.org/projects/lada/lada/ko/>"
+"\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.15.2\n"
+
+#: lada/gui/export/export_view.ui:36 lada/gui/preview/preview_view.ui:47
+msgid "Settings"
+msgstr "설정"
+
+#: lada/gui/export/export_view.ui:43
+msgid "Add Files…"
+msgstr "파일 추가…"
+
+#: lada/gui/export/export_view.ui:49
+#: lada/gui/export/export_single_file_page.ui:115
+#: lada/gui/export/export_view.py:615
+msgid "Cancel"
+msgstr "취소"
+
+#: lada/gui/export/export_view.ui:59
+#: lada/gui/export/export_single_file_page.ui:105
+msgid "Pause"
+msgstr "일시정지"
+
+#: lada/gui/export/export_view.ui:66
+#: lada/gui/export/export_single_file_page.ui:95
+msgid "Resume"
+msgstr "다시시작"
+
+#: lada/gui/export/export_view.ui:73
+#: lada/gui/export/export_single_file_page.ui:72
+#: lada/gui/export/export_view.py:255
+msgid "Restore"
+msgstr "모자이크 제거"
+
+#: lada/gui/export/export_view.ui:140
+#: lada/gui/fileselection/file_selection_view.ui:60
+#: lada/gui/preview/preview_view.ui:220
+msgid "Keyboard Shortcuts"
+msgstr "단축키"
+
+#: lada/gui/export/export_view.ui:144
+#: lada/gui/fileselection/file_selection_view.ui:64
+#: lada/gui/preview/preview_view.ui:224
+msgid "About Lada"
+msgstr "Lada 정보"
+
+#: lada/gui/export/export_multiple_files_row.ui:67
+#: lada/gui/export/export_single_file_page.ui:128
+msgid "Open in External Program…"
+msgstr "외부 프로그램에서 열기…"
+
+#: lada/gui/export/export_multiple_files_row.ui:79
+#: lada/gui/export/export_single_file_page.ui:144
+msgid "Show Error"
+msgstr "오류 표시"
+
+#: lada/gui/export/export_multiple_files_row.ui:89
+#: lada/gui/export/export_single_file_page.ui:84
+msgid "Preview"
+msgstr "미리보기"
+
+#: lada/gui/export/export_multiple_files_row.ui:105
+msgid "Remove"
+msgstr "제거"
+
+#: lada/gui/export/export_single_file_page.py:107
+#: lada/gui/export/export_single_file_page.py:182
+msgid "Restoring video…"
+msgstr "모자이크 제거중…"
+
+#: lada/gui/export/export_single_file_page.py:131
+msgid "Finished video restoration!"
+msgstr "영상 모자이크 제거 완료!"
+
+#: lada/gui/export/export_single_file_page.py:144
+#: lada/gui/export/export_utils.py:62
+msgid "Restoration failed"
+msgstr "모자이크 제거 실패"
+
+#: lada/gui/export/export_single_file_page.py:155
+#: lada/gui/export/export_single_file_page.py:202
+#: lada/gui/export/export_single_file_page.ui:19
+msgid "Export video"
+msgstr "영상 내보내기"
+
+#: lada/gui/export/export_single_file_page.py:171
+msgid "Restoration paused"
+msgstr "복원 일시정지됨"
+
+#: lada/gui/export/export_single_file_page.ui:132
+msgid "Open File"
+msgstr "파일 열기"
+
+#: lada/gui/export/export_utils.py:29
+#, python-brace-format
+msgid "Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS"
+msgstr "길이: {duration}, 해상도: {resolution}, 초당 프레임: {fps} FPS"
+
+#: lada/gui/export/export_utils.py:63
+#, python-brace-format
+msgid "Error while processing <span><tt>{filename}</tt></span>"
+msgstr "작업중 오류가 발생했습니다 <span><tt>{filename}</tt></span>"
+
+#: lada/gui/export/export_utils.py:72 lada/gui/export/export_view.py:599
+msgid "Okay"
+msgstr "확인"
+
+#: lada/gui/export/export_utils.py:78
+msgid "Failed"
+msgstr "실패"
+
+#: lada/gui/export/export_utils.py:83
+#, python-brace-format
+msgid "Finished  |  Processed: {time_done} ({frames_done} frames)"
+msgstr "완료  |  걸린시간: {time_done} ({frames_done} 프레임)"
+
+#: lada/gui/export/export_utils.py:91
+#, python-brace-format
+msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: {time_remaining} ({frames_remaining} frames)  |  Speed: {speed_fps} FPS"
+msgstr ""
+"진행중… {done_percent}%  |  처리됨: {time_done} ({frames_done} 프레임)  |  "
+"남음: {time_remaining} ({frames_remaining} 프레임)  |  속도: {speed_fps} FPS"
+
+#: lada/gui/export/export_utils.py:99
+#, python-brace-format
+msgid "Processing… {done_percent}%  |  Processed: {time_done} ({frames_done} frames)  |  Remaining: Estimating… |  Speed: Estimating…"
+msgstr ""
+"진행중… {done_percent}%  |  처리됨: {time_done} ({frames_done} 프레임)  |  "
+"남음: 계산 중… |  속도: 계산 중…"
+
+#: lada/gui/export/export_utils.py:105
+#, python-brace-format
+msgid "Paused  |  Processed: {time_done} ({frames_done} frames)"
+msgstr "일시정지됨  |  처리됨: {time_done} ({frames_done} 프레임)"
+
+#: lada/gui/export/export_view.py:255
+msgid "Restore…"
+msgstr "모자이크 제거중…"
+
+#: lada/gui/export/export_view.py:544
+msgid "Save restored video file"
+msgstr "모자이크 제거된 영상 저장하기"
+
+#: lada/gui/export/export_view.py:551
+msgid "Save restored video files"
+msgstr "모자이크 제거된 영상들 전부 저장"
+
+#: lada/gui/export/export_view.py:581
+msgid "Shutdown System"
+msgstr "시스템 종료"
+
+#: lada/gui/export/export_view.py:582
+msgid "Export has finished. The system will shutdown in 30 seconds."
+msgstr "내보내기가 끝났습니다. 시스템이 30초 안에 종료될 예정입니다."
+
+#: lada/gui/export/export_view.py:596
+msgid "Shutdown Failed"
+msgstr "시스템 종료 실패"
+
+#: lada/gui/export/export_view.py:597
+msgid "Failed to initiate system shutdown. Please check system permissions."
+msgstr "시스템 종료를 실패했습니다. 시스템 권한을 확인해주세요."
+
+#: lada/gui/export/export_view.py:616
+msgid "Shutdown now"
+msgstr "지금 시스템 종료하기"
+
+#: lada/gui/config/no_gpu_banner.ui:17
+msgid "No GPU detected! Running the app on CPU will be painfully slow."
+msgstr "GPU가 없습니다! 이 앱을 CPU로 작동시키면 고통스러울정도로 느릴겁니다."
+
+#: lada/gui/config/config_sidebar.ui:22
+msgid "Mosaic Removal"
+msgstr "모자이크 제거"
+
+#: lada/gui/config/config_sidebar.ui:25
+msgid "Detection model"
+msgstr "모자이크 탐지 모델"
+
+#: lada/gui/config/config_sidebar.ui:32
+msgid "Restoration model"
+msgstr "복원 모델"
+
+#: lada/gui/config/config_sidebar.ui:39
+msgid "Detect face mosaics"
+msgstr "얼굴 모자이크 탐지"
+
+#: lada/gui/config/config_sidebar.ui:40
+msgid "Detect and ignore areas of pixelated faces. Can prevent restoration artifacts but may worsen detection of NSFW mosaics."
+msgstr ""
+"모자이크 처리된 얼굴을 탐지해서 무시합니다. 모자이크 복원 오류를 방지할 수 "
+"있지만 중요부위 모자이크 탐지 성능이 떨어질 수 있습니다."
+
+#: lada/gui/config/config_sidebar.ui:46
+msgid "Maximum clip duration"
+msgstr "최대 클립 길이"
+
+#: lada/gui/config/config_sidebar.ui:47
+msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint."
+msgstr ""
+"모자이크 제거에 참조할 최대 프레임 수입니다. 값을 높이면 품질 안정성이 "
+"향상되고, 낮추면 메모리 사용량이 줄어듭니다."
+
+#: lada/gui/config/config_sidebar.ui:62
+msgid "GPU"
+msgstr "GPU"
+
+#: lada/gui/config/config_sidebar.ui:63
+msgid "Selected GPU for model processing."
+msgstr "모델 처리를 담당할 GPU를 선택합니다."
+
+#: lada/gui/config/config_sidebar.ui:76
+msgid "FP16 precision"
+msgstr "반정밀도(FP16) 연산"
+
+#: lada/gui/config/config_sidebar.ui:77
+msgid "Reduces VRAM usage and may increase speed on modern GPUs, with negligible quality difference."
+msgstr ""
+"VRAM 사용량을 줄이고 최신 GPU에서 속도를 향상시킬 수 있으며, 품질 차이는 "
+"미미합니다."
+
+#: lada/gui/config/config_sidebar.ui:85
+msgid "Playback"
+msgstr "재생"
+
+#: lada/gui/config/config_sidebar.ui:89
+msgid "Buffer duration"
+msgstr "버퍼 길이"
+
+#: lada/gui/config/config_sidebar.ui:90
+msgid "How much video is pre-loaded for playback, measured in seconds. If set to 0 this value will be chosen automatically."
+msgstr ""
+"재생시 미리 불러올 영상의 길이(초)를 설정합니다. 0 입력 시 자동으로 "
+"설정됩니다."
+
+#: lada/gui/config/config_sidebar.ui:104
+msgid "Mute audio by default"
+msgstr "음소거를 기본값으로"
+
+#: lada/gui/config/config_sidebar.ui:105
+msgid "When enabled, audio will be muted automatically when a new file is opened."
+msgstr "새 파일이 열렸을 때 소리가 자동으로 음소거 처리됩니다."
+
+#: lada/gui/config/config_sidebar.ui:112
+msgid "Enable seek preview"
+msgstr "탐색 미리보기 활성화"
+
+#: lada/gui/config/config_sidebar.ui:113
+msgid "Show a preview of the video frame when hovering over the timeline."
+msgstr "마우스를 재생바에 올려두면 영상 미리보기 창을 보여줍니다."
+
+#: lada/gui/config/config_sidebar.ui:122 lada/gui/config/config_sidebar.ui:331
+#: lada/gui/window.ui:54 lada/cli/main.py:65
+msgid "Export"
+msgstr "내보내기"
+
+#: lada/gui/config/config_sidebar.ui:126
+msgid "Encoding Preset"
+msgstr "인코딩 프리셋"
+
+#: lada/gui/config/config_sidebar.ui:133
+msgid "Output Directory"
+msgstr "저장 경로"
+
+#: lada/gui/config/config_sidebar.ui:134
+msgid "Directory where restored files will be saved"
+msgstr "모자이크 제거된 영상이 저장될 위치입니다"
+
+#: lada/gui/config/config_sidebar.ui:139
+msgid "Always ask"
+msgstr "항상 물어보기"
+
+#: lada/gui/config/config_sidebar.ui:150
+msgid "Use this folder"
+msgstr "이 폴더를 사용"
+
+#: lada/gui/config/config_sidebar.ui:151 lada/gui/config/config_sidebar.py:143
+#: lada/gui/config/config_sidebar.py:253
+msgid "Click the folder button to choose a default"
+msgstr "폴더 버튼을 클릭해서 기본 위치를 설정합니다"
+
+#: lada/gui/config/config_sidebar.ui:172
+msgid "Temporary Directory"
+msgstr "임시 경로"
+
+#: lada/gui/config/config_sidebar.ui:173
+msgid "Directory for temporary video files during restoration process"
+msgstr "영상 모자이크 제거 작업 동안 사용되는 임시 경로입니다"
+
+#: lada/gui/config/config_sidebar.ui:185
+msgid ""
+"File name pattern for restored files.\n"
+"Must include placeholder <span background=\"#D3D3D350\"><tt>{orig_file_name}</tt></span>."
+msgstr ""
+"모자이크 제거된 파일에 쓸 이름 규칙입니다.\n"
+"<span background=\"#D3D3D350\"><tt>{orig_file_name}</tt></span> 템플릿을 "
+"반드시 포함해야 합니다."
+
+#: lada/gui/config/config_sidebar.ui:193
+msgid "Post-Export Action"
+msgstr "내보내기 이후 동작"
+
+#: lada/gui/config/config_sidebar.ui:194
+msgid "Action to be run after all queued files have been restored."
+msgstr "대기열에 있는 파일을 모두 작업한 후 어떻게 할지 정합니다."
+
+#: lada/gui/config/config_sidebar.ui:201
+msgid "Shutdown system"
+msgstr "시스템 종료"
+
+#: lada/gui/config/config_sidebar.ui:202
+msgid "Automatically shutdown the system after export is completed."
+msgstr "내보내기가 끝난 후 자동으로 시스템을 종료합니다."
+
+#: lada/gui/config/config_sidebar.ui:212
+msgid "Execute custom command"
+msgstr "사용자 지정 명령 실행"
+
+#: lada/gui/config/config_sidebar.ui:213
+msgid "Run a custom shell command after export is completed."
+msgstr "내보내기가 끝난 후 사용자가 지정한 쉘(shell) 명령어를 실행합니다."
+
+#: lada/gui/config/config_sidebar.ui:224
+msgid "Custom command"
+msgstr "사용자 지정 명령어"
+
+#: lada/gui/config/config_sidebar.ui:233
+msgid "Enable .mp4 Fast Start"
+msgstr ".mp4 빠른 재생 켜기"
+
+#: lada/gui/config/config_sidebar.ui:234
+msgid "Allows playing the file while it's being written."
+msgstr "내보내기 진행 중에도 실시간 재생이 가능하도록 합니다."
+
+#: lada/gui/config/config_sidebar.ui:242
+msgid "Troubleshooting"
+msgstr "문제해결"
+
+#: lada/gui/config/config_sidebar.ui:246
+msgid "Show mosaic detections"
+msgstr "모자이크 탐지 영역 보여주기"
+
+#: lada/gui/config/config_sidebar.ui:247
+msgid "Show detected mosaic areas. Useful to evaluate quality of detection model."
+msgstr "탐지된 모자이크 영역을 보여줍니다. 탐지 모델의 품질을 평가할 때 유용합니다."
+
+#: lada/gui/config/config_sidebar.ui:260
+msgid "UI"
+msgstr "UI"
+
+#: lada/gui/config/config_sidebar.ui:263
+msgid "Color Scheme"
+msgstr "색상 테마"
+
+#: lada/gui/config/config_sidebar.ui:267
+msgid "Follow System style"
+msgstr "시스템 설정을 따름"
+
+#: lada/gui/config/config_sidebar.ui:280
+msgid "Light style"
+msgstr "밝은 테마"
+
+#: lada/gui/config/config_sidebar.ui:293
+msgid "Dark style"
+msgstr "어두운 테마"
+
+#: lada/gui/config/config_sidebar.ui:306
+msgid "Default View"
+msgstr "기본 화면"
+
+#: lada/gui/config/config_sidebar.ui:307
+msgid "View shown after opening files"
+msgstr "파일을 열었을 때 보여줄 화면을 정합니다"
+
+#: lada/gui/config/config_sidebar.ui:315 lada/gui/preview/preview_view.py:616
+#: lada/gui/window.ui:44
+msgid "Watch"
+msgstr "재생"
+
+#: lada/gui/config/config_sidebar.ui:355
+msgid "Reset to factory settings"
+msgstr "설정을 기본값으로 되돌리기"
+
+#: lada/gui/config/encoding_preset_dialog.py:44
+msgid "Create Preset"
+msgstr "프리셋 생성"
+
+#: lada/gui/config/encoding_preset_dialog.py:44
+msgid "Edit Preset"
+msgstr "프리셋 편집"
+
+#: lada/gui/config/encoding_preset_dialog.ui:24
+msgid "Save"
+msgstr "저장"
+
+#: lada/gui/config/encoding_preset_dialog.ui:45
+msgid "<big>Description</big>"
+msgstr "<big>프리셋 이름</big>"
+
+#: lada/gui/config/encoding_preset_dialog.ui:59
+msgid "<big>Encoder</big>"
+msgstr "<big>인코더</big>"
+
+#: lada/gui/config/encoding_preset_dialog.ui:75
+msgid "<big>Encoder Help</big>"
+msgstr "<big>인코더 도움말</big>"
+
+#: lada/gui/config/encoding_preset_dialog.ui:98
+msgid "<big>Encoder Options</big>"
+msgstr "<big>인코더 옵션</big>"
+
+#: lada/gui/config/encoding_preset_dialog.ui:106
+msgid "Enter encoder options…"
+msgstr "인코더 옵션을 입력하세요…"
+
+#: lada/gui/config/config_sidebar.py:486
+msgid "Create Preset…"
+msgstr "프리셋 만들기…"
+
+#: lada/gui/config/config_sidebar.py:496
+msgid "Select a folder where restored videos should be saved"
+msgstr "모자이크 제거 영상이 저장될 폴더를 선택합니다"
+
+#: lada/gui/config/config_sidebar.py:517
+msgid "Select a folder for temporary files"
+msgstr "임시 파일들을 저장할 폴더를 선택합니다"
+
+#: lada/gui/fileselection/file_selection_view.ui:37
+msgid "Restore pixelated adult videos"
+msgstr "모자이크 처리된 성인 동영상 복원하기"
+
+#: lada/gui/fileselection/file_selection_view.ui:38
+msgid "Drop one or more videos here"
+msgstr "하나 또는 여러 영상들을 여기에 끌어다 놓기"
+
+#: lada/gui/fileselection/file_selection_view.ui:41
+#: lada/gui/preview/preview_view.ui:54
+msgid "Open Files…"
+msgstr "파일 열기…"
+
+#: lada/gui/preview/preview_view.ui:35
+msgid "Toggle Fullscreen"
+msgstr "전체화면 전환"
+
+#: lada/gui/preview/preview_view.py:617
+msgid "Mute/Unmute"
+msgstr "음소거/해제"
+
+#: lada/gui/preview/preview_view.py:618
+msgid "Play/Pause"
+msgstr "재생/일시정지"
+
+#: lada/gui/preview/preview_view.py:619
+msgid "Enable/Disable fullscreen"
+msgstr "전체화면 활성화/비활성화"
+
+#: lada/gui/window.py:108
+msgid "Switch to Export View"
+msgstr "내보내기 화면으로 전환하기"
+
+#: lada/gui/window.py:109
+msgid "Switch to Watch View"
+msgstr "재생 화면으로 전환하기"
+
+#: lada/gui/utils.py:107
+msgid "Select one or multiple video files"
+msgstr "하나 또는 여러 영상 파일을 선택"
+
+#: lada/gui/utils.py:150
+#, python-brace-format
+msgid "Custom Preset {custom_preset_num}"
+msgstr "커스텀 프리셋 {custom_preset_num}"
+
+#: lada/cli/utils.py:54
+msgid "No video files found"
+msgstr "영상 파일을 찾지 못했습니다"
+
+#: lada/cli/utils.py:102
+msgid "Available video encoders:"
+msgstr "사용 가능한 영상 인코더:"
+
+#: lada/cli/utils.py:103 lada/cli/utils.py:126 lada/cli/utils.py:137
+#: lada/cli/utils.py:148
+msgid "Name"
+msgstr "이름"
+
+#: lada/cli/utils.py:103 lada/cli/utils.py:115 lada/cli/utils.py:126
+#: lada/cli/utils.py:137 lada/cli/utils.py:148
+msgid "Description"
+msgstr "설명"
+
+#: lada/cli/utils.py:103
+msgid "Hardware-accelerated"
+msgstr "하드웨어 가속"
+
+#: lada/cli/utils.py:103
+msgid "Hardware devices"
+msgstr "하드웨어 기기"
+
+#: lada/cli/utils.py:105
+msgid "Yes"
+msgstr "네"
+
+#: lada/cli/utils.py:111
+msgid "Available devices:"
+msgstr "사용 가능 기기:"
+
+#: lada/cli/utils.py:115
+msgid "Device"
+msgstr "기기"
+
+#: lada/cli/utils.py:122
+msgid "Available detection models:"
+msgstr "사용 가능한 탐지 모델:"
+
+#: lada/cli/utils.py:124 lada/cli/utils.py:135 lada/cli/utils.py:146
+msgid "None!"
+msgstr "없음!"
+
+#: lada/cli/utils.py:126 lada/cli/utils.py:137
+msgid "Path"
+msgstr "경로"
+
+#: lada/cli/utils.py:133
+msgid "Available restoration models:"
+msgstr "사용 가능 복원 모델:"
+
+#: lada/cli/utils.py:143
+msgid "Available encoding presets:"
+msgstr "사용 가능 인코딩 프리셋:"
+
+#: lada/cli/utils.py:163
+msgid "Usage: "
+msgstr "사용법: "
+
+#: lada/cli/utils.py:176
+#, python-brace-format
+msgid "Processing video: {done_percent}%|{bar}|Processed: {time_done} ({frames_done}f){bar_suffix}"
+msgstr ""
+"영상 처리 중: {done_percent}%|{bar}|처리됨: {time_done} ({frames_done}f)"
+"{bar_suffix}"
+
+#: lada/cli/utils.py:178
+msgid " | Remaining: ? | Speed: ?"
+msgstr " | 남음: ? | 속도: ?"
+
+#: lada/cli/utils.py:231
+#, python-brace-format
+msgid " | Remaining: {time_remaining} ({frames_remaining}f) | Speed: {speed_fps}fps"
+msgstr " | 남음: {time_remaining} ({frames_remaining}f) | 속도: {speed_fps}fps"
+
+#: lada/cli/main.py:23
+msgid "Examples:"
+msgstr "예시:"
+
+#: lada/cli/main.py:25
+msgid "Restore video with default settings:"
+msgstr "기본 설정으로 영상 모자이크 제거하기:"
+
+#: lada/cli/main.py:26
+#, python-format
+msgid "%(prog)s --input input.mp4"
+msgstr "%(prog)s --input input.mp4"
+
+#: lada/cli/main.py:28
+msgid "Restore all videos found in the specified directory and save them to a different folder:"
+msgstr "지정된 경로에 있는 모든 영상들의 모자이크를 제거해서 다른 폴더에 저장합니다:"
+
+#: lada/cli/main.py:29
+#, python-format
+msgid "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
+msgstr "%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/"
+
+#: lada/cli/main.py:31
+msgid "Use Nvidia hardware-accelerated encoder by selecting a preset:"
+msgstr "프리셋 선택을 통해 Nvidia 하드웨어 가속 인코더를 사용하세요:"
+
+#: lada/cli/main.py:32
+#, python-format
+msgid "%(prog)s --input input.mp4 --encoding-preset hevc-nvidia-gpu-hq"
+msgstr "%(prog)s --input input.mp4 --encoding-preset hevc-nvidia-gpu-hq"
+
+#: lada/cli/main.py:34
+msgid "Set encoding parameters directly without using an encoding preset:"
+msgstr "프리셋 대신 인코딩 매개변수를 직접 설정합니다:"
+
+#: lada/cli/main.py:35
+#, python-format
+msgid "%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 -preset fast -x265-params log_level=error'"
+msgstr ""
+"%(prog)s --input input.mp4 --encoder libx265 --encoder-options '-crf 26 -"
+"preset fast -x265-params log_level=error'"
+
+#: lada/cli/main.py:38
+#, python-format
+msgid "%(prog)s [options]"
+msgstr "%(prog)s [옵션]"
+
+#: lada/cli/main.py:39
+msgid "Restore pixelated adult videos (JAV)"
+msgstr "모자이크 처리된 성인 동영상 복원하기 (JAV)"
+
+#: lada/cli/main.py:54
+msgid "General"
+msgstr "일반"
+
+#: lada/cli/main.py:55
+msgid "Path to pixelated video file or directory containing video files"
+msgstr "모자이크 처리된 동영상 파일 또는 동영상 파일들이 담긴 경로"
+
+#: lada/cli/main.py:56
+msgid "Path used to save output file(s). If path is a directory then file name will be chosen automatically (see --output-file-pattern). If no output path was given then the directory of the input file will be used"
+msgstr ""
+"출력 파일(들)을 저장할 경로. 디렉토리가 경로로 정해지면 파일 이름은 자동으로 "
+"정해집니다(--output-file-pattern 참조). 출력 경로가 지정되지 않으면 입력 "
+"파일이 있는 경로를 사용합니다"
+
+#: lada/cli/main.py:57
+#, python-format
+msgid "Directory for temporary video files during restoration process. Alternatively, you can use the environment variable TMPDIR. (default: %(default)s)"
+msgstr ""
+"영상 모자이크 제거 작업 동안 사용되는 임시 경로. 복원 과정 중 임시로 사용할 "
+"경로. 경로를 입력하는 대신 TMPDIR 환경변수를 사용할 수도 있습니다. (default: "
+"%(default)s)"
+
+#: lada/cli/main.py:58
+#, python-format, python-brace-format
+msgid "Pattern used to determine output file name(s). Used when input is a directory, or a file but no output path was specified. Must include the placeholder '{orig_file_name}'. (default: %(default)s)"
+msgstr ""
+"출력 파일(들)의 이름을 정하는데 사용할 패턴입니다. 입출력 경로가 같거나 출력 "
+"경로가 지정되지 않은 경우 사용됩니다. '{orig_file_name}' 태그를 반드시 "
+"포함해야 합니다. (기본값: %(default)s)"
+
+#: lada/cli/main.py:59
+#, python-format
+msgid "Device used for running Restoration and Detection models. Use \"cpu\" or \"cuda\". If you have multiple GPUs you can select a specific one via index e.g. \"cuda:0\" (default: %(default)s)"
+msgstr ""
+"복원 및 탐지 모델에 사용할 기기입니다. \"CPU\" 또는 \"CUDA\"를 사용합니다. "
+"만약 컴퓨터에 여러 GPU가 있다면 다음과 같은 방법으로 특정 GPU를 선택 "
+"가능합니다 \"cuda:0\" (기본값: %(default)s)"
+
+#: lada/cli/main.py:60
+#, python-format
+msgid "Reduces VRAM usage and may increase speed on modern GPUs, with negligible quality difference. (default: %(default)s)"
+msgstr ""
+"VRAM 사용량을 줄이고 최신 GPU에서 속도를 향상시킬 수 있으며, 품질 차이는 "
+"미미합니다. (기본값: %(default)s)"
+
+#: lada/cli/main.py:61
+msgid "List available devices and exit"
+msgstr "사용가능한 기기를 표시하고 종료"
+
+#: lada/cli/main.py:62
+msgid "Display version and exit"
+msgstr "프로그램 버전을 표시하고 종료"
+
+#: lada/cli/main.py:63
+msgid "Show this help message and exit"
+msgstr "이 도움말 메시지를 출력하고 종료"
+
+#: lada/cli/main.py:66
+#, python-format
+msgid "Select encoding preset by name. Use \"--list-encoding-presets\" to see what's available. Ignored if \"--encoder\" and \"--encoder-options\" are used (default: %(default)s)"
+msgstr ""
+"이름을 기준으로 프리셋을 선택합니다. \"--list-encoding-presets\" 명령어로 "
+"사용가능한 프리셋 목록을 볼 수 있습니다. 만약 \"--encoder\" 나 \"--encoder-"
+"options\" 명령어가 쓰이면 무시됩니다 (기본값: %(default)s)"
+
+#: lada/cli/main.py:67
+msgid "List available encoding presets and exit"
+msgstr "사용가능한 프리셋 목록을 보여주고 종료"
+
+#: lada/cli/main.py:68
+#, python-format
+msgid "Select video encoder by name. Use \"--list-encoders\" to see what's available. (default: %(default)s)"
+msgstr ""
+"이름을 기준으로 영상 인코더를 선택합니다. \"--list-encoders\" 명령어로 사용 "
+"가능한 인코더를 확인 가능합니다. (기본값: %(default)s)"
+
+#: lada/cli/main.py:69
+msgid "List available encoders and exit"
+msgstr "사용가능한 인코더 목록을 보여주고 종료"
+
+#: lada/cli/main.py:70
+#, python-format
+msgid "Space-separated list of options for the encoder set via \"--encoder\". Use \"--list-encoder-options\" to see what's available. (default: %(default)s)"
+msgstr ""
+"\"--encoder\" 옵선을 통해 설정할 인코더 옵션들을 공백으로 구분해서 "
+"입력합니다. \"--list-encoder-options\" 명령어로 사용 가능한 옵션들을 "
+"확인합니다. (기본값: %(default)s)"
+
+#: lada/cli/main.py:71
+msgid "List available options of the given encoder and exit"
+msgstr "사용 가능한 인코더 옵션 목록을 보여주고 종료"
+
+#: lada/cli/main.py:72
+#, python-format
+msgid "Allows playing the file while it's being written. Sets .mp4 mov flags \"frag_keyframe+empty_moov+faststart\". (default: %(default)s)"
+msgstr ""
+"복원 진행 중 재생이 가능하도록 합니다. .mp4 mov 플래그를 "
+"\"frag_keyframe+empty_moov+faststart\" 로 설정합니다. (기본값: %(default)s)"
+
+#: lada/cli/main.py:74
+msgid "Mosaic Restoration"
+msgstr "모자이크 복원"
+
+#: lada/cli/main.py:75
+msgid "List available restoration models found in model weights directory and exit (default location is './model_weights' if not overwritten by environment variable LADA_MODEL_WEIGHTS_DIR)"
+msgstr ""
+"model weights 경로에 있는 사용 가능한 복원 모델 목록을 보여주고 종료 "
+"(LADA_MODEL_WEIGHTS_DIR 환경변수로 조정되지 않았다면 기본 경로는 './"
+"model_weights' 입니다)"
+
+#: lada/cli/main.py:76
+#, python-format
+msgid "Name of detection model or path to model weights file. Use \"--list-mosaic-restoration-models\" to see what's available. (default: %(default)s)"
+msgstr ""
+"탐지 모델의 이름 또는 모델 파일의 경로를 표시합니다. \"--list-mosaic-"
+"restoration-models\" 명령어로 사용 가능한 모델을 확인 가능합니다. (기본값: %"
+"(default)s)"
+
+#: lada/cli/main.py:77
+msgid "Path to restoration model configuration file. You'll not have to set this unless you're training your own custom models"
+msgstr ""
+"모자이크제거 모델 설정 경로입니다. 사용자 지정 모델을 학습시키는 경우가 "
+"아니면 이 설정을 할 필요가 없습니다"
+
+#: lada/cli/main.py:78
+#, python-format
+msgid "Maximum number of frames for restoration. Higher values improve temporal stability. Lower values reduce memory footprint. If set too low flickering could appear (default: %(default)s)"
+msgstr ""
+"모자이크 제거에 참조할 최대 프레임 수입니다. 값을 높이면 품질 안정성이 "
+"향상되고, 낮추면 메모리 사용량이 줄어듭니다. 값을 너무 낮추면 플리커링 "
+"현상이 발생할 수 있습니다. (기본값: %(default)s)"
+
+#: lada/cli/main.py:80
+msgid "Mosaic Detection"
+msgstr "모자이크 탐지"
+
+#: lada/cli/main.py:81
+#, python-format
+msgid "Name of detection model or path to model weights file. Use \"--list-mosaic-detection-models\" to see what's available. (default: %(default)s)"
+msgstr ""
+"탐지 모델의 이름 또는 모델 파일의 경로를 표시합니다. \"--list-mosaic-"
+"restoration-models\" 명령어로 사용 가능한 모델을 확인 가능합니다. (기본값: %"
+"(default)s)"
+
+#: lada/cli/main.py:82
+msgid "List available detection models found in model weights directory and exit (default location is './model_weights' if not overwritten by environment variable LADA_MODEL_WEIGHTS_DIR)"
+msgstr ""
+"model weights 경로에 있는 사용 가능한 탐지 모델 목록을 보여주고 종료 "
+"(LADA_MODEL_WEIGHTS_DIR 환경변수로 조정되지 않았다면 기본 경로는 './"
+"model_weights' 입니다)"
+
+#: lada/cli/main.py:83
+#, python-format
+msgid "Detect and ignore areas of pixelated faces. Can prevent restoration artifacts but may worsen detection of NSFW mosaics. Available for models v3 and newer. (default: %(default)s)"
+msgstr ""
+"모자이크 처리된 얼굴을 탐지해서 무시합니다. 모자이크 복원 오류를 방지할 수 "
+"있지만 중요부위 모자이크 탐지 성능이 떨어질 수 있습니다. 모델 버전 v3 "
+"이상에서 사용 가능합니다. (기본값: %(default)s)"
+
+#: lada/cli/main.py:123
+msgid "Processing audio"
+msgstr "오디오 처리"
+
+#: lada/cli/main.py:157
+#, python-brace-format
+msgid "GPU {device} selected but CUDA is not available"
+msgstr "GPU {device} 가 선택됐지만 CUDA 를 사용할 수 없습니다"
+
+#: lada/cli/main.py:160
+#, python-brace-format
+msgid "Invalid file name pattern. It must include the template string '{orig_file_name}' and a file extension"
+msgstr ""
+"잘못된 파일 이름 패턴입니다. 반드시 템플릿 문자열 '{orig_file_name}' 과 파일 "
+"확장자를 포함해야 합니다"
+
+#: lada/cli/main.py:163
+msgid "Invalid output directory. If input is a directory then --output must also be set to a directory"
+msgstr ""
+"잘못된 출력 경로입니다. --input 입력값이 경로인 경우 --output 에도 경로를 "
+"입력해야 합니다"
+
+#: lada/cli/main.py:166
+#, python-brace-format
+msgid "Invalid input. No file or directory at {input_path}"
+msgstr "잘못된 입력 경로입니다. {input_path} 에 파일 또는 경로가 없습니다"
+
+#: lada/cli/main.py:169
+#, python-brace-format
+msgid "Temporary directory {temporary_path} doesn't exist. Creating…"
+msgstr "임시 경로 {temporary_path} 가 존재하지 않습니다. 생성중…"
+
+#: lada/cli/main.py:177
+msgid "Invalid mosaic detection model"
+msgstr "잘못된 모자이크 탐지 모델"
+
+#: lada/cli/main.py:187
+msgid "Invalid mosaic restoration model"
+msgstr "잘못된 모자이크 제거 모델"
+
+#: lada/cli/main.py:205
+msgid "Invalid encoding preset"
+msgstr "잘못된 인코딩 프리셋"
+
+#: lada/cli/main.py:208
+msgid "Either \"--encoding-preset\" or \"--encoder\" together with \"--encoder-options\" must be used"
+msgstr ""
+"\"--encoding-preset\" 을 단독으로 사용하거나 \"--encoder\" 와 \"--encoder-"
+"options\" 을 같이 사용해야 합니다"
+
+#: lada/cli/main.py:230
+msgid "Received Ctrl-C, stopping restoration."
+msgstr "Ctrl-C 입력을 받으면, 제거작업을 중단합니다."
+
+#: lada/__init__.py:64
+msgid "Latest Lada restoration model. Recommended"
+msgstr "최신 Lada 모자이크제거 모델. 추천"
+
+#: lada/__init__.py:65
+msgid "Restoration model from abandoned DeepMosaics project"
+msgstr "중단된 DeepMosaics 프로젝트에서 나온 모자이크제거 모델"
+
+#: lada/__init__.py:72
+msgid "Fast and efficient. Recommended"
+msgstr "빠르고 효율적입니다. 추천"
+
+#: lada/__init__.py:73
+msgid "Can be slightly more accurate than v4-fast but slower"
+msgstr "v4-fast 모델보다 약간 더 정확하지만 느립니다"
+
+#: lada/utils/encoding_presets.csv:2
+msgid "H.264 / AVC, x264 software encoder, Indistinguishable Quality, Slow, Very Large File Size"
+msgstr "H.264 / AVC, x264 소프트웨어 인코더, 원본급 품질, 느림, 파일 크기 매우 큼"
+
+#: lada/utils/encoding_presets.csv:3
+msgid "H.264 / AVC, x264 software encoder, Fast, Medium File Size"
+msgstr "H.264 / AVC, x264 소프트웨어 인코더, 빠름, 파일 크기 보통"
+
+#: lada/utils/encoding_presets.csv:4
+msgid "H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size"
+msgstr "H.264 / AVC, Nvidia 하드웨어 인코더, 빠름, 파일 크기 보통"
+
+#: lada/utils/encoding_presets.csv:5
+msgid "H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size"
+msgstr "H.265 / HEVC, Nvidia 하드웨어 인코더, 최고품질, 파일 크기 작음"
+
+#: lada/utils/encoding_presets.csv:6
+msgid "H.265 / HEVC, Nvidia hardware encoder, High Quality, Medium File Size"
+msgstr "H.265 / HEVC, Nvidia 하드웨어 인코더, 고품질, 파일 크기 보통"
+
+#: lada/utils/encoding_presets.csv:7
+msgid "H.265 / HEVC, Nvidia hardware encoder, Indistinguishable Quality, Large File Size"
+msgstr "H.265 / HEVC, Nvidia 하드웨어 인코더, 원본급 품질, 파일 크기 큼"
+
+#: lada/utils/encoding_presets.csv:8
+msgid "AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size"
+msgstr "AV1, SVT-AV1 소프트웨어 인코더, 원본급 품질, 파일크기 작음"
