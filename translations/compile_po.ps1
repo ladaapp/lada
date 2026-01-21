@@ -7,6 +7,14 @@ if ((Get-Location).Path -ne $translationsDir) {
     Set-Location $translationsDir
 }
 
+if ((Get-Command "msgfmt" -ErrorAction SilentlyContinue) -eq $null) {
+    # gettext not found
+    if (Test-Path "..\build_gtk\gtk\x64\release\bin") {
+        # If Lada GUI was built according to installation docs then gettext will be available at build_gtk
+        $env:Path = (Resolve-Path "..\build_gtk\gtk\x64\release\bin").Path + ";" + $env:Path
+	}
+}
+
 $global:lang_filter = ""
 if ($args -contains "--release") {
     $global:lang_filter = (Get-Content .\release_ready_translations.txt -Raw).Trim() -replace '\s+', ' '
