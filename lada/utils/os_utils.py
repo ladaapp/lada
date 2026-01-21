@@ -59,10 +59,10 @@ def get_default_torch_device() -> str:
         return "xpu:0"
     return "cpu"
 
-def has_nvidia_hardware() -> bool:
+def has_nvidia_gpu() -> bool:
     return torch.cuda.is_available()
 
-def has_intel_arc_hardware() -> bool:
+def has_intel_arc_gpu() -> bool:
     return hasattr(torch, 'xpu') and torch.xpu.is_available()
 
 @cache

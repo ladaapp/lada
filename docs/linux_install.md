@@ -25,7 +25,7 @@ This section provides instructions for installing the app (CLI and GUI) from sou
 > 
 > Arch Linux: `sudo pacman -S vpl-gpu-rt`
 
-2) Get the code code
+2) Get the source code
    ```bash
    git clone https://codeberg.org/ladaapp/lada.git
    cd lada

@@ -254,9 +254,9 @@ class EncodingPreset:
     def clone(self): return EncodingPreset(**dataclasses.asdict(self))
 
 def get_default_preset_name():
-    if os_utils.has_nvidia_hardware():
+    if os_utils.has_nvidia_gpu() and os_utils.is_nvidia_cuda_encoding_available():
         return "hevc-nvidia-gpu-hq"
-    if os_utils.has_intel_arc_hardware():
+    if os_utils.has_intel_arc_gpu() and os_utils.is_intel_qsv_encoding_available():
         return "hevc-intel-gpu-hq"
     return "h264-cpu-fast"
 
@@ -286,15 +286,14 @@ def get_encoding_presets() -> list[EncodingPreset]:
             if encoder_name not in available_encoder_names:
                 continue
 
+            # Nvidia
             is_nvidia_preset = 'nvenc' in encoder_name or 'nvidia' in preset_name
-            is_intel_preset = 'qsv' in encoder_name or 'intel' in preset_name
-            # Nvidia 
             if is_nvidia_preset and not has_nvidia_nvenc:
                 continue
-            # Intel 
-            if is_intel_preset:
-                if not has_intel_qsv:
-                    continue
+            # Intel
+            is_intel_preset = 'qsv' in encoder_name or 'intel' in preset_name
+            if is_intel_preset and not has_intel_qsv:
+                continue
 
             preset = EncodingPreset(row["preset_name"], row["preset_description(translatable)"], False, row["encoder_name"], row["encoder_options"])    
             presets.append(preset)
