@@ -135,6 +135,9 @@ You can now run the CLI with `lada-cli`.
      uv venv venv_gtk
      .\venv_gtk\Scripts\Activate.ps1
      uv pip install gvsbuild==2026.1.0
+     uv pip install patch
+     uv run --no-project python -m patch -p1 -d venv_gtk/lib/site-packages patches/gvsbuild_ffmpeg.patch
+     uv pip uninstall patch
      ```
    
    * Build the dependencies with gvsbuild. Grab a coffee, this will take a while...

@@ -48,6 +48,9 @@ function Build-SystemDependencies {
     .\venv_gtk_release\Scripts\Activate.ps1
 
     uv pip install gvsbuild==$global:GVSBUILD_VERSION
+    uv pip install patch
+    uv run --no-project python -m patch -p1 -d venv_gtk_release/lib/site-packages patches/gvsbuild_ffmpeg.patch
+    uv pip uninstall patch
 
     $cleanArgument = if ($clean) { '--clean' } else { '' }
 
