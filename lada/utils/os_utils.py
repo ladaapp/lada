@@ -3,11 +3,8 @@
 
 import subprocess
 import sys
-import av
-import io
 
 import torch
-from functools import cache
 
 def get_subprocess_startup_info():
     if sys.platform != "win32":
@@ -64,27 +61,3 @@ def has_nvidia_gpu() -> bool:
 
 def has_intel_arc_gpu() -> bool:
     return hasattr(torch, 'xpu') and torch.xpu.is_available()
-
-@cache
-def is_intel_qsv_encoding_available() -> bool:
-    try:
-        with av.logging.Capture():
-            av.video.codeccontext.VideoCodecContext.create(
-                av.codec.Codec('h264_qsv', 'w'),
-                hwaccel=av.codec.hwaccel.HWAccel('qsv', allow_software_fallback=False),
-                )
-            return True
-    except Exception:
-        return False
-
-@cache
-def is_nvidia_cuda_encoding_available() -> bool:
-    try:
-        with av.logging.Capture():
-            av.video.codeccontext.VideoCodecContext.create(
-                av.codec.Codec('h264_nvenc', 'w'),
-                hwaccel=av.codec.hwaccel.HWAccel('cuda', allow_software_fallback=False),
-                )
-        return True
-    except Exception:
-        return False
