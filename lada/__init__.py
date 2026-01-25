@@ -12,7 +12,21 @@ os.environ["ALBUMENTATIONS_OFFLINE"] = "1"
 os.environ["ALBUMENTATIONS_NO_TELEMETRY"] = "1"
 os.environ["YOLO_VERBOSE"] = "false"
 
-VERSION = '0.10.1-dev'
+def _get_version(version: str):
+    if not version.endswith("dev"):
+        return version
+
+    try:
+        import pathlib
+        import subprocess
+        here = pathlib.Path(__file__).parent.resolve()
+
+        commit_id_short = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], cwd=str(here)).decode("ascii").strip()
+        return f"{version}+{commit_id_short}"
+    except Exception:
+        return version
+
+VERSION = _get_version('0.10.2.dev')
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
 

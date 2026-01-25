@@ -53,4 +53,4 @@ uv export --no-default-groups --no-emit-local --format requirements.txt --extra 
 - [ ] Publish Codeberg and GitHub Releases (make them non-draft)
 - [ ] Merge Flathub Pull Request
 - [ ] Push Docker image to Dockerhub including (v<version> and latest tags)
-- [ ] Bump version in `lada/__init__.py` by adding `-dev` suffix to new version (and push to origin)
+- [ ] Bump version in `lada/__init__.py` by incrementing the patch version and appending the `.dev` suffix to new version (and push to origin)
