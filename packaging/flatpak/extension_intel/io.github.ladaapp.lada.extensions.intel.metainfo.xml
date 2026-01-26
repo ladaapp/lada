@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="addon">
+  <id>io.github.ladaapp.lada.extensions.intel</id>
+  <extends>io.github.ladaapp.lada</extends>
+  <name>Intel Arc</name>
+  <developer id="io.github.ladaapp">
+      <name>ladaapp</name>
+  </developer>
+  <summary>Intel Arc GPU support</summary>
+  <url type="homepage">https://codeberg.org/ladaapp/lada</url>
+  <url type="vcs-browser">https://codeberg.org/ladaapp/lada</url>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>AGPL-3.0-or-later</project_license>
+  <releases>
+  </releases>
+</component>

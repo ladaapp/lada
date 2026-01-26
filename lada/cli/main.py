@@ -8,7 +8,16 @@ import sys
 import tempfile
 import textwrap
 
-import torch
+try:
+    import torch
+except ModuleNotFoundError:
+    from lada import IS_FLATPAK
+    if IS_FLATPAK:
+        print(_("No GPU Add-On installed"))
+        print(_("In order to use the application you need to install one of Lada's Flatpak Add-Ons that is compatible with your hardware"))
+        sys.exit(1)
+    else:
+        raise
 
 from lada import VERSION, ModelFiles
 from lada.cli import utils

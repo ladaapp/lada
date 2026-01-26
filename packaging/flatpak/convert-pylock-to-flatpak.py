@@ -63,7 +63,7 @@ def write_flatpak_module_yaml(dependencies: list[tuple[str, str, str]], path: st
 def build_pip_install_commands(dependencies: list[tuple[str, str, str]]) -> list[str]:
     packages = [name for name, _, _ in dependencies]
     return [
-        "pip3 install --verbose --exists-action=i --no-index "
+        "pip3 install --verbose --exists-action=i --no-index --no-deps "
         "--find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} "
         f"--no-build-isolation {' '.join(packages)}"
     ]
@@ -136,7 +136,7 @@ def is_compatible_wheel(parsed_wheel, glib_major: int, glib_minor: int, python_m
     for tag in parsed_wheel.platform_tags:
         if tag == "any":
             incompatible = False
-        elif tag.startswith("manylinux") and tag.endswith("x86_64"):
+        elif (tag.startswith("manylinux") or tag.startswith("linux")) and tag.endswith("x86_64"):
             incompatible = False
             result = re.search(r"manylinux_(\d+)_(\d+)_.*", tag)
             if result and len(result.groups()) == 2:
@@ -193,7 +193,7 @@ def get_wheel_or_sdist(compatible_wheels: list, package: dict) -> tuple[str, str
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', type=str, default='-', help="path to pylock.toml file or '-' to read from stdin")
-    parser.add_argument('--output', type=str, default='packaging/flatpak/lada-python-dependencies.yaml')
+    parser.add_argument('--output', type=str)
     parser.add_argument('--gnome-runtime-version', type=int, default=49)
     return parser.parse_args()
 

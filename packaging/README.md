@@ -3,10 +3,20 @@
 After updating release dependencies by adjusting `uv.lock` we need to update dependencies for each release distribution as well.
 
 ```shell
+### Flatpak
 # No need for gui extra as pycairo and pygobject dependencies are available in flatpak gnome runtime
-uv export --no-default-groups --no-emit-local --format pylock.toml --extra nvidia --frozen | uv run  packaging/flatpak/convert-pylock-to-flatpak.py
+no_base_dependencies_args="$(uv export --frozen --no-emit-project --no-hashes --no-annotate --no-header --no-editable --no-emit-package torch --no-emit-package torchvision \
+  | sed 's#==.*##;s#^#--no-emit-package #' | tr '\n' ' ')"
+uv export --frozen --no-default-groups --no-emit-local --format pylock.toml --no-emit-package torch --no-emit-package torchvision \
+  | uv run  packaging/flatpak/convert-pylock-to-flatpak.py --output packaging/flatpak/main/python-dependencies.yaml
+uv export --frozen --no-default-groups --no-emit-local --format pylock.toml --extra nvidia $no_base_dependencies_args \
+  | uv run  packaging/flatpak/convert-pylock-to-flatpak.py --output packaging/flatpak/extension_nvidia/python-dependencies.yaml
+uv export --frozen --no-default-groups --no-emit-local --format pylock.toml --extra intel $no_base_dependencies_args \
+ | uv run  packaging/flatpak/convert-pylock-to-flatpak.py --output packaging/flatpak/extension_intel/python-dependencies.yaml
+### Docker
 # No need for gui extra as the docker image will only offer Lada CLI
 uv export --no-default-groups --no-emit-local --format requirements.txt --extra nvidia --group docker --no-emit-package opencv-python --frozen  > packaging/docker/requirements.txt
+### Windows PyInstaller
 # No need for gui extra as pycairo and pygobject dependencies will be built locally via gvsbuild
 uv export --no-default-groups --no-emit-local --format requirements.txt --extra nvidia --frozen > packaging/windows/requirements.txt
 ```
@@ -37,7 +47,7 @@ uv export --no-default-groups --no-emit-local --format requirements.txt --extra 
 
 - [ ] Make sure there is no pending translations PR and `release_ready_translations.txt` is up-to-date ([documentation](../translations/README.md)). Also check `Operations | Repository Maintenance` for pending changes.
 - [ ] Bump version in `lada/__init__.py` (no push to origin yet)
-- [ ] Write Flatpak release notes in `packaging/flatpak/share/io.github.ladaapp.lada.metainfo.xml` (no push to origin yet)
+- [ ] Write Flatpak release notes in `packaging/flatpak/main/io.github.ladaapp.lada.metainfo.xml` (no push to origin yet)
 - [ ] Create Draft Release on GitHub and write release notes
 - [ ] Create Draft Release on Codeberg and write release notes
 - [ ] Build Docker image on Linux build machine

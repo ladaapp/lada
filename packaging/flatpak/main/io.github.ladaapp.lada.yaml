@@ -16,8 +16,19 @@ finish-args:
   - "--env=LADA_MODEL_WEIGHTS_DIR=/app/model_weights"
   - "--env=LOCALE_DIR=/app/lib/python3.13/site-packages/lada/locale"
   - "--env=YOLO_CONFIG_DIR=/var/config/yolo"
+  - "--env=PYTHONPATH=/app/extensions/lib/python3.13/site-packages"
+  - "--env=LD_LIBRARY_PATH=/app/lib"
+add-extensions:
+  io.github.ladaapp.lada.extensions:
+    directory: extensions
+    merge-dirs: lib;bin
+    no-autodownload: true
+    autodelete: true
+    subdirectories: true
+cleanup-commands:
+  - mkdir ${FLATPAK_DEST}/extensions
 modules:
-  - lada-python-dependencies.yaml
+  - python-dependencies.yaml
   - name: lada-model-weights
     buildsystem: simple
     build-commands:
@@ -49,13 +60,25 @@ modules:
       - python3 -m pip install --prefix=/app --no-deps --no-build-isolation '.[gui]'
       - |
         mkdir -p /app/share/applications /app/share/metainfo /app/share/icons/hicolor/128x128/apps
-        install -m 644 packaging/flatpak/share/io.github.ladaapp.lada.desktop /app/share/applications
-        install -m 644 packaging/flatpak/share/io.github.ladaapp.lada.metainfo.xml /app/share/metainfo
-        install -m 644 packaging/flatpak/share/io.github.ladaapp.lada.png /app/share/icons/hicolor/128x128/apps
+        install -m 644 packaging/flatpak/main/io.github.ladaapp.lada.desktop /app/share/applications
+        install -m 644 packaging/flatpak/main/io.github.ladaapp.lada.metainfo.xml /app/share/metainfo
+        install -m 644 assets/io.github.ladaapp.lada.png /app/share/icons/hicolor/128x128/apps
       - |
         patch -u -p1 -d /app/lib/python3.13/site-packages < $FLATPAK_BUILDER_BUILDDIR/patches/increase_mms_time_limit.patch
         patch -u -p1 -d /app/lib/python3.13/site-packages < $FLATPAK_BUILDER_BUILDDIR/patches/remove_ultralytics_telemetry.patch
         patch -u -p1 -d /app/lib/python3.13/site-packages < $FLATPAK_BUILDER_BUILDDIR/patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
     sources:
       - type: dir
-        path: "../.."
+        path: "../../.."
+  - name: intel-onevpl-runtime # Needed for QSV encoders as it's not included in org.freedesktop.Platform.VAAPI.Intel
+    buildsystem: cmake-ninja
+    builddir: true
+    config-opts:
+      - '-DCMAKE_BUILD_TYPE=Release'
+      - '-DBUILD_SAMPLES=OFF'
+      - '-DBUILD_TESTS=OFF'
+      - '-DBUILD_TOOLS=OFF'
+    sources:
+      - type: archive
+        url: https://github.com/oneapi-src/oneVPL-intel-gpu/archive/intel-onevpl-25.4.6.tar.gz
+        sha256: a4cc2429fba49ee1d5f48883930e2e7325f0af38af83c8048793c8b1d3fa4a8f

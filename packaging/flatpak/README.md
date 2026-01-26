@@ -33,17 +33,35 @@ flatpak install --user -y flathub org.flatpak.Builder
 
 Build and install:
 ```shell
-flatpak run org.flatpak.Builder --force-clean --user --install --install-deps-from=flathub build_flatpak packaging/flatpak/io.github.ladaapp.lada.yaml
+flatpak run org.flatpak.Builder --force-clean --user --install --install-deps-from=flathub build_flatpak packaging/flatpak/main/io.github.ladaapp.lada.yaml
+# Install only one of these extensions at the same time!
+# Nvidia
+flatpak run org.flatpak.Builder --force-clean --user --install --install-deps-from=flathub build_flatpak packaging/flatpak/extension_nvidia/io.github.ladaapp.lada.extensions.nvidia.yaml
+# Intel
+flatpak run org.flatpak.Builder --force-clean --user --install --install-deps-from=flathub build_flatpak packaging/flatpak/extension_intel/io.github.ladaapp.lada.extensions.intel.yaml
 ```
 
-Lada is now installed. You should be able to find it in your application launcher as `lada (dev)`.
+Check for linting errors
+```shell
+flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest packaging/flatpak/main/io.github.ladaapp.lada.yaml
+flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest packaging/flatpak/extension_nvidia/io.github.ladaapp.lada.extensions.nvidia.yaml
+flatpak run --command=flatpak-builder-lint org.flatpak.Builder manifest packaging/flatpak/extension_intel/io.github.ladaapp.lada.extensions.intel.yaml
+```
+
+```shell
+flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream packaging/flatpak/main/io.github.ladaapp.lada.metainfo.xml
+flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream packaging/flatpak/extension_nvidia/io.github.ladaapp.lada.extensions.nvidia.metainfo.xml
+flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream packaging/flatpak/extension_intel/io.github.ladaapp.lada.extensions.intel.metainfo.xml
+```
+
+Lada is now installed. You should be able to find it in your application launcher as `Lada (dev)`.
 
 Or you run it via `flatpak run io.github.ladaapp.lada//main`.
 
 
 ## Update python dependencies
 
-All python dependencies are specified in and installed via `lada-python-dependencies.yaml` flatpak module.
+All python dependencies are specified in and installed via `python-dependencies.yaml` flatpak module.
 
 This file is generated py the script `convert-pylock-to-flatpak.py` based on `uv.lock` located in the root of the project.
 

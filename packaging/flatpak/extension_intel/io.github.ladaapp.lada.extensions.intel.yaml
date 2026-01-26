@@ -1,0 +1,16 @@
+id: io.github.ladaapp.lada.extensions.intel
+runtime: io.github.ladaapp.lada
+runtime-version: 'main'
+sdk: org.gnome.Sdk//49
+default-branch: "main"
+build-extension: true
+separate-locales: false
+modules:
+  - python-dependencies.yaml
+  - name: metainfo
+    buildsystem: simple
+    build-commands:
+      - install -Dm644 ${FLATPAK_ID}.metainfo.xml -t ${FLATPAK_DEST}/share/metainfo
+    sources:
+      - type: file
+        path: io.github.ladaapp.lada.extensions.intel.metainfo.xml

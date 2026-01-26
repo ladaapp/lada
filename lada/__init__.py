@@ -30,8 +30,8 @@ VERSION = _get_version('0.10.2.dev')
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
 
-is_running_inside_flatpak = "FLATPAK_ID" in os.environ and "XDG_RUNTIME_DIR" in os.environ
-if is_running_inside_flatpak and "TMPDIR" not in os.environ:
+IS_FLATPAK = "FLATPAK_ID" in os.environ and "XDG_RUNTIME_DIR" in os.environ
+if IS_FLATPAK and "TMPDIR" not in os.environ:
     # The path $XDG_RUNTIME_DIR/app/$FLATPAK_ID should be accessible from inside the sandbox as well as from the host
     # We need this so that the media player launched on the host is able to access the file if .mp4 Fast start is enabled and the Export Preview button is clicked.
     os.environ["TMPDIR"] = os.path.join(os.environ["XDG_RUNTIME_DIR"], "app", os.environ["FLATPAK_ID"])

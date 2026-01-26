@@ -5,7 +5,7 @@
     <name>Lada</name>
     <summary>Recover pixelated adult videos</summary>
 
-    <metadata_license>MIT</metadata_license>
+    <metadata_license>CC0-1.0</metadata_license>
     <project_license>AGPL-3.0-or-later</project_license>
     
     <branding>
@@ -32,7 +32,8 @@
             <li>Recover Pixelated Videos: Restore pixelated or mosaic scenes in adult videos.</li>
             <li>Watch/Export Videos: Use either the CLI or GUI to watch or export your restored videos.</li>
         </ul>
-        <p>The process is pretty resource-intensive and this Flatpak package will not run on all hardware. Please read the README file of the project on Codeberg.</p>
+        <p>The process is pretty resource-intensive and will not run on all hardware. It is required you install one Lada's Flatpak Add-Ons / Extensions compatible with your GPU.</p>
+        <p>You can find more information in the README on the project website hosted on Codeberg.</p>
     </description>
 
     <url type="homepage">https://codeberg.org/ladaapp/lada</url>

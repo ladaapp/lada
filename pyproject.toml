@@ -53,7 +53,7 @@ version = { attr = "lada.VERSION" }
 # Will probably skip and wait for PyTorch 2.10 release
 nvidia-legacy = ["torch==2.8.0; sys_platform == 'linux' or sys_platform == 'win32'", "torchvision==0.23.0; sys_platform == 'linux' or sys_platform == 'win32'"]
 nvidia = ["torch==2.8.0; sys_platform == 'linux' or sys_platform == 'win32'", "torchvision==0.23.0; sys_platform == 'linux' or sys_platform == 'win32'"]
-intel = ["torch==2.9.1; sys_platform == 'linux' or sys_platform == 'win32'", "torchvision==0.24.1; sys_platform == 'linux' or sys_platform == 'win32'", "pytorch-triton-xpu ; sys_platform == 'win32' or sys_platform == 'linux'"]
+intel = ["torch==2.9.0; sys_platform == 'linux' or sys_platform == 'win32'", "torchvision==0.24.0; sys_platform == 'linux' or sys_platform == 'win32'", "pytorch-triton-xpu ; sys_platform == 'win32' or sys_platform == 'linux'"]
 cpu = ["torch==2.9.1", "torchvision==0.24.1"]
 gui = ["pycairo", "PyGObject"]
 
