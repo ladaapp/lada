@@ -338,6 +338,8 @@ class WatchView(Gtk.Widget):
                 self.frame_restorer_options = FrameRestorerOptionsBuilder(self.frame_restorer_options).detect_face_mosaics(self._config.detect_face_mosaics).build()
         self._config.connect("notify::detect-face-mosaics", on_detect_face_mosaics)
 
+        self._config.connect('notify::subtitles-font-size', lambda obj, spec: self.pipeline_manager.set_subtitle_font_size(self._config.subtitles_font_size))
+
     def set_speaker_icon(self, mute: bool):
         icon_name = "speaker-0-symbolic" if mute else "speaker-4-symbolic"
         self.button_image_mute_unmute.set_property("icon-name", icon_name)
@@ -516,7 +518,7 @@ class WatchView(Gtk.Widget):
             self.pipeline_manager.init_pipeline(self.video_metadata, subtitle_path)
         else:
             buffer_queue_min_thresh_time, buffer_queue_max_thresh_time = self.get_gst_buffer_bounds()
-            self.pipeline_manager = PipelineManager(self.frame_restorer_provider, buffer_queue_min_thresh_time, buffer_queue_max_thresh_time, self.config.mute_audio)
+            self.pipeline_manager = PipelineManager(self.frame_restorer_provider, buffer_queue_min_thresh_time, buffer_queue_max_thresh_time, self.config.mute_audio, self.config.subtitles_font_size)
             self.pipeline_manager.init_pipeline(self.video_metadata, subtitle_path)
             self.picture_video_player.set_paintable(self.pipeline_manager.paintable)
             self.pipeline_connection_handler_ids = [

@@ -115,6 +115,21 @@ SPDX-License-Identifier: AGPL-3.0
                                                 handler="switch_row_seek_preview_active_callback"/>
                                     </object>
                                 </child>
+                                <child>
+                                    <object class="AdwSpinRow" id="spin_row_subtitles_font_size">
+                                        <property name="title" translatable="true">Subtitle font size</property>
+                                        <signal name="notify::value"
+                                                handler="spin_row_subtitles_font_size_changed_callback"/>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">8</property>
+                                                <property name="upper">30</property>
+                                                <property name="value">16</property>
+                                                <property name="step-increment">1</property>
+                                            </object>
+                                        </property>
+                                    </object>
+                                </child>
                             </object>
                         </child>
                         <child>

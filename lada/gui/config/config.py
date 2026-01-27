@@ -49,6 +49,7 @@ class Config(GObject.Object):
         'show_mosaic_detections': False,
         'temp_directory': tempfile.gettempdir(),
         'detect_face_mosaics': False,
+        'subtitles_font_size': 16,
     }
 
     def __init__(self, style_manager: Adw.StyleManager):
@@ -73,6 +74,7 @@ class Config(GObject.Object):
         self._temp_directory = self._defaults['temp_directory']
         self._fp16_enabled = self._defaults['fp16_enabled']
         self._detect_face_mosaics = self._defaults['detect_face_mosaics']
+        self._subtitles_font_size = self._defaults['subtitles_font_size']
 
         self.save_lock = threading.Lock()
         self._style_manager = style_manager
@@ -300,6 +302,17 @@ class Config(GObject.Object):
         self._detect_face_mosaics = value
         self.save()
 
+    @GObject.Property()
+    def subtitles_font_size(self):
+        return self._subtitles_font_size
+
+    @subtitles_font_size.setter
+    def subtitles_font_size(self, value):
+        if value == self._subtitles_font_size:
+            return
+        self._subtitles_font_size = value
+        self.save()
+
     def save(self):
         self.save_lock.acquire_lock()
         config_file_path = self.get_config_file_path()
@@ -352,6 +365,7 @@ class Config(GObject.Object):
         self.temp_directory = self._defaults['temp_directory']
         self.validate_and_set_device(self._defaults['device'])
         self.detect_face_mosaics = self._defaults['detect_face_mosaics']
+        self.subtitles_font_size = self._defaults['subtitles_font_size']
         self.save()
 
     def _update_style(self, color_scheme: ColorScheme):
@@ -383,6 +397,7 @@ class Config(GObject.Object):
             'show_mosaic_detections': self._show_mosaic_detections,
             'temp_directory': self._temp_directory,
             'detect_face_mosaics': self._detect_face_mosaics,
+            'subtitles_font_size': self._subtitles_font_size,
         }
 
     def _encoding_preset_as_dict(self, encoding_preset: video_utils.EncodingPreset):

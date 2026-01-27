@@ -52,6 +52,7 @@ class ConfigSidebar(Gtk.Box):
     expander_row_encoding_presets: Adw.ExpanderRow = Gtk.Template.Child()
     expander_row_detection_models: Adw.ExpanderRow = Gtk.Template.Child()
     expander_row_restoration_models: Adw.ExpanderRow = Gtk.Template.Child()
+    spin_row_subtitles_font_size: Adw.SpinRow = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -128,6 +129,7 @@ class ConfigSidebar(Gtk.Box):
         self.switch_row_detect_faces.set_active(config.detect_face_mosaics)
         self.switch_row_detect_faces.set_visible(config.mosaic_detection_model != 'v2')
         self.switch_row_mp4_fast_start.set_active(config.mp4_fast_start)
+        self.spin_row_subtitles_font_size.set_value(config.subtitles_font_size)
 
         # init color scheme
         if config.color_scheme == ColorScheme.LIGHT: self.light_color_scheme_button.set_property("active", True)
@@ -377,6 +379,11 @@ class ConfigSidebar(Gtk.Box):
         updated_presets = set(self._config.custom_encoding_presets)
         updated_presets.remove(preset)
         self._config.custom_encoding_presets = updated_presets
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def spin_row_subtitles_font_size_changed_callback(self, spin_row, value):
+        self._config.subtitles_font_size = spin_row.get_property("value")
 
     def add_preset_row(self, action_row, radio_button):
         self.expander_row_encoding_presets.add_row(action_row)

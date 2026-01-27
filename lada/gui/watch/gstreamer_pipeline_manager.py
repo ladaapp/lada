@@ -22,7 +22,7 @@ class PipelineState(Enum):
     PAUSED = 2
 
 class PipelineManager(GObject.Object):
-    def __init__(self, frame_restorer_provider: FrameRestorerProvider, buffer_queue_min_thresh_time, buffer_queue_max_thresh_time, muted: bool):
+    def __init__(self, frame_restorer_provider: FrameRestorerProvider, buffer_queue_min_thresh_time, buffer_queue_max_thresh_time, muted: bool, subtitles_font_size: int):
         super().__init__()
         self.frame_restorer_app_src: FrameRestorerAppSrc | None = None
         self.video_metadata: VideoMetadata | None = None
@@ -33,6 +33,7 @@ class PipelineManager(GObject.Object):
         self._state: PipelineState = PipelineState.PAUSED
         self.has_audio: bool = False
         self._muted: bool = muted
+        self.subtitles_font_size = subtitles_font_size
 
         self.audio_uridecodebin: Gst.UriDecodeBin | None = None
         self.audio_volume = None
@@ -287,7 +288,7 @@ class PipelineManager(GObject.Object):
 
     def pipeline_add_subtitles(self, subtitle_path: str):
         textoverlay = Gst.ElementFactory.make('textoverlay', None)
-        textoverlay.set_property('font-desc', 'Sans 18')
+        textoverlay.set_property('font-desc', f"Sans {self.subtitles_font_size}")
         textoverlay.set_property('halignment', 'center')
         textoverlay.set_property('valignment', 'bottom')
         textoverlay.set_property('shaded-background', True)
@@ -380,7 +381,11 @@ class PipelineManager(GObject.Object):
         return self.has_subtitles
 
     def hide_subtitle(self, hide: bool):
-        self.subtitle_textoverlay.set_property('silent', hide)
+        if self.subtitle_textoverlay: self.subtitle_textoverlay.props.silent = hide
+
+    def set_subtitle_font_size(self, font_size: int):
+        self.subtitles_font_size = font_size
+        if self.subtitle_textoverlay: self.subtitle_textoverlay.props.font_desc = f"Sans {self.subtitles_font_size}"
 
     def reinit_appsrc(self):
         self.frame_restorer_app_src.set_property('video-metadata', self.video_metadata)
