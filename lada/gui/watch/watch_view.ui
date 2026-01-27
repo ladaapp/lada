@@ -103,6 +103,24 @@ SPDX-License-Identifier: AGPL-3.0
                                                                     </object>
                                                                 </child>
                                                                 <child type="overlay">
+                                                                    <object class="GtkButton" id="button_toggle_fullscreen_overlay">
+                                                                        <property name="margin-start">12</property>
+                                                                        <property name="margin-end">12</property>
+                                                                        <property name="margin-top">12</property>
+                                                                        <property name="margin-bottom">12</property>
+                                                                        <property name="valign">start</property>
+                                                                        <property name="halign">start</property>
+                                                                        <property name="icon-name">view-fullscreen-symbolic</property>
+                                                                        <property name="tooltip-text" translatable="true">Toggle Fullscreen</property>
+                                                                        <property name="visible">False</property>
+                                                                        <style>
+                                                                            <class name="osd"/>
+                                                                            <class name="window-colored-background"/>
+                                                                        </style>
+                                                                        <signal name="clicked" handler="button_toggle_fullscreen_callback"/>
+                                                                    </object>
+                                                                </child>
+                                                                <child type="overlay">
                                                                     <object class="AdwSpinner" id="spinner_overlay">
                                                                         <property name="width-request">64</property>
                                                                         <property name="height-request">64</property>
@@ -112,78 +130,91 @@ SPDX-License-Identifier: AGPL-3.0
                                                                     </object>
                                                                 </child>
                                                                 <child type="overlay">
-                                                                    <object class="GtkLabel" id="label_cursor_time">
-                                                                        <property name="name">label_cursor_time</property>
-                                                                        <property name="label">0:00</property>
-                                                                        <property name="width-chars">8</property>
+                                                                    <object class="GtkBox">
                                                                         <property name="valign">end</property>
-                                                                        <property name="visible">False</property>
-                                                                        <style>
-                                                                            <class name="numeric"/>
-                                                                        </style>
-                                                                    </object>
-                                                                </child>
-                                                            </object>
-                                                        </child>
-
-                                                        <child>
-                                                            <object class="GtkBox" id="box_playback_controls">
-                                                                <property name="margin-start">18</property>
-                                                                <property name="margin-end">18</property>
-                                                                <property name="margin-top">12</property>
-                                                                <property name="margin-bottom">12</property>
-                                                                <property name="layout-manager">
-                                                                    <object class="GtkBoxLayout">
-                                                                        <property name="orientation">horizontal</property>
-                                                                    </object>
-                                                                </property>
-                                                                <child>
-                                                                    <object class="GtkButton" id="button_mute_unmute">
-                                                                        <property name="receives-default">true</property>
-                                                                        <property name="margin-end">8</property>
-                                                                        <child>
-                                                                            <object class="GtkImage" id="button_image_mute_unmute">
-                                                                                <property name="icon-name">speaker-4-symbolic</property>
+                                                                        <property name="layout-manager">
+                                                                            <object class="GtkBoxLayout">
+                                                                                <property name="orientation">vertical</property>
+                                                                            </object>
+                                                                        </property>
+                                                                       <child>
+                                                                            <object class="GtkLabel" id="label_cursor_time">
+                                                                                <property name="name">label_cursor_time</property>
+                                                                                <property name="label">0:00</property>
+                                                                                <property name="width-chars">8</property>
+                                                                                <property name="valign">end</property>
+                                                                                <property name="visible">False</property>
+                                                                                <style>
+                                                                                    <class name="numeric"/>
+                                                                                </style>
                                                                             </object>
                                                                         </child>
-
-                                                                        <signal name="clicked" handler="button_mute_unmute_callback"/>
-                                                                    </object>
-                                                                </child>
-
-                                                                <child>
-                                                                    <object class="GtkButton" id="button_play_pause">
-                                                                        <property name="receives-default">true</property>
-                                                                        <property name="margin-end">8</property>
                                                                         <child>
-                                                                            <object class="GtkImage" id="button_image_play_pause">
-                                                                                <property name="icon-name">
-                                                                                    media-playback-start-symbolic
+                                                                            <object class="GtkBox" id="box_playback_controls">
+                                                                                <style>
+                                                                                    <class name="toolbar"/>
+        <!--                                                                            <class name="osd"/>-->
+                                                                                    <class name="window-colored-background"/>
+                                                                                </style>
+                                                                                <property name="valign">end</property>
+                                                                                <property name="layout-manager">
+                                                                                    <object class="GtkBoxLayout">
+                                                                                        <property name="orientation">horizontal</property>
+                                                                                    </object>
                                                                                 </property>
+                                                                                <child>
+                                                                                    <object class="GtkButton" id="button_mute_unmute">
+                                                                                        <property name="receives-default">true</property>
+                                                                                        <property name="margin-end">8</property>
+                                                                                        <child>
+                                                                                            <object class="GtkImage" id="button_image_mute_unmute">
+                                                                                                <property name="icon-name">speaker-4-symbolic</property>
+                                                                                            </object>
+                                                                                        </child>
+
+                                                                                        <signal name="clicked" handler="button_mute_unmute_callback"/>
+                                                                                    </object>
+                                                                                </child>
+
+                                                                                <child>
+                                                                                    <object class="GtkButton" id="button_play_pause">
+                                                                                        <property name="receives-default">true</property>
+                                                                                        <property name="margin-end">8</property>
+                                                                                        <child>
+                                                                                            <object class="GtkImage" id="button_image_play_pause">
+                                                                                                <property name="icon-name">
+                                                                                                    media-playback-start-symbolic
+                                                                                                </property>
+                                                                                            </object>
+                                                                                        </child>
+
+                                                                                        <signal name="clicked" handler="button_play_pause_callback"/>
+                                                                                    </object>
+                                                                                </child>
+
+                                                                                <child>
+                                                                                    <object class="GtkLabel" id="label_current_time">
+                                                                                        <property name="margin-end">8</property>
+                                                                                        <property name="label">0:00</property>
+                                                                                        <property name="width-chars">5</property>
+                                                                                        <style>
+                                                                                            <class name="numeric"/>
+                                                                                        </style>
+                                                                                    </object>
+
+                                                                                </child>
+
+                                                                                <child>
+                                                                                    <object class="Timeline" id="widget_timeline"/>
+                                                                                </child>
                                                                             </object>
                                                                         </child>
-
-                                                                        <signal name="clicked" handler="button_play_pause_callback"/>
                                                                     </object>
-                                                                </child>
-
-                                                                <child>
-                                                                    <object class="GtkLabel" id="label_current_time">
-                                                                        <property name="margin-end">8</property>
-                                                                        <property name="label">0:00</property>
-                                                                        <property name="width-chars">5</property>
-                                                                        <style>
-                                                                            <class name="numeric"/>
-                                                                        </style>
-                                                                    </object>
-
-                                                                </child>
-
-                                                                <child>
-                                                                    <object class="Timeline" id="widget_timeline"/>
                                                                 </child>
                                                             </object>
                                                         </child>
+
+
                                                     </object>
                                                 </property>
                                             </object>

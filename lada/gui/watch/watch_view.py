@@ -13,9 +13,9 @@ from lada.gui.config.config import Config
 from lada.gui.config.config_sidebar import ConfigSidebar
 from lada.gui.config.no_gpu_banner import NoGpuBanner
 from lada.gui.frame_restorer_provider import FrameRestorerProvider, FrameRestorerOptions, FRAME_RESTORER_PROVIDER, FrameRestorerOptionsBuilder
-from lada.gui.watch.fullscreen_mouse_activity_controller import FullscreenMouseActivityController
 from lada.gui.watch.gstreamer_pipeline_manager import PipelineManager, PipelineState
 from lada.gui.watch.headerbar_files_drop_down import HeaderbarFilesDropDown
+from lada.gui.watch.overlay_elements_controller import OverlayElementsController
 from lada.gui.watch.seek_preview_popover import SeekPreviewPopover
 from lada.gui.watch.timeline import Timeline
 from lada.gui.shortcuts import ShortcutsManager
@@ -46,6 +46,7 @@ class WatchView(Gtk.Widget):
     config_sidebar: ConfigSidebar = Gtk.Template.Child()
     header_bar: Adw.HeaderBar = Gtk.Template.Child()
     button_toggle_fullscreen: Gtk.Button = Gtk.Template.Child()
+    button_toggle_fullscreen_overlay: Gtk.Button = Gtk.Template.Child()
     stack_video_player: Gtk.Stack = Gtk.Template.Child()
     view_switcher: Adw.ViewSwitcher = Gtk.Template.Child()
     button_open_files: Gtk.Button = Gtk.Template.Child()
@@ -91,7 +92,7 @@ class WatchView(Gtk.Widget):
         self.widget_timeline.connect('seek_requested', lambda widget, seek_position: self.seek_video(seek_position))
         self.widget_timeline.connect('cursor_position_changed', lambda widget, cursor_position, x: self.show_cursor_position(cursor_position if cursor_position >= 0 else None, x if x >= 0 else None))
 
-        self.fullscreen_mouse_activity_controller = None
+        self.overlay_elements_controller: OverlayElementsController = OverlayElementsController(self, [self.box_playback_controls, self.button_toggle_fullscreen_overlay], [self.header_bar])
 
         self.pipeline_manager: PipelineManager | None = None
 
@@ -178,8 +179,8 @@ class WatchView(Gtk.Widget):
     def files_opened_signal(self, files: list[Gio.File]):
         pass
 
-    @GObject.Signal(name="window-resize-requested", arg_types=(Gdk.Paintable, Gtk.Widget, Gtk.Widget))
-    def video_size_changed(self, paintable: Gdk.Paintable, playback_controls: Gtk.Widget, headerbar: Gtk.Widget):
+    @GObject.Signal(name="window-resize-requested", arg_types=(Gdk.Paintable, Gtk.Widget))
+    def video_size_changed(self, paintable: Gdk.Paintable, headerbar: Gtk.Widget):
         pass
 
     @Gtk.Template.Callback()
@@ -475,7 +476,7 @@ class WatchView(Gtk.Widget):
             self.pipeline_manager.init_pipeline(self.video_metadata, subtitle_path)
             self.picture_video_player.set_paintable(self.pipeline_manager.paintable)
             self.pipeline_connection_handler_ids = [
-                self.pipeline_manager.connect("paintable-size-changed", lambda obj: GLib.idle_add(lambda: self.emit("window-resize-requested", self.pipeline_manager.paintable, self.box_playback_controls, self.header_bar))),
+                self.pipeline_manager.connect("paintable-size-changed", lambda obj: GLib.idle_add(lambda: self.emit("window-resize-requested", self.pipeline_manager.paintable, self.header_bar))),
                 self.pipeline_manager.connect("eos", lambda obj: GLib.idle_add(lambda: self.on_eos())),
                 self.pipeline_manager.connect("waiting-for-data", lambda obj, waiting_for_data: GLib.idle_add(lambda: self.on_waiting_for_data(waiting_for_data))),
                 self.pipeline_manager.connect("notify::state", lambda obj, spec: GLib.idle_add(lambda: self.on_pipeline_state(obj.get_property(spec.name)))),
@@ -569,34 +570,24 @@ class WatchView(Gtk.Widget):
             time = f"{minutes}:{seconds:02d}" if hours == 0 else f"{hours}:{minutes:02d}:{seconds:02d}"
             return time
 
-    def on_fullscreen_activity(self, fullscreen_activity: bool):
-        if fullscreen_activity:
-            self.header_bar.set_visible(True)
-            self.set_cursor_from_name("default")
-            self.box_playback_controls.set_visible(True)
-            self.button_play_pause.grab_focus()
-        else:
-            self.header_bar.set_visible(False)
-            self.set_cursor_from_name("none")
-            self.box_playback_controls.set_visible(False)
-
     def on_fullscreened(self, fullscreened: bool):
         if fullscreened:
-            self.fullscreen_mouse_activity_controller = FullscreenMouseActivityController(self, self.box_video_player)
+            self.header_bar.set_visible(False)
+            self.button_toggle_fullscreen_overlay.set_visible(True)
             self.banner_no_gpu.set_revealed(False)
             self.button_toggle_fullscreen.set_property("icon-name", "view-restore-symbolic")
+            self.button_toggle_fullscreen_overlay.set_property("icon-name", "view-restore-symbolic")
+            self.button_play_pause.grab_focus()
             self.box_video_player.set_css_classes(["fullscreen-video-player"])
         else:
             self.header_bar.set_visible(True)
-            self.set_cursor_from_name("default")
-            self.button_toggle_fullscreen.set_property("icon-name", "view-fullscreen-symbolic")
-            self.box_playback_controls.set_visible(True)
-            self.button_play_pause.grab_focus()
-            self.box_video_player.remove_css_class("fullscreen-video-player")
+            self.button_toggle_fullscreen_overlay.set_visible(False)
             if self._config.get_property('device') == 'cpu':
                 self.banner_no_gpu.set_revealed(True)
-        self.fullscreen_mouse_activity_controller.on_fullscreened(fullscreened)
-        self.fullscreen_mouse_activity_controller.connect("notify::fullscreen-activity", lambda object, spec: GLib.idle_add(lambda: self.on_fullscreen_activity(object.get_property(spec.name))))
+            self.button_toggle_fullscreen.set_property("icon-name", "view-fullscreen-symbolic")
+            self.button_toggle_fullscreen_overlay.set_property("icon-name", "view-fullscreen-symbolic")
+            self.button_play_pause.grab_focus()
+            self.box_video_player.remove_css_class("fullscreen-video-player")
 
     def _show_spinner(self, *args):
         self.config_sidebar.set_property("disabled", True)

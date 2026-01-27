@@ -94,11 +94,11 @@ class MainWindow(Adw.ApplicationWindow):
         else:
             self.fullscreen()
 
-    def on_window_resize_requested(self, obj, paintable: Gdk.Paintable, playback_controls: Gtk.Widget, header_bar: Gtk.Widget):
+    def on_window_resize_requested(self, obj, paintable: Gdk.Paintable, header_bar: Gtk.Widget):
         if self.is_visible():
-            self._resize_window(paintable, playback_controls, header_bar)
+            self._resize_window(paintable, header_bar)
         else:
-            self.connect("map", self._resize_window, paintable, playback_controls, header_bar, True)
+            self.connect("map", self._resize_window, paintable, header_bar, True)
 
     def _setup_shortcuts(self):
         self._shortcuts_manager.register_group("ui", "UI")
@@ -112,7 +112,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.watch_view.close()
         self.export_view.close()
 
-    def _resize_window(self, paintable: Gdk.Paintable, playback_controls: Gtk.Widget, headerbar: Gtk.Widget, initial: bool | None = False) -> None:
+    def _resize_window(self, paintable: Gdk.Paintable, headerbar: Gtk.Widget, initial: bool | None = False) -> None:
         # SPDX-SnippetBegin
         # SPDX-License-Identifier: GPL-3.0-or-later AND AGPL-3.0
         # SPDX-FileCopyrightText: Copyright 2024-2025 kramo
@@ -151,9 +151,8 @@ class MainWindow(Adw.ApplicationWindow):
         video_area = video_width * video_height
         init_width, init_height = self.get_default_size()
 
-        playback_controls_height, _natural, _minimum_baseline, _natural_baseline = playback_controls.measure(Gtk.Orientation.VERTICAL, video_height)
         header_bar_height, _natural, _minimum_baseline, _natural_baseline = headerbar.measure(Gtk.Orientation.VERTICAL, video_height)
-        additional_height_needed_for_controls = playback_controls_height + header_bar_height
+        additional_height_needed_for_controls = header_bar_height
 
         if initial:
             # Algorithm copied from Loupe

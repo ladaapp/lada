@@ -23,3 +23,8 @@ progressbar.failed > trough > progress {
 .fullscreen-video-player {
 	background-color: black;
 }
+
+.window-colored-background {
+  background-color: var(--window-bg-color);
+  color: var(--window-fg-color);
+}
