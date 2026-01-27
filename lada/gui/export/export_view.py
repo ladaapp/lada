@@ -83,7 +83,7 @@ class ExportView(Gtk.Widget):
         self.multiple_files_page.connect("show-error-requested", self.on_show_error_requested)
         self.multiple_files_page.connect("remove-item-requested", self.on_remove_item_requested)
 
-        drop_target = utils.create_video_files_drop_target(lambda files: self.emit("files-added", files))
+        drop_target = utils.create_files_drop_target(lambda files: self.emit("files-added", files))
         self.add_controller(drop_target)
 
     @GObject.Property(type=Config)

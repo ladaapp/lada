@@ -25,7 +25,7 @@ class FileSelectionView(Gtk.Widget):
         self._shortcuts_manager: ShortcutsManager | None = None
         self._window_title: str | None = None
 
-        drop_target = utils.create_video_files_drop_target(lambda files: self.emit("files-selected", files))
+        drop_target = utils.create_files_drop_target(lambda files: self.emit("files-selected", files))
         self.add_controller(drop_target)
 
         logo_image = Gtk.Image.new_from_resource("/io/github/ladaapp/lada/icons/128x128/lada-logo-gray.png")

@@ -153,7 +153,6 @@ SPDX-License-Identifier: AGPL-3.0
                                                                             <object class="GtkBox" id="box_playback_controls">
                                                                                 <style>
                                                                                     <class name="toolbar"/>
-        <!--                                                                            <class name="osd"/>-->
                                                                                     <class name="window-colored-background"/>
                                                                                 </style>
                                                                                 <property name="valign">end</property>
@@ -162,24 +161,10 @@ SPDX-License-Identifier: AGPL-3.0
                                                                                         <property name="orientation">horizontal</property>
                                                                                     </object>
                                                                                 </property>
-                                                                                <child>
-                                                                                    <object class="GtkButton" id="button_mute_unmute">
-                                                                                        <property name="receives-default">true</property>
-                                                                                        <property name="margin-end">8</property>
-                                                                                        <child>
-                                                                                            <object class="GtkImage" id="button_image_mute_unmute">
-                                                                                                <property name="icon-name">speaker-4-symbolic</property>
-                                                                                            </object>
-                                                                                        </child>
-
-                                                                                        <signal name="clicked" handler="button_mute_unmute_callback"/>
-                                                                                    </object>
-                                                                                </child>
 
                                                                                 <child>
                                                                                     <object class="GtkButton" id="button_play_pause">
                                                                                         <property name="receives-default">true</property>
-                                                                                        <property name="margin-end">8</property>
                                                                                         <child>
                                                                                             <object class="GtkImage" id="button_image_play_pause">
                                                                                                 <property name="icon-name">
@@ -194,7 +179,6 @@ SPDX-License-Identifier: AGPL-3.0
 
                                                                                 <child>
                                                                                     <object class="GtkLabel" id="label_current_time">
-                                                                                        <property name="margin-end">8</property>
                                                                                         <property name="label">0:00</property>
                                                                                         <property name="width-chars">5</property>
                                                                                         <style>
@@ -206,6 +190,30 @@ SPDX-License-Identifier: AGPL-3.0
 
                                                                                 <child>
                                                                                     <object class="Timeline" id="widget_timeline"/>
+                                                                                </child>
+
+                                                                                <child>
+                                                                                    <object class="GtkButton" id="button_mute_unmute">
+                                                                                        <property name="receives-default">true</property>
+                                                                                        <child>
+                                                                                            <object class="GtkImage" id="button_image_mute_unmute">
+                                                                                                <property name="icon-name">speaker-4-symbolic</property>
+                                                                                            </object>
+                                                                                        </child>
+
+                                                                                        <signal name="clicked" handler="button_mute_unmute_callback"/>
+                                                                                    </object>
+                                                                                </child>
+
+                                                                                <child>
+                                                                                    <object class="GtkButton" id="button_subtitles">
+                                                                                        <child>
+                                                                                            <object class="GtkImage" id="button_image_subtitles">
+                                                                                                <property name="icon-name">subtitles-off-outline-symbolic</property>
+                                                                                            </object>
+                                                                                        </child>
+                                                                                        <signal name="clicked" handler="button_subtitles_callback"/>
+                                                                                    </object>
                                                                                 </child>
                                                                             </object>
                                                                         </child>

@@ -76,6 +76,10 @@ class PipelineManager(GObject.Object):
     def buffer_queue_underrun(self, waiting_for_data: bool):
         pass
 
+    @GObject.Signal(name="opening-subtitles-failed")
+    def opening_subtitles_file_failed(self):
+        pass
+
     @GObject.Signal(name="eos")
     def eos(self):
         pass
@@ -101,7 +105,13 @@ class PipelineManager(GObject.Object):
                 self.state = PipelineState.PAUSED
                 GLib.idle_add(lambda: self.emit("eos"))
             case Gst.MessageType.ERROR:
-                (err, _) = msg.parse_error()
+                err, _ = msg.parse_error()
+                if msg.src.get_name() == "subtitle_subparse" or msg.src.get_name() == "subtitle_filesrc":
+                    if msg.src.get_name() == "subtitle_subparse":
+                        logger.error(f"Failed to parse subtitles file {self.subtitle_filesrc.props.location}")
+                    elif msg.src.get_name() == "subtitle_filesrc":
+                        logger.error(f"Failed to parse subtitles file {self.subtitle_filesrc.props.location}")
+                    self.emit("opening-subtitles-failed")
                 logger.error(f"Error from {msg.src.get_path_string()}: {err}")
             case Gst.MessageType.STATE_CHANGED:
                 if msg.src == self.pipeline:
@@ -281,10 +291,11 @@ class PipelineManager(GObject.Object):
         textoverlay.set_property('halignment', 'center')
         textoverlay.set_property('valignment', 'bottom')
         textoverlay.set_property('shaded-background', True)
+        textoverlay.set_property('silent', False)
 
-        subparse = Gst.ElementFactory.make('subparse', None)
+        subparse = Gst.ElementFactory.make('subparse', "subtitle_subparse")
 
-        filesrc = Gst.ElementFactory.make('filesrc', None)
+        filesrc = Gst.ElementFactory.make('filesrc', "subtitle_filesrc")
         filesrc.set_property('location', subtitle_path)
 
         # Add all elements to pipeline
@@ -348,7 +359,9 @@ class PipelineManager(GObject.Object):
         else:
             self.pipeline_remove_audio()
 
-        # Handle subtitles
+        self.adjust_subtitles(subtitle_path)
+
+    def adjust_subtitles(self, subtitle_path: str | None) -> bool:
         subtitle_pipeline_already_added = self.has_subtitles
         self.has_subtitles = subtitle_path is not None
 
@@ -364,6 +377,10 @@ class PipelineManager(GObject.Object):
                 self.has_subtitles = False
         elif subtitle_pipeline_already_added:
             self.pipeline_remove_subtitles()
+        return self.has_subtitles
+
+    def hide_subtitle(self, hide: bool):
+        self.subtitle_textoverlay.set_property('silent', hide)
 
     def reinit_appsrc(self):
         self.frame_restorer_app_src.set_property('video-metadata', self.video_metadata)

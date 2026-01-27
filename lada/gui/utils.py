@@ -5,6 +5,7 @@ import logging
 import os
 import subprocess
 import xml.etree.ElementTree as ET
+from typing import Callable
 
 import torch
 from gi.repository import Gio
@@ -111,6 +112,14 @@ def filter_video_files(files: list[Gio.File]) -> list[Gio.File]:
     filtered_files = [file for file in files if is_video_file(file)]
     return filtered_files
 
+def filter_srt_subtitle_files(files: list[Gio.File]) -> list[Gio.File]:
+    def is_srt_file(file: Gio.File):
+        if path:= file.get_path():
+            return path.lower().endswith(".srt")
+        return False
+    filtered_files = [file for file in files if is_srt_file(file)]
+    return filtered_files
+
 def show_open_files_dialog(callback, dismissed_callback):
     file_dialog = Gtk.FileDialog()
     video_file_filter = Gtk.FileFilter()
@@ -131,13 +140,37 @@ def show_open_files_dialog(callback, dismissed_callback):
                 raise error
     file_dialog.open_multiple(callback=on_open_multiple)
 
-def create_video_files_drop_target(callback):
+def show_open_subtitles_file_dialog(callback, dismissed_callback):
+    file_dialog = Gtk.FileDialog()
+    subs_file_filter = Gtk.FileFilter()
+    subs_file_filter.add_mime_type("application/x-subrip")
+    subs_file_filter.add_suffix("srt")
+    file_dialog.set_default_filter(subs_file_filter)
+    file_dialog.set_title(_("Select a subtitle file"))
+    def on_open(_file_dialog: Gtk.FileDialog, result):
+        try:
+            file = _file_dialog.open_finish(result)
+            callback(file)
+        except GLib.Error as error:
+            if error.code == 2: # "Dismissed by user"
+                dismissed_callback()
+                logger.debug("FileDialog cancelled: Dismissed by user")
+            else:
+                logger.error(f"Error opening file: {error.message}")
+                raise error
+    file_dialog.open(callback=on_open)
+
+def create_files_drop_target(video_files_callback: Callable[[list[Gio.File]], None], subtitle_files_callback: Callable[[list[Gio.File]], None] | None = None):
     drop_target = Gtk.DropTarget.new(Gio.File, actions=Gdk.DragAction.COPY)
     drop_target.set_gtypes((Gdk.FileList,))
     def on_file_drop(_drop_target, files: list[Gio.File], x, y):
         video_files = filter_video_files(files)
         if len(video_files) > 0:
-            callback(video_files)
+            video_files_callback(video_files)
+        if subtitle_files_callback:
+            subtitle_files = filter_srt_subtitle_files(files)
+            if len(subtitle_files) > 0:
+                subtitle_files_callback(subtitle_files)
     drop_target.connect("drop", on_file_drop)
     return drop_target
 
