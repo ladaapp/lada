@@ -102,10 +102,36 @@ class VideoReader:
         av.logging.restore_default_callback()
         self.container.streams.video[0].thread_type = 'AUTO'
 
-        for frame in self.container.decode(video=0):
-            nd_frame = frame.to_ndarray(format='bgr24')
-            torch_frame = torch.from_numpy(nd_frame)
-            yield torch_frame, frame.pts
+        # Fault-tolerant frame decoding with frame duplication for corrupted frames
+        # This approach mimics how ffmpeg CLI handles corrupted frames by duplicating the last good frame
+        last_good_frame = None
+        consecutive_errors = 0
+        max_consecutive_errors = 10  # Prevent infinite loops on completely corrupted streams
+        
+        # Use packet-level decoding to handle corrupted frames properly
+        vstream = self.container.streams.video[0]
+        for packet in self.container.demux(vstream):
+            try:
+                frames = packet.decode()
+                for frame in frames:
+                    nd_frame = frame.to_ndarray(format='bgr24')
+                    torch_frame = torch.from_numpy(nd_frame)
+                    last_good_frame = (torch_frame, frame.pts)
+                    consecutive_errors = 0
+                    yield torch_frame, frame.pts
+            except av.error.InvalidDataError as e:
+                # Handle corrupted frames by duplicating the last good frame
+                if last_good_frame is not None and consecutive_errors < max_consecutive_errors:
+                    consecutive_errors += 1
+                    logger.warning(f"Corrupted frame detected, duplicating last good frame ({consecutive_errors}/{max_consecutive_errors})")
+                    yield last_good_frame[0], last_good_frame[1]
+                else:
+                    # No good frame available yet (first frame corrupt) or too many consecutive errors
+                    # Re-raise the error instead of skipping to fail fast
+                    raise Exception(f"Cannot handle corrupted frame: {'first frame corrupt' if last_good_frame is None else f'too many consecutive corrupted frames ({max_consecutive_errors})'}") from e
+            except Exception as e:
+                # For other unexpected errors, re-raise them
+                raise
 
     def seek(self, offset_ns):
         offset = int((offset_ns / 1_000_000_000) * av.time_base)
