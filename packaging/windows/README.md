@@ -1,15 +1,16 @@
 ## Build exe
 
 ```powershell
-powershell -ExecutionPolicy Bypass ./packaging/windows/package_executable.ps1
+powershell -ExecutionPolicy Bypass ./packaging/windows/package_executable.ps1 -extra nvidia
 ```
 
 Script options:
-* `--skip-winget`: Skip installing/upgrading system dependencies via winget
-* `--skip-gvsbuild`: Skip installing/upgrading system dependencies via gvsbuild
-* `--clean-gvsbuild`: Does a clean build of gvsbuild
-* `--cli-only`: Builds only `lada-cli.exe`
-* `--skip-translations`: Skip compiling translations. If set no translations will be included in the release
+* `-extra <EXTRA>`: Install python extra. EXTRA currently can be `intel` or `nvidia`
+* `-skipWinget`: Skip installing/upgrading system dependencies via winget
+* `-skipGvsbuild`: Skip installing/upgrading system dependencies via gvsbuild
+* `-cleanGvsbuild`: Does a clean build of gvsbuild
+* `-cliOnly`: Builds only `lada-cli.exe`
+* `-skipTranslations`: Skip compiling translations. If set no translations will be included in the release
 
 > [!TIP]
 > If you updated `gvsbuild`, `uv` or `python` do a clean build (`--clean-gvsbuild`)

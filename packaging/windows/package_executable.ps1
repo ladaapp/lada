@@ -1,6 +1,15 @@
 # SPDX-FileCopyrightText: Lada Authors
 # SPDX-License-Identifier: AGPL-3.0
 
+param (
+    [switch]$skipWinget = $false,
+    [switch]$skipGvsbuild = $false,
+    [switch]$skipTranslations = $false,
+    [switch]$cliOnly = $false,
+    [switch]$cleanGvsbuild = $false,
+    [Parameter(Mandatory)] [string]$extra
+)
+
 $global:PYINSTALLER_VERSION = "6.18.0"
 $global:GVSBUILD_VERSION = "2026.1.0"
 $global:PYTHON_VERSION = "3.13"
@@ -21,7 +30,7 @@ function Ask-YesNo {
 }
 
 function Install-SystemDependencies {
-    param([Parameter(Mandatory)] [boolean]$cli_only)
+    param([Parameter(Mandatory)] [boolean]$cliOnly)
 
     Write-Host "Installing system dependencies..."
 
@@ -30,7 +39,7 @@ function Install-SystemDependencies {
     winget install --id=astral-sh.uv -e --source winget --version $global:UV_VERSION --force
     winget install --id=7zip.7zip -e --source winget
 
-    if (-Not ($cli_only)) {
+    if (-Not ($cliOnly)) {
         winget install --id MSYS2.MSYS2 -e --source winget
         winget install --id Microsoft.VisualStudio.2022.BuildTools -e --source winget --silent --override "--wait --quiet --add ProductLang En-us --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
         winget install --id Rustlang.Rustup -e --source winget
@@ -104,27 +113,26 @@ function Download-ModelWeights {
 }
 
 function Install-PythonDependencies {
-    param([Parameter(Mandatory)] [boolean]$cli_only)
+    param(
+        [Parameter(Mandatory)] [boolean]$cliOnly,
+        [Parameter(Mandatory)] [string]$extra
+    )
 
     Write-Host "Installing Python dependencies..."
 
     uv venv --clear --python $global:PYTHON_VERSION venv_release_win
     .\venv_release_win\Scripts\Activate.ps1
 
-    $release_dir = (Resolve-Path ".\build_gtk_release\gtk\x64\release").Path
-
-    uv pip install --no-deps --requirement packaging/windows/requirements.txt --extra-index-url https://download.pytorch.org/whl/cu128 --index-strategy unsafe-best-match
+    uv sync --active --frozen --extra $extra --no-editable --no-install-project
     # Fix crash due to polars package requiring AVX512 CPU which isn't available on my build machine (use legacy version)
     # This dependency is not used by Lada. It gets pulled in by ultralytics which uses it outside of inferencing paths
     uv pip uninstall polars
     uv pip install polars-lts-cpu
 
-    if ($cli_only) {
-        uv pip install --no-deps '.'
-    } else {
+    uv pip install --no-deps '.'
+    if (-not $cliOnly) {
         uv pip install --force-reinstall (Resolve-Path ".\build_gtk_release\gtk\x64\release\python\pygobject*.whl").Path
         uv pip install --force-reinstall (Resolve-Path ".\build_gtk_release\gtk\x64\release\python\pycairo*.whl").Path
-        uv pip install --no-deps '.[gui]'
     }
 
     uv pip install pyinstaller==$global:PYINSTALLER_VERSION
@@ -139,7 +147,7 @@ function Install-PythonDependencies {
 }
 
 function Create-EXE {
-    param([Parameter(Mandatory)] [boolean]$cli_only)
+    param([Parameter(Mandatory)] [boolean]$cliOnly)
 
     Write-Host "Creating executable..."
 
@@ -150,9 +158,9 @@ function Create-EXE {
     $env:LIB = $release_dir + "\lib;" + $env:LIB
     $env:INCLUDE = $release_dir + "\include;" + $release_dir + "\include\cairo;" + $release_dir + "\include\glib-2.0;" + $release_dir + "\include\gobject-introspection-1.0;" + $release_dir + "\lib\glib-2.0\include;" + $env:INCLUDE
 
-    $cli_only_arg = if ($cli_only) { '--cli-only' } else { '' }
+    $cliOnlyArg = if ($cliOnly) { '--cli-only' } else { '' }
 
-    uv run --no-project pyinstaller --noconfirm ./packaging/windows/lada.spec -- $cli_only_arg
+    uv run --no-project pyinstaller --noconfirm ./packaging/windows/lada.spec -- $cliOnlyArg
 
     deactivate
 }
@@ -195,6 +203,14 @@ function Check-ProjectRoot {
     }
 }
 
+function Check-Extra {
+    param([Parameter(Mandatory)] [string]$extra)
+    if (-not ("nvidia", "intel" -contains $extra)) {
+        Write-Warning "Currently only 'nvidia' or 'intel' extras are supported."
+        exit 1
+    }
+}
+
 # ---------------------
 # EXECUTE PACKAGING STEPS
 # ---------------------
@@ -202,20 +218,21 @@ function Check-ProjectRoot {
 $ErrorActionPreference = "Stop"
 
 Check-ProjectRoot
+Check-Extra $extra
 
-if ($args -notcontains "--skip-winget") {
-    Install-SystemDependencies ($args -contains "--cli-only")
+if (-not $skipWinget) {
+    Install-SystemDependencies $cliOnly
     if (!(Ask-YesNo "Installing/Upgrading winget programs finished. Check the winget install output above. You may want to stop and restart this script in a new shell for certain installs/updates. Do you want to continue?")) {
         exit 0
     }
 }
-if (($args -notcontains "--skip-gvsbuild") -And ($args -notcontains "--cli-only")) {
-    Build-SystemDependencies ($args -contains "--clean-gvsbuild")
+if (-not ($skipGvsbuild -Or $cliOnly)) {
+    Build-SystemDependencies $cleanGvsbuild
 }
-if ($args -notcontains "--skip-translations") {
+if (-not $skipTranslations) {
     Compile-Translations
 }
 Download-ModelWeights
-Install-PythonDependencies ($args -contains "--cli-only")
-Create-EXE ($args -contains "--cli-only")
+Install-PythonDependencies $cliOnly $extra
+Create-EXE $cliOnly
 Create-7ZArchive
