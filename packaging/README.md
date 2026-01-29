@@ -17,8 +17,7 @@ uv export --frozen --no-default-groups --no-emit-local --format pylock.toml --ex
 # No need for gui extra as the docker image will only offer Lada CLI
 uv export --no-default-groups --no-emit-local --format requirements.txt --extra nvidia --group docker --no-emit-package opencv-python --frozen  > packaging/docker/requirements.txt
 ### Windows PyInstaller
-# No need for gui extra as pycairo and pygobject dependencies will be built locally via gvsbuild
-uv export --no-default-groups --no-emit-local --format requirements.txt --extra nvidia --frozen > packaging/windows/requirements.txt
+# No need for exporting dependencies as we use uv sync in the Powershell script
 ```
 
 ## Release a new version
