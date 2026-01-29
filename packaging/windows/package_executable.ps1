@@ -5,6 +5,7 @@ param (
     [switch]$skipWinget = $false,
     [switch]$skipGvsbuild = $false,
     [switch]$skipTranslations = $false,
+    [switch]$skipArchive = $false,
     [switch]$cliOnly = $false,
     [switch]$cleanGvsbuild = $false,
     [Parameter(Mandatory)] [string]$extra
@@ -166,6 +167,9 @@ function Create-EXE {
 }
 
 function Create-7ZArchive {
+    param(
+        [Parameter(Mandatory)] [string]$extra
+    )
     Write-Host "Creating 7z archive..."
 
     .\venv_release_win\Scripts\Activate.ps1
@@ -174,23 +178,27 @@ function Create-7ZArchive {
 
     $env:Path = ($env:Programfiles + "\7-Zip;") + $env:Path
 
-    $archive_path = "./dist/" + "lada-v" + $version + ".7z"
-    $tmp_archive_path = "./dist/" + "lada-v" + $version + ".tmp.7z"
+    $archive_path = "./dist/lada-v{0}_windows_{1}.7z" -f $version,$extra
 
     # Delete files from prior runs
     Get-ChildItem "./dist" -filter "*.7z*" | ForEach-Object {
         rm $_.FullName
     }
 
-    # Create single-file .7z archive
-    7z.exe a $tmp_archive_path "./dist/lada"
-
     # Split .7z archive into 2GB chunks so they can be uploaded to GitHub Releases
     7z.exe a -v1999m $archive_path "./dist/lada"
 
-    mv $tmp_archive_path $archive_path
+    # Create single-file .7z archive
+    $single_chunk = (Get-ChildItem "./dist" -filter "*.7z*" | Where-Object Name -Match '\.7z.\d{3}$' | Measure-Object).Count -eq 1
+    if ($single_chunk) {
+        $old = "./dist/lada-v{0}_windows_{1}.7z.001" -f $version,$extra
+        $new = $archive_path
+        mv $old $new
+    } else {
+        7z.exe a $archive_path "./dist/lada"
+    }
 
-    Get-ChildItem "./dist" -filter "*.7z*" | ForEach-Object {
+    Get-ChildItem "./dist" -filter "*.7z*" | Where-Object Name -Match '\.7z(.\d{3})?$' | ForEach-Object {
         $sha256 = (Get-FileHash -Algorithm SHA256 $_.FullName).Hash.ToLower()
         echo ($sha256 + " " + $_.Basename + $_.Extension) > ($_.FullName + ".sha256")
     }
@@ -235,4 +243,6 @@ if (-not $skipTranslations) {
 Download-ModelWeights
 Install-PythonDependencies $cliOnly $extra
 Create-EXE $cliOnly
-Create-7ZArchive
+if (-not $skipArchive) {
+    Create-7ZArchive $extra
+}

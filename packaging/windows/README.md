@@ -8,9 +8,10 @@ Script options:
 * `-extra <EXTRA>`: Install python extra. EXTRA currently can be `intel` or `nvidia`
 * `-skipWinget`: Skip installing/upgrading system dependencies via winget
 * `-skipGvsbuild`: Skip installing/upgrading system dependencies via gvsbuild
+* `-skipArchive`: Skip creating 7z archives
+* `-skipTranslations`: Skip compiling translations. If set no translations will be included in the release
 * `-cleanGvsbuild`: Does a clean build of gvsbuild
 * `-cliOnly`: Builds only `lada-cli.exe`
-* `-skipTranslations`: Skip compiling translations. If set no translations will be included in the release
 
 > [!TIP]
 > If you updated `gvsbuild`, `uv` or `python` do a clean build (`--clean-gvsbuild`)
