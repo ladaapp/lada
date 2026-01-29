@@ -45,8 +45,8 @@ def get_gui_components(project_root_dir: str, common_datas: list, common_binarie
     gui_datas = common_datas + [
         (str(p), str(p.relative_to(project_root_dir).parent)) for p in (pathlib.Path(project_root_dir) / "lada" / "gui").rglob("*.ui")
     ] + [
-        (ospj(project_root_dir, 'lada/gui/style.css'), '.'),
-        (ospj(project_root_dir, 'lada/gui/resources.gresource'), '.'),
+        (ospj(project_root_dir, 'lada/gui/style.css'), 'lada/gui'),
+        (ospj(project_root_dir, 'lada/gui/resources.gresource'), 'lada/gui'),
         (ospj(project_root_dir, 'assets/io.github.ladaapp.lada.png'), 'share/icons/hicolor/128x128/apps'),
     ]
 
