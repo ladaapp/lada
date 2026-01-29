@@ -68,7 +68,6 @@ def get_gui_components(project_root_dir: str, common_datas: list, common_binarie
             "gi": {
                 "icons": ["Adwaita"],
                 "themes": ["Adwaita"],
-                "languages": [],
                 "module-versions": {
                     "Gtk": "4.0",
                 },
