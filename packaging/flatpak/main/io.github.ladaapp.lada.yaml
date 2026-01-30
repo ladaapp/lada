@@ -18,6 +18,7 @@ finish-args:
   - "--env=YOLO_CONFIG_DIR=/var/config/yolo"
   - "--env=PYTHONPATH=/app/extensions/lib/python3.13/site-packages"
   - "--env=LD_LIBRARY_PATH=/app/lib"
+  - "--env=LIBVA_MESSAGING_LEVEL=1" # set log level to error to suppress initialization logs at startup
 add-extensions:
   io.github.ladaapp.lada.extensions:
     directory: extensions
@@ -28,6 +29,18 @@ add-extensions:
 cleanup-commands:
   - mkdir ${FLATPAK_DEST}/extensions
 modules:
+  - name: intel-onevpl-runtime # Needed for QSV encoders as it's not included in org.freedesktop.Platform.VAAPI.Intel
+    buildsystem: cmake-ninja
+    builddir: true
+    config-opts:
+      - '-DCMAKE_BUILD_TYPE=Release'
+      - '-DBUILD_SAMPLES=OFF'
+      - '-DBUILD_TESTS=OFF'
+      - '-DBUILD_TOOLS=OFF'
+    sources:
+      - type: archive
+        url: https://github.com/oneapi-src/oneVPL-intel-gpu/archive/intel-onevpl-25.4.6.tar.gz
+        sha256: a4cc2429fba49ee1d5f48883930e2e7325f0af38af83c8048793c8b1d3fa4a8f
   - python-dependencies.yaml
   - name: lada-model-weights
     buildsystem: simple
@@ -70,15 +83,3 @@ modules:
     sources:
       - type: dir
         path: "../../.."
-  - name: intel-onevpl-runtime # Needed for QSV encoders as it's not included in org.freedesktop.Platform.VAAPI.Intel
-    buildsystem: cmake-ninja
-    builddir: true
-    config-opts:
-      - '-DCMAKE_BUILD_TYPE=Release'
-      - '-DBUILD_SAMPLES=OFF'
-      - '-DBUILD_TESTS=OFF'
-      - '-DBUILD_TOOLS=OFF'
-    sources:
-      - type: archive
-        url: https://github.com/oneapi-src/oneVPL-intel-gpu/archive/intel-onevpl-25.4.6.tar.gz
-        sha256: a4cc2429fba49ee1d5f48883930e2e7325f0af38af83c8048793c8b1d3fa4a8f

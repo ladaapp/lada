@@ -50,7 +50,7 @@ This section provides instructions for installing the app (CLI and GUI) from sou
    You have to choose a single option in case your system contains GPUs of multiple vendors like an integrated Intel GPU and a dedicated Nvidia GPU.
 
    ```bash
-   uv sync --extra nvidia # Adjust extra according to your available hardware
+   uv sync --extra nvidia # Adjust extra to your available hardware
    ```
 
    Before continuing let's test if the installation was successful by checking if [PyTorch](https://pytorch.org) detects your GPU (skip if using CPU):
@@ -148,7 +148,7 @@ You can now run the CLI with `lada-cli`.
     ````
 
 > [!TIP]
-> If you intend to hack on the GUI code install also the `gui-dev` group: `uv sync --group gui-dev --inexact`.
+> If you intend to hack on the GUI code install also the `gui-dev` group: `uv pip install --group gui-dev`.
 
 You can now run the GUI with `lada`.
 

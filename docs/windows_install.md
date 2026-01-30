@@ -160,7 +160,7 @@ You can now run the CLI with `lada-cli`.
     ````
 
 > [!TIP]
-> If you intend to hack on the GUI code install also the `gui-dev` group: `uv sync --group gui-dev --inexact`.
+> If you intend to hack on the GUI code install also the `gui-dev` group: `uv pip install --group gui-dev`.
 
 You can now run the GUI with `lada`.
 

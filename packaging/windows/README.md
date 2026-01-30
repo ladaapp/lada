@@ -33,3 +33,11 @@ Script options:
 * Attach both `lada-<version>.7z.001` and `lada-<version>.7z.002` to GitHub Release (rag-and-drop to the Draft Release) 
 * Upload `lada-<version>.7z` to https://pixeldrain.com
 * Add Pixeldrain download link and link to GitHub Release to both Draft Releases on GitHub and Codeberg
+
+## Update gvsbuild
+
+Checklist when updating gvsbuild / Windows GUI system dependencies. Some steps might not be relevant depending on the change.
+
+* Update `package_executable.ps1` (at least version)
+* Update/add/remove patches for gvsbuild
+* Rebuild and upload artifacts to Pixeldrain and update links in `windows_install.md`

@@ -1,7 +1,10 @@
 > [!NOTE]
 > The manifest `io.github.ladaapp.lada.yaml` in this directory is used only for building the flatpak locally.
 > 
-> The manifest used for building the flatpak available on Flathub is maintained in the [flathub repo on GitHub](https://github.com/flathub/io.github.ladaapp.lada).
+> The manifest(s) used for building the flatpak available on Flathub is maintained in the following Github repositories:
+> * [io.github.ladaapp.lada](https://github.com/flathub/io.github.ladaapp.lada)
+> * [io.github.ladaapp.lada.extensions.intel](https://github.com/flathub/io.github.ladaapp.lada.extensions.intel)
+> * [io.github.ladaapp.lada.extensions.nvidia](https://github.com/flathub/io.github.ladaapp.lada.extensions.nvidia)
 >
 > Check out the sections below for further details.
 
@@ -64,5 +67,7 @@ Or you run it via `flatpak run io.github.ladaapp.lada//main`.
 All python dependencies are specified in and installed via `python-dependencies.yaml` flatpak module.
 
 This file is generated py the script `convert-pylock-to-flatpak.py` based on `uv.lock` located in the root of the project.
+
+Remember to copy the updated module also to Flathub repo on GitHub so it stays in sync.
 
 See packaging [README.md](../README.md) for context.
