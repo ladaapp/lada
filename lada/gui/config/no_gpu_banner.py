@@ -38,6 +38,11 @@ class NoGpuBanner(Gtk.Box):
     @Gtk.Template.Callback()
     def banner_no_gpu_button_clicked(self, button_clicked):
         self.banner.set_revealed(False)
+        self.emit("clicked-dismissed")
 
     def set_revealed(self, value: bool):
         self.banner.set_revealed(value)
+
+    @GObject.Signal(name="clicked-dismissed")
+    def clicked_dismissed_signal(self):
+        pass

@@ -58,6 +58,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.set_title("Lada")
 
         self.connect("close-request", self.close)
+        self.connect("realize", self.on_realize)
         self.file_selection_view.connect("files-selected", lambda obj, files: self.on_files_selected(files))
         self.watch_view.connect("toggle-fullscreen-requested", lambda *args: self.on_toggle_fullscreen())
         self.watch_view.connect("window-resize-requested", self.on_window_resize_requested)
@@ -67,6 +68,8 @@ class MainWindow(Adw.ApplicationWindow):
         self.export_view.connect("video-export-requested", lambda obj, restore_directory_or_file: self.on_video_export_requested(restore_directory_or_file))
         self.export_view.connect("shutdown-confirmation-requested", lambda *args: self.present())
         self.watch_view.props.view_stack = self.view_stack
+
+        self.window_focused = False
 
     def on_video_export_requested(self, restore_directory_or_file: Gio.File):
         self.stack.props.visible_child_name = "main"
@@ -94,11 +97,28 @@ class MainWindow(Adw.ApplicationWindow):
         else:
             self.fullscreen()
 
-    def on_window_resize_requested(self, obj, paintable: Gdk.Paintable, header_bar: Gtk.Widget):
+    def on_window_resize_requested(self, obj, paintable: Gdk.Paintable):
         if self.is_visible():
-            self._resize_window(paintable, header_bar)
+            self._resize_window(paintable)
         else:
-            self.connect("map", self._resize_window, paintable, header_bar, True)
+            self.connect("map", self._resize_window, paintable, True)
+
+    def on_realize(self, *_args) -> None:
+        surface = self.get_surface()
+        if not isinstance(surface, Gdk.Toplevel):
+            return
+
+        surface.connect("notify::state", self._on_toplevel_state_changed)
+
+
+    def _on_toplevel_state_changed(self, toplevel: Gdk.Toplevel, *_args) -> None:
+        focused = bool(toplevel.get_state() & Gdk.ToplevelState.FOCUSED)
+        if focused == self.window_focused:
+            return
+
+        self.window_focused = focused
+        if self.stack.props.visible_child_name == "main" and self.view_stack.props.visible_child_name == "watch":
+            self.watch_view.on_window_focused(focused)
 
     def _setup_shortcuts(self):
         self._shortcuts_manager.register_group("ui", "UI")
@@ -112,7 +132,7 @@ class MainWindow(Adw.ApplicationWindow):
         self.watch_view.close()
         self.export_view.close()
 
-    def _resize_window(self, paintable: Gdk.Paintable, headerbar: Gtk.Widget, initial: bool | None = False) -> None:
+    def _resize_window(self, paintable: Gdk.Paintable, initial: bool | None = False) -> None:
         # SPDX-SnippetBegin
         # SPDX-License-Identifier: GPL-3.0-or-later AND AGPL-3.0
         # SPDX-FileCopyrightText: Copyright 2024-2025 kramo
@@ -150,9 +170,6 @@ class MainWindow(Adw.ApplicationWindow):
 
         video_area = video_width * video_height
         init_width, init_height = self.get_default_size()
-
-        header_bar_height, _natural, _minimum_baseline, _natural_baseline = headerbar.measure(Gtk.Orientation.VERTICAL, video_height)
-        additional_height_needed_for_controls = header_bar_height
 
         if initial:
             # Algorithm copied from Loupe
@@ -210,7 +227,7 @@ class MainWindow(Adw.ApplicationWindow):
                 return
 
         nat_width = round(nat_width)
-        nat_height = round(nat_height) + additional_height_needed_for_controls
+        nat_height = round(nat_height)
 
         for prop, init, target in (
                 ("default-width", init_width, nat_width),

@@ -53,6 +53,7 @@ class WatchView(Gtk.Widget):
     button_open_files: Gtk.Button = Gtk.Template.Child()
     button_subtitles: Gtk.Button = Gtk.Template.Child()
     button_image_subtitles = Gtk.Template.Child()
+    box_header_bar_banner = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -74,6 +75,7 @@ class WatchView(Gtk.Widget):
         self._thread_counter = 0
         self._thread_counter_lock = threading.Lock()
         self._thumbnail_size = (220, 124)
+        self._no_gpu_banner_dismissed = False
 
         self.pipeline_connection_handler_ids = []
 
@@ -95,7 +97,7 @@ class WatchView(Gtk.Widget):
         self.widget_timeline.connect('seek_requested', lambda widget, seek_position: self.seek_video(seek_position))
         self.widget_timeline.connect('cursor_position_changed', lambda widget, cursor_position, x: self.show_cursor_position(cursor_position if cursor_position >= 0 else None, x if x >= 0 else None))
 
-        self.overlay_elements_controller: OverlayElementsController = OverlayElementsController(self, [self.box_playback_controls, self.button_toggle_fullscreen_overlay], [self.header_bar])
+        self.overlay_elements_controller: OverlayElementsController = OverlayElementsController(self, [self.box_playback_controls, self.box_header_bar_banner, self.button_toggle_fullscreen_overlay])
 
         self.pipeline_manager: PipelineManager | None = None
 
@@ -187,8 +189,8 @@ class WatchView(Gtk.Widget):
     def subtitle_file_opened(self, files: list[Gio.File]):
         pass
 
-    @GObject.Signal(name="window-resize-requested", arg_types=(Gdk.Paintable, Gtk.Widget))
-    def video_size_changed(self, paintable: Gdk.Paintable, headerbar: Gtk.Widget):
+    @GObject.Signal(name="window-resize-requested", arg_types=(Gdk.Paintable,))
+    def video_size_changed(self, paintable: Gdk.Paintable):
         pass
 
     @Gtk.Template.Callback()
@@ -237,6 +239,11 @@ class WatchView(Gtk.Widget):
             callback = lambda file: self.emit("subtitle-file-opened", file)
             dismissed_callback = lambda *args: self.button_subtitles.set_sensitive(True)
             utils.show_open_subtitles_file_dialog(callback, dismissed_callback)
+
+    @Gtk.Template.Callback()
+    def on_no_gpu_banner_spinner_clicked_dismissed(self, _arg):
+        self._no_gpu_banner_dismissed = True
+        self.banner_no_gpu.set_revealed(False)
 
     @property
     def frame_restorer_options(self):
@@ -522,7 +529,7 @@ class WatchView(Gtk.Widget):
             self.pipeline_manager.init_pipeline(self.video_metadata, subtitle_path)
             self.picture_video_player.set_paintable(self.pipeline_manager.paintable)
             self.pipeline_connection_handler_ids = [
-                self.pipeline_manager.connect("paintable-size-changed", lambda obj: GLib.idle_add(lambda: self.emit("window-resize-requested", self.pipeline_manager.paintable, self.header_bar))),
+                self.pipeline_manager.connect("paintable-size-changed", lambda obj: GLib.idle_add(lambda: self.emit("window-resize-requested", self.pipeline_manager.paintable))),
                 self.pipeline_manager.connect("eos", lambda obj: GLib.idle_add(lambda: self.on_eos())),
                 self.pipeline_manager.connect("waiting-for-data", lambda obj, waiting_for_data: GLib.idle_add(lambda: self.on_waiting_for_data(waiting_for_data))),
                 self.pipeline_manager.connect("notify::state", lambda obj, spec: GLib.idle_add(lambda: self.on_pipeline_state(obj.get_property(spec.name)))),
@@ -633,7 +640,7 @@ class WatchView(Gtk.Widget):
         else:
             self.header_bar.set_visible(True)
             self.button_toggle_fullscreen_overlay.set_visible(False)
-            if self._config.get_property('device') == 'cpu':
+            if not self._no_gpu_banner_dismissed and self._config.props.device == 'cpu':
                 self.banner_no_gpu.set_revealed(True)
             self.button_toggle_fullscreen.set_property("icon-name", "view-fullscreen-symbolic")
             self.button_toggle_fullscreen_overlay.set_property("icon-name", "view-fullscreen-symbolic")
@@ -646,6 +653,7 @@ class WatchView(Gtk.Widget):
         self.view_switcher.set_sensitive(False)
         self.button_open_files.set_sensitive(False)
         self.stack_video_player.set_visible_child_name("spinner")
+        self.overlay_elements_controller.on_spinner_visible(True)
 
     def _show_video_preview(self, *args):
         self.config_sidebar.set_property("disabled", False)
@@ -653,6 +661,7 @@ class WatchView(Gtk.Widget):
         self.view_switcher.set_sensitive(True)
         self.button_open_files.set_sensitive(True)
         self.stack_video_player.set_visible_child_name("video-player")
+        self.overlay_elements_controller.on_spinner_visible(False)
         self.grab_focus()
 
     def _setup_shortcuts(self):
@@ -687,3 +696,6 @@ class WatchView(Gtk.Widget):
             self.pipeline_manager.close_video_file()
         else:
             threading.Thread(target=self.pipeline_manager.close_video_file).start()
+
+    def on_window_focused(self, focused: bool):
+        self.overlay_elements_controller.on_window_focused(focused)

@@ -14,224 +14,275 @@ SPDX-License-Identifier: AGPL-3.0
             <object class="GtkBinLayout"/>
         </property>
         <child>
-            <object class="AdwToolbarView">
-                <child type="top">
-                    <object class="AdwHeaderBar" id="header_bar">
-                        <property name="title-widget">
-                            <object class="AdwViewSwitcher" id="view_switcher">
-                                <property name="policy">1</property>
-                                <property name="stack" bind-source="WatchView" bind-property="view-stack"/>
-                            </object>
-                        </property>
-                        <child type="start">
-                            <object class="GtkToggleButton" id="toggle_button_pane">
-                                <property name="icon-name">sliders-horizontal-symbolic</property>
-                                <property name="active">False</property>
-                            </object>
-                        </child>
-                        <child type="start">
-                            <object class="GtkButton" id="button_toggle_fullscreen">
-                                <property name="icon-name">view-fullscreen-symbolic</property>
-                                <property name="tooltip-text" translatable="true">Toggle Fullscreen</property>
-                                <property name="sensitive">True</property>
-                                <signal name="clicked" handler="button_toggle_fullscreen_callback"/>
-                            </object>
-                        </child>
-                        <child type="start">
-                            <object class="HeaderbarFilesDropDown" id="drop_down_files"/>
-                        </child>
-                        <child type="end">
-                            <object class="GtkMenuButton">
-                                <property name="primary">True</property>
-                                <property name="icon-name">open-menu-symbolic</property>
-                                <property name="tooltip-text" translatable="true">Settings</property>
-                                <property name="menu-model">primary_menu</property>
-                            </object>
-                        </child>
-                        <child type="end">
-                            <object class="GtkButton" id="button_open_files">
-                                <property name="icon-name">folder-open-symbolic</property>
-                                <property name="tooltip-text" translatable="true">Open Files…</property>
-                                <signal name="clicked" handler="button_open_files_callback"/>
-                            </object>
-                        </child>
+            <object class="AdwOverlaySplitView">
+                <property name="show-sidebar"
+                          bind-source="toggle_button_pane"
+                          bind-property="active"
+                          bind-flags="sync-create|bidirectional"/>
+                <property name="sidebar-width-fraction">0.5</property>
+                <property name="max-sidebar-width">500.0</property>
+                <property name="sidebar">
+                    <object class="ConfigSidebar" id="config_sidebar">
+                        <property name="config" bind-source="WatchView" bind-property="config"/>
+                        <property name="show-export-section">False</property>
                     </object>
-                </child>
+                </property>
                 <property name="content">
-
-                    <object class="AdwOverlaySplitView">
-                        <property name="show-sidebar"
-                                  bind-source="toggle_button_pane"
-                                  bind-property="active"
-                                  bind-flags="sync-create|bidirectional"/>
-                        <property name="sidebar-width-fraction">0.5</property>
-                        <property name="max-sidebar-width">500.0</property>
-                        <property name="sidebar">
-                            <object class="ConfigSidebar" id="config_sidebar">
-                                <property name="config" bind-source="WatchView" bind-property="config"/>
-                                <property name="show-export-section">False</property>
-                            </object>
-                        </property>
-                        <property name="content">
-                            <object class="GtkBox">
-                                <property name="orientation">vertical</property>
+                    <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                            <object class="GtkStack" id="stack_video_player">
+                                <property name="vexpand">true</property>
+                                <property name="transition-type">none</property>
                                 <child>
-                                    <object class="NoGpuBanner" id="banner_no_gpu">
-                                        <property name="config" bind-source="WatchView" bind-property="config"/>
-                                    </object>
-                                </child>
-                                <child>
-                                    <object class="GtkStack" id="stack_video_player">
-                                        <property name="vexpand">true</property>
-                                        <property name="transition-type">none</property>
-                                        <child>
-                                            <object class="GtkStackPage">
-                                                <property name="name">video-player</property>
-                                                <property name="child">
-                                                    <object class="GtkBox">
-                                                        <property name="orientation">vertical</property>
-                                                        <child>
-                                                            <object class="GtkOverlay">
+                                    <object class="GtkStackPage">
+                                        <property name="name">video-player</property>
+                                        <property name="child">
+                                            <object class="GtkBox">
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                    <object class="GtkOverlay">
+                                                        <child type="overlay">
+                                                            <object class="GtkBox" id="box_header_bar_banner">
+                                                                <property name="orientation">vertical</property>
+                                                                <property name="valign">start</property>
                                                                 <child>
-                                                                    <object class="GtkBox" id="box_video_player">
-                                                                        <property name="orientation">vertical</property>
-                                                                        <property name="valign">center</property>
-                                                                        <property name="vexpand">True</property>
-                                                                        <child>
-                                                                            <object class="GtkPicture" id="picture_video_player"/>
+                                                                    <object class="AdwHeaderBar" id="header_bar">
+                                                                        <property name="valign">start</property>
+                                                                        <property name="title-widget">
+                                                                            <object class="AdwViewSwitcher" id="view_switcher">
+                                                                                <property name="policy">1</property>
+                                                                                <property name="stack" bind-source="WatchView" bind-property="view-stack"/>
+                                                                            </object>
+                                                                        </property>
+                                                                        <child type="start">
+                                                                            <object class="GtkToggleButton" id="toggle_button_pane">
+                                                                                <property name="icon-name">sliders-horizontal-symbolic</property>
+                                                                                <property name="active">False</property>
+                                                                            </object>
+                                                                        </child>
+                                                                        <child type="start">
+                                                                            <object class="GtkButton" id="button_toggle_fullscreen">
+                                                                                <property name="icon-name">view-fullscreen-symbolic</property>
+                                                                                <property name="tooltip-text" translatable="true">Toggle Fullscreen</property>
+                                                                                <property name="sensitive">True</property>
+                                                                                <signal name="clicked" handler="button_toggle_fullscreen_callback"/>
+                                                                            </object>
+                                                                        </child>
+                                                                        <child type="start">
+                                                                            <object class="HeaderbarFilesDropDown" id="drop_down_files"/>
+                                                                        </child>
+                                                                        <child type="end">
+                                                                            <object class="GtkMenuButton">
+                                                                                <property name="primary">True</property>
+                                                                                <property name="icon-name">open-menu-symbolic</property>
+                                                                                <property name="tooltip-text" translatable="true">Settings</property>
+                                                                                <property name="menu-model">primary_menu</property>
+                                                                            </object>
+                                                                        </child>
+                                                                        <child type="end">
+                                                                            <object class="GtkButton" id="button_open_files">
+                                                                                <property name="icon-name">folder-open-symbolic</property>
+                                                                                <property name="tooltip-text" translatable="true">Open Files…</property>
+                                                                                <signal name="clicked" handler="button_open_files_callback"/>
+                                                                            </object>
                                                                         </child>
                                                                     </object>
                                                                 </child>
-                                                                <child type="overlay">
-                                                                    <object class="GtkButton" id="button_toggle_fullscreen_overlay">
-                                                                        <property name="margin-start">12</property>
-                                                                        <property name="margin-end">12</property>
-                                                                        <property name="margin-top">12</property>
-                                                                        <property name="margin-bottom">12</property>
-                                                                        <property name="valign">start</property>
-                                                                        <property name="halign">start</property>
-                                                                        <property name="icon-name">view-fullscreen-symbolic</property>
-                                                                        <property name="tooltip-text" translatable="true">Toggle Fullscreen</property>
+                                                                <child>
+                                                                    <object class="NoGpuBanner" id="banner_no_gpu">
+                                                                        <property name="config" bind-source="WatchView" bind-property="config"/>
+                                                                        <signal name="clicked-dismissed" handler="on_no_gpu_banner_spinner_clicked_dismissed"/>
+                                                                    </object>
+                                                                </child>
+                                                            </object>
+                                                        </child>
+                                                        <child>
+                                                            <object class="GtkBox" id="box_video_player">
+                                                                <property name="orientation">vertical</property>
+                                                                <property name="valign">center</property>
+                                                                <property name="vexpand">True</property>
+                                                                <child>
+                                                                    <object class="GtkPicture" id="picture_video_player"/>
+                                                                </child>
+                                                            </object>
+                                                        </child>
+                                                        <child type="overlay">
+                                                            <object class="GtkButton" id="button_toggle_fullscreen_overlay">
+                                                                <property name="margin-start">12</property>
+                                                                <property name="margin-end">12</property>
+                                                                <property name="margin-top">12</property>
+                                                                <property name="margin-bottom">12</property>
+                                                                <property name="valign">start</property>
+                                                                <property name="halign">start</property>
+                                                                <property name="icon-name">view-fullscreen-symbolic</property>
+                                                                <property name="tooltip-text" translatable="true">Toggle Fullscreen</property>
+                                                                <property name="visible">False</property>
+                                                                <style>
+                                                                    <class name="window-colored-background"/>
+                                                                </style>
+                                                                <signal name="clicked" handler="button_toggle_fullscreen_callback"/>
+                                                            </object>
+                                                        </child>
+                                                        <child type="overlay">
+                                                            <object class="AdwSpinner" id="spinner_overlay">
+                                                                <property name="width-request">64</property>
+                                                                <property name="height-request">64</property>
+                                                                <property name="halign">center</property>
+                                                                <property name="valign">center</property>
+                                                                <property name="visible">False</property>
+                                                            </object>
+                                                        </child>
+                                                        <child type="overlay">
+                                                            <object class="GtkBox">
+                                                                <property name="valign">end</property>
+                                                                <property name="layout-manager">
+                                                                    <object class="GtkBoxLayout">
+                                                                        <property name="orientation">vertical</property>
+                                                                    </object>
+                                                                </property>
+                                                               <child>
+                                                                    <object class="GtkLabel" id="label_cursor_time">
+                                                                        <property name="name">label_cursor_time</property>
+                                                                        <property name="label">0:00</property>
+                                                                        <property name="width-chars">8</property>
+                                                                        <property name="valign">end</property>
                                                                         <property name="visible">False</property>
                                                                         <style>
-                                                                            <class name="osd"/>
+                                                                            <class name="numeric"/>
+                                                                        </style>
+                                                                    </object>
+                                                                </child>
+                                                                <child>
+                                                                    <object class="GtkBox" id="box_playback_controls">
+                                                                        <style>
+                                                                            <class name="toolbar"/>
                                                                             <class name="window-colored-background"/>
                                                                         </style>
-                                                                        <signal name="clicked" handler="button_toggle_fullscreen_callback"/>
-                                                                    </object>
-                                                                </child>
-                                                                <child type="overlay">
-                                                                    <object class="AdwSpinner" id="spinner_overlay">
-                                                                        <property name="width-request">64</property>
-                                                                        <property name="height-request">64</property>
-                                                                        <property name="halign">center</property>
-                                                                        <property name="valign">center</property>
-                                                                        <property name="visible">False</property>
-                                                                    </object>
-                                                                </child>
-                                                                <child type="overlay">
-                                                                    <object class="GtkBox">
                                                                         <property name="valign">end</property>
                                                                         <property name="layout-manager">
                                                                             <object class="GtkBoxLayout">
-                                                                                <property name="orientation">vertical</property>
+                                                                                <property name="orientation">horizontal</property>
                                                                             </object>
                                                                         </property>
-                                                                       <child>
-                                                                            <object class="GtkLabel" id="label_cursor_time">
-                                                                                <property name="name">label_cursor_time</property>
+
+                                                                        <child>
+                                                                            <object class="GtkButton" id="button_play_pause">
+                                                                                <property name="receives-default">true</property>
+                                                                                <child>
+                                                                                    <object class="GtkImage" id="button_image_play_pause">
+                                                                                        <property name="icon-name">
+                                                                                            media-playback-start-symbolic
+                                                                                        </property>
+                                                                                    </object>
+                                                                                </child>
+
+                                                                                <signal name="clicked" handler="button_play_pause_callback"/>
+                                                                            </object>
+                                                                        </child>
+
+                                                                        <child>
+                                                                            <object class="GtkLabel" id="label_current_time">
                                                                                 <property name="label">0:00</property>
-                                                                                <property name="width-chars">8</property>
-                                                                                <property name="valign">end</property>
-                                                                                <property name="visible">False</property>
+                                                                                <property name="width-chars">5</property>
                                                                                 <style>
                                                                                     <class name="numeric"/>
                                                                                 </style>
                                                                             </object>
+
                                                                         </child>
+
                                                                         <child>
-                                                                            <object class="GtkBox" id="box_playback_controls">
-                                                                                <style>
-                                                                                    <class name="toolbar"/>
-                                                                                    <class name="window-colored-background"/>
-                                                                                </style>
-                                                                                <property name="valign">end</property>
-                                                                                <property name="layout-manager">
-                                                                                    <object class="GtkBoxLayout">
-                                                                                        <property name="orientation">horizontal</property>
-                                                                                    </object>
-                                                                                </property>
+                                                                            <object class="Timeline" id="widget_timeline"/>
+                                                                        </child>
 
+                                                                        <child>
+                                                                            <object class="GtkButton" id="button_mute_unmute">
+                                                                                <property name="receives-default">true</property>
                                                                                 <child>
-                                                                                    <object class="GtkButton" id="button_play_pause">
-                                                                                        <property name="receives-default">true</property>
-                                                                                        <child>
-                                                                                            <object class="GtkImage" id="button_image_play_pause">
-                                                                                                <property name="icon-name">
-                                                                                                    media-playback-start-symbolic
-                                                                                                </property>
-                                                                                            </object>
-                                                                                        </child>
-
-                                                                                        <signal name="clicked" handler="button_play_pause_callback"/>
+                                                                                    <object class="GtkImage" id="button_image_mute_unmute">
+                                                                                        <property name="icon-name">speaker-4-symbolic</property>
                                                                                     </object>
                                                                                 </child>
 
+                                                                                <signal name="clicked" handler="button_mute_unmute_callback"/>
+                                                                            </object>
+                                                                        </child>
+
+                                                                        <child>
+                                                                            <object class="GtkButton" id="button_subtitles">
                                                                                 <child>
-                                                                                    <object class="GtkLabel" id="label_current_time">
-                                                                                        <property name="label">0:00</property>
-                                                                                        <property name="width-chars">5</property>
-                                                                                        <style>
-                                                                                            <class name="numeric"/>
-                                                                                        </style>
-                                                                                    </object>
-
-                                                                                </child>
-
-                                                                                <child>
-                                                                                    <object class="Timeline" id="widget_timeline"/>
-                                                                                </child>
-
-                                                                                <child>
-                                                                                    <object class="GtkButton" id="button_mute_unmute">
-                                                                                        <property name="receives-default">true</property>
-                                                                                        <child>
-                                                                                            <object class="GtkImage" id="button_image_mute_unmute">
-                                                                                                <property name="icon-name">speaker-4-symbolic</property>
-                                                                                            </object>
-                                                                                        </child>
-
-                                                                                        <signal name="clicked" handler="button_mute_unmute_callback"/>
+                                                                                    <object class="GtkImage" id="button_image_subtitles">
+                                                                                        <property name="icon-name">subtitles-off-outline-symbolic</property>
                                                                                     </object>
                                                                                 </child>
-
-                                                                                <child>
-                                                                                    <object class="GtkButton" id="button_subtitles">
-                                                                                        <child>
-                                                                                            <object class="GtkImage" id="button_image_subtitles">
-                                                                                                <property name="icon-name">subtitles-off-outline-symbolic</property>
-                                                                                            </object>
-                                                                                        </child>
-                                                                                        <signal name="clicked" handler="button_subtitles_callback"/>
-                                                                                    </object>
-                                                                                </child>
+                                                                                <signal name="clicked" handler="button_subtitles_callback"/>
                                                                             </object>
                                                                         </child>
                                                                     </object>
                                                                 </child>
                                                             </object>
                                                         </child>
-
-
                                                     </object>
-                                                </property>
+                                                </child>
+
                                             </object>
-                                        </child>
-                                        <child>
-                                            <object class="GtkStackPage">
-                                                <property name="name">spinner</property>
-                                                <property name="child">
+                                        </property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkStackPage">
+                                        <property name="name">spinner</property>
+                                        <property name="child">
+
+                                            <object class="GtkBox">
+                                                <property name="orientation">vertical</property>
+                                                <child>
+                                                    <object class="AdwHeaderBar">
+                                                        <property name="valign">start</property>
+                                                        <property name="title-widget">
+                                                            <object class="AdwViewSwitcher">
+                                                                <property name="sensitive">false</property>
+                                                                <property name="policy">1</property>
+                                                                <property name="stack" bind-source="WatchView" bind-property="view-stack"/>
+                                                            </object>
+                                                        </property>
+                                                        <child type="start">
+                                                            <object class="GtkToggleButton">
+                                                                <property name="icon-name">sliders-horizontal-symbolic</property>
+                                                                <property name="sensitive">false</property>
+                                                            </object>
+                                                        </child>
+                                                        <child type="start">
+                                                            <object class="GtkButton">
+                                                                <property name="icon-name">view-fullscreen-symbolic</property>
+                                                                <property name="sensitive">false</property>
+                                                            </object>
+                                                        </child>
+                                                        <child type="end">
+                                                            <object class="GtkMenuButton">
+                                                                <property name="primary">True</property>
+                                                                <property name="icon-name">open-menu-symbolic</property>
+                                                                <property name="sensitive">false</property>
+                                                            </object>
+                                                        </child>
+                                                        <child type="end">
+                                                            <object class="GtkButton">
+                                                                <property name="icon-name">folder-open-symbolic</property>
+                                                                <property name="sensitive">false</property>
+                                                            </object>
+                                                        </child>
+                                                    </object>
+                                                </child>
+                                                <child>
+                                                    <object class="NoGpuBanner">
+                                                        <property name="config" bind-source="WatchView" bind-property="config"/>
+                                                        <signal name="clicked-dismissed" handler="on_no_gpu_banner_spinner_clicked_dismissed"/>
+                                                    </object>
+                                                </child>
+                                                <child>
                                                     <object class="AdwSpinner">
+                                                        <property name="vexpand">True</property>
                                                         <property name="width-request">64</property>
                                                         <property name="height-request">64</property>
                                                         <property name="halign">center</property>
@@ -240,18 +291,18 @@ SPDX-License-Identifier: AGPL-3.0
                                                             <class name="dim-label"/>
                                                         </style>
                                                     </object>
-                                                </property>
+                                                </child>
                                             </object>
-                                        </child>
+                                        </property>
                                     </object>
                                 </child>
                             </object>
-                        </property>
+                        </child>
                     </object>
-
                 </property>
             </object>
         </child>
+
     </template>
     <menu id="primary_menu">
         <section>
