@@ -22,6 +22,7 @@ finish-args:
 add-extensions:
   io.github.ladaapp.lada.extensions:
     directory: extensions
+    add-ld-path: lib
     merge-dirs: lib;bin
     no-autodownload: true
     autodelete: true

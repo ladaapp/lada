@@ -1,0 +1,40 @@
+--- a/igc/IGC/CMakeLists.txt
++++ b/igc/IGC/CMakeLists.txt
+@@ -561,7 +561,7 @@ elseif(_igc_compiler_is_gnu)
+       GROUP NAME Exceptions         "-f(no-)?exceptions"
+       GROUP NAME Optimization       "-O[0-3sg]?"
+       GROUP NAME Rtti               "-f(no-)?rtti"
+-      GROUP NAME TreatWarnAsError   "-Werror"
++      #GROUP NAME TreatWarnAsError   "-Werror"
+ 
+       ALIAS AdditionalOptions
+       ALIAS CallingConvCdecl
+@@ -589,8 +589,8 @@ elseif(_igc_compiler_is_gnu)
+       ALIAS RtMultiThreadedSharedDebug
+       ALIAS RttiDisabled               "-fno-rtti"
+       ALIAS RttiEnabled                "-frtti"
+-      ALIAS TreatWarnAsErrorDisabled   TreatWarnAsError REMOVE_GROUP
+-      ALIAS TreatWarnAsErrorEnabled    "-Werror"
++      #ALIAS TreatWarnAsErrorDisabled   TreatWarnAsError REMOVE_GROUP
++      #ALIAS TreatWarnAsErrorEnabled    "-Werror"
+       ALIAS UnreferencedVariable
+       ALIAS UninitializedVarWarning
+       ALIAS WholeProgramOptimization
+@@ -925,7 +925,7 @@ foreach(_compilerFlagName IN ITEMS "CMAK
+             #-march=armv8.2-a+fp+simd+sve2
+             -march=armv8-a+fp+simd
+             -fms-extensions
+-            -Werror
++            #-Werror
+             -Wno-unused-parameter
+             -Wno-missing-field-initializers
+             -Wwrite-strings
+@@ -990,7 +990,7 @@ foreach(_compilerFlagName IN ITEMS "CMAK
+             -march=corei7
+             -mstackrealign
+             -fms-extensions
+-            -Werror
++            #-Werror
+             -Wno-unused-parameter
+             -Wno-missing-field-initializers
+             -Wwrite-strings

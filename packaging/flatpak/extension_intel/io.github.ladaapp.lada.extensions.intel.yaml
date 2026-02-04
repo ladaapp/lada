@@ -5,7 +5,120 @@ sdk: org.gnome.Sdk//49
 default-branch: "main"
 build-extension: true
 separate-locales: false
+build-options:
+  prefix: /app/extensions/intel
+  libdir: /app/extensions/intel/lib
+  prepend-path: /app/extensions/intel/bin
+  prepend-pkg-config-path: /app/extensions/intel/lib/pkgconfig
+  prepend-ld-library-path: /app/extensions/intel/lib
+  ldflags: -L/app/extensions/intel/lib
+cleanup:
+  - /include
+  - /lib/pkgconfig
 modules:
+  - name: intel-compute-runtime
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DNEO_SKIP_UNIT_TESTS=1
+    sources:
+      - type: archive
+        url: https://github.com/intel/compute-runtime/archive/refs/tags/26.01.36711.4.tar.gz
+        sha256: f92c011244488e8a0832a3fc524e30571a2253dbdfd9b6b541438a85f2c2674c
+    modules:
+      - name: intel-graphics-compiler
+        buildsystem: cmake-ninja
+        build-options:
+          env:
+            GIT_COMMITTER_NAME: 'builduser'
+            GIT_COMMITTER_EMAIL: 'builduser@example.com'
+        config-opts:
+          - -DCCLANG_FROM_SYSTEM=OFF
+          - -DCMAKE_BUILD_TYPE=Release
+          - -DCMAKE_POLICY_VERSION_MINIMUM=3.5.0
+          - -DCMAKE_SKIP_RPATH=YES
+          - -DIGC_OPTION__CLANG_MODE=Source
+          - -DIGC_OPTION__LINK_KHRONOS_SPIRV_TRANSLATOR=ON
+          - -DIGC_OPTION__LLD_MODE=Source
+          - -DIGC_OPTION__LLVM_MODE=Source
+          - -DIGC_OPTION__LLVM_PREFERRED_VERSION=16.0.6
+          - -DIGC_OPTION__SPIRV_TOOLS_MODE=Source
+          - -DIGC_OPTION__VC_INTRINSICS_MODE=Source
+          - -DIGC_OPTION__USE_PREINSTALLED_SPIRV_HEADERS=OFF
+          - -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR=/run/build/intel-graphics-compiler/SPIRV-Headers
+          - -Wno-dev
+        builddir: true
+        subdir: igc
+        sources:
+          - type: git
+            url: https://github.com/intel/intel-graphics-compiler
+            tag: v2.27.10
+            dest: igc
+          - type: git
+            url: https://github.com/intel/vc-intrinsics.git
+            tag: v0.24.2
+            dest: vc-intrinsics
+          - type: git
+            url: https://github.com/KhronosGroup/SPIRV-Tools.git
+            commit: 28a883ba4c67f58a9540fb0651c647bb02883622
+            dest: SPIRV-Tools
+          - type: git
+            url: https://github.com/KhronosGroup/SPIRV-Headers.git
+            commit: 01e0577914a75a2569c846778c2f93aa8e6feddd
+            dest: SPIRV-Headers
+          - type: git
+            url: https://github.com/llvm/llvm-project.git
+            tag: llvmorg-16.0.6
+            commit: 7cbf1a2591520c2491aa35339f227775f4d3adf6
+            dest: llvm-project
+          - type: git
+            url: https://github.com/intel/opencl-clang.git
+            commit: 6ab2da341420eba7d022a85a5190c46133347719
+            dest: llvm-project/llvm/projects/opencl-clang
+          - type: git
+            url: https://github.com/KhronosGroup/SPIRV-LLVM-Translator.git
+            commit: ee2a14e38f24c422cf1f0375b5b9cec0afe4412c
+            dest: llvm-project/llvm/projects/llvm-spirv
+          - type: patch
+            path: 010-intel-graphics-compiler-disable-werror.patch
+          - type: patch
+            path: gcc15-llvm-header-fixes.patch
+      - name: intel-gmmlib
+        buildsystem: cmake-ninja
+        builddir: true
+        sources:
+          - type: archive
+            url: https://github.com/intel/gmmlib/archive/refs/tags/intel-gmmlib-22.9.0.tar.gz
+            sha256: 6ae262b95540681ad5478c63affb880135f772c95410b092009a6f7dfc04a5ba
+      - name: level-zero
+        buildsystem: cmake-ninja
+        config-opts:
+          - -DCMAKE_BUILD_TYPE=Release
+        sources:
+          - type: archive
+            url: https://github.com/oneapi-src/level-zero/archive/refs/tags/v1.26.2.tar.gz
+            sha256: 8b53fdbd8455d414c0113059e351264ae8a5731503a865ef80cfd9172eb99a11
+      - name: opencl-headers
+        buildsystem: cmake-ninja
+        sources:
+          - type: archive
+            url: https://github.com/KhronosGroup/OpenCL-Headers/archive/v2025.07.22.tar.gz
+            sha256: 98f0a3ea26b4aec051e533cb1750db2998ab8e82eda97269ed6efe66ec94a240
+#      - name: intel-igsc
+#        buildsystem: cmake-ninja
+#        builddir: true
+#        modules:
+#          - name: intel-metee
+#            buildsystem: cmake-ninja
+#            builddir: true
+#            sources:
+#              - type: archive
+#                url: https://github.com/intel/metee/archive/refs/tags/6.2.1.tar.gz
+#                sha256: 84d36a8cc290a3e4df5f4c3a06e777b66d000868975b4c88d8df752862f96b8c
+#        sources:
+#          - type: archive
+#            url: https://github.com/intel/igsc/archive/refs/tags/V0.9.5.tar.gz
+#            sha256: 516a099239ad0541598be87025556c878c0d11c6d43e09115d2bb2e24508b6ec
   - python-dependencies.yaml
   - name: metainfo
     buildsystem: simple
