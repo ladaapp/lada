@@ -1,4 +1,4 @@
-default_scope = 'lada.basicvsrpp.mmagic'
+default_scope = 'lada.models.basicvsrpp.mmagic'
 save_dir = './work_dirs'
 
 default_hooks = dict(
