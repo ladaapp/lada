@@ -123,6 +123,9 @@ the files in the `config` directory.
 
 I'd recommend to read through [MMengine documentation](https://mmengine.readthedocs.io/en/latest/) first if you're not familiar with that library.
 
+> [!TIP]
+> In case you want to fine-tune you can find the full model weights on [HuggingFace](https://huggingface.co/ladaapp/lada)
+
 ## NSFW detection model
 The purpose of this dataset is to train an image segmentation model which we can feed video frames to detect if and where NSFW regions exist in the image (binary segmentation task).
 This model is then only used in the mosaic restoration and mosaic detection dataset creation scripts.
