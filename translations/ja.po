@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2026-01-09 14:23+0000\n"
+"POT-Creation-Date: 2026-01-27 16:00+0000\n"
 "PO-Revision-Date: 2026-01-01 10:21+0000\n"
 "Last-Translator: softasa <softasa@noreply.codeberg.org>\n"
 "Language-Team: Japanese <https://translate.codeberg.org/projects/lada/lada/"
@@ -138,6 +138,42 @@ msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr ""
 "GPU が検出されませんでした！CPU でアプリを実行すると、非常に遅くなります."
 
+msgid "Save"
+msgstr "保存"
+
+msgid "<big>Description</big>"
+msgstr "<big>説明</big>"
+
+msgid "<big>Encoder</big>"
+msgstr "<big>エンコーダ</big>"
+
+msgid "<big>Encoder Help</big>"
+msgstr "<big>エンコーダヘルプ</big>"
+
+msgid "<big>Encoder Options</big>"
+msgstr "<big>エンコーダオプション</big>"
+
+msgid "Enter encoder options…"
+msgstr "エンコーダーのオプションを入力してください…"
+
+msgid "Create Preset"
+msgstr "プリセットを作成"
+
+msgid "Edit Preset"
+msgstr "プリセットを編集"
+
+msgid "Click the folder button to choose a default"
+msgstr "フォルダボタンをクリックしてデフォルトを選択してください"
+
+msgid "Create Preset…"
+msgstr "プリセットを作成…"
+
+msgid "Select a folder where restored videos should be saved"
+msgstr "復元済み動画を保存するフォルダを選択"
+
+msgid "Select a folder for temporary files"
+msgstr "一時ファイル用のフォルダを選択"
+
 msgid "Mosaic Removal"
 msgstr "モザイク除去"
 
@@ -212,6 +248,9 @@ msgid "Show a preview of the video frame when hovering over the timeline."
 msgstr ""
 "タイムライン上にカーソルを合わせると、動画フレームのプレビューを表示します."
 
+msgid "Subtitle font size"
+msgstr ""
+
 msgid "Export"
 msgstr "エクスポート"
 
@@ -229,9 +268,6 @@ msgstr "毎回確認する"
 
 msgid "Use this folder"
 msgstr "このフォルダを使用する"
-
-msgid "Click the folder button to choose a default"
-msgstr "フォルダボタンをクリックしてデフォルトを選択してください"
 
 msgid "Temporary Directory"
 msgstr "一時ディレクトリ"
@@ -313,39 +349,6 @@ msgstr "視聴"
 msgid "Reset to factory settings"
 msgstr "初期設定にリセット"
 
-msgid "Create Preset"
-msgstr "プリセットを作成"
-
-msgid "Edit Preset"
-msgstr "プリセットを編集"
-
-msgid "Save"
-msgstr "保存"
-
-msgid "<big>Description</big>"
-msgstr "<big>説明</big>"
-
-msgid "<big>Encoder</big>"
-msgstr "<big>エンコーダ</big>"
-
-msgid "<big>Encoder Help</big>"
-msgstr "<big>エンコーダヘルプ</big>"
-
-msgid "<big>Encoder Options</big>"
-msgstr "<big>エンコーダオプション</big>"
-
-msgid "Enter encoder options…"
-msgstr "エンコーダーのオプションを入力してください…"
-
-msgid "Create Preset…"
-msgstr "プリセットを作成…"
-
-msgid "Select a folder where restored videos should be saved"
-msgstr "復元済み動画を保存するフォルダを選択"
-
-msgid "Select a folder for temporary files"
-msgstr "一時ファイル用のフォルダを選択"
-
 msgid "Restore pixelated adult videos"
 msgstr "アダルトビデオのピクセルモザイクを復元"
 
@@ -367,6 +370,14 @@ msgstr "再生/一時停止"
 msgid "Enable/Disable fullscreen"
 msgstr "フルスクリーンを有効/無効にする"
 
+msgid "No GPU Add-On installed"
+msgstr ""
+
+msgid ""
+"In order to use the application you need to install one of Lada's Flatpak "
+"Add-Ons that is compatible with your hardware"
+msgstr ""
+
 msgid "Switch to Export View"
 msgstr "エクスポート表示に切り替え"
 
@@ -375,6 +386,9 @@ msgstr "再生画面に切り替え"
 
 msgid "Select one or multiple video files"
 msgstr "1つまたは複数の動画ファイルを選択"
+
+msgid "Select a subtitle file"
+msgstr ""
 
 #, python-brace-format
 msgid "Custom Preset {custom_preset_num}"
@@ -524,13 +538,9 @@ msgstr ""
 
 #, python-format
 msgid ""
-"Device used for running Restoration and Detection models. Use \"cpu\" or "
-"\"cuda\". If you have multiple GPUs you can select a specific one via index "
-"e.g. \"cuda:0\" (default: %(default)s)"
+"Device used for running Restoration and Detection models. Use \"--list-"
+"devices\" to see what's available (default: %(default)s)"
 msgstr ""
-"復元および検出モデルの実行に使用するデバイス.\"cpu\" または \"cuda\" を指定し"
-"てください.複数のGPUがある場合、インデックスで特定のGPUを選択できます.イン"
-"デックス 例 \"cuda:0\" デフォルト: (%(default)s)"
 
 #, python-format
 msgid ""
@@ -738,6 +748,9 @@ msgid "H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size"
 msgstr ""
 "H.264 / AVC, Nvidia ハードウェア エンコーダー,高速,中程度のファイル サイズ"
 
+msgid "H.264 / AVC, Intel Quick Sync hardware encoder, Fast, Medium File Size"
+msgstr ""
+
 msgid ""
 "H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size"
 msgstr ""
@@ -756,10 +769,25 @@ msgstr ""
 "なファイルサイズ"
 
 msgid ""
+"H.265 / HEVC, Intel Quick Sync hardware encoder, High Quality, Medium File "
+"Size"
+msgstr ""
+
+msgid ""
 "AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size"
 msgstr ""
 "AV1, SVT-AV1 ソフトウェア エンコーダー,見分けがつかない程の品質,小さいファイ"
 "ル サイズ"
+
+#, python-format
+#~ msgid ""
+#~ "Device used for running Restoration and Detection models. Use \"cpu\" or "
+#~ "\"cuda\". If you have multiple GPUs you can select a specific one via "
+#~ "index e.g. \"cuda:0\" (default: %(default)s)"
+#~ msgstr ""
+#~ "復元および検出モデルの実行に使用するデバイス.\"cpu\" または \"cuda\" を指"
+#~ "定してください.複数のGPUがある場合、インデックスで特定のGPUを選択できます."
+#~ "インデックス 例 \"cuda:0\" デフォルト: (%(default)s)"
 
 #~ msgid "Encoder Name"
 #~ msgstr "エンコーダ名"
