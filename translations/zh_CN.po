@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
 "POT-Creation-Date: 2026-01-27 16:00+0000\n"
-"PO-Revision-Date: 2026-01-07 22:07+0000\n"
+"PO-Revision-Date: 2026-01-30 10:31+0000\n"
 "Last-Translator: seanyu0 <seanyu0@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Simplified Han script) <https://"
 "translate.codeberg.org/projects/lada/lada/zh_Hans/>\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.15.1\n"
+"X-Generator: Weblate 5.15.2\n"
 
 msgid "Settings"
 msgstr "设置"
@@ -241,7 +241,7 @@ msgid "Show a preview of the video frame when hovering over the timeline."
 msgstr "鼠标在播放进度条上悬停时显示缩略图。"
 
 msgid "Subtitle font size"
-msgstr ""
+msgstr "字幕字体大小"
 
 msgid "Export"
 msgstr "导出"
@@ -362,12 +362,12 @@ msgid "Enable/Disable fullscreen"
 msgstr "启用/禁用全屏"
 
 msgid "No GPU Add-On installed"
-msgstr ""
+msgstr "未安装 GPU 插件"
 
 msgid ""
 "In order to use the application you need to install one of Lada's Flatpak "
 "Add-Ons that is compatible with your hardware"
-msgstr ""
+msgstr "您需要安装与硬件兼容的 Lada Flatpak 插件之一才能使用此应用"
 
 msgid "Switch to Export View"
 msgstr "切换到导出视图"
@@ -379,7 +379,7 @@ msgid "Select one or multiple video files"
 msgstr "选择一个或多个视频文件"
 
 msgid "Select a subtitle file"
-msgstr ""
+msgstr "选择字幕文件"
 
 #, python-brace-format
 msgid "Custom Preset {custom_preset_num}"
@@ -526,6 +526,8 @@ msgid ""
 "Device used for running Restoration and Detection models. Use \"--list-"
 "devices\" to see what's available (default: %(default)s)"
 msgstr ""
+"用于运行恢复和检测模型的设备。使用 “--list-devices” 查看可用设备（默认值：%"
+"(default)s）"
 
 #, python-format
 msgid ""
@@ -716,7 +718,7 @@ msgid "H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size"
 msgstr "H264 / QP23，Nvidia 硬件编码，画质中等，速度最快，体积较小"
 
 msgid "H.264 / AVC, Intel Quick Sync hardware encoder, Fast, Medium File Size"
-msgstr ""
+msgstr "H.264 / AVC 、英特尔快速视频同步技术编码器、快速、中等文件大小"
 
 msgid ""
 "H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size"
@@ -733,7 +735,7 @@ msgstr "HEVC / QP 18，Nvidia 硬件编码，视觉无损，速度快，体积�
 msgid ""
 "H.265 / HEVC, Intel Quick Sync hardware encoder, High Quality, Medium File "
 "Size"
-msgstr ""
+msgstr "H.265 / HEVC 、英特尔快速视频同步技术编码器、高质量、中等文件大小"
 
 msgid ""
 "AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size"
