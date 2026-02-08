@@ -104,21 +104,6 @@ modules:
           - type: archive
             url: https://github.com/KhronosGroup/OpenCL-Headers/archive/v2025.07.22.tar.gz
             sha256: 98f0a3ea26b4aec051e533cb1750db2998ab8e82eda97269ed6efe66ec94a240
-#      - name: intel-igsc
-#        buildsystem: cmake-ninja
-#        builddir: true
-#        modules:
-#          - name: intel-metee
-#            buildsystem: cmake-ninja
-#            builddir: true
-#            sources:
-#              - type: archive
-#                url: https://github.com/intel/metee/archive/refs/tags/6.2.1.tar.gz
-#                sha256: 84d36a8cc290a3e4df5f4c3a06e777b66d000868975b4c88d8df752862f96b8c
-#        sources:
-#          - type: archive
-#            url: https://github.com/intel/igsc/archive/refs/tags/V0.9.5.tar.gz
-#            sha256: 516a099239ad0541598be87025556c878c0d11c6d43e09115d2bb2e24508b6ec
   - python-dependencies.yaml
   - name: metainfo
     buildsystem: simple
