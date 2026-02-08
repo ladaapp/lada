@@ -59,6 +59,7 @@ SPDX-License-Identifier: AGPL-3.0
                                                                             <object class="GtkToggleButton" id="toggle_button_pane">
                                                                                 <property name="icon-name">sliders-horizontal-symbolic</property>
                                                                                 <property name="active">False</property>
+                                                                                <signal name="clicked" handler="toggle_button_pane_clicked_callback"/>
                                                                             </object>
                                                                         </child>
                                                                         <child type="start">

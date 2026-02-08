@@ -19,7 +19,7 @@ class OverlayElementsController(GObject.Object):
         self.last_motion_y: float = sys.maxsize
         self.idle_time_seconds = 2.
         self.last_allocation: Gdk.Rectangle = watched_widget.get_allocation()
-        self.spinner_visible = False
+        self.fade_out_temporarily_blocked = False
 
         self.overlay_motions = set()
         for widget in self.overlay_widgets:
@@ -34,7 +34,7 @@ class OverlayElementsController(GObject.Object):
         self._hide_animations: dict[Gtk.Widget, Adw.Animation] = {}
 
     def _on_motion(self, obj, x, y):
-        if self.spinner_visible:
+        if self.fade_out_temporarily_blocked:
             return
 
         current_allocation = self.watched_widget.get_allocation()
@@ -112,7 +112,7 @@ class OverlayElementsController(GObject.Object):
         return current_allocation.width != self.last_allocation.width or current_allocation.height != self.last_allocation.height
 
     def on_window_focused(self, is_window_focused: bool):
-        if self.spinner_visible:
+        if self.fade_out_temporarily_blocked:
             return
         if is_window_focused:
             self._reveal_overlays()
@@ -121,8 +121,14 @@ class OverlayElementsController(GObject.Object):
             self._hide_overlays()
 
     def on_spinner_visible(self, is_spinner_visible: bool):
-        self.spinner_visible = is_spinner_visible
-        if is_spinner_visible:
+        self._on_block_fade_out(is_spinner_visible)
+
+    def on_sidebar_opened(self, is_sidebar_open: bool):
+        self._on_block_fade_out(is_sidebar_open)
+
+    def _on_block_fade_out(self, should_block_fade_out: bool):
+        self.fade_out_temporarily_blocked = should_block_fade_out
+        if should_block_fade_out:
             self._cancel_timer()
             for widget in self.overlay_widgets:
                 widget.props.opacity = 1

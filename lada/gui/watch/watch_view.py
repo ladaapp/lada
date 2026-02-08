@@ -54,6 +54,7 @@ class WatchView(Gtk.Widget):
     button_subtitles: Gtk.Button = Gtk.Template.Child()
     button_image_subtitles = Gtk.Template.Child()
     box_header_bar_banner = Gtk.Template.Child()
+    toggle_button_pane: Gtk.ToggleButton = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -244,6 +245,11 @@ class WatchView(Gtk.Widget):
     def on_no_gpu_banner_spinner_clicked_dismissed(self, _arg):
         self._no_gpu_banner_dismissed = True
         self.banner_no_gpu.set_revealed(False)
+
+    @Gtk.Template.Callback()
+    def toggle_button_pane_clicked_callback(self, button_clicked: Gtk.ToggleButton):
+        is_sidebar_open = button_clicked.get_active()
+        self.overlay_elements_controller.on_sidebar_opened(is_sidebar_open)
 
     @property
     def frame_restorer_options(self):
@@ -637,6 +643,7 @@ class WatchView(Gtk.Widget):
             self.button_toggle_fullscreen_overlay.set_property("icon-name", "view-restore-symbolic")
             self.button_play_pause.grab_focus()
             self.box_video_player.set_css_classes(["fullscreen-video-player"])
+            self.toggle_button_pane.set_active(False)
         else:
             self.header_bar.set_visible(True)
             self.button_toggle_fullscreen_overlay.set_visible(False)
@@ -698,4 +705,5 @@ class WatchView(Gtk.Widget):
             threading.Thread(target=self.pipeline_manager.close_video_file).start()
 
     def on_window_focused(self, focused: bool):
+        if focused: self.button_play_pause.grab_focus()
         self.overlay_elements_controller.on_window_focused(focused)
