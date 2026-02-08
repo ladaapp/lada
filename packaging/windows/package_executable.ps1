@@ -8,7 +8,7 @@ param (
     [switch]$skipArchive = $false,
     [switch]$cliOnly = $false,
     [switch]$cleanGvsbuild = $false,
-    [Parameter(Mandatory)] [string]$extra
+    [string]$extra = "nvidia"
 )
 
 $global:PYINSTALLER_VERSION = "6.18.0"
@@ -148,9 +148,9 @@ function Install-PythonDependencies {
 }
 
 function Create-EXE {
-    param([Parameter(Mandatory)] [boolean]$cliOnly)
+    param([Parameter(Mandatory)] [boolean]$cliOnly,[Parameter(Mandatory)] [string]$extra)
 
-    Write-Host "Creating executable..."
+    Write-Host "Creating executable for target: $extra..."
 
     .\venv_release_win\Scripts\Activate.ps1
 
@@ -159,9 +159,11 @@ function Create-EXE {
     $env:LIB = $release_dir + "\lib;" + $env:LIB
     $env:INCLUDE = $release_dir + "\include;" + $release_dir + "\include\cairo;" + $release_dir + "\include\glib-2.0;" + $release_dir + "\include\gobject-introspection-1.0;" + $release_dir + "\lib\glib-2.0\include;" + $env:INCLUDE
 
-    $cliOnlyArg = if ($cliOnly) { '--cli-only' } else { '' }
+    $specArgs = @()
+    if ($cliOnly) { $specArgs += '--cli-only' }
+    $specArgs += "--extra=$extra"
 
-    uv run --no-project pyinstaller --noconfirm ./packaging/windows/lada.spec -- $cliOnlyArg
+    uv run --no-project pyinstaller --noconfirm ./packaging/windows/lada.spec -- $specArgs
 
     deactivate
 }
@@ -242,7 +244,7 @@ if (-not $skipTranslations) {
 }
 Download-ModelWeights
 Install-PythonDependencies $cliOnly $extra
-Create-EXE $cliOnly
+Create-EXE $cliOnly $extra
 if (-not $skipArchive) {
     Create-7ZArchive $extra
 }
