@@ -13,8 +13,8 @@ param (
 
 $global:PYINSTALLER_VERSION = "6.18.0"
 $global:GVSBUILD_VERSION = "2026.1.0"
-$global:PYTHON_VERSION = "3.13"
-$global:UV_VERSION = "0.9.26"
+$global:PYTHON_VERSION = "3.13.12"
+$global:UV_VERSION = "0.10.0"
 
 function Ask-YesNo {
     param([Parameter(Mandatory)] [string]$Question)

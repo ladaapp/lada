@@ -1,4 +1,4 @@
-FROM python:3.13.9-slim-trixie as build
+FROM python:3.13.12-slim-trixie as build
 RUN useradd --create-home lada
 RUN apt-get update \
     && apt-get install -y --no-install-recommends gettext patch curl xz-utils \
@@ -21,7 +21,7 @@ RUN sh translations/compile_po.sh --release
 RUN pip install --user --no-deps --no-cache-dir  '.'
 
 
-FROM python:3.13.9-slim-trixie
+FROM python:3.13.12-slim-trixie
 RUN useradd --create-home lada
 RUN mkdir -p /home/lada/.config/Ultralytics \
     && echo '{"settings_version":"0.0.6","datasets_dir":"datasets","weights_dir":"weights","runs_dir":"experiments","uuid":"dummy","sync":false,"api_key":"","openai_api_key":"","clearml":false,"comet":false,"dvc":false,"hub":false,"mlflow":false,"neptune":false,"raytune":false,"tensorboard":false,"wandb":false,"vscode_msg":false,"openvino_msg":false}' > /home/lada/.config/Ultralytics/settings.json \
