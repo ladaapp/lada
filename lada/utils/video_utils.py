@@ -385,6 +385,11 @@ class VideoWriter:
         video_stream_out: av.VideoStream = output_container.add_stream(encoder, fps)
 
         self.is_qsv_encoder = 'qsv' in encoder.lower()
+
+        if encoder == "libsvtav1" and "SVT_LOG" not in os.environ:
+            # Suppress logging default info messages
+            os.environ["SVT_LOG"] = "1"
+
         target_pix_fmt = 'yuv420p'
         if self.is_qsv_encoder:
             target_pix_fmt = 'nv12'
