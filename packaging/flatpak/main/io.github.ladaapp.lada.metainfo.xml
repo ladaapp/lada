@@ -32,8 +32,8 @@
             <li>Recover Pixelated Videos: Restore pixelated or mosaic scenes in adult videos.</li>
             <li>Watch/Export Videos: Use either the CLI or GUI to watch or export your restored videos.</li>
         </ul>
-        <p>The process is pretty resource-intensive and will not run on all hardware. It is required you install one Lada's Flatpak Add-Ons / Extensions compatible with your GPU.</p>
-        <p>You can find more information in the README on the project website hosted on Codeberg.</p>
+        <p>The process is pretty resource-intensive and will not run on all hardware. It is required that you install one Lada's Flatpak Add-Ons / Extensions compatible with your GPU.</p>
+        <p>You can find more information about which GPUs are supported on the project website hosted on Codeberg.</p>
     </description>
 
     <url type="homepage">https://codeberg.org/ladaapp/lada</url>
@@ -58,6 +58,28 @@
         </screenshot>
     </screenshots>
     <releases>
+        <release date="2026-02-09" version="0.11.0">
+            <description>
+                <p>Breaking change: If you're upgrading from a previous version you now have to install one of Lada's Flatpak Add-On matching your GPU (Nvidia or Intel) as the main Flatpak doesn't contain Nvidia-specific libraries anymore.</p>
+                <p>Features / Improvements:</p>
+                <ul>
+                    <li>CLI+GUI: Add support for Intel QSV (Quick Sync Video) hardware-encoding</li>
+                    <li>CLI+GUI: Add support for Intel Arc GPUs. Intel Arc-compatible packages of Lada are available for Windows (Standalone) and Flatpak (Install Intel Add-On)</li>
+                    <li>GUI: Add subtitle support. Open .srt file via button or drag-and-drop. If a .srt file exists with same file name as video file then it will be opened automatically</li>
+                    <li>CLI+GUI: Improve processing of corrupt video files. Duplicate previous frame if current frame cannot be decoded (only up to 10 frames, if more frames cannot be read we continue to error out and exit)</li>
+                    <li>GUI: Show playback controls and header bar as an overlay when in Watch view</li>
+                    <li>CLI+GUI: Add new translation: Korean</li>
+                    <li>GUI: Simplified installation from source on Windows by providing pre-compiled GUI dependencies</li>
+                </ul>
+                <p>Fixes:</p>
+                <ul>
+                    <li>CLI+GUI: Fix deadlock when attempting to restore certain kinds of broken video files</li>
+                    <li>GUI: Fix opening .wmv files containing WMA audio streams in GUI Watch mode on Windows</li>
+                    <li>GUI: Fix incomplete translations of About dialog on Windows</li>
+                    <li>CLI: Suppress printing verbose logging when using SVT AV1 encoder</li>
+                </ul>
+            </description>
+        </release>
         <release date="2026-01-10" version="0.10.1">
             <description>
                 <p>Features / Improvements:</p>
