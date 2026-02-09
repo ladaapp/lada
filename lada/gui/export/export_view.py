@@ -417,6 +417,22 @@ class ExportView(Gtk.Widget):
         if not self.resume_info:
             self.show_video_export_started(restore_file)
 
+        def is_error_or_stop_marker(elem) -> bool:
+            return elem is STOP_MARKER or isinstance(elem, ErrorMarker)
+
+        def handle_queue_marker(queue_marker):
+            assert is_error_or_stop_marker(queue_marker)
+            if queue_marker is STOP_MARKER:
+                err_msg = "frame restorer stopped prematurely"
+            else:
+                err_msg = queue_marker.stack_trace
+            logger.error(f"Error on export: {err_msg}")
+            GLib.idle_add(lambda: self.emit('video-export-failed', err_msg))
+
+        def handle_exception(e: Exception):
+            err_msg = "".join(traceback.format_exception_only(e))
+            GLib.idle_add(lambda: self.emit('video-export-failed', err_msg))
+
         def run_export():
             success = True
             progress_update_step_size = 100
@@ -457,14 +473,9 @@ class ExportView(Gtk.Widget):
                         success = False
                         logger.warning("Stop requested: Stopping FrameRestorer")
                         break
-                    if elem is STOP_MARKER or isinstance(elem, ErrorMarker):
+                    if is_error_or_stop_marker(elem):
                         success = False
-                        if elem is STOP_MARKER:
-                            err_msg = "frame restorer stopped prematurely"
-                        else:
-                            err_msg = elem.stack_trace
-                        logger.error(f"Error on export: {err_msg}")
-                        GLib.idle_add(lambda: self.emit('video-export-failed', err_msg))
+                        handle_queue_marker(elem)
                         break
 
                     (restored_frame, restored_frame_pts) = elem
@@ -492,11 +503,14 @@ class ExportView(Gtk.Widget):
 
             except Exception as e:
                 success = False
-                err_msg = "".join(traceback.format_exception_only(e))
-                GLib.idle_add(lambda: self.emit('video-export-failed', err_msg))
+                handle_exception(e)
             finally:
                 if not self.pause_requested:
-                    self.video_writer.release()
+                    try:
+                        self.video_writer.release()
+                    except Exception as e:
+                        success = False
+                        handle_exception(e)
                 frame_restorer.stop()
 
             if self.pause_requested:
