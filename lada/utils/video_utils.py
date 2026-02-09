@@ -384,9 +384,9 @@ class VideoWriter:
         output_container = av.open(output_path, "w", options=container_options)
         video_stream_out: av.VideoStream = output_container.add_stream(encoder, fps)
 
-        encoder_lower = encoder.lower()
+        self.is_qsv_encoder = 'qsv' in encoder.lower()
         target_pix_fmt = 'yuv420p'
-        if 'qsv' in encoder_lower:
+        if self.is_qsv_encoder:
             target_pix_fmt = 'nv12'
         
         video_stream_out.pix_fmt = target_pix_fmt
@@ -460,9 +460,17 @@ class VideoWriter:
         while len(self.frame_queue) > 0:
             self._process_buffer(flush_all=True)
         # Flush the encoder
-        out_packet = self.video_stream.encode(None)
-        if out_packet:
-            self.output_container.mux(out_packet)
+        try:
+            out_packet = self.video_stream.encode(None)
+            if out_packet:
+                self.output_container.mux(out_packet)
+        except:
+            # TODO: For half of my test files flushing QSV encoders fail here with "Application provided invalid, non monotonically increasing dts to muxer in stream"
+            # This doesn't happen with libx264 or NVENC encoders. The restored file plays fine so let's ignore it for now.
+            if self.is_qsv_encoder:
+                logger.warning("Error on flushing QSV encoder. Ignoring...")
+            else:
+                raise
         self.output_container.close()
 
 def is_video_file(file_path):
