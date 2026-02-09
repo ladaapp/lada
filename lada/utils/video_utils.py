@@ -100,6 +100,7 @@ class VideoReader:
         # encountering an error (always reproducible). See https://github.com/PyAV-Org/PyAV/issues/751 and https://codeberg.org/ladaapp/lada/issues/247
         # Alternatively, setting thread_type to 'SLICE' would also avoid the deadlock even with av logs enabled but may negatively impact performance.
         av.logging.restore_default_callback()
+        av.logging.set_libav_level(av.logging.ERROR)
         self.container.streams.video[0].thread_type = 'AUTO'
 
         # Fault-tolerant frame decoding with frame duplication for corrupted frames
