@@ -351,7 +351,10 @@ class WatchView(Gtk.Widget):
                 self.frame_restorer_options = FrameRestorerOptionsBuilder(self.frame_restorer_options).detect_face_mosaics(self._config.detect_face_mosaics).build()
         self._config.connect("notify::detect-face-mosaics", on_detect_face_mosaics)
 
-        self._config.connect('notify::subtitles-font-size', lambda obj, spec: self.pipeline_manager.set_subtitle_font_size(self._config.subtitles_font_size))
+        def on_subtitles_font_size(object, spec):
+            if self.pipeline_manager:
+                self.pipeline_manager.set_subtitle_font_size(self._config.subtitles_font_size)
+        self._config.connect('notify::subtitles-font-size', on_subtitles_font_size)
 
     def set_speaker_icon(self, mute: bool):
         icon_name = "speaker-0-symbolic" if mute else "speaker-4-symbolic"
