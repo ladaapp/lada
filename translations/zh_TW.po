@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2026-01-09 14:23+0000\n"
-"PO-Revision-Date: 2026-01-01 10:21+0000\n"
+"POT-Creation-Date: 2026-01-27 16:00+0000\n"
+"PO-Revision-Date: 2026-01-30 10:31+0000\n"
 "Last-Translator: tetsukasinobu <tetsukasinobu@noreply.codeberg.org>\n"
 "Language-Team: Chinese (Traditional Han script) <https://"
 "translate.codeberg.org/projects/lada/lada/zh_Hant/>\n"
@@ -14,7 +14,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.15.1\n"
+"X-Generator: Weblate 5.15.2\n"
 
 msgid "Settings"
 msgstr "設定"
@@ -136,6 +136,42 @@ msgstr "立即關機"
 msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr "偵測不到GPU! 使用CPU運行此軟體將會非常緩慢."
 
+msgid "Save"
+msgstr "保存"
+
+msgid "<big>Description</big>"
+msgstr "<big>描述</big>"
+
+msgid "<big>Encoder</big>"
+msgstr "<big>編碼器</big>"
+
+msgid "<big>Encoder Help</big>"
+msgstr "<big>編碼器幫助</big>"
+
+msgid "<big>Encoder Options</big>"
+msgstr "<big>編碼器選項</big>"
+
+msgid "Enter encoder options…"
+msgstr "輸入編碼器選項…"
+
+msgid "Create Preset"
+msgstr "建立預設"
+
+msgid "Edit Preset"
+msgstr "編輯預設"
+
+msgid "Click the folder button to choose a default"
+msgstr "點擊資料夾按鈕以選取預設"
+
+msgid "Create Preset…"
+msgstr "建立預設…"
+
+msgid "Select a folder where restored videos should be saved"
+msgstr "選擇修復影片檔儲存資料夾"
+
+msgid "Select a folder for temporary files"
+msgstr "選擇暫存用資料夾"
+
 msgid "Mosaic Removal"
 msgstr "馬賽克移除"
 
@@ -201,6 +237,9 @@ msgstr "啟用搜尋預覽"
 msgid "Show a preview of the video frame when hovering over the timeline."
 msgstr "滑鼠移到時間軸上時,顯示影片畫面預覽."
 
+msgid "Subtitle font size"
+msgstr "字幕的字體大小"
+
 msgid "Export"
 msgstr "輸出"
 
@@ -218,9 +257,6 @@ msgstr "總是詢問"
 
 msgid "Use this folder"
 msgstr "使用此資料夾"
-
-msgid "Click the folder button to choose a default"
-msgstr "點擊資料夾按鈕以選取預設"
 
 msgid "Temporary Directory"
 msgstr "暫存目錄"
@@ -301,39 +337,6 @@ msgstr "觀看"
 msgid "Reset to factory settings"
 msgstr "重設為初始設置"
 
-msgid "Create Preset"
-msgstr "建立預設"
-
-msgid "Edit Preset"
-msgstr "編輯預設"
-
-msgid "Save"
-msgstr "保存"
-
-msgid "<big>Description</big>"
-msgstr "<big>描述</big>"
-
-msgid "<big>Encoder</big>"
-msgstr "<big>編碼器</big>"
-
-msgid "<big>Encoder Help</big>"
-msgstr "<big>編碼器幫助</big>"
-
-msgid "<big>Encoder Options</big>"
-msgstr "<big>編碼器選項</big>"
-
-msgid "Enter encoder options…"
-msgstr "輸入編碼器選項…"
-
-msgid "Create Preset…"
-msgstr "建立預設…"
-
-msgid "Select a folder where restored videos should be saved"
-msgstr "選擇修復影片檔儲存資料夾"
-
-msgid "Select a folder for temporary files"
-msgstr "選擇暫存用資料夾"
-
 msgid "Restore pixelated adult videos"
 msgstr "修復馬賽克AV"
 
@@ -355,6 +358,14 @@ msgstr "播放/暫停"
 msgid "Enable/Disable fullscreen"
 msgstr "啟用/停用 全螢幕"
 
+msgid "No GPU Add-On installed"
+msgstr "未安裝GPU擴充卡"
+
+msgid ""
+"In order to use the application you need to install one of Lada's Flatpak "
+"Add-Ons that is compatible with your hardware"
+msgstr "為使用本應用程式,請先安裝與您的硬體相容之Lada附加元件Flatpak"
+
 msgid "Switch to Export View"
 msgstr "切換至輸出畫面"
 
@@ -363,6 +374,9 @@ msgstr "切換至輸出畫面"
 
 msgid "Select one or multiple video files"
 msgstr "選擇單個或多個影片檔"
+
+msgid "Select a subtitle file"
+msgstr "選擇字幕檔"
 
 #, python-brace-format
 msgid "Custom Preset {custom_preset_num}"
@@ -508,12 +522,11 @@ msgstr ""
 
 #, python-format
 msgid ""
-"Device used for running Restoration and Detection models. Use \"cpu\" or "
-"\"cuda\". If you have multiple GPUs you can select a specific one via index "
-"e.g. \"cuda:0\" (default: %(default)s)"
+"Device used for running Restoration and Detection models. Use \"--list-"
+"devices\" to see what's available (default: %(default)s)"
 msgstr ""
-"運行修復和偵測模型的設備. 使用 \"cpu\" 或 \"cuda\". 如果您有多個 GPU,您可以透"
-"過索引選擇一個特定的 GPU e.g. \"cuda:0\" (預設值: %(default)s)"
+"用於運行修復和檢測模型的裝置. 使用 “--list-devices” 查看可用裝置 (預設值: %"
+"(default)s)"
 
 #, python-format
 msgid ""
@@ -703,12 +716,15 @@ msgstr "H.264 / AVC, x264 軟體編碼器,快速,檔案大小適中"
 msgid "H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size"
 msgstr "H.264 / AVC, Nvidia 硬體編碼器,快速,檔案大小適中"
 
+msgid "H.264 / AVC, Intel Quick Sync hardware encoder, Fast, Medium File Size"
+msgstr "H.264 / AVC, Intel Quick Sync 硬體編碼器,速度快,檔案大小適中"
+
 msgid ""
 "H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size"
 msgstr "H.265 / HEVC, Nvidia 硬體編碼器,品質優良,檔案較小"
 
 msgid "H.265 / HEVC, Nvidia hardware encoder, High Quality, Medium File Size"
-msgstr "H.265 / HEVC, Nvidia 硬體編碼器,高品質,中等檔案大小"
+msgstr "H.265 / HEVC, Nvidia 硬體編碼器,高品質,檔案大小適中"
 
 msgid ""
 "H.265 / HEVC, Nvidia hardware encoder, Indistinguishable Quality, Large File "
@@ -716,8 +732,22 @@ msgid ""
 msgstr "H.265 / HEVC, Nvidia 硬體編碼器,畫質無明顯差異,檔案較大"
 
 msgid ""
+"H.265 / HEVC, Intel Quick Sync hardware encoder, High Quality, Medium File "
+"Size"
+msgstr "H.265 / HEVC, Intel Quick Sync 硬體編碼器,高品質,檔案大小適中"
+
+msgid ""
 "AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size"
 msgstr "AV1, SVT-AV1 軟體編碼器,畫質無明顯差異,檔案更小"
+
+#, python-format
+#~ msgid ""
+#~ "Device used for running Restoration and Detection models. Use \"cpu\" or "
+#~ "\"cuda\". If you have multiple GPUs you can select a specific one via "
+#~ "index e.g. \"cuda:0\" (default: %(default)s)"
+#~ msgstr ""
+#~ "運行修復和偵測模型的設備. 使用 \"cpu\" 或 \"cuda\". 如果您有多個 GPU,您可"
+#~ "以透過索引選擇一個特定的 GPU e.g. \"cuda:0\" (預設值: %(default)s)"
 
 #~ msgid "Encoder Name"
 #~ msgstr "編碼器名稱"

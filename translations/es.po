@@ -4,17 +4,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2026-01-09 14:23+0000\n"
-"PO-Revision-Date: 2026-01-02 20:21+0000\n"
+"POT-Creation-Date: 2026-01-27 16:00+0000\n"
+"PO-Revision-Date: 2026-02-07 12:29+0000\n"
 "Last-Translator: Abraxax <abraxax@noreply.codeberg.org>\n"
-"Language-Team: Spanish <https://translate.codeberg.org/projects/lada/lada/es/"
-">\n"
+"Language-Team: Spanish <https://translate.codeberg.org/projects/lada/lada/"
+"es/>\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.15.1\n"
+"X-Generator: Weblate 5.15.2\n"
 
 msgid "Settings"
 msgstr "Configuración"
@@ -141,6 +141,42 @@ msgid "No GPU detected! Running the app on CPU will be painfully slow."
 msgstr ""
 "No se detecta GPU. Ejecutando la aplicación con la CPU aunque será más lento."
 
+msgid "Save"
+msgstr "Grabar"
+
+msgid "<big>Description</big>"
+msgstr "<big>Descripción</big>"
+
+msgid "<big>Encoder</big>"
+msgstr "<big>Codificador</big>"
+
+msgid "<big>Encoder Help</big>"
+msgstr "<big>Ayuda Codificador</big>"
+
+msgid "<big>Encoder Options</big>"
+msgstr "<big>Opciones Codificador</big>"
+
+msgid "Enter encoder options…"
+msgstr "Introduce las Opciones del Codificador…"
+
+msgid "Create Preset"
+msgstr "Crear Configuración"
+
+msgid "Edit Preset"
+msgstr "Editar Configuración"
+
+msgid "Click the folder button to choose a default"
+msgstr "Elige la carpeta destino por defecto"
+
+msgid "Create Preset…"
+msgstr "Crear Configuración…"
+
+msgid "Select a folder where restored videos should be saved"
+msgstr "Selecciona la carpeta donde se guardarán los videos"
+
+msgid "Select a folder for temporary files"
+msgstr "Selecciona una carpeta para los ficheros temporales"
+
 msgid "Mosaic Removal"
 msgstr "Eliminación de mosaico"
 
@@ -217,6 +253,9 @@ msgstr ""
 "Mostrar una vista previa del fotograma del vídeo al pasar el cursor por "
 "encima de la línea de tiempo."
 
+msgid "Subtitle font size"
+msgstr "Tamaño Fuente Subtítulos"
+
 msgid "Export"
 msgstr "Exportar"
 
@@ -234,9 +273,6 @@ msgstr "Preguntar Siempre"
 
 msgid "Use this folder"
 msgstr "Usar esta carpeta"
-
-msgid "Click the folder button to choose a default"
-msgstr "Elige la carpeta destino por defecto"
 
 msgid "Temporary Directory"
 msgstr "Carpeta Temporal"
@@ -319,39 +355,6 @@ msgstr "Ver"
 msgid "Reset to factory settings"
 msgstr "Restaurar configuración de fábrica"
 
-msgid "Create Preset"
-msgstr "Crear Configuración"
-
-msgid "Edit Preset"
-msgstr "Editar Configuración"
-
-msgid "Save"
-msgstr "Grabar"
-
-msgid "<big>Description</big>"
-msgstr "<big>Descripción</big>"
-
-msgid "<big>Encoder</big>"
-msgstr "<big>Codificador</big>"
-
-msgid "<big>Encoder Help</big>"
-msgstr "<big>Ayuda Codificador</big>"
-
-msgid "<big>Encoder Options</big>"
-msgstr "<big>Opciones Codificador</big>"
-
-msgid "Enter encoder options…"
-msgstr "Introduce las Opciones del Codificador…"
-
-msgid "Create Preset…"
-msgstr "Crear Configuración…"
-
-msgid "Select a folder where restored videos should be saved"
-msgstr "Selecciona la carpeta donde se guardarán los videos"
-
-msgid "Select a folder for temporary files"
-msgstr "Selecciona una carpeta para los ficheros temporales"
-
 msgid "Restore pixelated adult videos"
 msgstr "Restaurar Videos Adultos Pixelados"
 
@@ -373,6 +376,16 @@ msgstr "Reproducir/Pausar"
 msgid "Enable/Disable fullscreen"
 msgstr "Habilitar/deshabilitar Pantalla Completa"
 
+msgid "No GPU Add-On installed"
+msgstr "Add-On GPU no instalado"
+
+msgid ""
+"In order to use the application you need to install one of Lada's Flatpak "
+"Add-Ons that is compatible with your hardware"
+msgstr ""
+"Para poder utilizar la aplicación, es necesario instalar uno de los "
+"complementos Flatpak de Lada que sea compatible con tu hardware"
+
 msgid "Switch to Export View"
 msgstr "Cambiar a vista de exportación"
 
@@ -381,6 +394,9 @@ msgstr "Cambiar a Modo Ver"
 
 msgid "Select one or multiple video files"
 msgstr "Selecciona uno o más videos"
+
+msgid "Select a subtitle file"
+msgstr "Selecciona un fichero de subtítulos"
 
 #, python-brace-format
 msgid "Custom Preset {custom_preset_num}"
@@ -539,13 +555,11 @@ msgstr ""
 
 #, python-format
 msgid ""
-"Device used for running Restoration and Detection models. Use \"cpu\" or "
-"\"cuda\". If you have multiple GPUs you can select a specific one via index "
-"e.g. \"cuda:0\" (default: %(default)s)"
+"Device used for running Restoration and Detection models. Use \"--list-"
+"devices\" to see what's available (default: %(default)s)"
 msgstr ""
-"Dispositivo utilizado durante la restauración y modelos de detección. Usar "
-"\"cpu\" o \"cuda\". Si tienes varias GPUs debes seleccionar una específica "
-"p.e. \"cuda:0\" (default: %(default)s)"
+"Dispositivo usado para la restauración y detección de modelos. Usar \"--list-"
+"devices\" para ver cual está disponible (Por defecto: %(default)s)"
 
 #, python-format
 msgid ""
@@ -748,6 +762,10 @@ msgstr "H.264 / AVC, x264 codificador Rápido, Fichero Tamaño Medio"
 msgid "H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size"
 msgstr "H.264 / AVC, Codificador Nvidia, Rápido, Fichero Tamaño Medio"
 
+msgid "H.264 / AVC, Intel Quick Sync hardware encoder, Fast, Medium File Size"
+msgstr ""
+"H.264 / AVC, Codificador Intel Quick Sync, Rápido, Fichero de tamaño medio"
+
 msgid ""
 "H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size"
 msgstr ""
@@ -764,10 +782,27 @@ msgstr ""
 "Grande"
 
 msgid ""
+"H.265 / HEVC, Intel Quick Sync hardware encoder, High Quality, Medium File "
+"Size"
+msgstr ""
+"H.265 / HEVC, Codificador Intel Quick Sync, Alta Calidad, Tamaño de Fichero "
+"Medio"
+
+msgid ""
 "AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size"
 msgstr ""
 "AV1, SVT-AV1 Codificador por Software, Calidad Indistinguible, Tamaño "
 "Fichero Pequeño"
+
+#, python-format
+#~ msgid ""
+#~ "Device used for running Restoration and Detection models. Use \"cpu\" or "
+#~ "\"cuda\". If you have multiple GPUs you can select a specific one via "
+#~ "index e.g. \"cuda:0\" (default: %(default)s)"
+#~ msgstr ""
+#~ "Dispositivo utilizado durante la restauración y modelos de detección. "
+#~ "Usar \"cpu\" o \"cuda\". Si tienes varias GPUs debes seleccionar una "
+#~ "específica p.e. \"cuda:0\" (default: %(default)s)"
 
 #~ msgid "Encoder Name"
 #~ msgstr "Nombre Codificador"

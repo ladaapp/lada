@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lada\n"
 "Report-Msgid-Bugs-To: https://codeberg.org/ladaapp/lada/issues\n"
-"POT-Creation-Date: 2026-01-09 14:23+0000\n"
+"POT-Creation-Date: 2026-01-27 16:00+0000\n"
 "PO-Revision-Date: 2026-01-01 10:21+0000\n"
 "Last-Translator: softasa <softasa@noreply.codeberg.org>\n"
 "Language-Team: Dutch <https://translate.codeberg.org/projects/lada/lada/nl/"
@@ -143,6 +143,42 @@ msgstr ""
 "Er is geen videokaart aangetroffen. Het programma zal daardoor erg traag "
 "zijn."
 
+msgid "Save"
+msgstr "Opslaan"
+
+msgid "<big>Description</big>"
+msgstr "<big>Beschrijving</big>"
+
+msgid "<big>Encoder</big>"
+msgstr "<big>Encodering</big>"
+
+msgid "<big>Encoder Help</big>"
+msgstr "<big>Hulp bij encodering</big>"
+
+msgid "<big>Encoder Options</big>"
+msgstr "<big>Encoderingsopties</big>"
+
+msgid "Enter encoder options…"
+msgstr "Voer encoderingsopties in…"
+
+msgid "Create Preset"
+msgstr "Voorinstelling maken"
+
+msgid "Edit Preset"
+msgstr "Voorinstelling bewerken"
+
+msgid "Click the folder button to choose a default"
+msgstr "Klik op de mapknop om een standaardmap te kiezen"
+
+msgid "Create Preset…"
+msgstr "Voorinstelling maken…"
+
+msgid "Select a folder where restored videos should be saved"
+msgstr "Kies de map waarin herstelde videobestanden moeten worden opgeslagen"
+
+msgid "Select a folder for temporary files"
+msgstr "Kies de map met tijdelijke bestanden"
+
 msgid "Mosaic Removal"
 msgstr "Mozaïeken verwijderen"
 
@@ -217,6 +253,9 @@ msgstr ""
 "Toon een voorvertoning van het videoframe op de tijdlijn waarop je de muis "
 "houdt."
 
+msgid "Subtitle font size"
+msgstr ""
+
 msgid "Export"
 msgstr "Exporteren"
 
@@ -234,9 +273,6 @@ msgstr "Altijd vragen"
 
 msgid "Use this folder"
 msgstr "Deze map gebruiken"
-
-msgid "Click the folder button to choose a default"
-msgstr "Klik op de mapknop om een standaardmap te kiezen"
 
 msgid "Temporary Directory"
 msgstr "Tijdelijke map"
@@ -321,39 +357,6 @@ msgstr "Bekijken"
 msgid "Reset to factory settings"
 msgstr "Standaardwaarden herstellen"
 
-msgid "Create Preset"
-msgstr "Voorinstelling maken"
-
-msgid "Edit Preset"
-msgstr "Voorinstelling bewerken"
-
-msgid "Save"
-msgstr "Opslaan"
-
-msgid "<big>Description</big>"
-msgstr "<big>Beschrijving</big>"
-
-msgid "<big>Encoder</big>"
-msgstr "<big>Encodering</big>"
-
-msgid "<big>Encoder Help</big>"
-msgstr "<big>Hulp bij encodering</big>"
-
-msgid "<big>Encoder Options</big>"
-msgstr "<big>Encoderingsopties</big>"
-
-msgid "Enter encoder options…"
-msgstr "Voer encoderingsopties in…"
-
-msgid "Create Preset…"
-msgstr "Voorinstelling maken…"
-
-msgid "Select a folder where restored videos should be saved"
-msgstr "Kies de map waarin herstelde videobestanden moeten worden opgeslagen"
-
-msgid "Select a folder for temporary files"
-msgstr "Kies de map met tijdelijke bestanden"
-
 msgid "Restore pixelated adult videos"
 msgstr "Herstel gepixelde 18+-video's"
 
@@ -375,6 +378,14 @@ msgstr "Afspelen/Pauzeren"
 msgid "Enable/Disable fullscreen"
 msgstr "Schermvullende weergave aan/uit"
 
+msgid "No GPU Add-On installed"
+msgstr ""
+
+msgid ""
+"In order to use the application you need to install one of Lada's Flatpak "
+"Add-Ons that is compatible with your hardware"
+msgstr ""
+
 msgid "Switch to Export View"
 msgstr "Exportscherm tonen"
 
@@ -383,6 +394,9 @@ msgstr "Afspeelscherm tonen"
 
 msgid "Select one or multiple video files"
 msgstr "Kies een of meerdere videobestanden"
+
+msgid "Select a subtitle file"
+msgstr ""
 
 #, python-brace-format
 msgid "Custom Preset {custom_preset_num}"
@@ -536,13 +550,9 @@ msgstr ""
 
 #, python-format
 msgid ""
-"Device used for running Restoration and Detection models. Use \"cpu\" or "
-"\"cuda\". If you have multiple GPUs you can select a specific one via index "
-"e.g. \"cuda:0\" (default: %(default)s)"
+"Device used for running Restoration and Detection models. Use \"--list-"
+"devices\" to see what's available (default: %(default)s)"
 msgstr ""
-"Het te gebruiken apparaat voor herstel- en detectiemodellen. Kies uit ‘cpu’ "
-"of ‘cuda’. Als je computer over meerdere videokaarten beschikt, kies dan de "
-"gewenste, bijvoorbeeld ‘cuda:0’. (standaard: %(default)s)"
 
 #, python-format
 msgid ""
@@ -752,6 +762,9 @@ msgstr "H.264 / AVC, x264 software-encoder, snel, gemiddelde bestandsgrootte"
 msgid "H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size"
 msgstr "H.264 / AVC, Nvidia hardware-encoder, snel, gemiddelde bestandsgrootte"
 
+msgid "H.264 / AVC, Intel Quick Sync hardware encoder, Fast, Medium File Size"
+msgstr ""
+
 msgid ""
 "H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size"
 msgstr ""
@@ -771,10 +784,25 @@ msgstr ""
 "bestandsformaat"
 
 msgid ""
+"H.265 / HEVC, Intel Quick Sync hardware encoder, High Quality, Medium File "
+"Size"
+msgstr ""
+
+msgid ""
 "AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size"
 msgstr ""
 "AV1, SVT-AV1 software-encoder, ononderscheidbare kwaliteit, kleinere "
 "bestandsgrootte"
+
+#, python-format
+#~ msgid ""
+#~ "Device used for running Restoration and Detection models. Use \"cpu\" or "
+#~ "\"cuda\". If you have multiple GPUs you can select a specific one via "
+#~ "index e.g. \"cuda:0\" (default: %(default)s)"
+#~ msgstr ""
+#~ "Het te gebruiken apparaat voor herstel- en detectiemodellen. Kies uit "
+#~ "‘cpu’ of ‘cuda’. Als je computer over meerdere videokaarten beschikt, "
+#~ "kies dan de gewenste, bijvoorbeeld ‘cuda:0’. (standaard: %(default)s)"
 
 #~ msgid "Encoder Name"
 #~ msgstr "Naam van encodering"
