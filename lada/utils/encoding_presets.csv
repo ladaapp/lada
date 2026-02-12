@@ -3,8 +3,10 @@ h264-cpu-uhq|H.264 / AVC, x264 software encoder, Indistinguishable Quality, Slow
 h264-cpu-fast|H.264 / AVC, x264 software encoder, Fast, Medium File Size|libx264|-preset veryfast -crf 23
 h264-nvidia-gpu-fast|H.264 / AVC, Nvidia hardware encoder, Fast, Medium File Size|h264_nvenc|-preset p4 -rc constqp -qp 23
 h264-intel-gpu-fast|H.264 / AVC, Intel Quick Sync hardware encoder, Fast, Medium File Size|h264_qsv|-preset veryfast -global_quality 23 
+h264-apple-gpu-balanced|H.264 / AVC, Apple Video Toolbox, Good Quality, Balanced File Size|h264_videotoolbox|-q:v 55
 hevc-nvidia-gpu-balanced|H.265 / HEVC, Nvidia hardware encoder, Excellent Quality, Smaller File Size|hevc_nvenc|-preset p7 -tune hq -rc constqp -qp 24 -spatial_aq 1 -aq-strength 6 -bf 3 -b_ref_mode middle -rc-lookahead 32
 hevc-nvidia-gpu-hq|H.265 / HEVC, Nvidia hardware encoder, High Quality, Medium File Size|hevc_nvenc|-preset p7 -tune hq -rc constqp -qp 20 -spatial_aq 1 -aq-strength 6 -bf 3 -b_ref_mode middle -rc-lookahead 32
 hevc-nvidia-gpu-uhq|H.265 / HEVC, Nvidia hardware encoder, Indistinguishable Quality, Large File Size|hevc_nvenc|-preset p7 -tune hq -rc constqp -qp 18 -spatial_aq 1 -aq-strength 6 -bf 3 -b_ref_mode middle -rc-lookahead 32
 hevc-intel-gpu-hq|H.265 / HEVC, Intel Quick Sync hardware encoder, High Quality, Medium File Size|hevc_qsv|-preset veryslow -global_quality 20
+hevc-apple-gpu-balanced|H.265 / HEVC, Apple Video Toolbox, Good Quality, Balanced File Size|hevc_videotoolbox|-q:v 55
 av1-cpu-uhq|AV1, SVT-AV1 software encoder, Indistinguishable Quality, Smaller File Size|libsvtav1|-crf 18 -preset 4 -svtav1-params tune=0:enable-overlays=1:film-grain=0:film-grain-denoise=0

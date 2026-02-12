@@ -34,13 +34,23 @@ def has_modern_intel_gpu(device_index: int = 0) -> bool:
         return False
     return True
 
+def has_mps() -> bool:
+    return (
+        getattr(torch.backends.mps, 'is_built', lambda: False)()
+        and getattr(torch.backends.mps, 'is_available', lambda: False)()
+    )
+
 def gpu_has_fp16_acceleration(device: torch.device = None) -> bool:
     if device is None:
+        if has_mps():
+            return True
         if has_modern_intel_gpu(0):
             return True
         if torch.cuda.is_available():
             return has_modern_nvidia_gpu(0)
         return False
+    if device.type == 'mps':
+        return True
     if device.type == 'xpu':
         idx = device.index if device.index is not None else 0
         return has_modern_intel_gpu(idx)
@@ -52,6 +62,8 @@ def gpu_has_fp16_acceleration(device: torch.device = None) -> bool:
 def get_default_torch_device() -> str:
     if torch.cuda.is_available() and torch.cuda.device_count() > 0:
         return "cuda:0"
+    if has_mps():
+        return "mps"
     if hasattr(torch, 'xpu') and torch.xpu.is_available() and torch.xpu.device_count() > 0:
         return "xpu:0"
     return "cpu"
