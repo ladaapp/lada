@@ -1,10 +1,10 @@
 ## Developer Installation (macOS)
-This section provides instructions for installing the lada_cli (No GUI) from source on macOS.
+This section provides instructions for installing Lada from source on macOS: the **CLI** (lada-cli) and optionally the **GUI** (GTK 4 + Libadwaita).
 
 > [!NOTE]
 > This is for macOS. If you're on Linux, follow the [Linux Installation](linux_install.md). If you're on Windows, follow the [Windows Installation](windows_install.md).
 >
-> A standalone CLI build can be created with PyInstaller; see [Building a standalone CLI](#building-a-standalone-cli-optional) below.
+> For a standalone CLI and GUI build with PyInstaller, see [packaging/macOS/README.md](../packaging/macOS/README.md).
 
 ### Install CLI
 
@@ -76,6 +76,40 @@ You can now run the CLI with `lada-cli`.
 > * `cd` into the project root directory
 > * Activate the virtual environment with `source .venv/bin/activate`
 > * Run the CLI with `lada-cli` (use `--device mps` for Metal GPU if available)
+
+### Install GUI
+
+The GUI uses **GTK 4** and **Libadwaita**. On macOS you need to install these and GStreamer via Homebrew, then install the Python GUI dependencies.
+
+1) Complete the [CLI install](#install-cli) above (venv, patches, model weights).
+
+2) Install GTK 4, Libadwaita, and GStreamer (required for video playback in the GUI):
+
+   ```bash
+   brew install gtk4 libadwaita adwaita-icon-theme gstreamer
+   ```
+
+   Without `adwaita-icon-theme`, some icons may not appear.
+
+3) Install Python GUI dependencies (in the same venv):
+
+   ```bash
+   uv sync --extra gui
+   ```
+
+   If you already ran `uv sync --extra cpu`, this adds the `gui` extra (pycairo, PyGObject). To have both CPU/MPS and GUI: `uv sync --extra cpu --extra gui`.
+
+4) Run the GUI:
+
+   ```bash
+   lada
+   ```
+
+   Or from the project root with venv active:
+
+   ```bash
+   uv run lada
+   ```
 
 ### Install Translations (optional)
 

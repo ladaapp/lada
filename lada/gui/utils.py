@@ -27,6 +27,9 @@ def is_device_available(device: str) -> bool:
         return torch.cuda.is_available() and device_to_gpu_id(device) < torch.cuda.device_count()
     elif device.startswith("xpu:"):
         return hasattr(torch, 'xpu') and torch.xpu.is_available() and device_to_gpu_id(device) < torch.xpu.device_count()
+    elif device == 'mps':
+        from lada.utils.os_utils import has_mps
+        return has_mps()
     return False
 
 
@@ -38,6 +41,8 @@ def device_to_gpu_id(device) -> int | None:
 
 
 def get_available_gpus() -> list[tuple[str, str]]:
+    from lada.utils.os_utils import has_mps
+
     gpus = []
 
     if torch.cuda.is_available():
@@ -49,6 +54,9 @@ def get_available_gpus() -> list[tuple[str, str]]:
             if gpu_name.startswith("NVIDIA GeForce RTX"):
                 gpu_name = gpu_name.replace("NVIDIA GeForce RTX", "RTX")
             gpus.append((f"cuda:{i}", gpu_name))
+
+    if has_mps():
+        gpus.append(("mps", "Apple MPS (Metal)"))
 
     if hasattr(torch, 'xpu') and torch.xpu.is_available():
         xpu_device_count = torch.xpu.device_count()

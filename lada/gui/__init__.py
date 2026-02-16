@@ -39,3 +39,29 @@ def prepare_windows_gui_environment():
 
 if sys.platform == "win32" and not is_running_pyinstaller_bundle:
     prepare_windows_gui_environment()
+
+def prepare_macos_gui_environment() -> None:
+    """Set up environment for GUI on macOS (e.g. XDG_DATA_DIRS for GSettings, etc.)."""
+    assert sys.platform == "darwin", "prepare_macos_gui_environment() only runs on macOS"
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["brew", "--prefix"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired, ValueError):
+        return
+    if result.returncode != 0 or not result.stdout:
+        return
+    brew_share = os.path.join(result.stdout.strip(), "share")
+    if not os.path.isdir(brew_share):
+        return
+    if "XDG_DATA_DIRS" not in os.environ:
+        os.environ["XDG_DATA_DIRS"] = brew_share + os.pathsep + "/usr/share:/usr/local/share"
+    elif brew_share not in os.environ["XDG_DATA_DIRS"].split(os.pathsep):
+        os.environ["XDG_DATA_DIRS"] = brew_share + os.pathsep + os.environ["XDG_DATA_DIRS"]
+
+if sys.platform == "darwin":
+    prepare_macos_gui_environment()
