@@ -80,7 +80,7 @@ jobs:
       - name: Build GTK4 and friends with gvsbuild
         if: steps.cache-gvsbuild.outputs.cache-hit != 'true'
         run: |
-          uv tool install gvsbuild
+          uv tool install gvsbuild --with "setuptools<81.0.0"
           gvsbuild build --ninja-opts -j2 --enable-gi --py-wheel gtk4 libadwaita pygobject adwaita-icon-theme
 
       - name: Package
