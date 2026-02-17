@@ -1,0 +1,44 @@
+name: Build
+
+on: workflow_dispatch
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install system deps
+        run: |
+          sudo apt install -y \
+            ffmpeg \
+            gettext \
+            gcc python3-dev pkg-config \
+            libgirepository-2.0-dev libcairo2-dev libadwaita-1-dev gir1.2-gstreamer-1.0 \
+            libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-pulseaudio gstreamer1.0-alsa gstreamer1.0-tools gstreamer1.0-libav
+
+      - uses: astral-sh/setup-uv@v4
+
+      - name: Sync dependencies
+        run: uv sync --extra nvidia --extra gui
+
+      - name: Apply patches
+        run: |
+          patch -u -p1 -d .venv/lib/python3.13/site-packages < patches/increase_mms_time_limit.patch
+          patch -u -p1 -d .venv/lib/python3.13/site-packages < patches/remove_ultralytics_telemetry.patch
+          patch -u -p1 -d .venv/lib/python3.13/site-packages < patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
+
+      - name: Compile translations
+        run: bash translations/compile_po.sh
+
+      - name: Package with PyInstaller
+        run: uv run --no-sync pyinstaller ./packaging/windows.lada.spec -- --extra=nvidia
+
+      - name: Create artifact
+        run: tar -czf lada-linux.tar.gz -C dist lada
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lada-linux
+          path: lada-linux.tar.gz
