@@ -79,7 +79,7 @@ jobs:
         if: steps.cache-gvsbuild.outputs.cache-hit != 'true'
         run: |
           uv tool install gvsbuild
-          gvsbuild build --enable-gi --py-wheel gtk4 libadwaita pygobject adwaita-icon-theme
+          gvsbuild build --ninja-opts -j2 --enable-gi --py-wheel gtk4 libadwaita pygobject adwaita-icon-theme
 
       - name: Package
         shell: pwsh
