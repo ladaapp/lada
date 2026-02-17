@@ -4,6 +4,7 @@ on: workflow_dispatch
 
 jobs:
   build-linux:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -46,18 +47,19 @@ jobs:
           name: lada-linux
           path: lada-linux.tar.gz
 
-#  build-macos:
-#    runs-on: macos-latest
-#    steps:
-#      - uses: actions/checkout@v6
-#
-#      - name: Install Homebrew deps
-#        run: brew install ffmpeg uv gtk4 libadwaita adwaita-icon-theme gstreamer
-#
-#      - uses: astral-sh/setup-uv@v7
-#
-#      - name: Sync dependencies
-#        run: uv sync --extra cpu --extra gui
+  build-macos:
+    if: false
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Homebrew deps
+        run: brew install ffmpeg uv gtk4 libadwaita adwaita-icon-theme gstreamer
+
+      - uses: astral-sh/setup-uv@v7
+
+      - name: Sync dependencies
+        run: uv sync --extra cpu --extra gui
 
   build-windows-gtk-deps:
     runs-on: windows-latest
