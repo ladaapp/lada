@@ -6,7 +6,7 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install system deps
         run: |
@@ -33,13 +33,29 @@ jobs:
         run: bash translations/compile_po.sh
 
       - name: Package with PyInstaller
-        run: uv run --no-sync pyinstaller ./packaging/windows.lada.spec -- --extra=nvidia
+        run: |
+          uv pip install pyinstaller
+          uv run --no-sync pyinstaller --noconfirm ./packaging/windows.lada.spec -- --extra=nvidia
 
       - name: Create artifact
         run: tar -czf lada-linux.tar.gz -C dist lada
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: lada-linux
           path: lada-linux.tar.gz
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install Homebrew deps
+        run: brew install ffmpeg uv gtk4 libadwaita adwaita-icon-theme gstreamer
+
+      - uses: astral-sh/setup-uv@v4
+
+      - name: Sync dependencies
+        run: uv sync --extra cpu --extra gui
+
