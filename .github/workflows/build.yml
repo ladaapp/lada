@@ -10,6 +10,7 @@ jobs:
 
       - name: Install system deps
         run: |
+          sudo apt update
           sudo apt install -y \
             ffmpeg \
             gettext \
