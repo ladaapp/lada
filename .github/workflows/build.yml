@@ -8,11 +8,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Debug
-        run: |
-          echo $PWD
-          ls -la .
-
       - name: Install system deps
         run: |
           sudo apt update
