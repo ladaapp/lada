@@ -114,8 +114,8 @@ jobs:
 
           uv sync --active --frozen --extra "${{ matrix.value }}" --no-editable --no-install-project
           uv pip install --no-deps '.'
-          uv pip install --force-reinstall (Resolve-Path ".\build_gvsbuild\gtk\x64\release\python\pygobject*.whl").Path
-          uv pip install --force-reinstall (Resolve-Path ".\build_gvsbuild\gtk\x64\release\python\pycairo*.whl").Path
+          uv pip install --force-reinstall (Resolve-Path "$env:GVSBUILD_DIR\x64\release\python\pygobject*.whl").Path
+          uv pip install --force-reinstall (Resolve-Path "$env:GVSBUILD_DIR\gtk\x64\release\python\pycairo*.whl").Path
 
           uv pip install pyinstaller==$env:PYINSTALLER_VERSION
 
@@ -125,12 +125,24 @@ jobs:
           uv run --no-project python -m patch -p1 -d .venv/lib/site-packages patches/fix_loading_mmengine_weights_on_torch26_and_higher.diff
           uv pip uninstall patch
 
+      - name: Compile translations
+        shell: pwsh
+        run: |
+          # Adjust PATH to include gettext tools used in translation compile script
+          $path_backup = $env:Path
+          $gtk_bin_dir = (Resolve-Path "$env:GVSBUILD_DIR\gtk\x64\release\bin").Path
+          $env:Path = $gtk_bin_dir + ";" + $env:Path
+      
+          & ./translations/compile_po.ps1 --release
+      
+          $env:Path = $path_backup
+
       - name: Package Lada
         shell: pwsh
         run: |
           .venv\Scripts\Activate.ps1
       
-          $release_dir = (Resolve-Path ".\build_gvsbuild\gtk\x64\release").Path
+          $release_dir = (Resolve-Path "env:GVSBUILD_DIR\gtk\x64\release").Path
           $env:Path = $release_dir + "\bin;" + $env:Path
           $env:LIB = $release_dir + "\lib;" + $env:LIB
           $env:INCLUDE = $release_dir + "\include;" + $release_dir + "\include\cairo;" + $release_dir + "\include\glib-2.0;" + $release_dir + "\include\gobject-introspection-1.0;" + $release_dir + "\lib\glib-2.0\include;" + $env:INCLUDE
