@@ -243,14 +243,16 @@ class FrameRestorerAppSrc(GstApp.AppSrc):
         frame_timestamp_ns = int((frame_pts * self.video_metadata.time_base) * Gst.SECOND)
         frame = GstPaddingHelpers.pad_frame(frame)
         device_type = frame.device.type
-        if device_type == 'cuda' or device_type == 'xpu':
+        if device_type in ('cuda', 'xpu', 'mps'):
+            use_async_copy = device_type in ('cuda', 'xpu')
             if self.cpu_frame is None or frame.shape != self.cpu_frame.shape:
-                self.cpu_frame = torch.empty((frame.shape[0], frame.shape[1], frame.shape[2]), dtype=frame.dtype, device='cpu', pin_memory=True)
-            self.cpu_frame.copy_(frame, non_blocking=True)
-            if device_type == 'cuda':
-                torch.cuda.synchronize()
-            elif device_type == 'xpu':
-                torch.xpu.synchronize()
+                self.cpu_frame = torch.empty((frame.shape[0], frame.shape[1], frame.shape[2]), dtype=frame.dtype, device='cpu', pin_memory=use_async_copy)
+            self.cpu_frame.copy_(frame, non_blocking=use_async_copy)
+            if use_async_copy:
+                if device_type == 'cuda':
+                    torch.cuda.synchronize()
+                else:
+                    torch.xpu.synchronize()
             data = self.cpu_frame.numpy().tobytes()
         else:
             data = frame.numpy().tobytes()

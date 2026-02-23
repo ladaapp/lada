@@ -108,6 +108,8 @@ def dump_encoders():
     _dump_table(table)
 
 def dump_torch_devices():
+    from lada.utils.os_utils import has_mps
+
     print(_("Available devices:"))
     devices = ["cpu"]
     descriptions = ["CPU"]
@@ -117,7 +119,11 @@ def dump_torch_devices():
         for i in range(cuda_device_count):
             devices.append(f"cuda:{i}")
             descriptions.append(torch.cuda.get_device_properties(i).name)
-    
+
+    if has_mps():
+        devices.append("mps")
+        descriptions.append("Apple MPS (Metal)")
+
     if hasattr(torch, 'xpu') and torch.xpu.is_available():
         xpu_device_count = torch.xpu.device_count()
         for i in range(xpu_device_count):

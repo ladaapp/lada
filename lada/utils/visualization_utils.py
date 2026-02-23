@@ -64,7 +64,7 @@ def draw_mosaic_detections(clip: Clip, border_color = (255, 0, 255)) -> list[tor
         mosaic_detection_images.append(mosaic_detection_img)
 
     mosaic_detection_images = [torch.from_numpy(x) for x in mosaic_detection_images]
-    if device.type == 'cuda':
+    if device.type in ('cuda', 'mps'):
         mosaic_detection_images = torch.stack(mosaic_detection_images, dim=0).to(device=device)
         return torch.unbind(mosaic_detection_images, dim=0)
     return mosaic_detection_images

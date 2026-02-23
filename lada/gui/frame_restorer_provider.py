@@ -158,7 +158,9 @@ class FrameRestorerProvider:
                 torch.cuda.empty_cache()
             elif hasattr(torch, 'xpu') and torch.xpu.is_available():
                 torch.xpu.empty_cache()
-        except:
+            elif getattr(torch, 'mps', None) is not None:
+                torch.mps.empty_cache()
+        except Exception:
             pass
         self.models_cache = None
 

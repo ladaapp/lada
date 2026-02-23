@@ -235,8 +235,11 @@ class FrameRestorer:
         for processed_clip in processed_clips:
             clip_buffer.remove(processed_clip)
 
-        if has_processed_clips and self.device.type == 'cuda':
-            torch.cuda.empty_cache()
+        if has_processed_clips:
+            if self.device.type == 'cuda':
+                torch.cuda.empty_cache()
+            elif self.device.type == 'mps':
+                torch.mps.empty_cache()
 
     def _clip_buffer_contains_all_cips_needed_for_current_restoration(self, current_frame_num, num_mosaic_detections, clip_buffer):
         num_clips_starting_at_frame = len([clip for clip in clip_buffer if clip.frame_start == current_frame_num])
@@ -259,6 +262,9 @@ class FrameRestorer:
                     break
             else:
                 self._restore_clip(clip)
+                # Release MPS driver cached memory to prevent unbounded growth
+                if self.device.type == 'mps' and hasattr(torch.mps, 'empty_cache'):
+                    torch.mps.empty_cache()
                 self.restored_clip_queue.put(clip)
                 if self.stop_requested:
                     logger.debug("clip restoration worker: restored_clip_queue producer unblocked")

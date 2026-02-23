@@ -285,6 +285,8 @@ class EncodingPreset:
 def get_default_preset_name():
     if os_utils.has_nvidia_gpu() and is_nvidia_cuda_encoding_available():
         return "hevc-nvidia-gpu-hq"
+    if is_apple_videotoolbox_encoding_available():
+        return "hevc-apple-gpu-balanced"
     if os_utils.has_intel_arc_gpu() and is_intel_qsv_encoding_available():
         return "hevc-intel-gpu-hq"
     return "h264-cpu-fast"
@@ -305,6 +307,9 @@ def get_encoding_presets() -> list[EncodingPreset]:
     has_nvidia_nvenc = False
     if 'h264_nvenc' in available_encoder_names:
         has_nvidia_nvenc = is_nvidia_cuda_encoding_available()
+    has_apple_vt = False
+    if 'hevc_videotoolbox' in available_encoder_names or 'h264_videotoolbox' in available_encoder_names:
+        has_apple_vt = is_apple_videotoolbox_encoding_available()
 
     with open(encoding_presets_csv_path, mode='r', newline='', encoding='utf-8') as csvfile:
         reader = csv.DictReader(csvfile, delimiter='|')
@@ -322,6 +327,10 @@ def get_encoding_presets() -> list[EncodingPreset]:
             # Intel
             is_intel_preset = 'qsv' in encoder_name or 'intel' in preset_name
             if is_intel_preset and not has_intel_qsv:
+                continue
+            # Apple Video Toolbox
+            is_apple_preset = 'videotoolbox' in encoder_name or 'apple' in preset_name
+            if is_apple_preset and not has_apple_vt:
                 continue
 
             preset = EncodingPreset(row["preset_name"], row["preset_description(translatable)"], False, row["encoder_name"], row["encoder_options"])    
@@ -355,6 +364,27 @@ def is_intel_qsv_encoding_available() -> bool:
 @cache
 def is_nvidia_cuda_encoding_available() -> bool:
     return _is_codec_hardware_acceleration_working('h264_nvenc', 'cuda')
+
+@cache
+def is_apple_videotoolbox_encoding_available() -> bool:
+    if sys.platform != "darwin":
+        return False
+    if _is_codec_hardware_acceleration_working('hevc_videotoolbox', 'videotoolbox'):
+        return True
+    # HWAccel check can fail in frozen/PyInstaller builds. Try encoding a dummy frame instead (same approach as QSV on Linux).
+    try:
+        with av.logging.Capture():
+            mem_file = io.BytesIO()
+            with av.open(mem_file, mode='w', format='mp4') as container:
+                stream = container.add_stream('hevc_videotoolbox', rate=30)
+                stream.width = 64
+                stream.height = 64
+                stream.pix_fmt = 'yuv420p'
+                dummy_frame = av.VideoFrame(64, 64, format='yuv420p')
+                stream.encode(dummy_frame)
+                return True
+    except Exception:
+        return False
 
 def _is_codec_hardware_acceleration_working(codec_name: str, hwaccel_device_type: str, codec_mode: Literal["r", "w"]='w') -> bool:
     try:
@@ -410,7 +440,11 @@ class VideoWriter:
         video_stream_out.codec_context.thread_type = 3
         video_stream_out.codec_context.time_base = time_base
 
-        video_stream_out.options = self._parse_encoder_options(encoder_options)
+        stream_options = self._parse_encoder_options(encoder_options)
+        # hevc_videotoolbox needs tag 'hvc1' for compatibility (e.g. Safari in MP4/MOV); preset -tag:v is often ignored by PyAV/ffmpeg
+        if encoder == 'hevc_videotoolbox':
+            stream_options['tag'] = 'hvc1'
+        video_stream_out.options = stream_options
         self.output_container = output_container
         self.video_stream = video_stream_out
 

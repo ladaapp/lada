@@ -44,13 +44,13 @@ For more information about additional options, use the `--help` argument.
 ## Performance expectations and hardware requirements
 The restoration quality can vary depending on the scene. Some may look quite realistic, while others could display noticeable artifacts, sometimes worse than the original mosaics.
 
-To run the app effectively, you’ll need a GPU and some patience. A graphics card with at least 4-6GB of VRAM should work well for most cases.
+To run the app effectively, you'll need a GPU and some patience. A graphics card with at least 4-6GB of VRAM should work well for most cases.
 
 The app also requires a fair amount of RAM for buffering, which improves performance. For 1080p content, 6-8GB of RAM should suffice, but 4K video will require significantly more.
 
 To watch the restored video in real-time, you'll need a powerful machine. Otherwise, the player may pause and buffer as it computes the next set of restored frames. While viewing the video, no encoding is done, but additional RAM will be used for buffering.
 
-If your GPU isn’t fast enough for real-time playback, you can export the video and watch it later in your preferred media player (this is supported in both the GUI and CLI).
+If your GPU isn't fast enough for real-time playback, you can export the video and watch it later in your preferred media player (this is supported in both the GUI and CLI).
 
 Although the app can run on a CPU, performance will be extremely slow, making it impractical for most users.
 
@@ -168,7 +168,7 @@ New releases will be published on both [GitHub Releases](https://github.com/lada
 
 ## Build
 
-If you want to start hacking on this project you'll need to install the app from source. Check out the detailed installation guides for [Linux](docs/linux_install.md) and [Windows](docs/windows_install.md).
+If you want to start hacking on this project you'll need to install the app from source. Check out the detailed installation guides for [Linux](docs/linux_install.md), [macOS](docs/macOS_install.md), and [Windows](docs/windows_install.md).
 
 ## Training and dataset creation
 

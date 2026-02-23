@@ -379,6 +379,9 @@ class MosaicDetector:
                     if queue_marker is STOP_MARKER:
                         break
                     frame_num += 1
+                # Release MPS driver cached memory to prevent unbounded growth
+                if self.device is not None and self.device.type == 'mps' and hasattr(torch.mps, 'empty_cache'):
+                    torch.mps.empty_cache()
         if eof:
             logger.debug("frame detector worker: stopped itself, EOF")
         else:

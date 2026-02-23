@@ -85,6 +85,12 @@ class LadaApplication(Adw.Application):
         for win in self.get_windows():
             if isinstance(win, Gtk.Window):
                 win.close()
+        try:
+            import torch
+            if getattr(torch.backends, "mps", None) and torch.backends.mps.is_available() and hasattr(torch.mps, "empty_cache"):
+                torch.mps.empty_cache()
+        except Exception:
+            pass
 
     def on_about_action(self, *args):
         about = Adw.AboutDialog(application_name='Lada',
