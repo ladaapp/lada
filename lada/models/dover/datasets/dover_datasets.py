@@ -385,7 +385,7 @@ class ViewDecompositionDataset(torch.utils.data.Dataset):
                             label = float(label)
                         filename = osp.join(self.data_prefix, filename)
                         self.video_infos.append(dict(filename=filename, label=label))
-            except:
+            except Exception:
                 #### No Label Testing
                 video_filenames = []
                 for (root, dirs, files) in os.walk(self.data_prefix, topdown=True):
@@ -424,7 +424,7 @@ class ViewDecompositionDataset(torch.utils.data.Dataset):
             data["frame_inds"] = frame_inds
             data["gt_label"] = label
             data["name"] = filename  # osp.basename(video_info["filename"])
-        except:
+        except Exception:
             # exception flow
             return {"name": filename}
 

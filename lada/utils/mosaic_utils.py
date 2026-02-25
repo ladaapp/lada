@@ -17,7 +17,7 @@ def get_mask_area_by_contour(mask):
     contours= cv2.findContours(mask,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)[0]
     try:
         area = cv2.contourArea(contours[0])
-    except:
+    except Exception:
         area = 0
     return area
 
@@ -25,7 +25,7 @@ def get_mask_area_by_bounding_box(mask):
     try:
         w, h = cv2.boundingRect(mask)[2:]
         area = w * h
-    except:
+    except Exception:
         area = 0
     return area
 

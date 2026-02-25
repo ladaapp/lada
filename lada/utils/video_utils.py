@@ -503,7 +503,7 @@ class VideoWriter:
             out_packet = self.video_stream.encode(None)
             if out_packet:
                 self.output_container.mux(out_packet)
-        except:
+        except Exception:
             # TODO: For half of my test files flushing QSV encoders fail here with "Application provided invalid, non monotonically increasing dts to muxer in stream"
             # This doesn't happen with libx264 or NVENC encoders. The restored file plays fine so let's ignore it for now.
             if self.is_qsv_encoder:
