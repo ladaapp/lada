@@ -136,7 +136,8 @@ function Install-PythonDependencies {
         uv pip install --force-reinstall (Resolve-Path ".\build_gtk_release\gtk\x64\release\python\pycairo*.whl").Path
     }
 
-    uv pip install pyinstaller==$global:PYINSTALLER_VERSION
+    # pin setuptools to fix build failure of gobject-introspection. Can be removed once https://github.com/wingtk/gvsbuild/pull/1715 is released
+    uv pip install pyinstaller==$global:PYINSTALLER_VERSION "setuptools<81.0.0"
 
     uv pip install patch
     uv run --no-project python -m patch -p1 -d venv_release_win/lib/site-packages patches/increase_mms_time_limit.patch
