@@ -14,7 +14,7 @@ for arg in "$@"; do
   case "$arg" in
     --release)
       lang_filter=$(cat release_ready_translations.txt | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
-      if [ -z "$lang filter" ]; then
+      if [ -z "$lang_filter" ]; then
           echo "No translations in release_ready_translations.txt"
           exit 1
       fi
@@ -41,7 +41,7 @@ find ../lada/locale/ -mindepth 2 -maxdepth 2 -type d -name LC_MESSAGES | while r
 done
 
 # Compile .po files
-find . -mindepth 1 -maxdepth 1 -type f -name "*.po" -printf '%f\n' | while read po_file ; do
+find . -mindepth 1 -maxdepth 1 -type f -name "*.po" -exec basename {} \; | while read po_file ; do
   lang="${po_file%.po}"
   if ! should_compile_po $lang ; then
     _lang_dir="../lada/locale/$lang"

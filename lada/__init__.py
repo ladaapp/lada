@@ -38,7 +38,16 @@ if IS_FLATPAK and "TMPDIR" not in os.environ:
     os.environ["TMPDIR"] = os.path.join(os.environ["XDG_RUNTIME_DIR"], "app", os.environ["FLATPAK_ID"])
 
 def _get_language_from_os() -> str:
-    if sys.platform == "win32":
+    if sys.platform == "darwin":
+       # source: https://github.com/gaphor/gaphor/blob/ba7f9092d57c5d23b727136f13923cc355204d96/gaphor/i18n.py#L30
+       from Cocoa import NSUserDefaults
+
+        defaults = NSUserDefaults.standardUserDefaults()
+        langs = defaults.objectForKey_("AppleLanguages")
+        if language := langs.objectAtIndex_(0):
+            assert isinstance(language, str)
+            return language.replace("-", "_")
+    elif sys.platform == "win32":
         # source: https://stackoverflow.com/questions/3425294/how-to-detect-the-os-default-language-in-python/25691701#25691701
         import ctypes
         import locale

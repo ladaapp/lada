@@ -19,6 +19,7 @@ dependencies = [
 #    "torch", # Declared in one of the extras instead
 #    "torchvision", # Declared in one of the extras instead
     "wcwidth",
+    "pyobjc-framework-cocoa ; sys_platform == 'darwin'",
 ]
 
 [project.urls]
