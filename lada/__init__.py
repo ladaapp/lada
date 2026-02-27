@@ -39,8 +39,8 @@ if IS_FLATPAK and "TMPDIR" not in os.environ:
 
 def _get_language_from_os() -> str:
     if sys.platform == "darwin":
-       # source: https://github.com/gaphor/gaphor/blob/ba7f9092d57c5d23b727136f13923cc355204d96/gaphor/i18n.py#L30
-       from Cocoa import NSUserDefaults
+        # source: https://github.com/gaphor/gaphor/blob/ba7f9092d57c5d23b727136f13923cc355204d96/gaphor/i18n.py#L30
+        from Cocoa import NSUserDefaults
 
         defaults = NSUserDefaults.standardUserDefaults()
         langs = defaults.objectForKey_("AppleLanguages")
