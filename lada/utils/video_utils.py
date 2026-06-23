@@ -441,10 +441,15 @@ class VideoWriter:
         video_stream_out.codec_context.time_base = time_base
 
         stream_options = self._parse_encoder_options(encoder_options)
-        # hevc_videotoolbox needs tag 'hvc1' for compatibility (e.g. Safari in MP4/MOV); preset -tag:v is often ignored by PyAV/ffmpeg
-        if encoder == 'hevc_videotoolbox':
-            stream_options['tag'] = 'hvc1'
         video_stream_out.options = stream_options
+        # All HEVC encoders need tag 'hvc1' in ISOBMFF containers (mp4/mov/m4v) for Apple compatibility
+        # (Finder thumbnails, QuickLook, QuickTime, Safari). ffmpeg defaults to 'hev1', which AVFoundation
+        # rejects. Metadata-only change, non-Apple players accept both. The tag is the muxer FourCC and must
+        # be set via the stream's codec_tag; passing it through encoder options (stream.options) is silently
+        # ignored by PyAV/ffmpeg and leaves the output as 'hev1'.
+        hevc_encoders = ('libx265', 'hevc_nvenc', 'hevc_amf', 'hevc_qsv', 'hevc_videotoolbox')
+        if encoder in hevc_encoders and output_path.lower().endswith(('.mp4', '.mov', '.m4v')):
+            video_stream_out.codec_tag = 'hvc1'
         self.output_container = output_container
         self.video_stream = video_stream_out
 
