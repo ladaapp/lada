@@ -402,6 +402,16 @@ def is_nvenc_encoder(encoder: str) -> bool:
     return encoder.lower().endswith("_nvenc")
 
 
+def is_hardware_accelerated_encoder(encoder: str) -> bool:
+    encoder = encoder.lower()
+    return (
+        encoder.endswith("_nvenc")
+        or encoder.endswith("_qsv")
+        or encoder.endswith("_amf")
+        or encoder.endswith("_videotoolbox")
+    )
+
+
 def get_cuda_device_index(device) -> int | None:
     if device is None:
         return None
@@ -444,7 +454,7 @@ class VideoWriter:
         }
         return parsed_encoder_options
 
-    def __init__(self, output_path, width, height, fps, encoder: str, encoder_options: str, time_base=None, mp4_fast_start=False):
+    def __init__(self, output_path, width, height, fps, encoder: str, encoder_options: str, time_base=None, mp4_fast_start=False, encoder_thread_count: int | None = None):
         container_options = {}
         if mp4_fast_start and (output_path.lower().endswith(".mp4") or output_path.lower().endswith(".mov")):
             container_options["movflags"] = "+frag_keyframe+empty_moov+faststart"
@@ -467,14 +477,17 @@ class VideoWriter:
 
         video_stream_out.width = width
         video_stream_out.height = height
-        video_stream_out.thread_count = 0
+        if encoder_thread_count is None:
+            encoder_thread_count = 1 if is_hardware_accelerated_encoder(encoder) else 0
+
+        video_stream_out.thread_count = encoder_thread_count
         video_stream_out.thread_type = 3
         video_stream_out.time_base = time_base
 
         # up until PyAV 15.5.0 it was enough to set these settings on the stream only.
         video_stream_out.codec_context.width = width
         video_stream_out.codec_context.height = height
-        video_stream_out.codec_context.thread_count = 0
+        video_stream_out.codec_context.thread_count = encoder_thread_count
         video_stream_out.codec_context.thread_type = 3
         video_stream_out.codec_context.time_base = time_base
 
@@ -501,11 +514,11 @@ class VideoWriter:
     def _process_buffer(self, flush_all=False):
         """Processes the buffer to encode frames."""
         if len(self.frame_queue) > (self.BUFFER_MAX_SIZE / 2) or (flush_all and self.frame_queue):
-            frame_to_encode = self.frame_queue.popleft()
+            frame_to_encode, frame_format = self.frame_queue.popleft()
             pts_to_assign = heapq.heappop(self.pts_heap)
             self.pts_set.remove(pts_to_assign)
 
-            out_frame = av.VideoFrame.from_ndarray(frame_to_encode, format='rgb24')
+            out_frame = av.VideoFrame.from_ndarray(frame_to_encode, format=frame_format)
             out_frame.pts = pts_to_assign
             out_packet = self.video_stream.encode(out_frame)
             if out_packet:
@@ -523,12 +536,11 @@ class VideoWriter:
         # See https://codeberg.org/ladaapp/lada/pulls/33 for more information/discussion.
         if isinstance(frame, torch.Tensor):
             frame = frame.cpu().numpy()
-        if bgr2rgb:
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_format = "bgr24" if bgr2rgb else "rgb24"
 
         if frame_pts not in self.pts_set:
             heapq.heappush(self.pts_heap, frame_pts)
-            self.frame_queue.append(frame)
+            self.frame_queue.append((frame, frame_format))
             self.pts_set.add(frame_pts)
 
         self._process_buffer()

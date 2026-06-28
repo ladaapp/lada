@@ -52,6 +52,7 @@ class ExportWorkerSettings:
     encoder_options: str = ""
     mp4_fast_start: bool = False
     progress_update_step_size: int = 100
+    cpu_threads_per_worker: int | None = None
 
 
 @dataclass(frozen=True)
@@ -135,6 +136,34 @@ def build_worker_settings_for_device(settings: ExportWorkerSettings, device: str
     return replace(settings, encoder_options=encoder_options)
 
 
+def calculate_cpu_threads_per_worker(worker_count: int, cpu_count: int | None = None) -> int:
+    cpu_count = cpu_count or os.cpu_count() or 1
+    return max(1, min(4, cpu_count // max(worker_count, 1)))
+
+
+def configure_worker_runtime(cpu_threads_per_worker: int | None):
+    if cpu_threads_per_worker is None:
+        return
+    thread_count = max(1, int(cpu_threads_per_worker))
+    for env_name in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
+        os.environ[env_name] = str(thread_count)
+
+    try:
+        import torch
+
+        torch.set_num_threads(thread_count)
+        torch.set_num_interop_threads(max(1, min(2, thread_count)))
+    except Exception:
+        pass
+
+    try:
+        import cv2
+
+        cv2.setNumThreads(thread_count)
+    except Exception:
+        pass
+
+
 def run_export_worker(
     worker_id: int,
     device: str,
@@ -144,6 +173,7 @@ def run_export_worker(
     settings: ExportWorkerSettings,
     process_file_func: ProcessFileFunc | None = None,
 ):
+    configure_worker_runtime(settings.cpu_threads_per_worker)
     worker_settings = build_worker_settings_for_device(settings, device)
     _emit_event(
         event_queue,
@@ -151,7 +181,14 @@ def run_export_worker(
             "worker_started",
             worker_id=worker_id,
             device=device,
-            message=f"Worker {worker_id} started on {device}",
+            message=(
+                f"Worker {worker_id} started on {device}"
+                + (
+                    f" with {worker_settings.cpu_threads_per_worker} CPU threads"
+                    if worker_settings.cpu_threads_per_worker is not None
+                    else ""
+                )
+            ),
         ),
     )
     if worker_settings.encoder_options != settings.encoder_options:
@@ -386,13 +423,18 @@ class MultiDeviceExportScheduler:
     ):
         self.tasks = create_export_tasks(input_files, output_files)
         self.devices = devices
-        self.settings = settings
         self.worker_devices = build_worker_device_slots(
             devices,
             jobs_per_device=jobs_per_device,
             parallel=parallel,
             allow_parallel_cpu=allow_parallel_cpu,
         )
+        if settings.cpu_threads_per_worker is None:
+            settings = replace(
+                settings,
+                cpu_threads_per_worker=calculate_cpu_threads_per_worker(len(self.worker_devices)),
+            )
+        self.settings = settings
         self.worker_target = worker_target
         self.process_file_func = process_file_func
         self.multiprocessing_context = multiprocessing_context

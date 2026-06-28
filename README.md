@@ -71,6 +71,12 @@ The `--device` option remains the default single-process path. The new `--device
 
 For video restoration, keep `--jobs-per-device 1` unless you are sure your GPUs have enough VRAM. If you run out of VRAM, reduce `--parallel` instead of increasing `--jobs-per-device`.
 
+Multi-device workers automatically limit their PyTorch/OpenCV CPU thread pools based on worker count. If CPU scheduling becomes the bottleneck, you can override this with `--worker-cpu-threads`, for example:
+
+```shell
+lada-cli --input "D:\videos" --output "D:\out" --devices auto --jobs-per-device 2 --worker-cpu-threads 2
+```
+
 `--devices auto` currently enables parallel scheduling for CUDA devices. CPU, MPS, and XPU fall back to single-device processing by default. PyTorch inference is assigned to devices such as `cuda:0` and `cuda:1`. During multi-device export, NVENC encoders such as `h264_nvenc` and `hevc_nvenc` are bound to the worker's CUDA index by adding FFmpeg's `-gpu N` option unless the user already supplied a `-gpu` encoder option.
 
 ## Performance expectations and hardware requirements

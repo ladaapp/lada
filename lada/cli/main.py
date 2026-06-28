@@ -93,6 +93,7 @@ def setup_argparser() -> argparse.ArgumentParser:
     group_general.add_argument('--devices', type=str, help=_('Devices used for parallel multi-file export. Examples: auto, cuda:0, cuda:0,cuda:1, cpu. If omitted, the existing --device behavior is used'))
     group_general.add_argument('--parallel', type=positive_int, help=_('Maximum number of files processed in parallel when --devices is used. Defaults to the number of selected worker slots'))
     group_general.add_argument('--jobs-per-device', type=positive_int, default=1, help=_('Number of parallel jobs per selected GPU. The recommended value for video restoration is 1. (default: %(default)s)'))
+    group_general.add_argument('--worker-cpu-threads', type=positive_int, help=_('CPU threads per multi-device worker. Defaults to an automatic value based on CPU count and worker count'))
     group_general.add_argument('--fp16', action=argparse.BooleanOptionalAction, default=gpu_has_fp16_acceleration(), help=_("Reduces VRAM usage and may increase speed on modern GPUs, with negligible quality difference. (default: %(default)s)"))
     group_general.add_argument('--list-devices', action='store_true', help=_("List available devices and exit"))
     group_general.add_argument('--version', action='store_true', help=_("Display version and exit"))
@@ -278,6 +279,7 @@ def main():
             encoder=encoder,
             encoder_options=encoder_options,
             mp4_fast_start=args.mp4_fast_start,
+            cpu_threads_per_worker=args.worker_cpu_threads,
         )
         scheduler = MultiDeviceExportScheduler(
             input_files=input_files,
