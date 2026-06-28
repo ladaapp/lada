@@ -53,7 +53,6 @@ class FrameRestorer:
 
         # no queue size limit needed, elements are tiny
         self.frame_detection_queue = PipelineQueue(name="frame_detection_queue")
-        self.decoded_frame_detection_queue = PipelineQueue(name="decoded_frame_detection_queue", maxsize=8)
         self.decoded_frame_restoration_queue = PipelineQueue(name="decoded_frame_restoration_queue", maxsize=8)
 
         self.mosaic_detector = MosaicDetector(self.mosaic_detection_model, self.video_meta_data,
@@ -62,7 +61,6 @@ class FrameRestorer:
                                               device=self.device,
                                               max_clip_length=self.max_clip_length,
                                               pad_mode=self.preferred_pad_mode,
-                                              frame_input_queue=self.decoded_frame_detection_queue,
                                               error_handler=self._on_worker_thread_error)
 
         self.frame_reader_thread: PipelineThread | None = None
@@ -80,7 +78,6 @@ class FrameRestorer:
             assert self.restored_clip_queue.empty()
             assert self.frame_detection_queue.empty()
             assert self.frame_restoration_queue.empty()
-            assert self.decoded_frame_detection_queue.empty()
             assert self.decoded_frame_restoration_queue.empty()
 
             self.start_ns = start_ns
@@ -105,9 +102,7 @@ class FrameRestorer:
             self.mosaic_detector.stop()
 
             # unblock frame reader producers/consumers
-            threading_utils.empty_out_queue(self.decoded_frame_detection_queue)
             threading_utils.empty_out_queue(self.decoded_frame_restoration_queue)
-            threading_utils.put_queue_stop_marker(self.decoded_frame_detection_queue)
             threading_utils.put_queue_stop_marker(self.decoded_frame_restoration_queue)
             if self.frame_reader_thread:
                 self.frame_reader_thread.join()
@@ -140,14 +135,12 @@ class FrameRestorer:
             threading_utils.empty_out_queue(self.restored_clip_queue)
             threading_utils.empty_out_queue(self.frame_detection_queue)
             threading_utils.empty_out_queue(self.frame_restoration_queue)
-            threading_utils.empty_out_queue(self.decoded_frame_detection_queue)
             threading_utils.empty_out_queue(self.decoded_frame_restoration_queue)
 
             assert self.mosaic_clip_queue.empty()
             assert self.restored_clip_queue.empty()
             assert self.frame_detection_queue.empty()
             assert self.frame_restoration_queue.empty()
-            assert self.decoded_frame_detection_queue.empty()
             assert self.decoded_frame_restoration_queue.empty()
 
             logger.debug(f"FrameRestorer: stopped, took {time.time() - start}")
@@ -319,15 +312,11 @@ class FrameRestorer:
                     eof = True
                     break
                 item = (frame, frame_pts)
-                if self._put_decoded_frame(self.decoded_frame_detection_queue, item) is STOP_MARKER:
-                    break
                 if self._put_decoded_frame(self.decoded_frame_restoration_queue, item) is STOP_MARKER:
                     break
         if eof:
-            self.decoded_frame_detection_queue.put(EOF_MARKER)
             self.decoded_frame_restoration_queue.put(EOF_MARKER)
         else:
-            threading_utils.put_queue_stop_marker(self.decoded_frame_detection_queue)
             threading_utils.put_queue_stop_marker(self.decoded_frame_restoration_queue)
         if eof:
             logger.debug("frame reader worker: stopped itself, EOF")
