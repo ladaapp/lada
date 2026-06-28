@@ -158,6 +158,23 @@ SPDX-License-Identifier: AGPL-3.0
                                     </object>
                                 </child>
                                 <child>
+                                    <object class="AdwSpinRow" id="spin_row_batch_export_jobs_per_device">
+                                        <property name="title" translatable="true">Jobs per device</property>
+                                        <property name="subtitle" translatable="true">How many queued files each selected GPU may process at once. 1 is recommended unless you have enough VRAM.</property>
+                                        <signal name="notify::value"
+                                                handler="spin_row_batch_export_jobs_per_device_selected_callback"/>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">1</property>
+                                                <property name="upper">4</property>
+                                                <property name="value">1</property>
+                                                <property name="step-increment">1</property>
+                                                <property name="page-increment">1</property>
+                                            </object>
+                                        </property>
+                                    </object>
+                                </child>
+                                <child>
                                     <object class="AdwExpanderRow" id="expander_row_export_directory">
                                         <property name="title" translatable="true">Output Directory</property>
                                         <property name="tooltip-text" translatable="true">Directory where restored files will be saved</property>

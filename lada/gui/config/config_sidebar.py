@@ -25,6 +25,7 @@ class ConfigSidebar(Gtk.Box):
 
     combo_row_gpu = Gtk.Template.Child()
     combo_row_batch_export_device = Gtk.Template.Child()
+    spin_row_batch_export_jobs_per_device = Gtk.Template.Child()
     spin_row_preview_buffer_duration = Gtk.Template.Child()
     spin_row_clip_max_duration = Gtk.Template.Child()
     switch_row_mute_audio = Gtk.Template.Child()
@@ -85,6 +86,7 @@ class ConfigSidebar(Gtk.Box):
             self.combo_row_gpu.set_selected(configured_gpu_selection_idx)
 
         self.init_batch_export_device_combo(config)
+        self.spin_row_batch_export_jobs_per_device.set_value(config.batch_export_jobs_per_device)
 
         # init restoration model
         for row in self._restoration_models_actions_rows:
@@ -251,6 +253,11 @@ class ConfigSidebar(Gtk.Box):
         if selected_idx >= len(self._batch_export_device_options):
             return
         self._config.batch_export_device = self._batch_export_device_options[selected_idx][0]
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def spin_row_batch_export_jobs_per_device_selected_callback(self, spin_row, value):
+        self._config.batch_export_jobs_per_device = int(spin_row.get_property("value"))
 
     @Gtk.Template.Callback()
     @skip_if_uninitialized

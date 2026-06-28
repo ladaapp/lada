@@ -492,6 +492,7 @@ class ExportView(Gtk.Widget):
             output_files=output_files,
             devices=devices,
             settings=worker_settings,
+            jobs_per_device=self._config.batch_export_jobs_per_device,
         )
         self.stop_requested = False
         self.view_switcher.set_sensitive(False)

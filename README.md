@@ -30,7 +30,7 @@ After opening a file, you can either watch the restored video in real time or ex
 
 Additional settings can be found in the left sidebar.
 
-For queued exports, the Export settings include a batch processing device option. Select `All CUDA GPUs` to process multiple queued files in parallel across available CUDA GPUs. Single-file export and video playback still use the regular selected device and are not split across GPUs.
+For queued exports, the Export settings include a batch processing device option. Select `All CUDA GPUs` to process multiple queued files in parallel across available CUDA GPUs. The `Jobs per device` option controls how many files each selected GPU may process at once; keep it at `1` unless you have enough VRAM. Single-file export and video playback still use the regular selected device and are not split across GPUs.
 
 ### CLI
 

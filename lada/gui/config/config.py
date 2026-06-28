@@ -32,6 +32,7 @@ class Config(GObject.Object):
         'color_scheme': ColorScheme.SYSTEM,
         'device': os_utils.get_default_torch_device(),
         'batch_export_device': 'selected',
+        'batch_export_jobs_per_device': 1,
         'custom_encoding_presets': set(),
         'encoding_preset_name': video_utils.get_default_preset_name(),
         'export_directory': None,
@@ -58,6 +59,7 @@ class Config(GObject.Object):
         self._color_scheme = self._defaults['color_scheme']
         self._device = self._defaults['device']
         self._batch_export_device = self._defaults['batch_export_device']
+        self._batch_export_jobs_per_device = self._defaults['batch_export_jobs_per_device']
         self._encoding_preset_name = self._defaults['encoding_preset_name']
         self._custom_encoding_presets = self._defaults['custom_encoding_presets']
         self._export_directory = self._defaults['export_directory']
@@ -158,6 +160,18 @@ class Config(GObject.Object):
         if value == self._batch_export_device:
             return
         self._batch_export_device = value
+        self.save()
+
+    @GObject.Property(type=int)
+    def batch_export_jobs_per_device(self):
+        return int(self._batch_export_jobs_per_device)
+
+    @batch_export_jobs_per_device.setter
+    def batch_export_jobs_per_device(self, value):
+        value = int(value)
+        if value == self._batch_export_jobs_per_device:
+            return
+        self._batch_export_jobs_per_device = value
         self.save()
 
     @GObject.Property()
@@ -378,6 +392,7 @@ class Config(GObject.Object):
         self.temp_directory = self._defaults['temp_directory']
         self.validate_and_set_device(self._defaults['device'])
         self.batch_export_device = self._defaults['batch_export_device']
+        self.batch_export_jobs_per_device = self._defaults['batch_export_jobs_per_device']
         self.detect_face_mosaics = self._defaults['detect_face_mosaics']
         self.subtitles_font_size = self._defaults['subtitles_font_size']
         self.save()
@@ -394,6 +409,7 @@ class Config(GObject.Object):
             'color_scheme': self._color_scheme.value,
             'device': self._device,
             'batch_export_device': self._batch_export_device,
+            'batch_export_jobs_per_device': self._batch_export_jobs_per_device,
             'custom_encoding_presets': [self._encoding_preset_as_dict(preset) for preset in self._custom_encoding_presets],
             'encoding_preset_name': self._encoding_preset_name,
             'export_directory': self._export_directory,
@@ -433,6 +449,8 @@ class Config(GObject.Object):
                     self.validate_and_set_device(dict[key])
                 elif key == 'batch_export_device':
                     self.validate_and_set_batch_export_device(dict[key])
+                elif key == 'batch_export_jobs_per_device':
+                    self.validate_and_set_batch_export_jobs_per_device(dict[key])
                 elif key == 'mosaic_restoration_model':
                     self.validate_and_set_restoration_model(dict[key])
                 elif key == 'mosaic_detection_model':
@@ -488,6 +506,17 @@ class Config(GObject.Object):
             self._batch_export_device = self.get_default_value('batch_export_device')
             logger.warning(
                 f"Configured batch export device {configured_device} is not available, falling back to {self._batch_export_device}")
+
+    def validate_and_set_batch_export_jobs_per_device(self, configured_jobs_per_device):
+        try:
+            jobs_per_device = int(configured_jobs_per_device)
+        except (TypeError, ValueError):
+            jobs_per_device = self.get_default_value('batch_export_jobs_per_device')
+        if jobs_per_device < 1 or jobs_per_device > 4:
+            logger.warning(
+                f"Configured batch export jobs per device {configured_jobs_per_device} is invalid, falling back to 1")
+            jobs_per_device = self.get_default_value('batch_export_jobs_per_device')
+        self._batch_export_jobs_per_device = jobs_per_device
 
     def validate_and_set_restoration_model(self, restoration_model_name: str):
         available_models = [modelfile.name for modelfile in ModelFiles.get_restoration_models()]
