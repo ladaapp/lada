@@ -53,6 +53,8 @@ class FrameRestorer:
 
         # no queue size limit needed, elements are tiny
         self.frame_detection_queue = PipelineQueue(name="frame_detection_queue")
+        self.decoded_frame_detection_queue = PipelineQueue(name="decoded_frame_detection_queue", maxsize=8)
+        self.decoded_frame_restoration_queue = PipelineQueue(name="decoded_frame_restoration_queue", maxsize=8)
 
         self.mosaic_detector = MosaicDetector(self.mosaic_detection_model, self.video_meta_data,
                                               frame_detection_queue=self.frame_detection_queue,
@@ -60,12 +62,16 @@ class FrameRestorer:
                                               device=self.device,
                                               max_clip_length=self.max_clip_length,
                                               pad_mode=self.preferred_pad_mode,
+                                              frame_input_queue=self.decoded_frame_detection_queue,
                                               error_handler=self._on_worker_thread_error)
 
+        self.frame_reader_thread: PipelineThread | None = None
         self.clip_restoration_thread: PipelineThread | None = None
         self.frame_restoration_thread: PipelineThread | None = None
         self.start_stop_lock: threading.Lock = threading.Lock()
         self.stop_requested = False
+        self.cuda_empty_cache_processed_clip_count = 0
+        self.cuda_empty_cache_clip_interval = 32
 
     def start(self, start_ns=0):
         with self.start_stop_lock:
@@ -74,17 +80,21 @@ class FrameRestorer:
             assert self.restored_clip_queue.empty()
             assert self.frame_detection_queue.empty()
             assert self.frame_restoration_queue.empty()
+            assert self.decoded_frame_detection_queue.empty()
+            assert self.decoded_frame_restoration_queue.empty()
 
             self.start_ns = start_ns
             self.start_frame = video_utils.offset_ns_to_frame_num(self.start_ns, self.video_meta_data.video_fps_exact)
             self.stop_requested = False
 
+            self.frame_reader_thread = PipelineThread(name="frame reader worker", target=self._frame_reader_worker, error_handler=self._on_worker_thread_error)
             self.frame_restoration_thread = PipelineThread(name="frame restoration worker", target=self._frame_restoration_worker, error_handler=self._on_worker_thread_error)
             self.clip_restoration_thread = PipelineThread(name="clip restoration worker", target=self._clip_restoration_worker, error_handler=self._on_worker_thread_error)
 
             self.mosaic_detector.start(start_ns=start_ns)
             self.clip_restoration_thread.start()
             self.frame_restoration_thread.start()
+            self.frame_reader_thread.start()
 
     def stop(self):
         logger.debug("FrameRestorer: stopping...")
@@ -93,6 +103,16 @@ class FrameRestorer:
             self.stop_requested = True
 
             self.mosaic_detector.stop()
+
+            # unblock frame reader producers/consumers
+            threading_utils.empty_out_queue(self.decoded_frame_detection_queue)
+            threading_utils.empty_out_queue(self.decoded_frame_restoration_queue)
+            threading_utils.put_queue_stop_marker(self.decoded_frame_detection_queue)
+            threading_utils.put_queue_stop_marker(self.decoded_frame_restoration_queue)
+            if self.frame_reader_thread:
+                self.frame_reader_thread.join()
+                logger.debug("FrameRestorer: joined frame_reader_thread")
+            self.frame_reader_thread = None
 
             # unblock consumer
             threading_utils.put_queue_stop_marker(self.mosaic_clip_queue)
@@ -120,11 +140,15 @@ class FrameRestorer:
             threading_utils.empty_out_queue(self.restored_clip_queue)
             threading_utils.empty_out_queue(self.frame_detection_queue)
             threading_utils.empty_out_queue(self.frame_restoration_queue)
+            threading_utils.empty_out_queue(self.decoded_frame_detection_queue)
+            threading_utils.empty_out_queue(self.decoded_frame_restoration_queue)
 
             assert self.mosaic_clip_queue.empty()
             assert self.restored_clip_queue.empty()
             assert self.frame_detection_queue.empty()
             assert self.frame_restoration_queue.empty()
+            assert self.decoded_frame_detection_queue.empty()
+            assert self.decoded_frame_restoration_queue.empty()
 
             logger.debug(f"FrameRestorer: stopped, took {time.time() - start}")
             self._dump_queue_stats()
@@ -237,7 +261,10 @@ class FrameRestorer:
 
         if has_processed_clips:
             if self.device.type == 'cuda':
-                torch.cuda.empty_cache()
+                self.cuda_empty_cache_processed_clip_count += len(processed_clips)
+                if self.cuda_empty_cache_processed_clip_count >= self.cuda_empty_cache_clip_interval:
+                    torch.cuda.empty_cache()
+                    self.cuda_empty_cache_processed_clip_count = 0
             elif self.device.type == 'mps':
                 torch.mps.empty_cache()
 
@@ -274,16 +301,52 @@ class FrameRestorer:
         else:
             logger.debug("clip restoration worker: stopped by request")
 
-    def _read_next_frame(self, video_frames_generator, expected_frame_num) -> tuple[int, np.ndarray, int] | StopMarker | EofMarker:
-        try:
-            frame, frame_pts = next(video_frames_generator)
-        except StopIteration:
+    def _put_decoded_frame(self, queue: PipelineQueue, item):
+        queue.put(item)
+        return STOP_MARKER if self.stop_requested else None
+
+    def _frame_reader_worker(self):
+        logger.debug("frame reader worker: started")
+        eof = False
+        with video_utils.VideoReader(self.video_meta_data.video_file) as video_reader:
+            if self.start_ns > 0:
+                video_reader.seek(self.start_ns)
+            video_frames_generator = video_reader.frames()
+            while not (eof or self.stop_requested):
+                try:
+                    frame, frame_pts = next(video_frames_generator)
+                except StopIteration:
+                    eof = True
+                    break
+                item = (frame, frame_pts)
+                if self._put_decoded_frame(self.decoded_frame_detection_queue, item) is STOP_MARKER:
+                    break
+                if self._put_decoded_frame(self.decoded_frame_restoration_queue, item) is STOP_MARKER:
+                    break
+        if eof:
+            self.decoded_frame_detection_queue.put(EOF_MARKER)
+            self.decoded_frame_restoration_queue.put(EOF_MARKER)
+        else:
+            threading_utils.put_queue_stop_marker(self.decoded_frame_detection_queue)
+            threading_utils.put_queue_stop_marker(self.decoded_frame_restoration_queue)
+        if eof:
+            logger.debug("frame reader worker: stopped itself, EOF")
+        else:
+            logger.debug("frame reader worker: stopped by request")
+
+    def _read_next_frame(self, expected_frame_num) -> tuple[int, ImageTensor, int] | StopMarker | EofMarker:
+        frame_item = self.decoded_frame_restoration_queue.get()
+        if self.stop_requested or frame_item is STOP_MARKER:
+            logger.debug("frame restoration worker: decoded_frame_restoration_queue consumer unblocked")
+            return STOP_MARKER
+        if frame_item is EOF_MARKER:
             elem = self.frame_detection_queue.get()
             if self.stop_requested or elem is STOP_MARKER:
                 logger.debug("frame restoration worker: frame_detection_queue consumer unblocked")
                 return STOP_MARKER
             assert elem is EOF_MARKER, f"Illegal state: Expected to read EOF_MARKER from detection queue but received f{elem}"
             return EOF_MARKER
+        frame, frame_pts = frame_item
         elem = self.frame_detection_queue.get()
         if self.stop_requested or elem is STOP_MARKER:
             logger.debug("frame restoration worker: frame_detection_queue consumer unblocked")
@@ -306,43 +369,37 @@ class FrameRestorer:
 
     def _frame_restoration_worker(self):
         logger.debug("frame restoration worker: started")
-        with video_utils.VideoReader(self.video_meta_data.video_file) as video_reader:
-            if self.start_ns > 0:
-                video_reader.seek(self.start_ns)
+        frame_num = self.start_frame
+        queue_marker = None
+        clip_buffer = []
 
-            video_frames_generator = video_reader.frames()
-
-            frame_num = self.start_frame
-            queue_marker = None
-            clip_buffer = []
-
-            while not (self.eof or self.stop_requested):
-                _frame_result = self._read_next_frame(video_frames_generator, frame_num)
-                if self.stop_requested or _frame_result is STOP_MARKER:
+        while not (self.eof or self.stop_requested):
+            _frame_result = self._read_next_frame(frame_num)
+            if self.stop_requested or _frame_result is STOP_MARKER:
+                break
+            if _frame_result is EOF_MARKER:
+                self.eof = True
+                self.frame_restoration_queue.put(EOF_MARKER)
+                break
+            num_mosaics_detected, frame, frame_pts = _frame_result
+            if num_mosaics_detected > 0:
+                while queue_marker is None and not self._clip_buffer_contains_all_cips_needed_for_current_restoration(frame_num, num_mosaics_detected, clip_buffer):
+                    queue_marker = self._read_next_clip(frame_num, clip_buffer)
+                if queue_marker is STOP_MARKER:
                     break
-                if _frame_result is EOF_MARKER:
-                    self.eof = True
-                    self.frame_restoration_queue.put(EOF_MARKER)
-                    break
-                num_mosaics_detected, frame, frame_pts = _frame_result
-                if num_mosaics_detected > 0:
-                    while queue_marker is None and not self._clip_buffer_contains_all_cips_needed_for_current_restoration(frame_num, num_mosaics_detected, clip_buffer):
-                        queue_marker = self._read_next_clip(frame_num, clip_buffer)
-                    if queue_marker is STOP_MARKER:
-                        break
 
-                    self._restore_frame(frame, frame_num, clip_buffer)
-                    self.frame_restoration_queue.put((frame, frame_pts))
-                    if self.stop_requested:
-                        logger.debug("frame restoration worker: frame_restoration_queue producer unblocked")
-                        break
-                    self._collect_garbage(clip_buffer)
-                else:
-                    self.frame_restoration_queue.put((frame, frame_pts))
-                    if self.stop_requested:
-                        logger.debug("frame restoration worker: frame_restoration_queue producer unblocked")
-                        break
-                frame_num += 1
+                self._restore_frame(frame, frame_num, clip_buffer)
+                self.frame_restoration_queue.put((frame, frame_pts))
+                if self.stop_requested:
+                    logger.debug("frame restoration worker: frame_restoration_queue producer unblocked")
+                    break
+                self._collect_garbage(clip_buffer)
+            else:
+                self.frame_restoration_queue.put((frame, frame_pts))
+                if self.stop_requested:
+                    logger.debug("frame restoration worker: frame_restoration_queue producer unblocked")
+                    break
+            frame_num += 1
         if self.eof:
             logger.debug("frame restoration worker: stopped itself, EOF")
         else:

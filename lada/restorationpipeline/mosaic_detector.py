@@ -162,7 +162,7 @@ class Clip:
         return self.frames[item], self.masks[item], self.boxes[item]
 
 class MosaicDetector:
-    def __init__(self, model: Yolo11SegmentationModel, video_metadata: VideoMetadata, frame_detection_queue: PipelineQueue, mosaic_clip_queue: PipelineQueue, error_handler: Callable[[ErrorMarker], None], max_clip_length=30, clip_size=256, device: torch.device | None = None, pad_mode='reflect', batch_size=8):
+    def __init__(self, model: Yolo11SegmentationModel, video_metadata: VideoMetadata, frame_detection_queue: PipelineQueue, mosaic_clip_queue: PipelineQueue, error_handler: Callable[[ErrorMarker], None], max_clip_length=30, clip_size=256, device: torch.device | None = None, pad_mode='reflect', batch_size=8, frame_input_queue: PipelineQueue | None = None):
         self.model = model
         self.video_meta_data = video_metadata
         self.device = torch.device(device) if device is not None else device
@@ -183,6 +183,7 @@ class MosaicDetector:
         self.inference_thread: PipelineThread | None = None
         self.stop_requested = False
         self.batch_size = batch_size
+        self.frame_input_queue = frame_input_queue
 
     def start(self, start_ns):
         assert self.frame_feeder_queue.empty()
@@ -205,6 +206,9 @@ class MosaicDetector:
         logger.debug("MosaicDetector: stopping...")
         start = time.time()
         self.stop_requested = True
+
+        if self.frame_input_queue is not None:
+            threading_utils.put_queue_stop_marker(self.frame_input_queue)
 
         # unblock producer
         threading_utils.empty_out_queue(self.frame_feeder_queue)
@@ -284,6 +288,40 @@ class MosaicDetector:
     def _frame_feeder_worker(self):
         logger.debug("frame feeder: started")
         eof = False
+        if self.frame_input_queue is not None:
+            frame_num = self.start_frame
+            while not (eof or self.stop_requested):
+                frames = []
+                for _ in range(self.batch_size):
+                    frame_item = self.frame_input_queue.get()
+                    if self.stop_requested or frame_item is STOP_MARKER:
+                        logger.debug("frame feeder worker: frame_input_queue consumer unblocked")
+                        eof = False
+                        break
+                    if frame_item is EOF_MARKER:
+                        eof = True
+                        break
+                    frame, _frame_pts = frame_item
+                    frames.append(frame)
+                if len(frames) > 0:
+                    frames_batch = self.model.preprocess(frames)
+                    data = (frames_batch, frames, frame_num)
+                    self.frame_feeder_queue.put(data)
+                    if self.stop_requested:
+                        logger.debug("frame feeder worker: frame_feeder_queue producer unblocked")
+                        break
+                frame_num += len(frames)
+                if eof:
+                    self.frame_feeder_queue.put(EOF_MARKER)
+                    if self.stop_requested:
+                        logger.debug("frame feeder worker: frame_feeder_queue producer unblocked")
+                        break
+            if eof:
+                logger.debug("frame feeder worker: stopped itself, EOF")
+            else:
+                logger.debug("frame feeder worker: stopped by request")
+            return
+
         with video_utils.VideoReader(self.video_meta_data.video_file) as video_reader:
             if self.start_ns > 0:
                 video_reader.seek(self.start_ns)
