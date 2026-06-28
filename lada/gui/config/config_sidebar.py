@@ -45,6 +45,7 @@ class ConfigSidebar(Gtk.Box):
     toggle_button_initial_view_export: Gtk.ToggleButton = Gtk.Template.Child()
     expander_row_post_export_action: Adw.ExpanderRow = Gtk.Template.Child()
     check_button_post_export_shutdown: Gtk.CheckButton = Gtk.Template.Child()
+    check_button_post_export_notification: Gtk.CheckButton = Gtk.Template.Child()
     check_button_post_export_custom_command: Gtk.CheckButton = Gtk.Template.Child()
     entry_row_post_export_custom_command: Adw.EntryRow = Gtk.Template.Child()
     check_button_show_mosaic_detections: Gtk.CheckButton = Gtk.Template.Child()
@@ -162,6 +163,7 @@ class ConfigSidebar(Gtk.Box):
 
         # init post-export action
         self.check_button_post_export_shutdown.set_active(config.post_export_action == PostExportAction.SHUTDOWN)
+        self.check_button_post_export_notification.set_active(config.post_export_action == PostExportAction.NOTIFICATION)
         self.check_button_post_export_custom_command.set_active(config.post_export_action == PostExportAction.CUSTOM_COMMAND)
         self.expander_row_post_export_action.set_enable_expansion(config.post_export_action != PostExportAction.NONE)
         self.expander_row_post_export_action.set_expanded(config.post_export_action != PostExportAction.NONE)
@@ -365,6 +367,13 @@ class ConfigSidebar(Gtk.Box):
     def check_button_post_export_shutdown_callback(self, check_button):
         if check_button.get_active():
             self._config.post_export_action = PostExportAction.SHUTDOWN
+        self.update_custom_command_visibility(self._config.post_export_action)
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def check_button_post_export_notification_callback(self, check_button):
+        if check_button.get_active():
+            self._config.post_export_action = PostExportAction.NOTIFICATION
         self.update_custom_command_visibility(self._config.post_export_action)
 
     @Gtk.Template.Callback()

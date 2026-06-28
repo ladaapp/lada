@@ -25,6 +25,7 @@ class ColorScheme(Enum):
 class PostExportAction(Enum):
     NONE = 'none'
     SHUTDOWN = 'shutdown'
+    NOTIFICATION = 'notification'
     CUSTOM_COMMAND = 'custom_command'
 
 class Config(GObject.Object):

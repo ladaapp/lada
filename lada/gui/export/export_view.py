@@ -4,6 +4,8 @@
 import logging
 import os
 import pathlib
+import shutil
+import subprocess
 import threading
 import time
 import traceback
@@ -23,7 +25,7 @@ from lada.gui.export.export_utils import ResumeInformation
 from lada.gui.export.shutdown_manager import ShutdownManager, ShutdownError
 from lada.gui.export.spinner_button import SpinnerButton
 from lada.gui.frame_restorer_provider import FrameRestorerOptions, FRAME_RESTORER_PROVIDER
-from lada.utils import audio_utils, device_utils, video_utils
+from lada.utils import audio_utils, device_utils, os_utils, video_utils
 from lada.utils.threading_utils import STOP_MARKER, ErrorMarker
 
 here = pathlib.Path(__file__).parent.resolve()
@@ -780,15 +782,40 @@ class ExportView(Gtk.Widget):
             logger.info("Post-export action: Shutting down PC - showing confirmation dialog")
             self.show_shutdown_confirmation_dialog()
             self.emit("shutdown-confirmation-requested")
+        elif action == PostExportAction.NOTIFICATION:
+            self.execute_post_export_notification()
         elif action == PostExportAction.CUSTOM_COMMAND:
             command = self._config.post_export_custom_command.strip()
             if command:
                 logger.info(f"Post-export action: Executing custom command: {command}")
-                import subprocess
                 try:
                     subprocess.Popen(command, shell=True)
                 except Exception as e:
                     logger.error(f"Failed to execute custom command '{command}': {e}")
+
+    def execute_post_export_notification(self):
+        script_path = here.parents[2].joinpath("notify_export_complete.ps1")
+        powershell = shutil.which("powershell") or shutil.which("pwsh")
+        if powershell is None:
+            logger.error("Post-export notification failed: PowerShell executable not found")
+            return
+        if not script_path.exists():
+            logger.error(f"Post-export notification failed: script not found at {script_path}")
+            return
+        logger.info(f"Post-export action: Executing notification script: {script_path}")
+        try:
+            subprocess.Popen(
+                [
+                    powershell,
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    str(script_path),
+                ],
+                startupinfo=os_utils.get_subprocess_startup_info(),
+            )
+        except Exception as e:
+            logger.error(f"Failed to execute notification script '{script_path}': {e}")
 
     def show_shutdown_confirmation_dialog(self):
         dialog = Adw.AlertDialog(

@@ -255,6 +255,18 @@ SPDX-License-Identifier: AGPL-3.0
                                          </child>
                                          <child>
                                              <object class="AdwActionRow">
+                                                 <property name="title" translatable="true">Show notification</property>
+                                                 <property name="subtitle" translatable="true">Play a sound and show a Windows notification after export is completed.</property>
+                                                 <child type="prefix">
+                                                     <object class="GtkCheckButton" id="check_button_post_export_notification">
+                                                         <property name="group">check_button_post_export_shutdown</property>
+                                                         <signal name="toggled" handler="check_button_post_export_notification_callback"/>
+                                                     </object>
+                                                 </child>
+                                             </object>
+                                         </child>
+                                         <child>
+                                             <object class="AdwActionRow">
                                                  <property name="title" translatable="true">Execute custom command</property>
                                                  <property name="subtitle" translatable="true">Run a custom shell command after export is completed.</property>
                                                  <child type="prefix">

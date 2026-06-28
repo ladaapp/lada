@@ -32,6 +32,8 @@ Additional settings can be found in the left sidebar.
 
 For queued exports, the Export settings include a batch processing device option. Select `All CUDA GPUs` to process multiple queued files in parallel across available CUDA GPUs. The `Jobs per device` option controls how many files each selected GPU may process at once; keep it at `1` unless you have enough VRAM. Single-file export and video playback still use the regular selected device and are not split across GPUs.
 
+The Post-Export Action setting can show a Windows notification when all queued exports complete. It uses the bundled `notify_export_complete.ps1` helper script.
+
 ### CLI
 
 You can also use the command-line interface (CLI) to restore video(s):
