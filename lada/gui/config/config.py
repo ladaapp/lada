@@ -31,6 +31,7 @@ class Config(GObject.Object):
     _defaults = {
         'color_scheme': ColorScheme.SYSTEM,
         'device': os_utils.get_default_torch_device(),
+        'batch_export_device': 'selected',
         'custom_encoding_presets': set(),
         'encoding_preset_name': video_utils.get_default_preset_name(),
         'export_directory': None,
@@ -56,6 +57,7 @@ class Config(GObject.Object):
         super().__init__()
         self._color_scheme = self._defaults['color_scheme']
         self._device = self._defaults['device']
+        self._batch_export_device = self._defaults['batch_export_device']
         self._encoding_preset_name = self._defaults['encoding_preset_name']
         self._custom_encoding_presets = self._defaults['custom_encoding_presets']
         self._export_directory = self._defaults['export_directory']
@@ -145,6 +147,17 @@ class Config(GObject.Object):
         if value == self._device:
             return
         self._device = value
+        self.save()
+
+    @GObject.Property()
+    def batch_export_device(self):
+        return self._batch_export_device
+
+    @batch_export_device.setter
+    def batch_export_device(self, value):
+        if value == self._batch_export_device:
+            return
+        self._batch_export_device = value
         self.save()
 
     @GObject.Property()
@@ -364,6 +377,7 @@ class Config(GObject.Object):
         self.show_mosaic_detections = self._defaults['show_mosaic_detections']
         self.temp_directory = self._defaults['temp_directory']
         self.validate_and_set_device(self._defaults['device'])
+        self.batch_export_device = self._defaults['batch_export_device']
         self.detect_face_mosaics = self._defaults['detect_face_mosaics']
         self.subtitles_font_size = self._defaults['subtitles_font_size']
         self.save()
@@ -379,6 +393,7 @@ class Config(GObject.Object):
         return {
             'color_scheme': self._color_scheme.value,
             'device': self._device,
+            'batch_export_device': self._batch_export_device,
             'custom_encoding_presets': [self._encoding_preset_as_dict(preset) for preset in self._custom_encoding_presets],
             'encoding_preset_name': self._encoding_preset_name,
             'export_directory': self._export_directory,
@@ -416,6 +431,8 @@ class Config(GObject.Object):
             if key in dict and dict[key] is not None:
                 if key == 'device':
                     self.validate_and_set_device(dict[key])
+                elif key == 'batch_export_device':
+                    self.validate_and_set_batch_export_device(dict[key])
                 elif key == 'mosaic_restoration_model':
                     self.validate_and_set_restoration_model(dict[key])
                 elif key == 'mosaic_detection_model':
@@ -461,6 +478,16 @@ class Config(GObject.Object):
                     logger.info(
                         f"Configured device {configured_device} is not available choose {self._device} instead. Available gpus: {available_gpus}")
                 self._device = available_gpus[0][0]
+
+    def validate_and_set_batch_export_device(self, configured_device: str):
+        if configured_device in ("selected", "all-cuda", "cpu"):
+            self._batch_export_device = configured_device
+        elif utils.is_device_available(configured_device):
+            self._batch_export_device = configured_device
+        else:
+            self._batch_export_device = self.get_default_value('batch_export_device')
+            logger.warning(
+                f"Configured batch export device {configured_device} is not available, falling back to {self._batch_export_device}")
 
     def validate_and_set_restoration_model(self, restoration_model_name: str):
         available_models = [modelfile.name for modelfile in ModelFiles.get_restoration_models()]

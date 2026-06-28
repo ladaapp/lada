@@ -44,6 +44,7 @@ class ExportMultipleFilesPage(Gtk.Widget):
             )
             list_row.progress = obj.progress
             list_row.state = obj.state
+            list_row.current_device = obj.current_device
 
             list_row.connect("remove-requested", lambda *args: self.on_export_item_remove_requested(list_row))
             list_row.connect("show-error-requested", lambda *args: self.on_show_error_requested(list_row))
@@ -77,10 +78,15 @@ class ExportMultipleFilesPage(Gtk.Widget):
         view_item.temp_file_ready = False
         view_item.state = ExportItemState.PROCESSING
 
+    def on_video_export_device_changed(self, idx: int, device: str):
+        view_item = self.list_box.get_row_at_index(idx)
+        view_item.current_device = device
+
     def on_video_export_stopped(self, idx: int):
         view_item = self.list_box.get_row_at_index(idx)
         view_item.state = ExportItemState.QUEUED
         view_item.progress = ExportItemDataProgress()
+        view_item.current_device = ""
 
     def on_video_export_paused(self, idx: int):
         view_item = self.list_box.get_row_at_index(idx)

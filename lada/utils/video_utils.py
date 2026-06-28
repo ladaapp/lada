@@ -397,6 +397,44 @@ def _is_codec_hardware_acceleration_working(codec_name: str, hwaccel_device_type
     except Exception:
         return False
 
+
+def is_nvenc_encoder(encoder: str) -> bool:
+    return encoder.lower().endswith("_nvenc")
+
+
+def get_cuda_device_index(device) -> int | None:
+    if device is None:
+        return None
+    try:
+        torch_device = torch.device(device)
+    except (RuntimeError, TypeError, ValueError):
+        return None
+    if torch_device.type != "cuda":
+        return None
+    if torch_device.index is None:
+        return None
+    return torch_device.index
+
+
+def encoder_options_has_option(encoder_options: str, option_name: str) -> bool:
+    option_name = option_name.lstrip("-")
+    try:
+        tokens = shlex.split(encoder_options or "")
+    except ValueError:
+        return False
+    return any(token.lstrip("-").split(":", 1)[0] == option_name for token in tokens)
+
+
+def bind_nvenc_encoder_options_to_device(encoder: str, encoder_options: str, device) -> str:
+    cuda_device_index = get_cuda_device_index(device)
+    if not is_nvenc_encoder(encoder) or cuda_device_index is None:
+        return encoder_options
+    if encoder_options_has_option(encoder_options, "gpu"):
+        return encoder_options
+    suffix = f"-gpu {cuda_device_index}"
+    return f"{encoder_options} {suffix}".strip()
+
+
 class VideoWriter:
     def _parse_encoder_options(self, encoder_options: str):
         tokens = shlex.split(encoder_options)

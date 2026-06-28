@@ -24,6 +24,7 @@ class ConfigSidebar(Gtk.Box):
     __gtype_name__ = 'ConfigSidebar'
 
     combo_row_gpu = Gtk.Template.Child()
+    combo_row_batch_export_device = Gtk.Template.Child()
     spin_row_preview_buffer_duration = Gtk.Template.Child()
     spin_row_clip_max_duration = Gtk.Template.Child()
     switch_row_mute_audio = Gtk.Template.Child()
@@ -66,6 +67,7 @@ class ConfigSidebar(Gtk.Box):
         self._presets_action_rows: list[Adw.ActionRow] = []
         self._detection_models_actions_rows: list[Adw.ActionRow] = []
         self._restoration_models_actions_rows: list[Adw.ActionRow] = []
+        self._batch_export_device_options: list[tuple[str, str]] = []
 
     def init_sidebar_from_config(self, config: Config):
         self.check_button_show_mosaic_detections.props.active = config.show_mosaic_detections
@@ -79,8 +81,10 @@ class ConfigSidebar(Gtk.Box):
             if config.device == device:
                 configured_gpu_selection_idx = gpu_selection_idx
         self.combo_row_gpu.set_model(combo_row_gpu_list)
-        if configured_gpu_selection_idx:
+        if configured_gpu_selection_idx is not None:
             self.combo_row_gpu.set_selected(configured_gpu_selection_idx)
+
+        self.init_batch_export_device_combo(config)
 
         # init restoration model
         for row in self._restoration_models_actions_rows:
@@ -209,6 +213,44 @@ class ConfigSidebar(Gtk.Box):
             if device_name == selected_gpu_name:
                 self._config.device = device
                 break
+
+    def init_batch_export_device_combo(self, config: Config):
+        self._batch_export_device_options = self.get_batch_export_device_options()
+        combo_row_batch_export_device_list = Gtk.StringList.new([])
+        configured_selection_idx = 0
+        for idx, (device, label) in enumerate(self._batch_export_device_options):
+            combo_row_batch_export_device_list.append(label)
+            if config.batch_export_device == device:
+                configured_selection_idx = idx
+        self.combo_row_batch_export_device.set_model(combo_row_batch_export_device_list)
+        self.combo_row_batch_export_device.set_selected(configured_selection_idx)
+
+    def get_batch_export_device_options(self) -> list[tuple[str, str]]:
+        available_gpus = utils.get_available_gpus()
+        options = [
+            ("selected", _("Selected device")),
+            ("cpu", _("CPU")),
+        ]
+
+        cuda_gpus = [(device, device_name) for device, device_name in available_gpus if device.startswith("cuda:")]
+        if len(cuda_gpus) > 1:
+            options.append(("all-cuda", _("All CUDA GPUs")))
+
+        for device, device_name in available_gpus:
+            if device.startswith("cuda:"):
+                device_idx = device.split(":", 1)[1]
+                options.append((device, _("GPU {device_idx}: {device_name}").format(device_idx=device_idx, device_name=device_name)))
+            else:
+                options.append((device, device_name))
+        return options
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def combo_row_batch_export_device_selected_callback(self, combo_row, value):
+        selected_idx = combo_row.get_property("selected")
+        if selected_idx >= len(self._batch_export_device_options):
+            return
+        self._config.batch_export_device = self._batch_export_device_options[selected_idx][0]
 
     @Gtk.Template.Callback()
     @skip_if_uninitialized

@@ -144,6 +144,20 @@ SPDX-License-Identifier: AGPL-3.0
                                     </object>
                                 </child>
                                 <child>
+                                    <object class="AdwComboRow" id="combo_row_batch_export_device">
+                                        <property name="title" translatable="true">Batch processing device</property>
+                                        <property name="subtitle" translatable="true">Device selection for queued file exports.</property>
+                                        <property name="model">
+                                            <object class="GtkStringList">
+                                                <items>
+                                                </items>
+                                            </object>
+                                        </property>
+                                        <signal name="notify::selected"
+                                                handler="combo_row_batch_export_device_selected_callback"/>
+                                    </object>
+                                </child>
+                                <child>
                                     <object class="AdwExpanderRow" id="expander_row_export_directory">
                                         <property name="title" translatable="true">Output Directory</property>
                                         <property name="tooltip-text" translatable="true">Directory where restored files will be saved</property>

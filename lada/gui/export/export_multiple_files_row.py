@@ -36,6 +36,8 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
         self._progress: ExportItemDataProgress = ExportItemDataProgress()
         self._state: ExportItemState = ExportItemState.QUEUED
         self._subtitle = ""
+        self._base_subtitle = ""
+        self._current_device = ""
         self._temp_file_path: str | None = None
         self._temp_file_ready: bool = False
 
@@ -44,8 +46,8 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
         self._attach_file_launcher_to_open_button()
 
         def update_title_with_video_metadata():
-            subtitle = get_video_metadata_string(original_file)
-            GLib.idle_add(lambda: self.set_property("subtitle", subtitle))
+            base_subtitle = get_video_metadata_string(original_file)
+            GLib.idle_add(lambda: self.set_base_subtitle(base_subtitle))
         threading.Thread(target=update_title_with_video_metadata, daemon=True).start()
 
     @GObject.Property(type=ExportItemDataProgress)
@@ -135,6 +137,26 @@ class ExportMultipleFilesRow(Adw.PreferencesRow):
     @subtitle.setter
     def subtitle(self, value: str):
         self._subtitle = value
+
+    @GObject.Property(type=str)
+    def current_device(self):
+        return self._current_device
+
+    @current_device.setter
+    def current_device(self, value: str):
+        self._current_device = value
+        self._update_subtitle()
+
+    def set_base_subtitle(self, value: str):
+        self._base_subtitle = value
+        self._update_subtitle()
+
+    def _update_subtitle(self):
+        if self._current_device:
+            device_text = _("Device: {device}").format(device=self._current_device)
+            self.set_property("subtitle", f"{self._base_subtitle}  |  {device_text}" if self._base_subtitle else device_text)
+        else:
+            self.set_property("subtitle", self._base_subtitle)
 
     @GObject.Property(type=Gio.File)
     def restored_file(self):

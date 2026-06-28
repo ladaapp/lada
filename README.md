@@ -30,6 +30,8 @@ After opening a file, you can either watch the restored video in real time or ex
 
 Additional settings can be found in the left sidebar.
 
+For queued exports, the Export settings include a batch processing device option. Select `All CUDA GPUs` to process multiple queued files in parallel across available CUDA GPUs. Single-file export and video playback still use the regular selected device and are not split across GPUs.
+
 ### CLI
 
 You can also use the command-line interface (CLI) to restore video(s):
@@ -40,6 +42,34 @@ lada-cli --input <input video path>
 <img src="assets/screenshot_cli_1.png" alt="screenshot showing video export" width="60%">
 
 For more information about additional options, use the `--help` argument.
+
+#### Multi-GPU batch export
+
+Multi-GPU export processes multiple files in parallel. It does not split a single video across multiple GPUs.
+
+To automatically use all detected CUDA GPUs for a directory export:
+
+```shell
+lada-cli --input "D:\videos" --output "D:\out" --devices auto
+```
+
+To manually select two CUDA GPUs:
+
+```shell
+lada-cli --input "D:\videos" --output "D:\out" --devices cuda:0,cuda:1
+```
+
+To limit total concurrency, for example to process only one file at a time even when multiple GPUs are available:
+
+```shell
+lada-cli --input "D:\videos" --output "D:\out" --devices auto --parallel 1
+```
+
+The `--device` option remains the default single-process path. The new `--devices` option is only used for multi-file exports; single-file input still uses one device.
+
+For video restoration, keep `--jobs-per-device 1` unless you are sure your GPUs have enough VRAM. If you run out of VRAM, reduce `--parallel` instead of increasing `--jobs-per-device`.
+
+`--devices auto` currently enables parallel scheduling for CUDA devices. CPU, MPS, and XPU fall back to single-device processing by default. PyTorch inference is assigned to devices such as `cuda:0` and `cuda:1`. During multi-device export, NVENC encoders such as `h264_nvenc` and `hevc_nvenc` are bound to the worker's CUDA index by adding FFmpeg's `-gpu N` option unless the user already supplied a `-gpu` encoder option.
 
 ## Performance expectations and hardware requirements
 The restoration quality can vary depending on the scene. Some may look quite realistic, while others could display noticeable artifacts, sometimes worse than the original mosaics.
