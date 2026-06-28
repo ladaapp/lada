@@ -14,6 +14,7 @@ import numpy as np
 from lada import LOG_LEVEL
 from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, StopMarker, EofMarker, PipelineQueue, PipelineThread, \
     ErrorMarker
+from lada.utils.perf_utils import StageTimer
 from lada.utils import image_utils, video_utils, threading_utils, mask_utils, ImageTensor, Image
 from lada.utils import visualization_utils
 from lada.restorationpipeline.mosaic_detector import MosaicDetector
@@ -42,6 +43,7 @@ class FrameRestorer:
         self.mosaic_detection = mosaic_detection
         self.eof = False
         self.stop_requested = False
+        self.stage_timer = StageTimer(f"FrameRestorer[{os.path.basename(video_file)}]")
 
         # limit queue size to approx 512MB
         max_frames_in_frame_restoration_queue = (512 * 1024 * 1024) // (self.video_meta_data.video_width * self.video_meta_data.video_height * 3)
@@ -82,6 +84,7 @@ class FrameRestorer:
                                               max_clip_length=self.max_clip_length,
                                               pad_mode=self.preferred_pad_mode,
                                               frame_input_queue=self.decoded_frame_detection_queue,
+                                              stage_timer=self.stage_timer,
                                               error_handler=self._on_worker_thread_error)
 
         self.frame_reader_thread: PipelineThread | None = None
@@ -199,6 +202,7 @@ class FrameRestorer:
 
             logger.debug(f"FrameRestorer: stopped, took {time.time() - start}")
             self._dump_queue_stats()
+            self.stage_timer.log_summary(logger)
 
     def _on_worker_thread_error(self, error: ErrorMarker):
         def stop_and_notify():
@@ -232,17 +236,21 @@ class FrameRestorer:
                 frame_feeder_queue/max-qsize: {self.mosaic_detector.frame_feeder_queue.stats[f"{self.mosaic_detector.frame_feeder_queue.name}_max_size"]}/{self.mosaic_detector.frame_feeder_queue.maxsize}"""))
 
     def _restore_clip_frames(self, images: list[ImageTensor]):
-        if self.mosaic_restoration_model_name.startswith("deepmosaics"):
-            from lada.restorationpipeline.deepmosaics_mosaic_restorer import DeepmosaicsMosaicRestorer
-            assert isinstance(self.mosaic_restoration_model, DeepmosaicsMosaicRestorer)
-            restored_clip_images = self.mosaic_restoration_model.restore(images)
-        elif self.mosaic_restoration_model_name.startswith("basicvsrpp"):
-            from lada.restorationpipeline.basicvsrpp_mosaic_restorer import BasicvsrppMosaicRestorer
-            assert isinstance(self.mosaic_restoration_model, BasicvsrppMosaicRestorer)
-            restored_clip_images = self.mosaic_restoration_model.restore(images)
-        else:
-            raise NotImplementedError()
+        with self.stage_timer.measure("clip_restore_model"):
+            if self.mosaic_restoration_model_name.startswith("deepmosaics"):
+                from lada.restorationpipeline.deepmosaics_mosaic_restorer import DeepmosaicsMosaicRestorer
+                assert isinstance(self.mosaic_restoration_model, DeepmosaicsMosaicRestorer)
+                restored_clip_images = self.mosaic_restoration_model.restore(images)
+            elif self.mosaic_restoration_model_name.startswith("basicvsrpp"):
+                from lada.restorationpipeline.basicvsrpp_mosaic_restorer import BasicvsrppMosaicRestorer
+                assert isinstance(self.mosaic_restoration_model, BasicvsrppMosaicRestorer)
+                restored_clip_images = self.mosaic_restoration_model.restore(images)
+            else:
+                raise NotImplementedError()
         return restored_clip_images
+
+    def _should_blend_cpu_frame_on_device(self, clip_img: torch.Tensor) -> bool:
+        return self.device.type in ("cuda", "xpu") and clip_img.device.type == self.device.type
 
     def _restore_frame(self, frame: ImageTensor, frame_num: int, restored_clips: list[Clip]):
         """
@@ -272,18 +280,47 @@ class FrameRestorer:
             np.multiply(temp_buffer, blend_mask[..., None], out=temp_buffer)
             np.add(temp_buffer, frame_roi, out=temp_buffer)
             frame_roi[:] = temp_buffer.astype(np.uint8)
-            
-        blend = _blend_cpu if is_cpu_input else _blend_gpu
+
+        def _blend_cpu_frame_on_device(blend_mask: torch.Tensor, clip_img: torch.Tensor, orig_clip_box: tuple[int, int, int, int]):
+            t, l, b, r = orig_clip_box
+            frame_roi = frame[t:b + 1, l:r + 1, :]
+            roi_f = frame_roi.to(device=clip_img.device, dtype=target_dtype)
+            temp = clip_img.to(dtype=target_dtype)
+            temp.sub_(roi_f)
+            temp.mul_(blend_mask.unsqueeze(-1))
+            temp.add_(roi_f)
+            temp.round_().clamp_(0, 255)
+            frame_roi.copy_(temp.to(device=frame_roi.device, dtype=frame_roi.dtype))
 
         for buffered_clip in [c for c in restored_clips if c.frame_start == frame_num]:
-            clip_img, clip_mask, orig_clip_box, orig_crop_shape, pad_after_resize = buffered_clip.pop()
-            clip_img = image_utils.unpad_image(clip_img, pad_after_resize)
-            clip_mask = image_utils.unpad_image(clip_mask, pad_after_resize)
-            clip_img = image_utils.resize(clip_img, orig_crop_shape[:2])
-            clip_mask = image_utils.resize(clip_mask, orig_crop_shape[:2],interpolation=cv2.INTER_NEAREST)
-            blend_mask = mask_utils.create_blend_mask(clip_mask.to(device=self.device).float()).to(device=clip_img.device, dtype=target_dtype)
+            with self.stage_timer.measure("restore_frame_prepare_clip"):
+                clip_img, clip_mask, orig_clip_box, orig_crop_shape, pad_after_resize = buffered_clip.pop()
+                clip_img = image_utils.unpad_image(clip_img, pad_after_resize)
+                clip_mask = image_utils.unpad_image(clip_mask, pad_after_resize)
+                clip_img = image_utils.resize(clip_img, orig_crop_shape[:2])
+                clip_mask = image_utils.resize(clip_mask, orig_crop_shape[:2],interpolation=cv2.INTER_NEAREST)
 
-            blend(blend_mask, clip_img, orig_clip_box)
+            use_device_blend = is_cpu_input and self._should_blend_cpu_frame_on_device(clip_img)
+            if use_device_blend:
+                blend = _blend_cpu_frame_on_device
+                blend_stage_name = "restore_frame_blend_cpu_frame_on_device"
+                blend_mask_device = clip_img.device
+            elif is_cpu_input:
+                blend = _blend_cpu
+                blend_stage_name = "restore_frame_blend_cpu"
+                blend_mask_device = torch.device("cpu")
+            else:
+                blend = _blend_gpu
+                blend_stage_name = "restore_frame_blend_gpu"
+                blend_mask_device = frame.device
+
+            with self.stage_timer.measure("restore_frame_blend_mask"):
+                blend_mask = mask_utils.create_blend_mask(
+                    clip_mask.to(device=blend_mask_device).float()
+                ).to(device=blend_mask_device, dtype=target_dtype)
+
+            with self.stage_timer.measure(blend_stage_name):
+                blend(blend_mask, clip_img, orig_clip_box)
 
     def _restore_clip(self, clip: Clip):
         """
@@ -335,7 +372,8 @@ class FrameRestorer:
                     logger.debug("clip restoration worker: restored_clip_queue producer unblocked")
                     break
             else:
-                self._restore_clip(clip)
+                with self.stage_timer.measure("clip_restore_total"):
+                    self._restore_clip(clip)
                 # Release MPS driver cached memory to prevent unbounded growth
                 if self.device.type == 'mps' and hasattr(torch.mps, 'empty_cache'):
                     torch.mps.empty_cache()
@@ -349,7 +387,8 @@ class FrameRestorer:
             logger.debug("clip restoration worker: stopped by request")
 
     def _put_decoded_frame(self, queue: PipelineQueue, item):
-        queue.put(item)
+        with self.stage_timer.measure(f"{queue.name}_put"):
+            queue.put(item)
         return STOP_MARKER if self.stop_requested else None
 
     def _frame_reader_worker(self):
@@ -361,7 +400,8 @@ class FrameRestorer:
             video_frames_generator = video_reader.frames()
             while not (eof or self.stop_requested):
                 try:
-                    frame, frame_pts = next(video_frames_generator)
+                    with self.stage_timer.measure("video_decode_next"):
+                        frame, frame_pts = next(video_frames_generator)
                 except StopIteration:
                     eof = True
                     break
@@ -424,7 +464,8 @@ class FrameRestorer:
         clip_buffer = []
 
         while not (self.eof or self.stop_requested):
-            _frame_result = self._read_next_frame(frame_num)
+            with self.stage_timer.measure("restore_frame_read_next"):
+                _frame_result = self._read_next_frame(frame_num)
             if self.stop_requested or _frame_result is STOP_MARKER:
                 break
             if _frame_result is EOF_MARKER:
@@ -433,19 +474,23 @@ class FrameRestorer:
                 break
             num_mosaics_detected, frame, frame_pts = _frame_result
             if num_mosaics_detected > 0:
-                while queue_marker is None and not self._clip_buffer_contains_all_cips_needed_for_current_restoration(frame_num, num_mosaics_detected, clip_buffer):
-                    queue_marker = self._read_next_clip(frame_num, clip_buffer)
+                with self.stage_timer.measure("restore_frame_wait_for_clips"):
+                    while queue_marker is None and not self._clip_buffer_contains_all_cips_needed_for_current_restoration(frame_num, num_mosaics_detected, clip_buffer):
+                        queue_marker = self._read_next_clip(frame_num, clip_buffer)
                 if queue_marker is STOP_MARKER:
                     break
 
-                self._restore_frame(frame, frame_num, clip_buffer)
-                self.frame_restoration_queue.put((frame, frame_pts))
+                with self.stage_timer.measure("restore_frame_total"):
+                    self._restore_frame(frame, frame_num, clip_buffer)
+                with self.stage_timer.measure("frame_restoration_queue_put"):
+                    self.frame_restoration_queue.put((frame, frame_pts))
                 if self.stop_requested:
                     logger.debug("frame restoration worker: frame_restoration_queue producer unblocked")
                     break
                 self._collect_garbage(clip_buffer)
             else:
-                self.frame_restoration_queue.put((frame, frame_pts))
+                with self.stage_timer.measure("frame_restoration_queue_put"):
+                    self.frame_restoration_queue.put((frame, frame_pts))
                 if self.stop_requested:
                     logger.debug("frame restoration worker: frame_restoration_queue producer unblocked")
                     break

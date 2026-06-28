@@ -4,6 +4,7 @@
 import logging
 import time
 from typing import List, Tuple, Callable
+from contextlib import nullcontext
 
 import cv2
 import torch
@@ -13,6 +14,7 @@ from lada.models.yolo.yolo11_segmentation_model import Yolo11SegmentationModel
 from lada.utils import Box
 from lada.utils import VideoMetadata, threading_utils, ImageTensor, MaskTensor, Pad
 from lada.utils import image_utils
+from lada.utils.perf_utils import StageTimer
 from lada.utils import video_utils
 from lada.utils.box_utils import box_overlap
 from lada.utils.scene_utils import crop_to_box_v3
@@ -162,7 +164,20 @@ class Clip:
         return self.frames[item], self.masks[item], self.boxes[item]
 
 class MosaicDetector:
-    def __init__(self, model: Yolo11SegmentationModel, video_metadata: VideoMetadata, frame_detection_queue: PipelineQueue, mosaic_clip_queue: PipelineQueue, error_handler: Callable[[ErrorMarker], None], max_clip_length=30, clip_size=256, device: torch.device | None = None, pad_mode='reflect', batch_size=8, frame_input_queue: PipelineQueue | None = None):
+    def __init__(
+            self,
+            model: Yolo11SegmentationModel,
+            video_metadata: VideoMetadata,
+            frame_detection_queue: PipelineQueue,
+            mosaic_clip_queue: PipelineQueue,
+            error_handler: Callable[[ErrorMarker], None],
+            max_clip_length=30,
+            clip_size=256,
+            device: torch.device | None = None,
+            pad_mode='reflect',
+            batch_size=8,
+            frame_input_queue: PipelineQueue | None = None,
+            stage_timer: StageTimer | None = None):
         self.model = model
         self.video_meta_data = video_metadata
         self.device = torch.device(device) if device is not None else device
@@ -184,6 +199,12 @@ class MosaicDetector:
         self.stop_requested = False
         self.batch_size = batch_size
         self.frame_input_queue = frame_input_queue
+        self.stage_timer = stage_timer
+
+    def _timed_stage(self, stage: str):
+        if self.stage_timer is None:
+            return nullcontext()
+        return self.stage_timer.measure(stage)
 
     def start(self, start_ns):
         assert self.frame_feeder_queue.empty()
@@ -255,7 +276,8 @@ class MosaicDetector:
                         completed_scenes.append(other_scene)
 
         for completed_scene in sorted(completed_scenes, key=lambda s: s.frame_start):
-            clip = Clip(completed_scene, self.clip_size, self.pad_mode, self.clip_counter)
+            with self._timed_stage("mosaic_create_clip"):
+                clip = Clip(completed_scene, self.clip_size, self.pad_mode, self.clip_counter)
             self.mosaic_clip_queue.put(clip)
             if self.stop_requested:
                 logger.debug("frame detector worker: mosaic_clip_queue producer unblocked")
@@ -266,24 +288,25 @@ class MosaicDetector:
         return None
 
     def _create_or_append_scenes_based_on_prediction_result(self, results: UltralyticsResults, scenes: list[Scene], frame_num):
-        for i in range(len(results.boxes)):
-            mask = convert_yolo_mask_tensor(results.masks[i], results.orig_shape).to(device=results.orig_img.device)
-            box = convert_yolo_box(results.boxes[i], results.orig_shape)
+        with self._timed_stage("mosaic_update_scenes"):
+            for i in range(len(results.boxes)):
+                mask = convert_yolo_mask_tensor(results.masks[i], results.orig_shape).to(device=results.orig_img.device)
+                box = convert_yolo_box(results.boxes[i], results.orig_shape)
 
-            current_scene = None
-            for scene in scenes:
-                if scene.belongs(box):
-                    if scene.frame_end == frame_num:
-                        current_scene = scene
-                        current_scene.merge_mask_box(mask, box)
-                    else:
-                        current_scene = scene
-                        current_scene.add_frame(frame_num, results.orig_img, mask, box)
-                    break
-            if current_scene is None:
-                current_scene = Scene(self.video_meta_data.video_file, self.video_meta_data)
-                scenes.append(current_scene)
-                current_scene.add_frame(frame_num, results.orig_img, mask, box)
+                current_scene = None
+                for scene in scenes:
+                    if scene.belongs(box):
+                        if scene.frame_end == frame_num:
+                            current_scene = scene
+                            current_scene.merge_mask_box(mask, box)
+                        else:
+                            current_scene = scene
+                            current_scene.add_frame(frame_num, results.orig_img, mask, box)
+                        break
+                if current_scene is None:
+                    current_scene = Scene(self.video_meta_data.video_file, self.video_meta_data)
+                    scenes.append(current_scene)
+                    current_scene.add_frame(frame_num, results.orig_img, mask, box)
 
     def _frame_feeder_worker(self):
         logger.debug("frame feeder: started")
@@ -304,7 +327,8 @@ class MosaicDetector:
                     frame, _frame_pts = frame_item
                     frames.append(frame)
                 if len(frames) > 0:
-                    frames_batch = self.model.preprocess(frames)
+                    with self._timed_stage("yolo_preprocess"):
+                        frames_batch = self.model.preprocess(frames)
                     data = (frames_batch, frames, frame_num)
                     self.frame_feeder_queue.put(data)
                     if self.stop_requested:
@@ -336,7 +360,8 @@ class MosaicDetector:
                 except StopIteration:
                     eof = True
                 if len(frames) > 0:
-                    frames_batch = self.model.preprocess(frames)
+                    with self._timed_stage("yolo_preprocess"):
+                        frames_batch = self.model.preprocess(frames)
                     data = (frames_batch, frames, frame_num)
                     self.frame_feeder_queue.put(data)
                     if self.stop_requested:
@@ -370,7 +395,8 @@ class MosaicDetector:
                 break
             frames_batch, frames, frame_num = frames_data
 
-            batch_prediction_results = self.model.inference_and_postprocess(frames_batch, frames)
+            with self._timed_stage("yolo_inference_postprocess"):
+                batch_prediction_results = self.model.inference_and_postprocess(frames_batch, frames)
 
             self.inference_queue.put((batch_prediction_results, frames_batch, frame_num))
             if self.stop_requested:

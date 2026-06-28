@@ -3,14 +3,18 @@
 
 import os
 import pathlib
+import logging
 from collections.abc import Callable
 from typing import Any
 
 from lada.restorationpipeline.frame_restorer import FrameRestorer
 from lada.utils import audio_utils
+from lada.utils.perf_utils import StageTimer
 from lada.utils.threading_utils import STOP_MARKER, ErrorMarker
 from lada.utils.video_utils import get_video_meta_data, VideoWriter
 
+
+logger = logging.getLogger(__name__)
 
 ProgressCallback = Callable[[float, int, int], None]
 ProgressBarFactory = Callable[[Any], Any]
@@ -42,6 +46,7 @@ def process_video_file(
     success = True
     error_message = None
     frames_done = 0
+    stage_timer = StageTimer(f"Export[{os.path.basename(input_path)}]")
 
     video_tmp_file_output_path = os.path.join(
         temp_dir_path,
@@ -63,7 +68,8 @@ def process_video_file(
             mosaic_restoration_model,
             preferred_pad_mode,
         )
-        frame_restorer.start()
+        with stage_timer.measure("frame_restorer_start"):
+            frame_restorer.start()
         if progressbar is not None:
             progressbar.init()
         with VideoWriter(
@@ -76,7 +82,13 @@ def process_video_file(
             time_base=video_metadata.time_base,
             mp4_fast_start=mp4_fast_start,
         ) as video_writer:
-            for elem in frame_restorer:
+            frame_iterator = iter(frame_restorer)
+            while True:
+                try:
+                    with stage_timer.measure("frame_restorer_next"):
+                        elem = next(frame_iterator)
+                except StopIteration:
+                    break
                 if elem is STOP_MARKER or isinstance(elem, ErrorMarker):
                     success = False
                     error_message = "frame restorer stopped prematurely"
@@ -86,7 +98,8 @@ def process_video_file(
                         print("Error on export: frame restorer stopped prematurely")
                     break
                 restored_frame, restored_frame_pts = elem
-                video_writer.write(restored_frame, restored_frame_pts, bgr2rgb=True)
+                with stage_timer.measure("video_writer_write"):
+                    video_writer.write(restored_frame, restored_frame_pts, bgr2rgb=True)
                 frames_done += 1
                 if progressbar is not None:
                     progressbar.update()
@@ -119,11 +132,15 @@ def process_video_file(
             progress_callback(1.0, frames_done, video_metadata.frames_count)
         if print_status:
             print(_("Processing audio"))
-        audio_utils.combine_audio_video_files(video_metadata, video_tmp_file_output_path, output_path)
+        with stage_timer.measure("audio_video_mux"):
+            audio_utils.combine_audio_video_files(video_metadata, video_tmp_file_output_path, output_path)
     else:
         if os.path.exists(video_tmp_file_output_path):
             os.remove(video_tmp_file_output_path)
-        if raise_on_error:
-            raise RuntimeError(error_message or "Video export failed")
+
+    stage_timer.log_summary(logger)
+
+    if not success and raise_on_error:
+        raise RuntimeError(error_message or "Video export failed")
 
     return success

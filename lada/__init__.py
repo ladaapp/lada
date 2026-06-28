@@ -1,7 +1,10 @@
+import logging
 import os
 import sys
 from dataclasses import dataclass
+from datetime import datetime
 from functools import cache
+from pathlib import Path
 
 if "LADA_MODEL_WEIGHTS_DIR" in os.environ:
   MODEL_WEIGHTS_DIR = os.environ["LADA_MODEL_WEIGHTS_DIR"]
@@ -29,7 +32,51 @@ def _get_version(version: str):
 
 VERSION = _get_version('0.11.1-dev')
 
-LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+
+
+def _get_log_dir() -> Path:
+    if "LADA_LOG_DIR" in os.environ:
+        return Path(os.environ["LADA_LOG_DIR"])
+    if sys.platform == "win32":
+        base = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+        return base / "lada" / "logs"
+    elif sys.platform == "darwin":
+        return Path.home() / "Library" / "Logs" / "lada"
+    else:
+        state_home = os.environ.get("XDG_STATE_HOME", Path.home() / ".local" / "state")
+        return Path(state_home) / "lada" / "logs"
+
+
+def _setup_logging():
+    log_dir = _get_log_dir()
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "lada.log"
+
+    root = logging.getLogger()
+    root.setLevel(LOG_LEVEL)
+
+    fmt = logging.Formatter(
+        "%(asctime)s [%(levelname)-8s] %(name)s: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+
+    stream_handler = logging.StreamHandler(sys.stderr)
+    stream_handler.setFormatter(fmt)
+    root.addHandler(stream_handler)
+
+    file_handler = logging.FileHandler(str(log_file), encoding="utf-8")
+    file_handler.setFormatter(fmt)
+    root.addHandler(file_handler)
+
+    # Notify early (before any logger is active) where logs are written
+    print(
+        f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Logging to {log_file}",
+        file=sys.stderr,
+    )
+
+
+_setup_logging()
 
 IS_FLATPAK = "FLATPAK_ID" in os.environ and "XDG_RUNTIME_DIR" in os.environ
 if IS_FLATPAK and "TMPDIR" not in os.environ:
