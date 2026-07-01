@@ -56,6 +56,7 @@ class ConfigSidebar(Gtk.Box):
     expander_row_detection_models: Adw.ExpanderRow = Gtk.Template.Child()
     expander_row_restoration_models: Adw.ExpanderRow = Gtk.Template.Child()
     spin_row_subtitles_font_size: Adw.SpinRow = Gtk.Template.Child()
+    action_row_log_directory: Adw.ActionRow = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -157,6 +158,11 @@ class ConfigSidebar(Gtk.Box):
 
         # init temp directory
         self.action_row_temp_directory.set_subtitle(config.temp_directory)
+
+        # init log directory
+        from lada import _get_log_dir
+        log_dir = _get_log_dir() if config.log_directory is None else pathlib.Path(config.log_directory)
+        self.action_row_log_directory.set_subtitle(str(log_dir))
 
         self.toggle_button_initial_view_preview.set_active(config.initial_view == "watch")
         self.toggle_button_initial_view_export.set_active(config.initial_view == "export")
@@ -594,6 +600,30 @@ class ConfigSidebar(Gtk.Box):
                     logger.error(f"Error selecting folder: {error.message}")
                     raise error
         file_dialog.select_folder(callback=on_select_temp_folder)
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def toggle_button_log_directory_filepicker_callback(self, button_clicked):
+        self.show_select_log_folder()
+
+    def show_select_log_folder(self):
+        file_dialog = Gtk.FileDialog()
+        file_dialog.set_title(_("Select a folder for log files"))
+        if self._config.log_directory:
+            file_dialog.set_initial_folder(Gio.File.new_for_path(self._config.log_directory))
+        def on_select_folder(_file_dialog, result):
+            try:
+                selected_folder: Gio.File = _file_dialog.select_folder_finish(result)
+                selected_folder_path = selected_folder.get_path()
+                self._config.log_directory = selected_folder_path
+                self.action_row_log_directory.set_subtitle(selected_folder_path)
+            except GLib.Error as error:
+                if error.code == 2:
+                    logger.debug("FileDialog cancelled: Dismissed by user")
+                else:
+                    logger.error(f"Error selecting folder: {error.message}")
+                    raise error
+        file_dialog.select_folder(callback=on_select_folder)
 
     def update_custom_command_visibility(self, action: PostExportAction):
         self.entry_row_post_export_custom_command.set_visible(action == PostExportAction.CUSTOM_COMMAND)

@@ -43,7 +43,19 @@ class FrameRestorer:
         self.mosaic_detection = mosaic_detection
         self.eof = False
         self.stop_requested = False
-        self.stage_timer = StageTimer(f"FrameRestorer[{os.path.basename(video_file)}]")
+        self.stage_timer = StageTimer(
+            f"FrameRestorer[{os.path.basename(video_file)}]",
+            metadata={
+                "video_file": video_file,
+                "device": str(self.device),
+                "mosaic_restoration_model": mosaic_restoration_model_name,
+                "max_clip_length": max_clip_length,
+                "frames_total": self.video_meta_data.frames_count,
+                "video_width": self.video_meta_data.video_width,
+                "video_height": self.video_meta_data.video_height,
+                "video_fps": self.video_meta_data.video_fps_exact,
+            },
+        )
 
         # limit queue size to approx 512MB
         max_frames_in_frame_restoration_queue = (512 * 1024 * 1024) // (self.video_meta_data.video_width * self.video_meta_data.video_height * 3)

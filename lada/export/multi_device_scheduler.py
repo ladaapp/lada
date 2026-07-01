@@ -53,6 +53,7 @@ class ExportWorkerSettings:
     mp4_fast_start: bool = False
     progress_update_step_size: int = 100
     cpu_threads_per_worker: int | None = None
+    log_directory: str | None = None
 
 
 @dataclass(frozen=True)
@@ -173,6 +174,21 @@ def run_export_worker(
     settings: ExportWorkerSettings,
     process_file_func: ProcessFileFunc | None = None,
 ):
+    if settings.log_directory:
+        try:
+            from lada import set_log_directory
+
+            set_log_directory(settings.log_directory)
+        except Exception as e:
+            _emit_event(
+                event_queue,
+                ExportEvent(
+                    "log",
+                    worker_id=worker_id,
+                    device=device,
+                    error=f"Failed to set worker log directory to {settings.log_directory}: {e}",
+                ),
+            )
     configure_worker_runtime(settings.cpu_threads_per_worker)
     worker_settings = build_worker_settings_for_device(settings, device)
     _emit_event(

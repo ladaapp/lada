@@ -46,7 +46,21 @@ def process_video_file(
     success = True
     error_message = None
     frames_done = 0
-    stage_timer = StageTimer(f"Export[{os.path.basename(input_path)}]")
+    stage_timer = StageTimer(
+        f"Export[{os.path.basename(input_path)}]",
+        metadata={
+            "input_path": input_path,
+            "output_path": output_path,
+            "device": str(device),
+            "encoder": encoder,
+            "encoder_options": encoder_options,
+            "mp4_fast_start": mp4_fast_start,
+            "frames_total": video_metadata.frames_count,
+            "video_width": video_metadata.video_width,
+            "video_height": video_metadata.video_height,
+            "video_fps": video_metadata.video_fps_exact,
+        },
+    )
 
     video_tmp_file_output_path = os.path.join(
         temp_dir_path,

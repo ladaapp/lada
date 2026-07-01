@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
+import json
 import logging
+import os
 import threading
 import time
 from contextlib import contextmanager
@@ -19,8 +21,10 @@ class StageTiming:
 
 
 class StageTimer:
-    def __init__(self, name: str):
+    def __init__(self, name: str, metadata: dict[str, object] | None = None):
         self.name = name
+        self.metadata = metadata or {}
+        self.started_at_s = time.time()
         self._stats: dict[str, StageTiming] = {}
         self._lock = threading.Lock()
 
@@ -53,3 +57,33 @@ class StageTimer:
                 f"total={timing.total_s:.3f}s, avg={avg_ms:.2f}ms, max={timing.max_s:.3f}s"
             )
         logger.log(level, "%s stage timings:\n%s", self.name, "\n".join(lines))
+        logger.log(
+            level,
+            "PERF_SUMMARY_JSON %s",
+            json.dumps(self.to_summary_dict(stats), ensure_ascii=False, sort_keys=True, default=str),
+        )
+
+    def to_summary_dict(self, stats: dict[str, StageTiming] | None = None) -> dict[str, object]:
+        if stats is None:
+            with self._lock:
+                stats = dict(self._stats)
+        stages = []
+        for stage, timing in sorted(stats.items(), key=lambda item: item[1].total_s, reverse=True):
+            avg_ms = (timing.total_s / timing.count) * 1000
+            stages.append(
+                {
+                    "stage": stage,
+                    "count": timing.count,
+                    "total_s": timing.total_s,
+                    "avg_ms": avg_ms,
+                    "max_s": timing.max_s,
+                }
+            )
+        return {
+            "event": "performance_summary",
+            "timer": self.name,
+            "metadata": self.metadata,
+            "pid": os.getpid(),
+            "elapsed_s": time.time() - self.started_at_s,
+            "stages": stages,
+        }

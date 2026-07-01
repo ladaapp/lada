@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import sys
@@ -35,9 +36,30 @@ VERSION = _get_version('0.11.1-dev')
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
 
 
-def _get_log_dir() -> Path:
-    if "LADA_LOG_DIR" in os.environ:
-        return Path(os.environ["LADA_LOG_DIR"])
+def _get_config_dirs() -> list[Path]:
+    """Config directories used by the GUI, with the primary path first."""
+    if sys.platform == "win32":
+        dirs = [
+            Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local")) / "lada",
+            Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming")) / "lada",
+        ]
+    elif sys.platform == "darwin":
+        dirs = [Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "lada"]
+    else:
+        dirs = [Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "lada"]
+
+    unique_dirs = []
+    for directory in dirs:
+        if directory not in unique_dirs:
+            unique_dirs.append(directory)
+    return unique_dirs
+
+
+def _get_config_dir() -> Path:
+    return _get_config_dirs()[0]
+
+
+def _get_default_log_dir() -> Path:
     if sys.platform == "win32":
         base = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
         return base / "lada" / "logs"
@@ -48,25 +70,66 @@ def _get_log_dir() -> Path:
         return Path(state_home) / "lada" / "logs"
 
 
+def _get_log_dir() -> Path:
+    if "LADA_LOG_DIR" in os.environ:
+        return Path(os.environ["LADA_LOG_DIR"])
+
+    # Read log_directory from saved config so early-boot logs also go there
+    for config_dir in _get_config_dirs():
+        config_file = config_dir / "lada.conf"
+        try:
+            if config_file.exists():
+                config = json.loads(config_file.read_text(encoding="utf-8"))
+                configured = config.get("log_directory")
+                if configured:
+                    log_dir = Path(configured)
+                    log_dir.mkdir(parents=True, exist_ok=True)
+                    return log_dir
+        except Exception:
+            pass
+
+    return _get_default_log_dir()
+
+
+_LOG_FORMAT = logging.Formatter(
+    "%(asctime)s [%(levelname)-8s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
+
+def set_log_directory(new_path: str | None) -> None:
+    """Switch the root logger's file handler and propagate it to child processes."""
+    root = logging.getLogger()
+    new_dir = Path(new_path) if new_path else _get_default_log_dir()
+    new_dir.mkdir(parents=True, exist_ok=True)
+    os.environ["LADA_LOG_DIR"] = str(new_dir)
+    new_log_file = new_dir / "lada.log"
+
+    for handler in list(root.handlers):
+        if isinstance(handler, logging.FileHandler):
+            root.removeHandler(handler)
+            handler.close()
+
+    file_handler = logging.FileHandler(str(new_log_file), encoding="utf-8")
+    file_handler.setFormatter(_LOG_FORMAT)
+    root.addHandler(file_handler)
+
+
 def _setup_logging():
     log_dir = _get_log_dir()
     log_dir.mkdir(parents=True, exist_ok=True)
+    os.environ["LADA_LOG_DIR"] = str(log_dir)
     log_file = log_dir / "lada.log"
 
     root = logging.getLogger()
     root.setLevel(LOG_LEVEL)
 
-    fmt = logging.Formatter(
-        "%(asctime)s [%(levelname)-8s] %(name)s: %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
     stream_handler = logging.StreamHandler(sys.stderr)
-    stream_handler.setFormatter(fmt)
+    stream_handler.setFormatter(_LOG_FORMAT)
     root.addHandler(stream_handler)
 
     file_handler = logging.FileHandler(str(log_file), encoding="utf-8")
-    file_handler.setFormatter(fmt)
+    file_handler.setFormatter(_LOG_FORMAT)
     root.addHandler(file_handler)
 
     # Notify early (before any logger is active) where logs are written

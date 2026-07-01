@@ -53,6 +53,7 @@ class Config(GObject.Object):
         'temp_directory': tempfile.gettempdir(),
         'detect_face_mosaics': False,
         'subtitles_font_size': 16,
+        'log_directory': None,
     }
 
     def __init__(self, style_manager: Adw.StyleManager):
@@ -80,6 +81,7 @@ class Config(GObject.Object):
         self._fp16_enabled = self._defaults['fp16_enabled']
         self._detect_face_mosaics = self._defaults['detect_face_mosaics']
         self._subtitles_font_size = self._defaults['subtitles_font_size']
+        self._log_directory = self._defaults['log_directory']
 
         self.save_lock = threading.Lock()
         self._style_manager = style_manager
@@ -341,6 +343,24 @@ class Config(GObject.Object):
         self._subtitles_font_size = value
         self.save()
 
+    @GObject.Property()
+    def log_directory(self):
+        return self._log_directory
+
+    @log_directory.setter
+    def log_directory(self, value):
+        if value == "":
+            value = None
+        if value == self._log_directory:
+            return
+        self._log_directory = value
+        self.apply_log_directory()
+        self.save()
+
+    def apply_log_directory(self):
+        from lada import set_log_directory
+        set_log_directory(self._log_directory)
+
     def save(self):
         self.save_lock.acquire_lock()
         config_file_path = self.get_config_file_path()
@@ -365,6 +385,7 @@ class Config(GObject.Object):
             with open(config_file_path, 'r') as f:
                 config_dict = json.load(f)
                 self._from_dict(config_dict)
+                self.apply_log_directory()
                 logger.info(f"Loaded config file {config_file_path}: {config_dict}")
         except Exception as e:
             logger.error(f"Error loading config file {config_file_path}, falling back to defaults: {e}")
@@ -396,6 +417,7 @@ class Config(GObject.Object):
         self.batch_export_jobs_per_device = self._defaults['batch_export_jobs_per_device']
         self.detect_face_mosaics = self._defaults['detect_face_mosaics']
         self.subtitles_font_size = self._defaults['subtitles_font_size']
+        self.log_directory = self._defaults['log_directory']
         self.save()
 
     def _update_style(self, color_scheme: ColorScheme):
@@ -430,6 +452,7 @@ class Config(GObject.Object):
             'temp_directory': self._temp_directory,
             'detect_face_mosaics': self._detect_face_mosaics,
             'subtitles_font_size': self._subtitles_font_size,
+            'log_directory': self._log_directory,
         }
 
     def _encoding_preset_as_dict(self, encoding_preset: video_utils.EncodingPreset):

@@ -12,7 +12,7 @@ import traceback
 
 from gi.repository import Gtk, GObject, Gio, Adw, GLib
 
-from lada import LOG_LEVEL, ModelFiles
+from lada import LOG_LEVEL, ModelFiles, _get_log_dir
 from lada.export.multi_device_scheduler import ExportEvent, ExportSummary, ExportWorkerSettings, MultiDeviceExportScheduler, generate_run_id
 from lada.gui import utils
 from lada.gui.config.config import Config, PostExportAction
@@ -473,6 +473,7 @@ class ExportView(Gtk.Widget):
         worker_settings = ExportWorkerSettings(
             base_temp_dir=self._config.temp_directory,
             run_id=generate_run_id(),
+            log_directory=str(_get_log_dir()),
             mosaic_restoration_model_name=self._config.mosaic_restoration_model,
             mosaic_restoration_model_path=restoration_modelfile.path,
             mosaic_restoration_config_path=None,

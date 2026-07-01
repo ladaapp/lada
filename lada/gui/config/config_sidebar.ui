@@ -298,15 +298,28 @@ SPDX-License-Identifier: AGPL-3.0
                          <child>
                              <object class="AdwPreferencesGroup">
                                  <property name="title" translatable="true">Troubleshooting</property>
-                                 <property name="visible" bind-source="ConfigSidebar" bind-property="show-playback-section"/>
                                  <child>
-                                     <object class="AdwActionRow">
+                                     <object class="AdwActionRow" id="action_row_show_mosaic_detections">
                                          <property name="title" translatable="true">Show mosaic detections</property>
                                          <property name="subtitle" translatable="true">Show detected mosaic areas. Useful to evaluate quality of detection model.</property>
+                                         <property name="visible" bind-source="ConfigSidebar" bind-property="show-playback-section"/>
                                          <child type="prefix">
                                              <object class="GtkCheckButton" id="check_button_show_mosaic_detections">
                                                  <property name="active">true</property>
                                                  <signal name="toggled" handler="check_button_show_mosaic_detections_callback"/>
+                                             </object>
+                                         </child>
+                                     </object>
+                                 </child>
+                                 <child>
+                                     <object class="AdwActionRow" id="action_row_log_directory">
+                                         <property name="title" translatable="true">Log Directory</property>
+                                         <property name="tooltip-text" translatable="true">Directory where log files are saved</property>
+                                         <child type="suffix">
+                                             <object class="GtkButton">
+                                                 <property name="icon-name">folder-open-symbolic</property>
+                                                 <property name="valign">3</property>
+                                                 <signal name="clicked" handler="toggle_button_log_directory_filepicker_callback"/>
                                              </object>
                                          </child>
                                      </object>
