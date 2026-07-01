@@ -9,7 +9,7 @@ from typing import Any
 
 from lada.restorationpipeline.frame_restorer import FrameRestorer
 from lada.utils import audio_utils
-from lada.utils.perf_utils import StageTimer
+from lada.utils.perf_utils import PerformanceSampler, StageTimer
 from lada.utils.threading_utils import STOP_MARKER, ErrorMarker
 from lada.utils.video_utils import get_video_meta_data, VideoWriter
 
@@ -38,6 +38,8 @@ def process_video_file(
     progress_update_step_size: int = 100,
     raise_on_error: bool = False,
     print_status: bool = True,
+    perf_metadata: dict[str, Any] | None = None,
+    perf_sample_interval_s: float | None = None,
 ) -> bool:
     video_metadata = get_video_meta_data(input_path)
     frames_total = max(video_metadata.frames_count, 1)
@@ -46,20 +48,31 @@ def process_video_file(
     success = True
     error_message = None
     frames_done = 0
+    performance_metadata: dict[str, Any] = {
+        "input_path": input_path,
+        "output_path": output_path,
+        "device": str(device),
+        "encoder": encoder,
+        "encoder_options": encoder_options,
+        "mp4_fast_start": mp4_fast_start,
+        "frames_total": video_metadata.frames_count,
+        "video_width": video_metadata.video_width,
+        "video_height": video_metadata.video_height,
+        "video_fps": video_metadata.video_fps_exact,
+    }
+    if perf_metadata:
+        performance_metadata.update(perf_metadata)
+
     stage_timer = StageTimer(
         f"Export[{os.path.basename(input_path)}]",
-        metadata={
-            "input_path": input_path,
-            "output_path": output_path,
-            "device": str(device),
-            "encoder": encoder,
-            "encoder_options": encoder_options,
-            "mp4_fast_start": mp4_fast_start,
-            "frames_total": video_metadata.frames_count,
-            "video_width": video_metadata.video_width,
-            "video_height": video_metadata.video_height,
-            "video_fps": video_metadata.video_fps_exact,
-        },
+        metadata=performance_metadata,
+    )
+    performance_sampler = PerformanceSampler(
+        f"Export[{os.path.basename(input_path)}]",
+        logger,
+        metadata=performance_metadata,
+        device=str(device),
+        interval_s=perf_sample_interval_s,
     )
 
     video_tmp_file_output_path = os.path.join(
@@ -73,6 +86,7 @@ def process_video_file(
         progressbar = progress_bar_factory(video_metadata)
 
     try:
+        performance_sampler.maybe_log(0, frames_total, progress=0.0, force=True)
         frame_restorer = FrameRestorer(
             device,
             input_path,
@@ -115,6 +129,11 @@ def process_video_file(
                 with stage_timer.measure("video_writer_write"):
                     video_writer.write(restored_frame, restored_frame_pts, bgr2rgb=True)
                 frames_done += 1
+                performance_sampler.maybe_log(
+                    frames_done,
+                    video_metadata.frames_count,
+                    progress=min(frames_done / frames_total, 1.0),
+                )
                 if progressbar is not None:
                     progressbar.update()
                 if (
@@ -153,6 +172,12 @@ def process_video_file(
             os.remove(video_tmp_file_output_path)
 
     stage_timer.log_summary(logger)
+    performance_sampler.maybe_log(
+        frames_done,
+        video_metadata.frames_count,
+        progress=min(frames_done / frames_total, 1.0),
+        force=True,
+    )
 
     if not success and raise_on_error:
         raise RuntimeError(error_message or "Video export failed")

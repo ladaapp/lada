@@ -5,6 +5,7 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime
 from functools import cache
+from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
 if "LADA_MODEL_WEIGHTS_DIR" in os.environ:
@@ -34,6 +35,8 @@ def _get_version(version: str):
 VERSION = _get_version('0.11.1-dev')
 
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+DEFAULT_LOG_MAX_BYTES = 20 * 1024 * 1024
+DEFAULT_LOG_BACKUP_COUNT = 5
 
 
 def _get_config_dirs() -> list[Path]:
@@ -97,29 +100,64 @@ _LOG_FORMAT = logging.Formatter(
 )
 
 
-def set_log_directory(new_path: str | None) -> None:
-    """Switch the root logger's file handler and propagate it to child processes."""
+def _get_log_rollover_settings() -> tuple[int, int]:
+    try:
+        max_bytes = int(os.environ.get("LADA_LOG_MAX_BYTES", DEFAULT_LOG_MAX_BYTES))
+    except ValueError:
+        max_bytes = DEFAULT_LOG_MAX_BYTES
+    try:
+        backup_count = int(os.environ.get("LADA_LOG_BACKUP_COUNT", DEFAULT_LOG_BACKUP_COUNT))
+    except ValueError:
+        backup_count = DEFAULT_LOG_BACKUP_COUNT
+    return max(0, max_bytes), max(0, backup_count)
+
+
+def _create_file_handler(log_file: Path) -> logging.FileHandler:
+    max_bytes, backup_count = _get_log_rollover_settings()
+    if max_bytes > 0 and backup_count > 0:
+        return RotatingFileHandler(
+            str(log_file),
+            maxBytes=max_bytes,
+            backupCount=backup_count,
+            encoding="utf-8",
+        )
+    return logging.FileHandler(str(log_file), encoding="utf-8")
+
+
+def set_log_file(log_file_path: str | Path, propagate_directory: bool = True) -> None:
+    """Switch the root logger's file handler to a specific log file."""
     root = logging.getLogger()
-    new_dir = Path(new_path) if new_path else _get_default_log_dir()
-    new_dir.mkdir(parents=True, exist_ok=True)
-    os.environ["LADA_LOG_DIR"] = str(new_dir)
-    new_log_file = new_dir / "lada.log"
+    log_file = Path(log_file_path)
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    os.environ["LADA_LOG_FILE"] = str(log_file)
+    if propagate_directory:
+        os.environ["LADA_LOG_DIR"] = str(log_file.parent)
 
     for handler in list(root.handlers):
         if isinstance(handler, logging.FileHandler):
             root.removeHandler(handler)
             handler.close()
 
-    file_handler = logging.FileHandler(str(new_log_file), encoding="utf-8")
+    file_handler = _create_file_handler(log_file)
     file_handler.setFormatter(_LOG_FORMAT)
     root.addHandler(file_handler)
+
+
+def set_log_directory(new_path: str | None) -> None:
+    """Switch the root logger's file handler and propagate it to child processes."""
+    new_dir = Path(new_path) if new_path else _get_default_log_dir()
+    new_dir.mkdir(parents=True, exist_ok=True)
+    os.environ["LADA_LOG_DIR"] = str(new_dir)
+    new_log_file = new_dir / "lada.log"
+    set_log_file(new_log_file)
 
 
 def _setup_logging():
     log_dir = _get_log_dir()
     log_dir.mkdir(parents=True, exist_ok=True)
     os.environ["LADA_LOG_DIR"] = str(log_dir)
-    log_file = log_dir / "lada.log"
+    log_file = Path(os.environ["LADA_LOG_FILE"]) if "LADA_LOG_FILE" in os.environ else log_dir / "lada.log"
+    log_file.parent.mkdir(parents=True, exist_ok=True)
 
     root = logging.getLogger()
     root.setLevel(LOG_LEVEL)
@@ -128,7 +166,7 @@ def _setup_logging():
     stream_handler.setFormatter(_LOG_FORMAT)
     root.addHandler(stream_handler)
 
-    file_handler = logging.FileHandler(str(log_file), encoding="utf-8")
+    file_handler = _create_file_handler(log_file)
     file_handler.setFormatter(_LOG_FORMAT)
     root.addHandler(file_handler)
 

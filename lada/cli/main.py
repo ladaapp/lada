@@ -35,7 +35,7 @@ except ModuleNotFoundError:
     else:
         raise
 
-from lada import VERSION, ModelFiles
+from lada import VERSION, ModelFiles, _get_log_dir
 from lada.cli import utils
 from lada.export.multi_device_scheduler import ExportEvent, ExportWorkerSettings, MultiDeviceExportScheduler, generate_run_id
 from lada.export.single_file import process_video_file
@@ -280,6 +280,7 @@ def main():
             encoder_options=encoder_options,
             mp4_fast_start=args.mp4_fast_start,
             cpu_threads_per_worker=args.worker_cpu_threads,
+            log_directory=str(_get_log_dir()),
         )
         scheduler = MultiDeviceExportScheduler(
             input_files=input_files,

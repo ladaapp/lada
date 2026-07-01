@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import gc
+import logging
 import multiprocessing
 import os
 import queue
@@ -12,10 +13,15 @@ import uuid
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Literal
 
 from lada.utils.device_utils import build_worker_device_slots, safe_device_name
+from lada.utils.perf_utils import get_process_rss_mb, get_torch_device_memory, log_json
 from lada.utils.video_utils import bind_nvenc_encoder_options_to_device
+
+
+logger = logging.getLogger(__name__)
 
 
 ExportEventType = Literal[
@@ -54,6 +60,7 @@ class ExportWorkerSettings:
     progress_update_step_size: int = 100
     cpu_threads_per_worker: int | None = None
     log_directory: str | None = None
+    perf_sample_interval_s: float | None = None
 
 
 @dataclass(frozen=True)
@@ -110,6 +117,14 @@ def build_task_temp_dir(base_temp_dir: str, run_id: str, device: str, task_id: s
         run_id,
         safe_device_name(device),
         task_id,
+    )
+
+
+def build_worker_log_file_path(log_directory: str, run_id: str, worker_id: int, device: str) -> str:
+    return str(
+        Path(log_directory)
+        / "workers"
+        / f"lada-worker-{run_id}-w{worker_id:02d}-{safe_device_name(device)}.log"
     )
 
 
@@ -174,11 +189,35 @@ def run_export_worker(
     settings: ExportWorkerSettings,
     process_file_func: ProcessFileFunc | None = None,
 ):
+    worker_started_at = time.monotonic()
+    worker_log_file_path = None
+    tasks_started = 0
+    tasks_succeeded = 0
+    tasks_failed = 0
+    total_frames_done = 0
+    total_frames_total = 0
+
     if settings.log_directory:
         try:
-            from lada import set_log_directory
+            from lada import set_log_file
 
-            set_log_directory(settings.log_directory)
+            worker_log_file_path = build_worker_log_file_path(
+                settings.log_directory,
+                settings.run_id,
+                worker_id,
+                device,
+            )
+            set_log_file(worker_log_file_path, propagate_directory=False)
+            logger.info("Worker %s on %s logging to %s", worker_id, device, worker_log_file_path)
+            _emit_event(
+                event_queue,
+                ExportEvent(
+                    "log",
+                    worker_id=worker_id,
+                    device=device,
+                    message=f"Worker {worker_id} on {device} logging to {worker_log_file_path}",
+                ),
+            )
         except Exception as e:
             _emit_event(
                 event_queue,
@@ -191,6 +230,21 @@ def run_export_worker(
             )
     configure_worker_runtime(settings.cpu_threads_per_worker)
     worker_settings = build_worker_settings_for_device(settings, device)
+    log_json(
+        logger,
+        "WORKER_START_JSON",
+        {
+            "event": "worker_start",
+            "run_id": settings.run_id,
+            "worker_id": worker_id,
+            "device": device,
+            "pid": os.getpid(),
+            "log_file": worker_log_file_path,
+            "cpu_threads_per_worker": worker_settings.cpu_threads_per_worker,
+            "encoder": worker_settings.encoder,
+            "encoder_options": worker_settings.encoder_options,
+        },
+    )
     _emit_event(
         event_queue,
         ExportEvent(
@@ -261,6 +315,24 @@ def run_export_worker(
                 task.task_id,
             )
             os.makedirs(temp_dir_path, exist_ok=True)
+            tasks_started += 1
+            task_started_at = time.monotonic()
+            task_frames_done = 0
+            task_frames_total = 0
+            log_json(
+                logger,
+                "TASK_START_JSON",
+                {
+                    "event": "task_start",
+                    "run_id": settings.run_id,
+                    "worker_id": worker_id,
+                    "task_id": task.task_id,
+                    "device": device,
+                    "input_path": task.input_path,
+                    "output_path": task.output_path,
+                    "temporary_directory": temp_dir_path,
+                },
+            )
 
             _emit_event(
                 event_queue,
@@ -278,6 +350,9 @@ def run_export_worker(
             )
 
             def progress_callback(progress: float, frames_done: int, frames_total: int):
+                nonlocal task_frames_done, task_frames_total
+                task_frames_done = frames_done
+                task_frames_total = frames_total
                 _emit_event(
                     event_queue,
                     ExportEvent(
@@ -325,9 +400,40 @@ def run_export_worker(
                         progress_update_step_size=worker_settings.progress_update_step_size,
                         raise_on_error=True,
                         print_status=False,
+                        perf_metadata={
+                            "run_id": settings.run_id,
+                            "worker_id": worker_id,
+                            "task_id": task.task_id,
+                            "worker_log_file": worker_log_file_path,
+                        },
+                        perf_sample_interval_s=worker_settings.perf_sample_interval_s,
                     )
 
+                task_elapsed_s = time.monotonic() - task_started_at
+                total_frames_done += task_frames_done
+                total_frames_total += task_frames_total
                 if success:
+                    tasks_succeeded += 1
+                    log_json(
+                        logger,
+                        "TASK_SUMMARY_JSON",
+                        {
+                            "event": "task_summary",
+                            "run_id": settings.run_id,
+                            "worker_id": worker_id,
+                            "task_id": task.task_id,
+                            "device": device,
+                            "input_path": task.input_path,
+                            "output_path": task.output_path,
+                            "success": True,
+                            "elapsed_s": task_elapsed_s,
+                            "frames_done": task_frames_done,
+                            "frames_total": task_frames_total,
+                            "fps_average": task_frames_done / task_elapsed_s if task_elapsed_s > 0 else None,
+                            "rss_mb": get_process_rss_mb(),
+                            **get_torch_device_memory(device),
+                        },
+                    )
                     _emit_event(
                         event_queue,
                         ExportEvent(
@@ -343,6 +449,27 @@ def run_export_worker(
                         ),
                     )
                 else:
+                    tasks_failed += 1
+                    log_json(
+                        logger,
+                        "TASK_SUMMARY_JSON",
+                        {
+                            "event": "task_summary",
+                            "run_id": settings.run_id,
+                            "worker_id": worker_id,
+                            "task_id": task.task_id,
+                            "device": device,
+                            "input_path": task.input_path,
+                            "output_path": task.output_path,
+                            "success": False,
+                            "elapsed_s": task_elapsed_s,
+                            "frames_done": task_frames_done,
+                            "frames_total": task_frames_total,
+                            "error": "Video export failed",
+                            "rss_mb": get_process_rss_mb(),
+                            **get_torch_device_memory(device),
+                        },
+                    )
                     _emit_event(
                         event_queue,
                         ExportEvent(
@@ -357,7 +484,31 @@ def run_export_worker(
                         ),
                     )
             except Exception as e:
+                task_elapsed_s = time.monotonic() - task_started_at
+                total_frames_done += task_frames_done
+                total_frames_total += task_frames_total
+                tasks_failed += 1
                 if cancel_event.is_set():
+                    log_json(
+                        logger,
+                        "TASK_SUMMARY_JSON",
+                        {
+                            "event": "task_summary",
+                            "run_id": settings.run_id,
+                            "worker_id": worker_id,
+                            "task_id": task.task_id,
+                            "device": device,
+                            "input_path": task.input_path,
+                            "output_path": task.output_path,
+                            "success": False,
+                            "cancelled": True,
+                            "elapsed_s": task_elapsed_s,
+                            "frames_done": task_frames_done,
+                            "frames_total": task_frames_total,
+                            "rss_mb": get_process_rss_mb(),
+                            **get_torch_device_memory(device),
+                        },
+                    )
                     _emit_event(
                         event_queue,
                         ExportEvent(
@@ -372,6 +523,26 @@ def run_export_worker(
                         ),
                     )
                     break
+                log_json(
+                    logger,
+                    "TASK_SUMMARY_JSON",
+                    {
+                        "event": "task_summary",
+                        "run_id": settings.run_id,
+                        "worker_id": worker_id,
+                        "task_id": task.task_id,
+                        "device": device,
+                        "input_path": task.input_path,
+                        "output_path": task.output_path,
+                        "success": False,
+                        "elapsed_s": task_elapsed_s,
+                        "frames_done": task_frames_done,
+                        "frames_total": task_frames_total,
+                        "error": str(e),
+                        "rss_mb": get_process_rss_mb(),
+                        **get_torch_device_memory(device),
+                    },
+                )
                 _emit_event(
                     event_queue,
                     ExportEvent(
@@ -411,6 +582,28 @@ def run_export_worker(
                 torch.mps.empty_cache()
         except Exception:
             pass
+        worker_elapsed_s = time.monotonic() - worker_started_at
+        log_json(
+            logger,
+            "WORKER_SUMMARY_JSON",
+            {
+                "event": "worker_summary",
+                "run_id": settings.run_id,
+                "worker_id": worker_id,
+                "device": device,
+                "pid": os.getpid(),
+                "log_file": worker_log_file_path,
+                "elapsed_s": worker_elapsed_s,
+                "tasks_started": tasks_started,
+                "tasks_succeeded": tasks_succeeded,
+                "tasks_failed": tasks_failed,
+                "frames_done": total_frames_done,
+                "frames_total": total_frames_total,
+                "fps_average": total_frames_done / worker_elapsed_s if worker_elapsed_s > 0 else None,
+                "rss_mb": get_process_rss_mb(),
+                **get_torch_device_memory(device),
+            },
+        )
         _emit_event(
             event_queue,
             ExportEvent(
