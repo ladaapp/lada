@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from lada.utils.device_utils import build_worker_device_slots, safe_device_name
-from lada.utils.perf_utils import get_process_rss_mb, get_torch_device_memory, log_json
+from lada.utils.perf_utils import get_resource_snapshot, log_json
 from lada.utils.video_utils import bind_nvenc_encoder_options_to_device
 
 
@@ -430,8 +430,7 @@ def run_export_worker(
                             "frames_done": task_frames_done,
                             "frames_total": task_frames_total,
                             "fps_average": task_frames_done / task_elapsed_s if task_elapsed_s > 0 else None,
-                            "rss_mb": get_process_rss_mb(),
-                            **get_torch_device_memory(device),
+                            **get_resource_snapshot(device),
                         },
                     )
                     _emit_event(
@@ -466,8 +465,7 @@ def run_export_worker(
                             "frames_done": task_frames_done,
                             "frames_total": task_frames_total,
                             "error": "Video export failed",
-                            "rss_mb": get_process_rss_mb(),
-                            **get_torch_device_memory(device),
+                            **get_resource_snapshot(device),
                         },
                     )
                     _emit_event(
@@ -505,8 +503,7 @@ def run_export_worker(
                             "elapsed_s": task_elapsed_s,
                             "frames_done": task_frames_done,
                             "frames_total": task_frames_total,
-                            "rss_mb": get_process_rss_mb(),
-                            **get_torch_device_memory(device),
+                            **get_resource_snapshot(device),
                         },
                     )
                     _emit_event(
@@ -539,8 +536,7 @@ def run_export_worker(
                         "frames_done": task_frames_done,
                         "frames_total": task_frames_total,
                         "error": str(e),
-                        "rss_mb": get_process_rss_mb(),
-                        **get_torch_device_memory(device),
+                        **get_resource_snapshot(device),
                     },
                 )
                 _emit_event(
@@ -600,8 +596,7 @@ def run_export_worker(
                 "frames_done": total_frames_done,
                 "frames_total": total_frames_total,
                 "fps_average": total_frames_done / worker_elapsed_s if worker_elapsed_s > 0 else None,
-                "rss_mb": get_process_rss_mb(),
-                **get_torch_device_memory(device),
+                **get_resource_snapshot(device),
             },
         )
         _emit_event(

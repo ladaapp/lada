@@ -7,6 +7,9 @@ import ctypes
 import json
 import logging
 import os
+import re
+import shutil
+import subprocess
 import sys
 import threading
 import time
@@ -16,6 +19,27 @@ from typing import Any, Iterator
 
 
 DEFAULT_PERF_SAMPLE_INTERVAL_S = 30.0
+NVIDIA_SMI_QUERY_FIELDS = [
+    "utilization.gpu",
+    "utilization.memory",
+    "utilization.encoder",
+    "utilization.decoder",
+    "memory.used",
+    "memory.total",
+    "power.draw",
+    "temperature.gpu",
+]
+NVIDIA_SMI_OUTPUT_KEYS = [
+    "nvidia_smi_gpu_util_percent",
+    "nvidia_smi_memory_util_percent",
+    "nvidia_smi_encoder_util_percent",
+    "nvidia_smi_decoder_util_percent",
+    "nvidia_smi_memory_used_mb",
+    "nvidia_smi_memory_total_mb",
+    "nvidia_smi_power_draw_w",
+    "nvidia_smi_temperature_c",
+]
+_NVIDIA_SMI_PATH: str | None | bool = None
 
 
 @dataclass
@@ -30,6 +54,101 @@ def get_perf_sample_interval_s(default: float = DEFAULT_PERF_SAMPLE_INTERVAL_S) 
         return max(0.0, float(os.environ.get("LADA_PERF_SAMPLE_INTERVAL_S", default)))
     except ValueError:
         return default
+
+
+def _env_flag_enabled(name: str, default: bool = True) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() not in {"0", "false", "no", "off"}
+
+
+def _get_subprocess_startup_info():
+    if sys.platform != "win32":
+        return None
+    startup_info = subprocess.STARTUPINFO()
+    startup_info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    return startup_info
+
+
+def _get_nvidia_smi_path() -> str | None:
+    global _NVIDIA_SMI_PATH
+    if _NVIDIA_SMI_PATH is False:
+        return None
+    if isinstance(_NVIDIA_SMI_PATH, str):
+        return _NVIDIA_SMI_PATH
+
+    path = shutil.which("nvidia-smi")
+    if path is None and sys.platform == "win32":
+        system_path = os.path.join(os.environ.get("SystemRoot", "C:\\Windows"), "System32", "nvidia-smi.exe")
+        if os.path.exists(system_path):
+            path = system_path
+
+    _NVIDIA_SMI_PATH = path if path else False
+    return path
+
+
+def _get_cuda_device_index(device: str | None) -> int | None:
+    if not device:
+        return None
+    match = re.fullmatch(r"cuda(?::(\d+))?", str(device).strip().lower())
+    if not match:
+        return None
+    return int(match.group(1) or 0)
+
+
+def _parse_nvidia_smi_number(value: str) -> float | None:
+    value = value.strip()
+    if not value or value.upper() in {"N/A", "[N/A]", "NOT SUPPORTED", "[NOT SUPPORTED]"}:
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        return None
+
+
+def get_nvidia_smi_gpu_stats(device: str | None) -> dict[str, float | int | str]:
+    if not _env_flag_enabled("LADA_NVIDIA_SMI_SAMPLE", default=True):
+        return {}
+
+    gpu_index = _get_cuda_device_index(device)
+    if gpu_index is None:
+        return {}
+
+    nvidia_smi = _get_nvidia_smi_path()
+    if nvidia_smi is None:
+        return {}
+
+    try:
+        result = subprocess.run(
+            [
+                nvidia_smi,
+                f"--id={gpu_index}",
+                f"--query-gpu={','.join(NVIDIA_SMI_QUERY_FIELDS)}",
+                "--format=csv,noheader,nounits",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=2.0,
+            startupinfo=_get_subprocess_startup_info(),
+            check=False,
+        )
+    except Exception:
+        return {}
+
+    if result.returncode != 0:
+        return {}
+
+    first_line = result.stdout.strip().splitlines()[0] if result.stdout.strip() else ""
+    values = [part.strip() for part in first_line.split(",")]
+    stats: dict[str, float | int | str] = {
+        "nvidia_smi_gpu_index": gpu_index,
+    }
+    for key, value in zip(NVIDIA_SMI_OUTPUT_KEYS, values):
+        parsed = _parse_nvidia_smi_number(value)
+        if parsed is not None:
+            stats[key] = parsed
+    return stats
 
 
 def _get_windows_rss_mb() -> float | None:
@@ -127,6 +246,15 @@ def get_torch_device_memory(device: str | None) -> dict[str, float | int | str]:
     return {}
 
 
+def get_resource_snapshot(device: str | None) -> dict[str, float | int | str | None]:
+    snapshot: dict[str, float | int | str | None] = {
+        "rss_mb": get_process_rss_mb(),
+    }
+    snapshot.update(get_torch_device_memory(device))
+    snapshot.update(get_nvidia_smi_gpu_stats(device))
+    return snapshot
+
+
 def log_json(logger: logging.Logger, marker: str, payload: dict[str, Any], level: int = logging.INFO):
     logger.log(level, "%s %s", marker, json.dumps(payload, ensure_ascii=False, sort_keys=True, default=str))
 
@@ -171,6 +299,9 @@ class PerformanceSampler:
         process_time = time.process_time()
         process_time_delta_s = process_time - self._last_process_time
         frames_delta = max(0, frames_done - self._last_frames_done)
+        frames_remaining = max(0, frames_total - frames_done)
+        fps_interval = frames_delta / interval_s if interval_s > 0 else None
+        fps_average = frames_done / elapsed_s if elapsed_s > 0 else None
         payload: dict[str, Any] = {
             "event": "performance_sample",
             "timer": self.name,
@@ -181,14 +312,17 @@ class PerformanceSampler:
             "frames_done": frames_done,
             "frames_total": frames_total,
             "frames_delta": frames_delta,
-            "fps_interval": frames_delta / interval_s if interval_s > 0 else None,
-            "fps_average": frames_done / elapsed_s if elapsed_s > 0 else None,
+            "frames_remaining": frames_remaining,
+            "fps_interval": fps_interval,
+            "fps_average": fps_average,
+            "eta_s_interval": frames_remaining / fps_interval if fps_interval and fps_interval > 0 else None,
+            "eta_s_average": frames_remaining / fps_average if fps_average and fps_average > 0 else None,
             "progress": progress,
+            "progress_percent": progress * 100 if progress is not None else None,
             "cpu_process_percent": (process_time_delta_s / interval_s) * 100 if interval_s > 0 else None,
             "process_time_delta_s": process_time_delta_s,
-            "rss_mb": get_process_rss_mb(),
         }
-        payload.update(get_torch_device_memory(self.device))
+        payload.update(get_resource_snapshot(self.device))
         log_json(self.logger, "PERF_SAMPLE_JSON", payload)
 
         self._last_wall = now
