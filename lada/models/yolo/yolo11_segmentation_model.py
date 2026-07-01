@@ -22,7 +22,8 @@ class Yolo11SegmentationModel:
         assert yolo_model.task == 'segment'
         self.stride = 32
         self.imgsz = check_imgsz(imgsz, stride=self.stride, min_dim=2)
-        self.letterbox: PyTorchLetterBox|LetterBox = LetterBox(self.imgsz, auto=True, stride=self.stride)
+        self.cpu_letterbox: LetterBox = LetterBox(self.imgsz, auto=True, stride=self.stride)
+        self.gpu_letterbox: PyTorchLetterBox | None = None
 
         custom = {"conf": 0.25, "batch": 1, "save": False, "mode": "predict", "device": device, "half": fp16}
         args = {**yolo_model.overrides, **custom, **kwargs}  # highest priority args on the right
@@ -44,21 +45,22 @@ class Yolo11SegmentationModel:
         self.dtype = torch.float16 if fp16 else torch.float32
 
     def _preprocess_cpu(self, imgs: list[ImageTensor]) -> torch.Tensor:
-        im = np.stack([self.letterbox(image=x.numpy()) for x in imgs])
+        im = np.stack([self.cpu_letterbox(image=x.numpy()) for x in imgs])
         im = im.transpose((0, 3, 1, 2))  # BHWC to BCHW, (n, 3, h, w)
         im = np.ascontiguousarray(im)  # contiguous
         return torch.from_numpy(im)
     
     def _preprocess_gpu(self, imgs: list[ImageTensor]) -> torch.Tensor:
-        return self.letterbox(torch.stack(imgs, dim=0))
+        if self.gpu_letterbox is None or imgs[0].shape[:2] != self.gpu_letterbox.original_shape:
+            self.gpu_letterbox = PyTorchLetterBox(self.imgsz, imgs[0].shape[:2], stride=self.stride)
+        im = torch.stack(imgs, dim=0).permute(0, 3, 1, 2).contiguous()  # BHWC to BCHW
+        return self.gpu_letterbox(im)
 
     def preprocess(self, imgs: list[ImageTensor]) -> list[torch.Tensor]:
         is_cpu_input = imgs[0].device.type == 'cpu'
         if is_cpu_input:
             return self._preprocess_cpu(imgs)
         else:
-            if self.letterbox is None or imgs[0].shape[:2] != self.letterbox.original_shape:
-                self.letterbox = PyTorchLetterBox(self.imgsz, imgs[0].shape[:2], stride=self.stride)
             return self._preprocess_gpu(imgs)
 
     def inference(self, image_batch: torch.Tensor):

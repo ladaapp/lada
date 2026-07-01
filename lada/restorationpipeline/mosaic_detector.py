@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0
 
 import logging
+import os
 import time
 from typing import List, Tuple, Callable
 from contextlib import nullcontext
@@ -23,6 +24,8 @@ from lada.utils.ultralytics_utils import convert_yolo_box, convert_yolo_mask_ten
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
+
+DEFAULT_DETECTION_FRAME_DEVICE_MAX_MB = 4096
 
 class Scene:
     def __init__(self, file_path: str, video_meta_data: VideoMetadata):
@@ -200,6 +203,61 @@ class MosaicDetector:
         self.batch_size = batch_size
         self.frame_input_queue = frame_input_queue
         self.stage_timer = stage_timer
+        self.keep_detection_frames_on_device = self._should_keep_detection_frames_on_device()
+        if self.keep_detection_frames_on_device:
+            logger.info(
+                f"Keeping mosaic detection frames on {self.device} so YOLO preprocessing, masks and clip crops stay on-device"
+            )
+
+    def _should_keep_detection_frames_on_device(self) -> bool:
+        if self.device is None or self.device.type not in ("cuda", "xpu"):
+            return False
+
+        env_value = os.environ.get("LADA_DETECTION_FRAMES_ON_DEVICE", "auto").strip().lower()
+        if env_value in ("0", "false", "no", "off", "disable", "disabled"):
+            return False
+        if env_value in ("1", "true", "yes", "on", "enable", "enabled"):
+            return True
+        if env_value not in ("", "auto"):
+            logger.warning(
+                "Invalid LADA_DETECTION_FRAMES_ON_DEVICE=%s, falling back to auto",
+                env_value,
+            )
+
+        try:
+            max_device_frame_mb = int(os.environ.get(
+                "LADA_DETECTION_FRAME_DEVICE_MAX_MB",
+                DEFAULT_DETECTION_FRAME_DEVICE_MAX_MB,
+            ))
+        except ValueError:
+            max_device_frame_mb = DEFAULT_DETECTION_FRAME_DEVICE_MAX_MB
+
+        if max_device_frame_mb <= 0:
+            return False
+
+        estimated_scene_mb = (
+            self.max_clip_length
+            * self.video_meta_data.video_width
+            * self.video_meta_data.video_height
+            * 3
+            / (1024 * 1024)
+        )
+        if estimated_scene_mb > max_device_frame_mb:
+            logger.info(
+                "Keeping detection frames on device disabled because one active scene may require "
+                f"{estimated_scene_mb:.0f}MB, above limit {max_device_frame_mb}MB. "
+                "Raise LADA_DETECTION_FRAME_DEVICE_MAX_MB or set LADA_DETECTION_FRAMES_ON_DEVICE=1 to force it."
+            )
+            return False
+        return True
+
+    def _move_detection_frames_to_device(self, frames: list[ImageTensor]) -> list[ImageTensor]:
+        if not self.keep_detection_frames_on_device:
+            return frames
+        if len(frames) == 0 or frames[0].device.type == self.device.type:
+            return frames
+        with self._timed_stage("detection_frames_to_device"):
+            return [frame.to(device=self.device, non_blocking=False) for frame in frames]
 
     def _timed_stage(self, stage: str):
         if self.stage_timer is None:
@@ -327,6 +385,7 @@ class MosaicDetector:
                     frame, _frame_pts = frame_item
                     frames.append(frame)
                 if len(frames) > 0:
+                    frames = self._move_detection_frames_to_device(frames)
                     with self._timed_stage("yolo_preprocess"):
                         frames_batch = self.model.preprocess(frames)
                     data = (frames_batch, frames, frame_num)
@@ -360,6 +419,7 @@ class MosaicDetector:
                 except StopIteration:
                     eof = True
                 if len(frames) > 0:
+                    frames = self._move_detection_frames_to_device(frames)
                     with self._timed_stage("yolo_preprocess"):
                         frames_batch = self.model.preprocess(frames)
                     data = (frames_batch, frames, frame_num)

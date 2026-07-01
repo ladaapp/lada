@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
 
 MOSAIC_DETECTION_BATCH_SIZE = 8
-DEFAULT_SHARED_DECODE_MAX_MB = 1536
+DEFAULT_SHARED_DECODE_MAX_MB = 4096
 
 class FrameRestorer:
     def __init__(self, device, video_file, max_clip_length, mosaic_restoration_model_name,
