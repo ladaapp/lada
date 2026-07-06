@@ -22,7 +22,7 @@ from lada.gui.export.export_utils import ResumeInformation
 from lada.gui.export.shutdown_manager import ShutdownManager, ShutdownError
 from lada.gui.export.spinner_button import SpinnerButton
 from lada.gui.frame_restorer_provider import FrameRestorerOptions, FRAME_RESTORER_PROVIDER
-from lada.utils import audio_utils, video_utils
+from lada.utils import audio_utils, media_utils, video_utils
 from lada.utils.threading_utils import STOP_MARKER, ErrorMarker
 
 here = pathlib.Path(__file__).parent.resolve()
@@ -409,10 +409,11 @@ class ExportView(Gtk.Widget):
 
     def _start_export(self, source_file: Gio.File, restore_file: Gio.File):
         assert os.path.isfile(source_file.get_path())
+        is_image_file = media_utils.is_image_file(source_file.get_path())
         restore_file_path = restore_file.get_path()
         temp_dir = self._config.temp_directory
-        video_tmp_file_output_path = os.path.join(temp_dir, f"{os.path.basename(os.path.splitext(restore_file_path)[0])}.tmp{os.path.splitext(restore_file_path)[1]}")
-        self.temp_file_path = video_tmp_file_output_path
+        tmp_file_output_path = os.path.join(temp_dir, f"{os.path.basename(os.path.splitext(restore_file_path)[0])}.tmp{os.path.splitext(restore_file_path)[1]}")
+        self.temp_file_path = None if is_image_file else tmp_file_output_path
 
         if not self.resume_info:
             self.show_video_export_started(restore_file)
@@ -436,6 +437,7 @@ class ExportView(Gtk.Widget):
         def run_export():
             success = True
             progress_update_step_size = 100
+            self.video_writer = None
             frame_restorer_options = FrameRestorerOptions(self._config.mosaic_restoration_model,
                                                           self._config.mosaic_detection_model,
                                                           video_utils.get_video_meta_data(source_file.get_path()),
@@ -457,12 +459,13 @@ class ExportView(Gtk.Widget):
                 else:
                     start_ns = 0
                     start_frame_num = 0
-                    preset = utils.get_selected_preset(self.config)
-                    self.video_writer = video_utils.VideoWriter(
-                        video_tmp_file_output_path, video_metadata.video_width,
-                        video_metadata.video_height, video_metadata.video_fps_exact,
-                        encoder=preset.encoder_name, encoder_options=preset.encoder_options,
-                        time_base=video_metadata.time_base, mp4_fast_start=self._config.mp4_fast_start)
+                    if not is_image_file:
+                        preset = utils.get_selected_preset(self.config)
+                        self.video_writer = video_utils.VideoWriter(
+                            tmp_file_output_path, video_metadata.video_width,
+                            video_metadata.video_height, video_metadata.video_fps_exact,
+                            encoder=preset.encoder_name, encoder_options=preset.encoder_options,
+                            time_base=video_metadata.time_base, mp4_fast_start=self._config.mp4_fast_start)
                     self.progress_calculator = export_utils.ProgressCalculator(video_metadata)
 
                 frame_restorer.start(start_ns=start_ns)
@@ -487,7 +490,10 @@ class ExportView(Gtk.Widget):
                             logger.debug("Received first frame after resume position, successful resume.")
                             self.resume_info = None
                             GLib.idle_add(lambda: self.emit('video-export-resumed'))
-                    self.video_writer.write(restored_frame, restored_frame_pts, bgr2rgb=True)
+                    if is_image_file:
+                        video_utils.write_image_file(restored_frame, tmp_file_output_path)
+                    else:
+                        self.video_writer.write(restored_frame, restored_frame_pts, bgr2rgb=True)
 
                     duration_end = time.time()
                     duration = duration_end - duration_start
@@ -501,13 +507,17 @@ class ExportView(Gtk.Widget):
                         self.resume_info = ResumeInformation(restored_frame_pts, video_metadata.time_base, frame_num)
                         break
 
+                    if is_image_file:
+                        break
+
             except Exception as e:
                 success = False
                 handle_exception(e)
             finally:
                 if not self.pause_requested:
                     try:
-                        self.video_writer.release()
+                        if self.video_writer is not None:
+                            self.video_writer.release()
                     except Exception as e:
                         success = False
                         handle_exception(e)
@@ -517,16 +527,25 @@ class ExportView(Gtk.Widget):
                 GLib.idle_add(lambda: self.emit('video-export-paused'))
             else:
                 if success:
-                    audio_utils.combine_audio_video_files(video_metadata, video_tmp_file_output_path, restore_file_path)
-                    def on_success():
-                        progress = self.progress_calculator.get_progress()
-                        progress.complete()
-                        self.emit('video-export-progress', progress)
-                        self.emit('video-export-finished')
-                    GLib.idle_add(on_success)
+                    try:
+                        if not is_image_file:
+                            audio_utils.combine_audio_video_files(video_metadata, tmp_file_output_path, restore_file_path)
+                        else:
+                            media_utils.replace_file(tmp_file_output_path, restore_file_path)
+                        def on_success():
+                            progress = self.progress_calculator.get_progress()
+                            progress.complete()
+                            self.emit('video-export-progress', progress)
+                            self.emit('video-export-finished')
+                        GLib.idle_add(on_success)
+                    except Exception as e:
+                        success = False
+                        handle_exception(e)
+                        if os.path.exists(tmp_file_output_path):
+                            os.remove(tmp_file_output_path)
                 else:
-                    if os.path.exists(video_tmp_file_output_path):
-                        os.remove(video_tmp_file_output_path)
+                    if os.path.exists(tmp_file_output_path):
+                        os.remove(tmp_file_output_path)
             if self.stop_requested:
                 GLib.idle_add(lambda: self.emit('video-export-stopped'))
 
@@ -552,25 +571,31 @@ class ExportView(Gtk.Widget):
 
         if self.single_file:
             file_dialog = Gtk.FileDialog()
-            video_file_filter = Gtk.FileFilter()
-            video_file_filter.add_mime_type("video/*")
-            file_dialog.set_default_filter(video_file_filter)
-            file_dialog.set_title(_("Save restored video file"))
+            original_file = self.model[0].original_file
+            file_filter = Gtk.FileFilter()
+            if media_utils.is_image_file(original_file.get_path()):
+                file_filter.add_mime_type("image/*")
+                for suffix in media_utils.SUPPORTED_IMAGE_FILE_EXTENSIONS:
+                    file_filter.add_suffix(suffix.removeprefix("."))
+                file_dialog.set_title(_("Save restored image file"))
+            else:
+                file_filter.add_mime_type("video/*")
+                file_dialog.set_title(_("Save restored video file"))
+            file_dialog.set_default_filter(file_filter)
             initial_restored_file = self.model[0].restored_file
             file_dialog.set_initial_folder(initial_restored_file.get_parent())
             file_dialog.set_initial_name(initial_restored_file.get_basename())
             file_dialog.save(callback=on_dialog_result)
         else:
             file_dialog = Gtk.FileDialog()
-            file_dialog.set_title(_("Save restored video files"))
+            file_dialog.set_title(_("Save restored files"))
             first_original_file = self.model[0].original_file
             file_dialog.set_initial_folder(first_original_file.get_parent())
             file_dialog.select_folder(callback=on_dialog_result)
 
     def get_restored_file_path(self, original_file: Gio.File, output_dir: str) -> Gio.File:
-        orig_file_name = os.path.splitext(original_file.get_basename())[0]
-        restored_file_name = self._config.file_name_pattern.replace("{orig_file_name}", orig_file_name)
-        return Gio.File.new_build_filenamev([output_dir, restored_file_name])
+        restored_file_path = media_utils.get_output_file_path(original_file.get_path(), output_dir, self._config.file_name_pattern)
+        return Gio.File.new_for_path(restored_file_path)
 
     def execute_post_export_action(self):
         action = self._config.post_export_action

@@ -8,6 +8,7 @@ from gi.repository import Gtk, Adw, Gio
 
 from lada.gui.export.export_item_data import ExportItemDataProgress, ExportItemState
 from lada.utils import VideoMetadata
+from lada.utils import media_utils
 from lada.utils import video_utils
 
 MIN_VISIBLE_PROGRESS_FRACTION = 0.01
@@ -26,6 +27,9 @@ def _format_duration(duration_s):
 
 def get_video_metadata_string(file: Gio.File):
     meta_data = video_utils.get_video_meta_data(file.get_path())
+    if media_utils.is_image_file(file.get_path()):
+        return _("Resolution: {resolution}").format(
+            resolution=f"{meta_data.video_width}x{meta_data.video_height}")
     return _("Duration: {duration}, Resolution: {resolution}, Frame rate: {fps} FPS").format(
         duration=_format_duration(meta_data.duration),
         resolution=f"{meta_data.video_width}x{meta_data.video_height}",
@@ -113,8 +117,8 @@ class ProgressCalculator:
         self.time_done_s = 0
         self.frames_done = 0
         self.video_metadata = video_metadata
-        self.frame_processing_durations_buffer_min_len = min(video_metadata.frames_count - 1, int(video_metadata.video_fps * 15))
-        self.frame_processing_durations_buffer_max_len = min(video_metadata.frames_count - 1, int(video_metadata.video_fps * 120))
+        self.frame_processing_durations_buffer_min_len = max(1, min(video_metadata.frames_count - 1, int(video_metadata.video_fps * 15)))
+        self.frame_processing_durations_buffer_max_len = max(1, min(video_metadata.frames_count - 1, int(video_metadata.video_fps * 120)))
 
     def _get_mean_processing_duration(self):
         return sum(self.frame_processing_durations_buffer) / len(self.frame_processing_durations_buffer)

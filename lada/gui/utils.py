@@ -13,7 +13,7 @@ from gi.repository import Gtk, GLib, Gdk
 
 from lada import LOG_LEVEL
 from lada.gui.config.config import Config
-from lada.utils import video_utils
+from lada.utils import media_utils, video_utils
 from lada.utils.video_utils import EncodingPreset
 
 logger = logging.getLogger(__name__)
@@ -98,7 +98,8 @@ def validate_file_name_pattern(file_name_pattern: str) -> bool:
     if os.sep in file_name_pattern:
         return False
     file_extension = os.path.splitext(file_name_pattern)[1].lower()
-    if file_extension not in [".mp4", ".mkv", ".mov", ".m4v"]:
+    valid_extensions = media_utils.SUPPORTED_VIDEO_FILE_EXTENSIONS.union(media_utils.SUPPORTED_IMAGE_FILE_EXTENSIONS)
+    if file_extension not in valid_extensions:
         return False
     return True
 
@@ -109,16 +110,22 @@ def validate_preset_description(description: str, config: Config, original_descr
     presets_descriptions = [preset.description.lower() for preset in presets]
     return description.lower() not in presets_descriptions
 
-def filter_video_files(files: list[Gio.File]) -> list[Gio.File]:
-    def is_video_file(file: Gio.File):
+def filter_media_files(files: list[Gio.File]) -> list[Gio.File]:
+    def is_media_file(file: Gio.File):
+        if path := file.get_path():
+            return media_utils.is_media_file(path)
         file_info: Gio.FileInfo = file.query_info("standard::content-type", Gio.FileQueryInfoFlags.NONE)
         content_type = file_info.get_content_type() # on linux content_type is MIME type but on windows it's just a file extension
         if content_type is None: return False
         mime_type = Gio.content_type_get_mime_type(content_type)
         if mime_type is None: return False
-        return mime_type.startswith("video/")
-    filtered_files = [file for file in files if is_video_file(file)]
+        return mime_type.startswith("video/") or mime_type.startswith("image/")
+    filtered_files = [file for file in files if is_media_file(file)]
     return filtered_files
+
+
+def filter_video_files(files: list[Gio.File]) -> list[Gio.File]:
+    return [file for file in files if file.get_path() and media_utils.is_video_file(file.get_path())]
 
 def filter_srt_subtitle_files(files: list[Gio.File]) -> list[Gio.File]:
     def is_srt_file(file: Gio.File):
@@ -130,10 +137,13 @@ def filter_srt_subtitle_files(files: list[Gio.File]) -> list[Gio.File]:
 
 def show_open_files_dialog(callback, dismissed_callback):
     file_dialog = Gtk.FileDialog()
-    video_file_filter = Gtk.FileFilter()
-    video_file_filter.add_mime_type("video/*")
-    file_dialog.set_default_filter(video_file_filter)
-    file_dialog.set_title(_("Select one or multiple video files"))
+    media_file_filter = Gtk.FileFilter()
+    media_file_filter.add_mime_type("video/*")
+    media_file_filter.add_mime_type("image/*")
+    for suffix in media_utils.SUPPORTED_IMAGE_FILE_EXTENSIONS.union(media_utils.SUPPORTED_VIDEO_FILE_EXTENSIONS):
+        media_file_filter.add_suffix(suffix.removeprefix("."))
+    file_dialog.set_default_filter(media_file_filter)
+    file_dialog.set_title(_("Select one or multiple media files"))
     def on_open_multiple(_file_dialog, result):
         try:
             video_files = _file_dialog.open_multiple_finish(result)
@@ -172,9 +182,9 @@ def create_files_drop_target(video_files_callback: Callable[[list[Gio.File]], No
     drop_target = Gtk.DropTarget.new(Gio.File, actions=Gdk.DragAction.COPY)
     drop_target.set_gtypes((Gdk.FileList,))
     def on_file_drop(_drop_target, files: list[Gio.File], x, y):
-        video_files = filter_video_files(files)
-        if len(video_files) > 0:
-            video_files_callback(video_files)
+        media_files = filter_media_files(files)
+        if len(media_files) > 0:
+            video_files_callback(media_files)
         if subtitle_files_callback:
             subtitle_files = filter_srt_subtitle_files(files)
             if len(subtitle_files) > 0:

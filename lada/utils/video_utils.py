@@ -23,9 +23,34 @@ import cv2
 import torch
 import numpy as np
 
-from lada.utils import Image, Mask, VideoMetadata, os_utils
+from lada.utils import Image, Mask, VideoMetadata, os_utils, media_utils
 
 logger = logging.getLogger(__name__)
+
+
+def read_image_file(path: str) -> Image:
+    image_data = np.fromfile(path, dtype=np.uint8)
+    image = cv2.imdecode(image_data, cv2.IMREAD_COLOR)
+    if image is None:
+        raise Exception(f"Unable to open image file: {path}")
+    return image
+
+
+def write_image_file(frame: Image | torch.Tensor, output_path: str):
+    if isinstance(frame, torch.Tensor):
+        frame = frame.detach().cpu().numpy()
+    if frame.ndim != 3 or frame.shape[2] != 3:
+        raise ValueError(f"Expected BGR image with shape HxWx3, got {frame.shape}")
+    file_ext = media_utils.get_file_extension(output_path)
+    if file_ext not in media_utils.SUPPORTED_IMAGE_FILE_EXTENSIONS:
+        raise ValueError(f"Unsupported image output file extension: {file_ext}")
+    pathlib_parent = os.path.dirname(output_path)
+    if pathlib_parent:
+        os.makedirs(pathlib_parent, exist_ok=True)
+    success, encoded_image = cv2.imencode(file_ext, frame)
+    if not success:
+        raise Exception(f"Unable to encode image file: {output_path}")
+    encoded_image.tofile(output_path)
 
 def read_video_frames(path: str, float32: bool = True, start_idx: int = 0, end_idx: int | None = None, normalize_neg1_pos1 = False, binary_frames=False) -> list[np.ndarray]:
     with VideoReaderOpenCV(path) as video_reader:
@@ -83,8 +108,12 @@ class VideoReader:
     def __init__(self, file):
         self.file = file
         self.container = None
+        self.image = None
 
     def __enter__(self):
+        if media_utils.is_image_file(self.file):
+            self.image = read_image_file(self.file)
+            return self
         # We currently do not pass through metadata to the output file so let's just ignore potential errors. Fixes #127
         # E.g. metadata could be encoded in CP936 instead of UTF-8 which would raise an error if we don't pass it in metadata_encoding.
         # If we use it in the future we have to consider non-default character encodings.
@@ -92,9 +121,18 @@ class VideoReader:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.container.close()
+        if self.container is not None:
+            self.container.close()
+            self.container = None
+        self.image = None
 
     def frames(self) -> Iterator[Tuple[torch.Tensor, int]]:
+        if media_utils.is_image_file(self.file):
+            if self.image is None:
+                self.image = read_image_file(self.file)
+            yield torch.from_numpy(self.image.copy()), 0
+            return
+
         # Print to console via FFmpegs log callback instead of utilizing Pythons logging system
         # Unfortunately we need this to prevent deadlocks. On certain corrupt video files decode() would hang indefinitely after
         # encountering an error (always reproducible). See https://github.com/PyAV-Org/PyAV/issues/751 and https://codeberg.org/ladaapp/lada/issues/247
@@ -135,10 +173,29 @@ class VideoReader:
                 raise
 
     def seek(self, offset_ns):
+        if media_utils.is_image_file(self.file):
+            return
         offset = int((offset_ns / 1_000_000_000) * av.time_base)
         self.container.seek(offset)
 
 def get_video_meta_data(path: str) -> VideoMetadata:
+    if media_utils.is_image_file(path):
+        image = read_image_file(path)
+        height, width = image.shape[:2]
+        return VideoMetadata(
+            video_file=path,
+            video_height=height,
+            video_width=width,
+            video_fps=1.0,
+            average_fps=1.0,
+            video_fps_exact=Fraction(1, 1),
+            codec_name="image",
+            frames_count=1,
+            duration=1.0,
+            time_base=Fraction(1, 1),
+            start_pts=0,
+        )
+
     cmd = ['ffprobe', '-v', 'quiet', '-print_format', 'json', '-select_streams', 'v', '-show_streams', '-show_format', path]
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=os_utils.get_subprocess_startup_info())
     out, err =  p.communicate()
@@ -513,11 +570,7 @@ class VideoWriter:
         self.output_container.close()
 
 def is_video_file(file_path):
-    SUPPORTED_VIDEO_FILE_EXTENSIONS = {".asf", ".avi", ".m4v", ".mkv", ".mov", ".mp4", ".mpeg", ".mpg", ".ts", ".wmv",
-                                       ".webm"}
-
-    file_ext = os.path.splitext(file_path)[1]
-    return file_ext.lower() in SUPPORTED_VIDEO_FILE_EXTENSIONS
+    return media_utils.is_video_file(file_path)
 
 @dataclass
 class Encoder:
@@ -566,6 +619,7 @@ class VideoThumbnailer:
     def __init__(self, video_path: str, thumb_width: int, thumb_height: int):
         self.video_path = video_path
         self.cap = None
+        self.image = None
         self.thumb_width = thumb_width
         self.thumb_height = thumb_height
         self._frame_cache = {} # LRU cache for recently accessed frames to avoid re-seeking for nearby timestamps
@@ -580,6 +634,10 @@ class VideoThumbnailer:
         self.close()
 
     def open(self):
+        if media_utils.is_image_file(self.video_path):
+            if self.image is None:
+                self.image = read_image_file(self.video_path)
+            return
         if self.cap is None:
             self.cap = cv2.VideoCapture(self.video_path)
             if not self.cap.isOpened():
@@ -589,6 +647,7 @@ class VideoThumbnailer:
         if self.cap:
             self.cap.release()
             self.cap = None
+        self.image = None
         self._frame_cache.clear()
         self._cache_access_order.clear()
 
@@ -627,6 +686,11 @@ class VideoThumbnailer:
 
     def get_thumbnail(self, timestamp_ns: int) -> np.ndarray:
         try:
+            if media_utils.is_image_file(self.video_path):
+                if self.image is None:
+                    self.image = read_image_file(self.video_path)
+                return cv2.resize(self.image, (self.thumb_width, self.thumb_height), interpolation=cv2.INTER_LINEAR)
+
             # Convert nanoseconds to milliseconds for OpenCV
             timestamp_ms = timestamp_ns / 1_000_000
 

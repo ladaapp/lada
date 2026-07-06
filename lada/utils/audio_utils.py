@@ -9,7 +9,7 @@ import os
 import subprocess
 import shutil
 from typing import Optional
-from lada.utils import video_utils, os_utils
+from lada.utils import video_utils, os_utils, media_utils
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +38,8 @@ def combine_audio_video_files(av_video_metadata: video_utils.VideoMetadata, tmp_
     os.remove(tmp_v_video_input_path)
 
 def get_audio_codec(file_path: str) -> Optional[str]:
+    if not media_utils.is_video_file(file_path):
+        return None
     cmd = f"ffprobe -loglevel error -select_streams a:0 -show_entries stream=codec_name -of default=nw=1:nk=1"
     cmd = cmd.split() + [file_path]
     cmd_result = subprocess.run(cmd, stdout=subprocess.PIPE, startupinfo=os_utils.get_subprocess_startup_info())

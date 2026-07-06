@@ -185,7 +185,7 @@ SPDX-License-Identifier: AGPL-3.0
                                 <child>
                                     <object class="AdwActionRow" id="action_row_temp_directory">
                                         <property name="title" translatable="true">Temporary Directory</property>
-                                        <property name="tooltip-text" translatable="true">Directory for temporary video files during restoration process</property>
+                                        <property name="tooltip-text" translatable="true">Directory for temporary files during restoration process</property>
                                         <child type="suffix">
                                             <object class="GtkButton">
                                                 <property name="icon-name">folder-open-symbolic</property>

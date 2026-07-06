@@ -16,7 +16,7 @@ SPDX-License-Identifier: AGPL-3.0
         <property name="vexpand">true</property>
         <child>
             <object class="AdwStatusPage" id="status_page">
-                <property name="title" translatable="true">Export video</property>
+                <property name="title" translatable="true">Export file</property>
                 <property name="icon-name">arrow-pointing-away-from-line-right-symbolic</property>
                 <child>
                     <object class="GtkBox">

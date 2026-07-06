@@ -20,7 +20,7 @@ from lada.gui.watch.overlay_elements_controller import OverlayElementsController
 from lada.gui.watch.seek_preview_popover import SeekPreviewPopover
 from lada.gui.watch.timeline import Timeline
 from lada.gui.shortcuts import ShortcutsManager
-from lada.utils import audio_utils, video_utils
+from lada.utils import audio_utils, media_utils, video_utils
 
 here = pathlib.Path(__file__).parent.resolve()
 
@@ -505,6 +505,7 @@ class WatchView(Gtk.Widget):
     def _open_file(self, video_metadata: video_utils.VideoMetadata, subtitle_path: str | None):
         assert not self._video_preview_init_done
         self.video_metadata = video_metadata
+        is_image_file = media_utils.is_image_file(self.video_metadata.video_file)
         self.frame_restorer_options = FrameRestorerOptions(self.config.mosaic_restoration_model,
                                                            self.config.mosaic_detection_model, self.video_metadata,
                                                            self.config.device,
@@ -513,9 +514,10 @@ class WatchView(Gtk.Widget):
                                                            False,
                                                            self.config.fp16_enabled,
                                                            self.config.detect_face_mosaics)
-        self.has_audio = audio_utils.get_audio_codec(self.video_metadata.video_file) is not None
+        self.has_audio = not is_image_file and audio_utils.get_audio_codec(self.video_metadata.video_file) is not None
         self.button_mute_unmute.set_sensitive(self.has_audio)
         self.set_speaker_icon(mute=not self.has_audio or self.config.mute_audio)
+        self.button_subtitles.set_sensitive(not is_image_file)
 
         self.should_be_paused = False
         self.seek_in_progress = False
@@ -523,7 +525,10 @@ class WatchView(Gtk.Widget):
 
         self.frame_duration_ns = (1 / self.video_metadata.video_fps) * Gst.SECOND
         self.file_duration_ns = int((self.video_metadata.frames_count * self.frame_duration_ns))
-        self._buffer_queue_min_thresh_time_auto_min = float(self._frame_restorer_options.max_clip_length / self.video_metadata.video_fps_exact)
+        if is_image_file:
+            self._buffer_queue_min_thresh_time_auto_min = 0
+        else:
+            self._buffer_queue_min_thresh_time_auto_min = float(self._frame_restorer_options.max_clip_length / self.video_metadata.video_fps_exact)
         self.buffer_queue_min_thresh_time_auto = self._buffer_queue_min_thresh_time_auto_min
 
         self.widget_timeline.set_property("duration", self.file_duration_ns)
@@ -682,6 +687,8 @@ class WatchView(Gtk.Widget):
 
     def _find_subtitle_file(self, video_file_path: str) -> str | None:
         """Find SRT subtitle file with the same name as video file."""
+        if not media_utils.is_video_file(video_file_path):
+            return None
         video_path = pathlib.Path(video_file_path)
         srt_path = video_path.with_suffix('.srt')
 

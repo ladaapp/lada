@@ -12,7 +12,7 @@ from gi.repository import GObject, GLib, Gst, GstApp, Gdk, Gio
 from lada import LOG_LEVEL
 from lada.gui.frame_restorer_provider import FrameRestorerProvider
 from lada.gui.watch.gstreamer_pipeline_appsrc import FrameRestorerAppSrc
-from lada.utils import VideoMetadata, audio_utils
+from lada.utils import VideoMetadata, audio_utils, media_utils
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
@@ -135,7 +135,7 @@ class PipelineManager(GObject.Object):
         else:
             logger.debug("Init Gst pipeline")
             self.video_metadata = video_metadata
-            self.has_audio = audio_utils.get_audio_codec(self.video_metadata.video_file) is not None
+            self.has_audio = media_utils.is_video_file(self.video_metadata.video_file) and audio_utils.get_audio_codec(self.video_metadata.video_file) is not None
             self.has_subtitles = subtitle_path is not None
 
             bus = self.pipeline.get_bus()
@@ -349,7 +349,7 @@ class PipelineManager(GObject.Object):
         self.video_metadata = video_metadata
         self.frame_restorer_app_src.set_property('video-metadata', self.video_metadata)
         audio_pipeline_already_added = self.has_audio
-        self.has_audio = audio_utils.get_audio_codec(self.video_metadata.video_file) is not None
+        self.has_audio = media_utils.is_video_file(self.video_metadata.video_file) and audio_utils.get_audio_codec(self.video_metadata.video_file) is not None
         if self.has_audio:
             if audio_pipeline_already_added:
                 self.audio_uridecodebin.set_property('uri', self.path_to_gst_uri(self.video_metadata.video_file))

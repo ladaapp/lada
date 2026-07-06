@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: AGPL-3.0
 
 import math
-import os
-
 import cv2
 import numpy as np
 import torch
@@ -13,6 +11,7 @@ from torchvision.transforms.v2 import Resize, InterpolationMode
 from typing import Sequence
 
 from lada.utils import Image, Pad, ImageTensor
+from lada.utils import media_utils
 
 # pad image with reflect mode even if pad size is greater than image size
 def _torch_pad_reflect(image: torch.Tensor, paddings: Sequence[int]) -> torch.Tensor:
@@ -246,10 +245,7 @@ def resize_simple(img: Image, size: int, interpolation=cv2.INTER_LINEAR):
     return res
 
 def is_image_file(file_path):
-    SUPPORTED_IMAGE_FILE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp"}
-
-    file_ext = os.path.splitext(file_path)[1]
-    return file_ext in SUPPORTED_IMAGE_FILE_EXTENSIONS
+    return media_utils.is_image_file(file_path)
 
 
 def filter2D(img, kernel):

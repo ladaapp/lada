@@ -104,7 +104,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
 
     def show_video_export_started(self, save_file: Gio.File, temp_file_path: str | None = None, mp4_fast_start_enabled: bool = False):
         self._temp_file_path = temp_file_path
-        self.status_page.set_title(_("Restoring video…"))
+        self.status_page.set_title(_("Restoring file…"))
         self.status_page.set_icon_name("cafe-symbolic")
         self.progress_bar.set_fraction(MIN_VISIBLE_PROGRESS_FRACTION)
         self.progress_bar.set_visible(True)
@@ -128,7 +128,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
         self._handler_id_button_open_clicked = self.button_open.connect("clicked", lambda _: file_launcher.launch())
 
     def on_video_export_finished(self):
-        self.status_page.set_title(_("Finished video restoration!"))
+        self.status_page.set_title(_("Finished restoration!"))
         self.status_page.set_icon_name("check-round-outline2-symbolic")
         self.progress_bar.set_fraction(1.0)
         self.progress_bar.set_text(export_utils.get_progressbar_text(self.item.state, self.item.progress))
@@ -152,7 +152,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
         self.button_preview_export.set_visible(False)
 
     def on_video_export_stopped(self):
-        self.status_page.set_title(_("Export video"))
+        self.status_page.set_title(_("Export file"))
         self.status_page.set_icon_name("arrow-pointing-away-from-line-right-symbolic")
 
         self.button_start_export.set_sensitive(True)
@@ -179,7 +179,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
         self.button_pause_export.set_visible(False)
 
     def on_video_export_resumed(self):
-        self.status_page.set_title(_("Restoring video…"))
+        self.status_page.set_title(_("Restoring file…"))
         self.status_page.set_icon_name("cafe-symbolic")
 
         self.button_resume_export.set_sensitive(True)
@@ -199,7 +199,7 @@ class ExportSingleFileStatusPage(Gtk.Widget):
 
     def on_add_file(self, item: ExportItemData):
         self.item = item
-        self.status_page.set_title(_("Export video"))
+        self.status_page.set_title(_("Export file"))
         self.status_page.set_icon_name("arrow-pointing-away-from-line-right-symbolic")
         self.progress_bar.set_visible(False)
         self.button_start_export.set_visible(True)

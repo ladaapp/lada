@@ -37,7 +37,7 @@ except ModuleNotFoundError:
 
 from lada import VERSION, ModelFiles
 from lada.cli import utils
-from lada.utils import audio_utils, video_utils
+from lada.utils import audio_utils, media_utils, video_utils
 from lada.utils.os_utils import gpu_has_fp16_acceleration, get_default_torch_device
 from lada.restorationpipeline.frame_restorer import FrameRestorer
 from lada.restorationpipeline import load_models
@@ -47,10 +47,10 @@ from lada.utils.video_utils import get_video_meta_data, VideoWriter, get_default
 def setup_argparser() -> argparse.ArgumentParser:
     examples_header_text = _("Examples:")
 
-    example1_text = _("Restore video with default settings:")
+    example1_text = _("Restore video or image with default settings:")
     example1_command = _("%(prog)s --input input.mp4")
 
-    example2_text = _("Restore all videos found in the specified directory and save them to a different folder:")
+    example2_text = _("Restore all videos and images found in the specified directory and save them to a different folder:")
     example2_command = _("%(prog)s --input path/to/input/dir/ --output /path/to/output/dir/")
 
     example3_text = _("Use Nvidia hardware-accelerated encoder by selecting a preset:")
@@ -61,7 +61,7 @@ def setup_argparser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
         usage=_('%(prog)s [options]'),
-        description=_("Restore pixelated adult videos (JAV)"),
+        description=_("Restore pixelated adult videos and images (JAV)"),
         epilog=_(textwrap.dedent(f'''\
             {examples_header_text}
                 * {example1_text}
@@ -77,9 +77,9 @@ def setup_argparser() -> argparse.ArgumentParser:
         add_help=False)
 
     group_general = parser.add_argument_group(_('General'))
-    group_general.add_argument('--input', type=str, help=_('Path to pixelated video file or directory containing video files'))
+    group_general.add_argument('--input', type=str, help=_('Path to pixelated video/image file or directory containing media files'))
     group_general.add_argument('--output', type=str, help=_('Path used to save output file(s). If path is a directory then file name will be chosen automatically (see --output-file-pattern). If no output path was given then the directory of the input file will be used'))
-    group_general.add_argument('--temporary-directory', type=str, default=tempfile.gettempdir(), help=_('Directory for temporary video files during restoration process. Alternatively, you can use the environment variable TMPDIR. (default: %(default)s)'))
+    group_general.add_argument('--temporary-directory', type=str, default=tempfile.gettempdir(), help=_('Directory for temporary files during restoration process. Alternatively, you can use the environment variable TMPDIR. (default: %(default)s)'))
     group_general.add_argument('--output-file-pattern', type=str, default="{orig_file_name}.restored.mp4", help=_("Pattern used to determine output file name(s). Used when input is a directory, or a file but no output path was specified. Must include the placeholder '{orig_file_name}'. (default: %(default)s)"))
     group_general.add_argument('--device', type=str, default=get_default_torch_device(), help=_('Device used for running Restoration and Detection models. Use "--list-devices" to see what\'s available (default: %(default)s)'))
     group_general.add_argument('--fp16', action=argparse.BooleanOptionalAction, default=gpu_has_fp16_acceleration(), help=_("Reduces VRAM usage and may increase speed on modern GPUs, with negligible quality difference. (default: %(default)s)"))
@@ -150,6 +150,65 @@ def process_video_file(input_path: str, output_path: str, temp_dir_path: str, de
     else:
         if os.path.exists(video_tmp_file_output_path):
             os.remove(video_tmp_file_output_path)
+
+
+def process_image_file(input_path: str, output_path: str, device: torch.device, mosaic_restoration_model, mosaic_detection_model,
+                       mosaic_restoration_model_name, preferred_pad_mode, max_clip_length, temp_dir_path: str):
+    image_metadata = get_video_meta_data(input_path)
+
+    frame_restorer = FrameRestorer(device, input_path, max_clip_length, mosaic_restoration_model_name,
+                 mosaic_detection_model, mosaic_restoration_model, preferred_pad_mode)
+    success = True
+    image_tmp_file_output_path = os.path.join(temp_dir_path, f"{os.path.basename(os.path.splitext(output_path)[0])}.tmp{os.path.splitext(output_path)[1]}")
+    pathlib.Path(output_path).parent.mkdir(exist_ok=True, parents=True)
+    frame_restorer_progressbar = utils.Progressbar(image_metadata)
+    try:
+        frame_restorer.start()
+        frame_restorer_progressbar.init()
+        restored_any_frame = False
+        for elem in frame_restorer:
+            if elem is STOP_MARKER or isinstance(elem, ErrorMarker):
+                success = False
+                frame_restorer_progressbar.error = True
+                print("Error on export: frame restorer stopped prematurely")
+                break
+            restored_frame, _ = elem
+            video_utils.write_image_file(restored_frame, image_tmp_file_output_path)
+            restored_any_frame = True
+            frame_restorer_progressbar.update()
+            break
+        if not restored_any_frame:
+            success = False
+            print("Error on export: no frame restored")
+    except (Exception, KeyboardInterrupt) as e:
+        success = False
+        if isinstance(e, KeyboardInterrupt):
+            raise e
+        else:
+            print("Error on export", e)
+    finally:
+        frame_restorer.stop()
+        frame_restorer_progressbar.close(ensure_completed_bar=success)
+
+    if success:
+        media_utils.replace_file(image_tmp_file_output_path, output_path)
+    elif os.path.exists(image_tmp_file_output_path):
+        os.remove(image_tmp_file_output_path)
+
+
+def process_media_file(input_path: str, output_path: str, temp_dir_path: str, device: torch.device, mosaic_restoration_model, mosaic_detection_model,
+                       mosaic_restoration_model_name, preferred_pad_mode, max_clip_length, encoder: str, encoder_options: str, mp4_fast_start):
+    if media_utils.is_image_file(input_path):
+        process_image_file(input_path=input_path, output_path=output_path, device=device,
+                           mosaic_restoration_model=mosaic_restoration_model, mosaic_detection_model=mosaic_detection_model,
+                           mosaic_restoration_model_name=mosaic_restoration_model_name, preferred_pad_mode=preferred_pad_mode,
+                           max_clip_length=max_clip_length, temp_dir_path=temp_dir_path)
+    else:
+        process_video_file(input_path=input_path, output_path=output_path, temp_dir_path=temp_dir_path, device=device,
+                           mosaic_restoration_model=mosaic_restoration_model, mosaic_detection_model=mosaic_detection_model,
+                           mosaic_restoration_model_name=mosaic_restoration_model_name, preferred_pad_mode=preferred_pad_mode,
+                           max_clip_length=max_clip_length, encoder=encoder, encoder_options=encoder_options,
+                           mp4_fast_start=mp4_fast_start)
 
 def main():
     argparser = setup_argparser()
@@ -253,7 +312,7 @@ def main():
         if not single_file_input:
             print(f"{os.path.basename(input_path)}:")
         try:
-            process_video_file(input_path=input_path, output_path=output_path, temp_dir_path=args.temporary_directory, device=device, mosaic_restoration_model=mosaic_restoration_model, mosaic_detection_model=mosaic_detection_model,
+            process_media_file(input_path=input_path, output_path=output_path, temp_dir_path=args.temporary_directory, device=device, mosaic_restoration_model=mosaic_restoration_model, mosaic_detection_model=mosaic_detection_model,
                                mosaic_restoration_model_name=mosaic_restoration_model_name, preferred_pad_mode=preferred_pad_mode, max_clip_length=args.max_clip_length,
                                encoder=encoder, encoder_options=encoder_options, mp4_fast_start=args.mp4_fast_start)
         except KeyboardInterrupt:
