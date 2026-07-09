@@ -93,6 +93,7 @@ def setup_argparser() -> argparse.ArgumentParser:
     group_general.add_argument('--devices', type=str, help=_('Devices used for parallel multi-file export. Examples: auto, cuda:0, cuda:0,cuda:1, cpu. If omitted, the existing --device behavior is used'))
     group_general.add_argument('--parallel', type=positive_int, help=_('Maximum number of files processed in parallel when --devices is used. Defaults to the number of selected worker slots'))
     group_general.add_argument('--jobs-per-device', type=positive_int, default=1, help=_('Number of parallel jobs per selected GPU. The recommended value for video restoration is 1. (default: %(default)s)'))
+    group_general.add_argument('--gpu-worker-policy', choices=('auto', 'fixed', 'one-per-gpu'), help=_('How multi-GPU export sizes workers per GPU. auto uses VRAM estimates, fixed keeps --jobs-per-device, one-per-gpu forces one worker per GPU.'))
     group_general.add_argument('--worker-cpu-threads', type=positive_int, help=_('CPU threads per multi-device worker. Defaults to an automatic value based on CPU count and worker count'))
     group_general.add_argument('--fp16', action=argparse.BooleanOptionalAction, default=gpu_has_fp16_acceleration(), help=_("Reduces VRAM usage and may increase speed on modern GPUs, with negligible quality difference. (default: %(default)s)"))
     group_general.add_argument('--list-devices', action='store_true', help=_("List available devices and exit"))
@@ -265,7 +266,6 @@ def main():
     single_file_input = len(input_files) == 1
 
     if args.devices is not None and should_use_multi_device_scheduler(len(input_files), worker_device_slots, args.devices):
-        print(_("Multi-device export enabled: {workers} workers").format(workers=len(worker_device_slots)))
         worker_settings = ExportWorkerSettings(
             base_temp_dir=args.temporary_directory,
             run_id=generate_run_id(),
@@ -290,7 +290,9 @@ def main():
             parallel=args.parallel,
             jobs_per_device=args.jobs_per_device,
             allow_parallel_cpu=args.parallel is not None,
+            gpu_worker_policy=args.gpu_worker_policy,
         )
+        print(_("Multi-device export enabled: {workers} workers").format(workers=scheduler.worker_count))
         try:
             summary = scheduler.run(event_callback=print_scheduler_event)
             print_scheduler_summary(summary)

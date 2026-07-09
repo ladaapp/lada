@@ -11,7 +11,7 @@ from lada.restorationpipeline.frame_restorer import FrameRestorer
 from lada.utils import audio_utils
 from lada.utils.perf_utils import PerformanceSampler, StageTimer
 from lada.utils.threading_utils import STOP_MARKER, ErrorMarker
-from lada.utils.video_utils import get_video_meta_data, VideoWriter
+from lada.utils.video_utils import bind_nvenc_encoder_options_to_device, get_video_meta_data, VideoWriter
 
 
 logger = logging.getLogger(__name__)
@@ -41,6 +41,7 @@ def process_video_file(
     perf_metadata: dict[str, Any] | None = None,
     perf_sample_interval_s: float | None = None,
 ) -> bool:
+    encoder_options = bind_nvenc_encoder_options_to_device(encoder, encoder_options, device)
     video_metadata = get_video_meta_data(input_path)
     frames_total = max(video_metadata.frames_count, 1)
     frame_restorer = None

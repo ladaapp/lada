@@ -8,6 +8,7 @@ from typing import List, Tuple, Callable
 from contextlib import nullcontext
 
 import cv2
+import numpy as np
 import torch
 
 from lada import LOG_LEVEL
@@ -28,18 +29,72 @@ logging.basicConfig(level=LOG_LEVEL)
 DEFAULT_DETECTION_FRAME_DEVICE_MAX_MB = 4096
 
 class Scene:
-    def __init__(self, file_path: str, video_meta_data: VideoMetadata):
+    def __init__(self, file_path: str, video_meta_data: VideoMetadata, clip_size: int):
         self.file_path = file_path
         self.video_meta_data = video_meta_data
+        self.clip_size = clip_size
         self.frames: list[ImageTensor] = []
         self.masks: list[MaskTensor] = []
         self.boxes: list[Box] = []
+        self.tracking_boxes: list[Box] = []
+        self.crop_shapes: List[Tuple[int, int]] = []
         self.frame_start: int | None = None
         self.frame_end: int | None = None
         self._index: int = 0
 
     def __len__(self):
         return len(self.frames)
+
+    @staticmethod
+    def _owning_copy(img: ImageTensor | MaskTensor):
+        if isinstance(img, torch.Tensor):
+            return img.detach().clone().contiguous()
+        if isinstance(img, np.ndarray):
+            return img.copy()
+        raise TypeError(f"Unsupported scene crop type: {type(img)}")
+
+    @staticmethod
+    def _merge_crop_masks(base_mask: MaskTensor, base_box: Box, new_mask: MaskTensor, new_box: Box) -> MaskTensor:
+        overlap_t = max(base_box[0], new_box[0])
+        overlap_l = max(base_box[1], new_box[1])
+        overlap_b = min(base_box[2], new_box[2])
+        overlap_r = min(base_box[3], new_box[3])
+        if overlap_t > overlap_b or overlap_l > overlap_r:
+            return new_mask
+
+        base_t = overlap_t - base_box[0]
+        base_l = overlap_l - base_box[1]
+        base_b = base_t + (overlap_b - overlap_t + 1)
+        base_r = base_l + (overlap_r - overlap_l + 1)
+        new_t = overlap_t - new_box[0]
+        new_l = overlap_l - new_box[1]
+        new_b = new_t + (overlap_b - overlap_t + 1)
+        new_r = new_l + (overlap_r - overlap_l + 1)
+
+        if isinstance(new_mask, torch.Tensor):
+            new_mask[new_t:new_b, new_l:new_r] = torch.maximum(
+                new_mask[new_t:new_b, new_l:new_r],
+                base_mask[base_t:base_b, base_l:base_r].to(device=new_mask.device),
+            )
+        else:
+            new_mask[new_t:new_b, new_l:new_r] = np.maximum(
+                new_mask[new_t:new_b, new_l:new_r],
+                base_mask[base_t:base_b, base_l:base_r],
+            )
+        return new_mask
+
+    def _crop_frame(self, img: ImageTensor, mask: MaskTensor, box: Box):
+        cropped_img, cropped_mask, cropped_box, _ = crop_to_box_v3(
+            box,
+            img,
+            mask,
+            (self.clip_size, self.clip_size),
+            max_box_expansion_factor=1.,
+            border_size=0.06,
+        )
+        cropped_img = self._owning_copy(cropped_img)
+        cropped_mask = self._owning_copy(cropped_mask)
+        return cropped_img, cropped_mask, cropped_box, tuple(cropped_img.shape)
 
     def add_frame(self, frame_num: int, img: ImageTensor, mask: MaskTensor, box: Box):
         if self.frame_start is None:
@@ -49,25 +104,33 @@ class Scene:
             assert frame_num == self.frame_end + 1
             self.frame_end = frame_num
 
-        self.frames.append(img)
-        self.masks.append(mask)
-        self.boxes.append(box)
+        cropped_img, cropped_mask, cropped_box, crop_shape = self._crop_frame(img, mask, box)
+        self.frames.append(cropped_img)
+        self.masks.append(cropped_mask)
+        self.boxes.append(cropped_box)
+        self.tracking_boxes.append(box)
+        self.crop_shapes.append(crop_shape)
 
-    def merge_mask_box(self, mask: MaskTensor, box: Box):
+    def merge_mask_box(self, img: ImageTensor, mask: MaskTensor, box: Box):
         assert self.belongs(box)
-        current_box = self.boxes[-1]
+        current_box = self.tracking_boxes[-1]
         t = min(current_box[0], box[0])
         l = min(current_box[1], box[1])
         b = max(current_box[2], box[2])
         r = max(current_box[3], box[3])
         new_box = (t, l, b, r)
-        self.boxes[-1] = new_box
-        self.masks[-1] = torch.maximum(self.masks[-1], mask)
+        cropped_img, cropped_mask, cropped_box, crop_shape = self._crop_frame(img, mask, new_box)
+        cropped_mask = self._merge_crop_masks(self.masks[-1], self.boxes[-1], cropped_mask, cropped_box)
+        self.frames[-1] = cropped_img
+        self.masks[-1] = cropped_mask
+        self.boxes[-1] = cropped_box
+        self.tracking_boxes[-1] = new_box
+        self.crop_shapes[-1] = crop_shape
 
     def belongs(self, box: Box):
-        if len(self.boxes) == 0:
+        if len(self.tracking_boxes) == 0:
             return False
-        last_scene_box = self.boxes[-1]
+        last_scene_box = self.tracking_boxes[-1]
         return box_overlap(last_scene_box, box)
 
     def __iter__(self):
@@ -98,14 +161,12 @@ class Clip:
         self.pad_after_resizes: List[Pad] = []
         self._index: int = 0
 
-        # crop scene
+        # Scene keeps only owning crop tensors to avoid pinning full video frames in GPU memory.
         for i in range(len(scene)):
-            img, mask, box = scene.frames[i], scene.masks[i], scene.boxes[i]
-            cropped_img, cropped_mask, cropped_box, _ = crop_to_box_v3(box, img, mask, (size, size), max_box_expansion_factor=1., border_size=0.06)
-            self.frames.append(cropped_img)
-            self.masks.append(cropped_mask)
-            self.boxes.append(cropped_box)
-            self.crop_shapes.append(cropped_img.shape)
+            self.frames.append(scene.frames[i])
+            self.masks.append(scene.masks[i])
+            self.boxes.append(scene.boxes[i])
+            self.crop_shapes.append(scene.crop_shapes[i])
 
         # resize crops to out_size
         max_width, max_height = self.get_max_width_height()
@@ -203,11 +264,24 @@ class MosaicDetector:
         self.batch_size = batch_size
         self.frame_input_queue = frame_input_queue
         self.stage_timer = stage_timer
+        self.pin_frame_transfers = self._should_pin_frame_transfers()
+        self._pin_frame_transfer_warning_logged = False
         self.keep_detection_frames_on_device = self._should_keep_detection_frames_on_device()
         if self.keep_detection_frames_on_device:
             logger.info(
                 f"Keeping mosaic detection frames on {self.device} so YOLO preprocessing, masks and clip crops stay on-device"
             )
+
+    def _should_pin_frame_transfers(self) -> bool:
+        if self.device is None or self.device.type != "cuda":
+            return False
+        env_value = os.environ.get("LADA_PIN_FRAME_TRANSFERS", "auto").strip().lower()
+        if env_value in ("0", "false", "no", "off", "disable", "disabled"):
+            return False
+        if env_value in ("", "1", "true", "yes", "on", "enable", "enabled", "auto"):
+            return True
+        logger.warning("Invalid LADA_PIN_FRAME_TRANSFERS=%s, falling back to auto", env_value)
+        return True
 
     def _should_keep_detection_frames_on_device(self) -> bool:
         if self.device is None or self.device.type not in ("cuda", "xpu"):
@@ -235,17 +309,25 @@ class MosaicDetector:
         if max_device_frame_mb <= 0:
             return False
 
-        estimated_scene_mb = (
-            self.max_clip_length
+        estimated_device_mb = (
+            self.batch_size
             * self.video_meta_data.video_width
             * self.video_meta_data.video_height
             * 3
             / (1024 * 1024)
         )
-        if estimated_scene_mb > max_device_frame_mb:
+        estimated_device_mb += (
+            self.max_clip_length
+            * self.clip_size
+            * self.clip_size
+            * 4
+            * 2
+            / (1024 * 1024)
+        )
+        if estimated_device_mb > max_device_frame_mb:
             logger.info(
-                "Keeping detection frames on device disabled because one active scene may require "
-                f"{estimated_scene_mb:.0f}MB, above limit {max_device_frame_mb}MB. "
+                "Keeping detection frames on device disabled because active detection tensors may require "
+                f"{estimated_device_mb:.0f}MB, above limit {max_device_frame_mb}MB. "
                 "Raise LADA_DETECTION_FRAME_DEVICE_MAX_MB or set LADA_DETECTION_FRAMES_ON_DEVICE=1 to force it."
             )
             return False
@@ -257,7 +339,20 @@ class MosaicDetector:
         if len(frames) == 0 or frames[0].device.type == self.device.type:
             return frames
         with self._timed_stage("detection_frames_to_device"):
-            return [frame.to(device=self.device, non_blocking=False) for frame in frames]
+            device_frames = []
+            for frame in frames:
+                non_blocking = False
+                if self.pin_frame_transfers and frame.device.type == "cpu":
+                    try:
+                        if not frame.is_pinned():
+                            frame = frame.pin_memory()
+                        non_blocking = True
+                    except Exception as e:
+                        if not self._pin_frame_transfer_warning_logged:
+                            logger.warning("Unable to pin decoded frames for CUDA transfer: %s", e)
+                            self._pin_frame_transfer_warning_logged = True
+                device_frames.append(frame.to(device=self.device, non_blocking=non_blocking))
+            return device_frames
 
     def _timed_stage(self, stage: str):
         if self.stage_timer is None:
@@ -356,13 +451,13 @@ class MosaicDetector:
                     if scene.belongs(box):
                         if scene.frame_end == frame_num:
                             current_scene = scene
-                            current_scene.merge_mask_box(mask, box)
+                            current_scene.merge_mask_box(results.orig_img, mask, box)
                         else:
                             current_scene = scene
                             current_scene.add_frame(frame_num, results.orig_img, mask, box)
                         break
                 if current_scene is None:
-                    current_scene = Scene(self.video_meta_data.video_file, self.video_meta_data)
+                    current_scene = Scene(self.video_meta_data.video_file, self.video_meta_data, self.clip_size)
                     scenes.append(current_scene)
                     current_scene.add_frame(frame_num, results.orig_img, mask, box)
 

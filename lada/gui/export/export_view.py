@@ -496,6 +496,7 @@ class ExportView(Gtk.Widget):
             devices=devices,
             settings=worker_settings,
             jobs_per_device=self._config.batch_export_jobs_per_device,
+            gpu_worker_policy="fixed" if self._config.batch_export_force_configured_jobs else "auto",
         )
         self.stop_requested = False
         self.view_switcher.set_sensitive(False)
@@ -616,6 +617,7 @@ class ExportView(Gtk.Widget):
         temp_dir = self._config.temp_directory
         video_tmp_file_output_path = self.get_temp_file_path(temp_dir, restore_file_path)
         self.temp_file_path = video_tmp_file_output_path
+        export_device = self.batch_export_serial_device or self._config.device
 
         if not self.resume_info:
             self.show_video_export_started(restore_file)
@@ -642,7 +644,7 @@ class ExportView(Gtk.Widget):
             frame_restorer_options = FrameRestorerOptions(self._config.mosaic_restoration_model,
                                                           self._config.mosaic_detection_model,
                                                           video_utils.get_video_meta_data(source_file.get_path()),
-                                                          self.batch_export_serial_device or self._config.device,
+                                                          export_device,
                                                           self._config.max_clip_duration,
                                                           False,
                                                           False,
@@ -661,10 +663,22 @@ class ExportView(Gtk.Widget):
                     start_ns = 0
                     start_frame_num = 0
                     preset = utils.get_selected_preset(self.config)
+                    encoder_options = video_utils.bind_nvenc_encoder_options_to_device(
+                        preset.encoder_name,
+                        preset.encoder_options,
+                        export_device,
+                    )
+                    if encoder_options != preset.encoder_options:
+                        logger.info(
+                            "Bound NVENC encoder %s options to %s: %s",
+                            preset.encoder_name,
+                            export_device,
+                            encoder_options,
+                        )
                     self.video_writer = video_utils.VideoWriter(
                         video_tmp_file_output_path, video_metadata.video_width,
                         video_metadata.video_height, video_metadata.video_fps_exact,
-                        encoder=preset.encoder_name, encoder_options=preset.encoder_options,
+                        encoder=preset.encoder_name, encoder_options=encoder_options,
                         time_base=video_metadata.time_base, mp4_fast_start=self._config.mp4_fast_start)
                     self.progress_calculator = export_utils.ProgressCalculator(video_metadata)
 

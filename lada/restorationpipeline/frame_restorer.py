@@ -12,8 +12,8 @@ import torch
 import numpy as np
 
 from lada import LOG_LEVEL
-from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, StopMarker, EofMarker, PipelineQueue, PipelineThread, \
-    ErrorMarker
+from lada.utils.threading_utils import EOF_MARKER, STOP_MARKER, StopMarker, EofMarker, PipelineQueue, \
+    PriorityPipelineQueue, PipelineThread, ErrorMarker
 from lada.utils.perf_utils import StageTimer
 from lada.utils import image_utils, video_utils, threading_utils, mask_utils, ImageTensor, Image
 from lada.utils import visualization_utils
@@ -63,11 +63,19 @@ class FrameRestorer:
 
         # limit queue size to approx 512MB
         max_clips_in_mosaic_clips_queue = max(1, (512 * 1024 * 1024) // (self.max_clip_length * 256 * 256 * 4)) # 4 = 3 color channels + mask
-        self.mosaic_clip_queue = PipelineQueue(name="mosaic_clip_queue", maxsize=max_clips_in_mosaic_clips_queue)
+        self.mosaic_clip_queue = PriorityPipelineQueue(
+            name="mosaic_clip_queue",
+            maxsize=max_clips_in_mosaic_clips_queue,
+            priority_key=lambda clip: clip.frame_start if clip.frame_start is not None else float("inf"),
+        )
 
         # limit queue size to approx 512MB
         max_clips_in_restored_clips_queue = max(1, (512 * 1024 * 1024) // (self.max_clip_length * 256 * 256 * 4)) # 4 = 3 color channels + mask
-        self.restored_clip_queue = PipelineQueue(name="restored_clip_queue", maxsize=max_clips_in_restored_clips_queue)
+        self.restored_clip_queue = PriorityPipelineQueue(
+            name="restored_clip_queue",
+            maxsize=max_clips_in_restored_clips_queue,
+            priority_key=lambda clip: clip.frame_start if clip.frame_start is not None else float("inf"),
+        )
 
         # no queue size limit needed, elements are tiny
         self.frame_detection_queue = PipelineQueue(name="frame_detection_queue")
@@ -106,6 +114,32 @@ class FrameRestorer:
         self.stop_requested = False
         self.cuda_empty_cache_processed_clip_count = 0
         self.cuda_empty_cache_clip_interval = 32
+        self.pin_frame_transfers = self._should_pin_frame_transfers()
+        self._pin_frame_transfer_warning_logged = False
+
+    def _should_pin_frame_transfers(self) -> bool:
+        if self.device.type != "cuda":
+            return False
+        env_value = os.environ.get("LADA_PIN_FRAME_TRANSFERS", "auto").strip().lower()
+        if env_value in ("0", "false", "no", "off", "disable", "disabled"):
+            return False
+        if env_value in ("", "1", "true", "yes", "on", "enable", "enabled", "auto"):
+            return True
+        logger.warning("Invalid LADA_PIN_FRAME_TRANSFERS=%s, falling back to auto", env_value)
+        return True
+
+    def _pin_for_frame_transfer(self, frame: torch.Tensor) -> tuple[torch.Tensor, bool]:
+        if not self.pin_frame_transfers or frame.device.type != "cpu":
+            return frame, False
+        try:
+            if frame.is_pinned():
+                return frame, True
+            return frame.pin_memory(), True
+        except Exception as e:
+            if not self._pin_frame_transfer_warning_logged:
+                logger.warning("Unable to pin frame data for CUDA transfer: %s", e)
+                self._pin_frame_transfer_warning_logged = True
+            return frame, False
 
     def _get_shared_decode_frame_buffer_size(self) -> int | None:
         required_frames = self.max_clip_length + MOSAIC_DETECTION_BATCH_SIZE + 2
@@ -296,13 +330,14 @@ class FrameRestorer:
         def _blend_cpu_frame_on_device(blend_mask: torch.Tensor, clip_img: torch.Tensor, orig_clip_box: tuple[int, int, int, int]):
             t, l, b, r = orig_clip_box
             frame_roi = frame[t:b + 1, l:r + 1, :]
-            roi_f = frame_roi.to(device=clip_img.device, dtype=target_dtype)
+            roi_upload, non_blocking = self._pin_for_frame_transfer(frame_roi)
+            roi_f = roi_upload.to(device=clip_img.device, dtype=target_dtype, non_blocking=non_blocking)
             temp = clip_img.to(dtype=target_dtype)
             temp.sub_(roi_f)
             temp.mul_(blend_mask.unsqueeze(-1))
             temp.add_(roi_f)
             temp.round_().clamp_(0, 255)
-            frame_roi.copy_(temp.to(device=frame_roi.device, dtype=frame_roi.dtype))
+            frame_roi.copy_(temp.to(device=frame_roi.device, dtype=frame_roi.dtype, non_blocking=non_blocking), non_blocking=non_blocking)
 
         for buffered_clip in [c for c in restored_clips if c.frame_start == frame_num]:
             with self.stage_timer.measure("restore_frame_prepare_clip"):

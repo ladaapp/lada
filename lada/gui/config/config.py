@@ -34,6 +34,7 @@ class Config(GObject.Object):
         'device': os_utils.get_default_torch_device(),
         'batch_export_device': 'selected',
         'batch_export_jobs_per_device': 1,
+        'batch_export_force_configured_jobs': False,
         'custom_encoding_presets': set(),
         'encoding_preset_name': video_utils.get_default_preset_name(),
         'export_directory': None,
@@ -62,6 +63,7 @@ class Config(GObject.Object):
         self._device = self._defaults['device']
         self._batch_export_device = self._defaults['batch_export_device']
         self._batch_export_jobs_per_device = self._defaults['batch_export_jobs_per_device']
+        self._batch_export_force_configured_jobs = self._defaults['batch_export_force_configured_jobs']
         self._encoding_preset_name = self._defaults['encoding_preset_name']
         self._custom_encoding_presets = self._defaults['custom_encoding_presets']
         self._export_directory = self._defaults['export_directory']
@@ -175,6 +177,18 @@ class Config(GObject.Object):
         if value == self._batch_export_jobs_per_device:
             return
         self._batch_export_jobs_per_device = value
+        self.save()
+
+    @GObject.Property(type=bool, default=False)
+    def batch_export_force_configured_jobs(self):
+        return bool(self._batch_export_force_configured_jobs)
+
+    @batch_export_force_configured_jobs.setter
+    def batch_export_force_configured_jobs(self, value):
+        value = bool(value)
+        if value == self._batch_export_force_configured_jobs:
+            return
+        self._batch_export_force_configured_jobs = value
         self.save()
 
     @GObject.Property()
@@ -415,6 +429,7 @@ class Config(GObject.Object):
         self.validate_and_set_device(self._defaults['device'])
         self.batch_export_device = self._defaults['batch_export_device']
         self.batch_export_jobs_per_device = self._defaults['batch_export_jobs_per_device']
+        self.batch_export_force_configured_jobs = self._defaults['batch_export_force_configured_jobs']
         self.detect_face_mosaics = self._defaults['detect_face_mosaics']
         self.subtitles_font_size = self._defaults['subtitles_font_size']
         self.log_directory = self._defaults['log_directory']
@@ -433,6 +448,7 @@ class Config(GObject.Object):
             'device': self._device,
             'batch_export_device': self._batch_export_device,
             'batch_export_jobs_per_device': self._batch_export_jobs_per_device,
+            'batch_export_force_configured_jobs': self._batch_export_force_configured_jobs,
             'custom_encoding_presets': [self._encoding_preset_as_dict(preset) for preset in self._custom_encoding_presets],
             'encoding_preset_name': self._encoding_preset_name,
             'export_directory': self._export_directory,

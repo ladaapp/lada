@@ -4,7 +4,7 @@
 import logging
 import time
 import traceback
-from queue import Queue, Full, Empty
+from queue import Queue, Full, Empty, PriorityQueue
 import concurrent.futures as concurrent_futures
 from threading import Thread
 from typing import Callable
@@ -63,8 +63,45 @@ class PipelineQueue(Queue):
         self.stats[f"{self.name}_wait_time_get"] += time.time() - s
         return item
 
+
+class PriorityPipelineQueue(PriorityQueue):
+    def __init__(self, name: str, maxsize=0, priority_key: Callable[[object], float | int] | None = None):
+        logger.debug(f"Set priority queue size of queue {name} to {maxsize}{' (unlimited)' if maxsize == 0 else ''}")
+        super().__init__(maxsize=maxsize)
+        self.stats = {}
+        self.name = name
+        self.priority_key = priority_key
+        self._put_index = 0
+        self.stats[f"{name}_wait_time_put"] = 0
+        self.stats[f"{name}_wait_time_get"] = 0
+        self.stats[f"{name}_max_size"] = 0
+
+    def _wrap_item(self, item):
+        if item is STOP_MARKER:
+            priority = float("-inf")
+        elif item is EOF_MARKER:
+            priority = float("inf")
+        elif self.priority_key is None:
+            priority = 0
+        else:
+            priority = self.priority_key(item)
+        self._put_index += 1
+        return priority, self._put_index, item
+
+    def put(self, item, block=True, timeout=None):
+        self.stats[f"{self.name}_max_size"] = max(self.qsize() + 1, self.stats[f"{self.name}_max_size"])
+        s = time.time()
+        super().put(self._wrap_item(item), block=block, timeout=timeout)
+        self.stats[f"{self.name}_wait_time_put"] += time.time() - s
+
+    def get(self, block=True, timeout=None):
+        s = time.time()
+        _priority, _put_index, item = super().get(block=block, timeout=timeout)
+        self.stats[f"{self.name}_wait_time_get"] += time.time() - s
+        return item
+
 def put_queue_stop_marker(queue: Queue | PipelineQueue, debug_queue_name: str | None = None, stop_marker=STOP_MARKER):
-    queue_name = queue.name if isinstance(queue, PipelineQueue) else debug_queue_name
+    queue_name = getattr(queue, "name", debug_queue_name)
     assert queue_name is not None
     sent_out_none_success = False
     while not sent_out_none_success:
@@ -78,7 +115,7 @@ def put_queue_stop_marker(queue: Queue | PipelineQueue, debug_queue_name: str | 
 
 
 def empty_out_queue(queue: Queue | PipelineQueue, debug_queue_name: str | None = None):
-    queue_name = queue.name if isinstance(queue, PipelineQueue) else debug_queue_name
+    queue_name = getattr(queue, "name", debug_queue_name)
     assert queue_name is not None
     while not queue.empty():
         queue.get()

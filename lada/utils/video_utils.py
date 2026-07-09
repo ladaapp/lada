@@ -80,15 +80,49 @@ def VideoReaderOpenCV(*args, **kwargs):
         cap.release()
 
 class VideoReader:
-    def __init__(self, file):
+    def __init__(self, file, hwaccel: str | None = None):
         self.file = file
         self.container = None
+        self.hwaccel_name = hwaccel if hwaccel is not None else os.environ.get("LADA_VIDEO_READER_HWACCEL", "off")
+        self.hwaccel = self._create_hwaccel(self.hwaccel_name)
+
+    @staticmethod
+    def _create_hwaccel(hwaccel_name: str | None):
+        if hwaccel_name is None:
+            return None
+        hwaccel_name = hwaccel_name.strip().lower()
+        if hwaccel_name in ("", "0", "false", "no", "off", "disable", "disabled"):
+            return None
+        try:
+            from av.codec.hwaccel import HWAccel
+
+            return HWAccel(hwaccel_name, allow_software_fallback=True)
+        except Exception as e:
+            logger.warning("Unable to enable video reader hardware acceleration %s: %s", hwaccel_name, e)
+            return None
 
     def __enter__(self):
         # We currently do not pass through metadata to the output file so let's just ignore potential errors. Fixes #127
         # E.g. metadata could be encoded in CP936 instead of UTF-8 which would raise an error if we don't pass it in metadata_encoding.
         # If we use it in the future we have to consider non-default character encodings.
-        self.container = av.open(self.file, metadata_errors='ignore')
+        open_kwargs = {"metadata_errors": "ignore"}
+        if self.hwaccel is not None:
+            open_kwargs["hwaccel"] = self.hwaccel
+        try:
+            self.container = av.open(self.file, **open_kwargs)
+            if self.hwaccel is not None:
+                logger.info("VideoReader enabled %s hardware acceleration for %s", self.hwaccel_name, self.file)
+        except Exception:
+            if self.hwaccel is None:
+                raise
+            logger.warning(
+                "VideoReader could not open %s with %s hardware acceleration; falling back to software decode",
+                self.file,
+                self.hwaccel_name,
+                exc_info=True,
+            )
+            self.hwaccel = None
+            self.container = av.open(self.file, metadata_errors='ignore')
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):

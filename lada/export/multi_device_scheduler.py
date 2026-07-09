@@ -18,7 +18,7 @@ from typing import Any, Literal
 
 from lada.utils.device_utils import build_worker_device_slots, safe_device_name
 from lada.utils.perf_utils import get_resource_snapshot, log_json
-from lada.utils.video_utils import bind_nvenc_encoder_options_to_device
+from lada.utils.video_utils import bind_nvenc_encoder_options_to_device, get_video_meta_data
 
 
 logger = logging.getLogger(__name__)
@@ -155,6 +155,139 @@ def build_worker_settings_for_device(settings: ExportWorkerSettings, device: str
 def calculate_cpu_threads_per_worker(worker_count: int, cpu_count: int | None = None) -> int:
     cpu_count = cpu_count or os.cpu_count() or 1
     return max(1, min(4, cpu_count // max(worker_count, 1)))
+
+
+def _parse_env_float(name: str, default: float) -> float:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    try:
+        return float(value)
+    except ValueError:
+        logger.warning("Invalid %s=%s, using %.2f", name, value, default)
+        return default
+
+
+def _parse_env_int(name: str, default: int) -> int:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except ValueError:
+        logger.warning("Invalid %s=%s, using %d", name, value, default)
+        return default
+
+
+def _cuda_device_total_memory_mb(device: str) -> float | None:
+    if not device.startswith("cuda"):
+        return None
+    try:
+        import torch
+
+        if not torch.cuda.is_available():
+            return None
+        if ":" in device:
+            index = int(device.split(":", 1)[1])
+        else:
+            index = torch.cuda.current_device()
+        return torch.cuda.get_device_properties(index).total_memory / (1024 * 1024)
+    except Exception as e:
+        logger.debug("Unable to query CUDA memory for %s: %s", device, e)
+        return None
+
+
+def _estimate_worker_cuda_vram_mb(task: ExportTask, settings: ExportWorkerSettings) -> float | None:
+    try:
+        metadata = get_video_meta_data(task.input_path)
+    except Exception as e:
+        logger.warning("Unable to inspect %s for GPU worker sizing: %s", task.input_path, e)
+        return None
+
+    model_mb_default = 6144 if "basicvsr" in settings.mosaic_restoration_model_name.lower() else 4096
+    model_mb = _parse_env_int("LADA_GPU_WORKER_MODEL_MB", model_mb_default)
+    encoder_mb = _parse_env_int("LADA_GPU_WORKER_ENCODER_MB", 512)
+    frame_working_mb = metadata.video_width * metadata.video_height * 3 * 12 / (1024 * 1024)
+    clip_pipeline_mb = settings.max_clip_length * 256 * 256 * 4 * 3 / (1024 * 1024)
+    safety_mb = _parse_env_int("LADA_GPU_WORKER_SAFETY_MB", 512)
+    return model_mb + encoder_mb + frame_working_mb + clip_pipeline_mb + safety_mb
+
+
+def _adapt_jobs_per_device_for_cuda_memory(
+    devices: list[str],
+    tasks: list[ExportTask],
+    settings: ExportWorkerSettings,
+    jobs_per_device: int,
+    gpu_worker_policy: str | None = None,
+) -> int:
+    policy = (gpu_worker_policy or os.environ.get("LADA_BATCH_GPU_WORKER_POLICY", "auto")).strip().lower()
+    if policy in ("fixed", "config", "off", "disable", "disabled"):
+        logger.info(
+            "GPU worker sizing is fixed by configuration: using jobs_per_device=%d",
+            jobs_per_device,
+        )
+        return jobs_per_device
+    if policy in ("one-per-gpu", "single", "1"):
+        if jobs_per_device != 1:
+            logger.info(
+                "GPU worker sizing policy one-per-gpu changed jobs_per_device from %d to 1",
+                jobs_per_device,
+            )
+        return 1
+    if policy not in ("", "auto"):
+        logger.warning("Invalid GPU worker policy %s, using auto", policy)
+
+    cuda_devices = [device for device in devices if device.startswith("cuda")]
+    if jobs_per_device <= 1 or not cuda_devices or len(cuda_devices) != len(devices) or not tasks:
+        return jobs_per_device
+
+    memory_fraction = _parse_env_float("LADA_GPU_WORKER_MEMORY_FRACTION", 0.94)
+    memory_fraction = min(max(memory_fraction, 0.1), 1.0)
+    task_estimates = [
+        estimate
+        for task in tasks
+        if (estimate := _estimate_worker_cuda_vram_mb(task, settings)) is not None
+    ]
+    if not task_estimates:
+        return jobs_per_device
+    estimated_worker_mb = max(task_estimates)
+
+    device_totals = [
+        total_mb
+        for device in cuda_devices
+        if (total_mb := _cuda_device_total_memory_mb(device)) is not None
+    ]
+    if not device_totals:
+        return jobs_per_device
+    smallest_device_mb = min(device_totals)
+    requested_mb = estimated_worker_mb * jobs_per_device
+    allowed_mb = smallest_device_mb * memory_fraction
+    if requested_mb <= allowed_mb:
+        logger.info(
+            "Auto GPU worker sizing kept jobs_per_device=%d "
+            "(estimated %.0fMB per worker, requested %.0fMB, allowed %.0fMB on smallest CUDA device, fraction %.2f).",
+            jobs_per_device,
+            estimated_worker_mb,
+            requested_mb,
+            allowed_mb,
+            memory_fraction,
+        )
+        return jobs_per_device
+
+    adapted_jobs = max(1, int(allowed_mb // max(estimated_worker_mb, 1)))
+    adapted_jobs = min(adapted_jobs, jobs_per_device)
+    logger.info(
+        "Auto GPU worker sizing changed jobs_per_device from %d to %d "
+        "(estimated %.0fMB per worker, requested %.0fMB, allowed %.0fMB on smallest CUDA device, fraction %.2f). "
+        "Set LADA_BATCH_GPU_WORKER_POLICY=fixed to keep the configured value.",
+        jobs_per_device,
+        adapted_jobs,
+        estimated_worker_mb,
+        requested_mb,
+        allowed_mb,
+        memory_fraction,
+    )
+    return adapted_jobs
 
 
 def configure_worker_runtime(cpu_threads_per_worker: int | None):
@@ -624,12 +757,20 @@ class MultiDeviceExportScheduler:
         process_file_func: ProcessFileFunc | None = None,
         multiprocessing_context=None,
         worker_shutdown_timeout_s: float = 5.0,
+        gpu_worker_policy: str | None = None,
     ):
         self.tasks = create_export_tasks(input_files, output_files)
         self.devices = devices
+        adapted_jobs_per_device = _adapt_jobs_per_device_for_cuda_memory(
+            devices,
+            self.tasks,
+            settings,
+            jobs_per_device,
+            gpu_worker_policy,
+        )
         self.worker_devices = build_worker_device_slots(
             devices,
-            jobs_per_device=jobs_per_device,
+            jobs_per_device=adapted_jobs_per_device,
             parallel=parallel,
             allow_parallel_cpu=allow_parallel_cpu,
         )
