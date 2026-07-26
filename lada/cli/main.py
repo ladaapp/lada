@@ -2,8 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0
 
 import argparse
+import multiprocessing
 import os
-import pathlib
 import sys
 import tempfile
 import textwrap
@@ -35,14 +35,22 @@ except ModuleNotFoundError:
     else:
         raise
 
-from lada import VERSION, ModelFiles
+from lada import VERSION, ModelFiles, _get_log_dir
 from lada.cli import utils
-from lada.utils import audio_utils, video_utils
+from lada.export.multi_device_scheduler import ExportEvent, ExportWorkerSettings, MultiDeviceExportScheduler, generate_run_id
+from lada.export.single_file import process_video_file
+from lada.utils import device_utils, video_utils
+from lada.utils.device_utils import DeviceParseError
 from lada.utils.os_utils import gpu_has_fp16_acceleration, get_default_torch_device
-from lada.restorationpipeline.frame_restorer import FrameRestorer
 from lada.restorationpipeline import load_models
-from lada.utils.threading_utils import STOP_MARKER, ErrorMarker
-from lada.utils.video_utils import get_video_meta_data, VideoWriter, get_default_preset_name
+from lada.utils.video_utils import get_default_preset_name
+
+
+def positive_int(value: str) -> int:
+    parsed_value = int(value)
+    if parsed_value < 1:
+        raise argparse.ArgumentTypeError(_("value must be greater than 0"))
+    return parsed_value
 
 def setup_argparser() -> argparse.ArgumentParser:
     examples_header_text = _("Examples:")
@@ -82,6 +90,11 @@ def setup_argparser() -> argparse.ArgumentParser:
     group_general.add_argument('--temporary-directory', type=str, default=tempfile.gettempdir(), help=_('Directory for temporary video files during restoration process. Alternatively, you can use the environment variable TMPDIR. (default: %(default)s)'))
     group_general.add_argument('--output-file-pattern', type=str, default="{orig_file_name}.restored.mp4", help=_("Pattern used to determine output file name(s). Used when input is a directory, or a file but no output path was specified. Must include the placeholder '{orig_file_name}'. (default: %(default)s)"))
     group_general.add_argument('--device', type=str, default=get_default_torch_device(), help=_('Device used for running Restoration and Detection models. Use "--list-devices" to see what\'s available (default: %(default)s)'))
+    group_general.add_argument('--devices', type=str, help=_('Devices used for parallel multi-file export. Examples: auto, cuda:0, cuda:0,cuda:1, cpu. If omitted, the existing --device behavior is used'))
+    group_general.add_argument('--parallel', type=positive_int, help=_('Maximum number of files processed in parallel when --devices is used. Defaults to the number of selected worker slots'))
+    group_general.add_argument('--jobs-per-device', type=positive_int, default=1, help=_('Number of parallel jobs per selected GPU. The recommended value for video restoration is 1. (default: %(default)s)'))
+    group_general.add_argument('--gpu-worker-policy', choices=('auto', 'fixed', 'one-per-gpu'), help=_('How multi-GPU export sizes workers per GPU. auto uses VRAM estimates, fixed keeps --jobs-per-device, one-per-gpu forces one worker per GPU.'))
+    group_general.add_argument('--worker-cpu-threads', type=positive_int, help=_('CPU threads per multi-device worker. Defaults to an automatic value based on CPU count and worker count'))
     group_general.add_argument('--fp16', action=argparse.BooleanOptionalAction, default=gpu_has_fp16_acceleration(), help=_("Reduces VRAM usage and may increase speed on modern GPUs, with negligible quality difference. (default: %(default)s)"))
     group_general.add_argument('--list-devices', action='store_true', help=_("List available devices and exit"))
     group_general.add_argument('--version', action='store_true', help=_("Display version and exit"))
@@ -109,49 +122,38 @@ def setup_argparser() -> argparse.ArgumentParser:
 
     return parser
 
-def process_video_file(input_path: str, output_path: str, temp_dir_path: str, device: torch.device, mosaic_restoration_model, mosaic_detection_model,
-                       mosaic_restoration_model_name, preferred_pad_mode, max_clip_length, encoder: str, encoder_options: str, mp4_fast_start):
-    video_metadata = get_video_meta_data(input_path)
+def should_use_multi_device_scheduler(input_file_count: int, worker_device_slots: list[str], devices_arg: str | None) -> bool:
+    return devices_arg is not None and input_file_count > 1 and len(worker_device_slots) > 1
 
-    frame_restorer = FrameRestorer(device, input_path, max_clip_length, mosaic_restoration_model_name,
-                 mosaic_detection_model, mosaic_restoration_model, preferred_pad_mode)
-    success = True
-    video_tmp_file_output_path = os.path.join(temp_dir_path, f"{os.path.basename(os.path.splitext(output_path)[0])}.tmp{os.path.splitext(output_path)[1]}")
-    pathlib.Path(output_path).parent.mkdir(exist_ok=True, parents=True)
-    frame_restorer_progressbar = utils.Progressbar(video_metadata)
-    try:
-        frame_restorer.start()
-        frame_restorer_progressbar.init()
-        with VideoWriter(video_tmp_file_output_path, video_metadata.video_width, video_metadata.video_height,
-                         video_metadata.video_fps_exact, encoder=encoder, encoder_options=encoder_options,
-                         time_base=video_metadata.time_base, mp4_fast_start=mp4_fast_start) as video_writer:
-            for elem in frame_restorer:
-                if elem is STOP_MARKER or isinstance(elem, ErrorMarker):
-                    success = False
-                    frame_restorer_progressbar.error = True
-                    print("Error on export: frame restorer stopped prematurely")
-                    break
-                (restored_frame, restored_frame_pts) = elem
-                video_writer.write(restored_frame, restored_frame_pts, bgr2rgb=True)
-                frame_restorer_progressbar.update()
-    except (Exception, KeyboardInterrupt) as e:
-        success = False
-        if isinstance(e, KeyboardInterrupt):
-            raise e
-        else:
-            print("Error on export", e)
-    finally:
-        frame_restorer.stop()
-        frame_restorer_progressbar.close(ensure_completed_bar=success)
 
-    if success:
-        print(_("Processing audio"))
-        audio_utils.combine_audio_video_files(video_metadata, video_tmp_file_output_path, output_path)
-    else:
-        if os.path.exists(video_tmp_file_output_path):
-            os.remove(video_tmp_file_output_path)
+def print_scheduler_event(event: ExportEvent):
+    if event.event_type == "worker_started":
+        print(_("Worker {worker_id} started on {device}").format(worker_id=event.worker_id, device=event.device))
+    elif event.event_type == "task_started":
+        print(_("{filename}: started on {device}").format(filename=os.path.basename(event.input_path), device=event.device))
+    elif event.event_type == "task_finished":
+        print(_("{filename}: finished on {device}").format(filename=os.path.basename(event.input_path), device=event.device))
+    elif event.event_type == "task_failed":
+        print(_("{filename}: failed on {device}: {error}").format(filename=os.path.basename(event.input_path), device=event.device, error=event.error))
+    elif event.event_type == "log":
+        message = event.error or event.message
+        if message:
+            print(message)
+
+
+def print_scheduler_summary(summary):
+    print(_("Export summary: {success} succeeded, {failed} failed, total time {duration:.1f}s").format(
+        success=summary.successful_count,
+        failed=summary.failed_count,
+        duration=summary.duration_seconds,
+    ))
+    if summary.failed_tasks:
+        print(_("Failed files:"))
+        for failed_task in summary.failed_tasks:
+            print(f"  {failed_task.input_path}: {failed_task.error}")
 
 def main():
+    multiprocessing.freeze_support()
     argparser = setup_argparser()
     args = argparser.parse_args()
     if args.version:
@@ -178,14 +180,34 @@ def main():
     if args.help or not args.input:
         argparser.print_help()
         sys.exit(0)
-    if args.device.startswith("cuda") and not torch.cuda.is_available():
-        print(_("GPU {device} selected but CUDA is not available").format(device=args.device))
-        sys.exit(1)
-    if args.device == "mps":
-        from lada.utils.os_utils import has_mps
-        if not has_mps():
-            print(_("MPS selected but MPS (Metal) is not available"))
+    parsed_devices = None
+    worker_device_slots = None
+    if args.devices is None:
+        try:
+            selected_device = device_utils.validate_torch_device(args.device)
+        except DeviceParseError as e:
+            print(e)
             sys.exit(1)
+    else:
+        try:
+            parsed_devices = device_utils.parse_devices_arg(args.devices)
+            worker_device_slots = device_utils.build_worker_device_slots(
+                parsed_devices,
+                jobs_per_device=args.jobs_per_device,
+                parallel=args.parallel,
+                allow_parallel_cpu=args.parallel is not None,
+            )
+        except (DeviceParseError, ValueError) as e:
+            print(e)
+            sys.exit(1)
+
+        if args.devices.strip().lower() == "auto":
+            cuda_devices = [device for device in parsed_devices if device.startswith("cuda:")]
+            if cuda_devices:
+                print(_("Detected CUDA devices: {devices}").format(devices=", ".join(cuda_devices)))
+            else:
+                print(_("No CUDA devices detected. Falling back to {device}").format(device=parsed_devices[0]))
+        selected_device = worker_device_slots[0]
     if "{orig_file_name}" not in args.output_file_pattern or "." not in args.output_file_pattern:
         print(_("Invalid file name pattern. It must include the template string '{orig_file_name}' and a file extension"))
         sys.exit(1)
@@ -239,15 +261,51 @@ def main():
         sys.exit(1)
     assert encoder is not None and encoder_options is not None
 
-    device = torch.device(args.device)
+    input_files, output_files = utils.setup_input_and_output_paths(args.input, args.output, args.output_file_pattern)
+
+    single_file_input = len(input_files) == 1
+
+    if args.devices is not None and should_use_multi_device_scheduler(len(input_files), worker_device_slots, args.devices):
+        worker_settings = ExportWorkerSettings(
+            base_temp_dir=args.temporary_directory,
+            run_id=generate_run_id(),
+            mosaic_restoration_model_name=mosaic_restoration_model_name,
+            mosaic_restoration_model_path=mosaic_restoration_model_path,
+            mosaic_restoration_config_path=args.mosaic_restoration_config_path,
+            mosaic_detection_model_path=mosaic_detection_model_path,
+            fp16=args.fp16,
+            detect_face_mosaics=args.detect_face_mosaics,
+            max_clip_length=args.max_clip_length,
+            encoder=encoder,
+            encoder_options=encoder_options,
+            mp4_fast_start=args.mp4_fast_start,
+            cpu_threads_per_worker=args.worker_cpu_threads,
+            log_directory=str(_get_log_dir()),
+        )
+        scheduler = MultiDeviceExportScheduler(
+            input_files=input_files,
+            output_files=output_files,
+            devices=parsed_devices,
+            settings=worker_settings,
+            parallel=args.parallel,
+            jobs_per_device=args.jobs_per_device,
+            allow_parallel_cpu=args.parallel is not None,
+            gpu_worker_policy=args.gpu_worker_policy,
+        )
+        print(_("Multi-device export enabled: {workers} workers").format(workers=scheduler.worker_count))
+        try:
+            summary = scheduler.run(event_callback=print_scheduler_event)
+            print_scheduler_summary(summary)
+        except KeyboardInterrupt:
+            print(_("Received Ctrl-C, stopping restoration."))
+            scheduler.cancel()
+        return
+
+    device = torch.device(selected_device)
     mosaic_detection_model, mosaic_restoration_model, preferred_pad_mode = load_models(
         device, mosaic_restoration_model_name, mosaic_restoration_model_path, args.mosaic_restoration_config_path,
         mosaic_detection_model_path, args.fp16, args.detect_face_mosaics
     )
-
-    input_files, output_files = utils.setup_input_and_output_paths(args.input, args.output, args.output_file_pattern)
-
-    single_file_input = len(input_files) == 1
 
     for input_path, output_path in zip(input_files, output_files):
         if not single_file_input:
@@ -255,7 +313,8 @@ def main():
         try:
             process_video_file(input_path=input_path, output_path=output_path, temp_dir_path=args.temporary_directory, device=device, mosaic_restoration_model=mosaic_restoration_model, mosaic_detection_model=mosaic_detection_model,
                                mosaic_restoration_model_name=mosaic_restoration_model_name, preferred_pad_mode=preferred_pad_mode, max_clip_length=args.max_clip_length,
-                               encoder=encoder, encoder_options=encoder_options, mp4_fast_start=args.mp4_fast_start)
+                               encoder=encoder, encoder_options=encoder_options, mp4_fast_start=args.mp4_fast_start,
+                               progress_bar_factory=utils.Progressbar)
         except KeyboardInterrupt:
             print(_("Received Ctrl-C, stopping restoration."))
             break

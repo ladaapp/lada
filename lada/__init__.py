@@ -1,7 +1,12 @@
+import json
+import logging
 import os
 import sys
 from dataclasses import dataclass
+from datetime import datetime
 from functools import cache
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
 
 if "LADA_MODEL_WEIGHTS_DIR" in os.environ:
   MODEL_WEIGHTS_DIR = os.environ["LADA_MODEL_WEIGHTS_DIR"]
@@ -29,7 +34,150 @@ def _get_version(version: str):
 
 VERSION = _get_version('0.11.1-dev')
 
-LOG_LEVEL = os.environ.get("LOG_LEVEL", "WARNING")
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+DEFAULT_LOG_MAX_BYTES = 20 * 1024 * 1024
+DEFAULT_LOG_BACKUP_COUNT = 5
+
+
+def _get_config_dirs() -> list[Path]:
+    """Config directories used by the GUI, with the primary path first."""
+    if sys.platform == "win32":
+        dirs = [
+            Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local")) / "lada",
+            Path(os.environ.get("APPDATA", Path.home() / "AppData" / "Roaming")) / "lada",
+        ]
+    elif sys.platform == "darwin":
+        dirs = [Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "lada"]
+    else:
+        dirs = [Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "lada"]
+
+    unique_dirs = []
+    for directory in dirs:
+        if directory not in unique_dirs:
+            unique_dirs.append(directory)
+    return unique_dirs
+
+
+def _get_config_dir() -> Path:
+    return _get_config_dirs()[0]
+
+
+def _get_default_log_dir() -> Path:
+    if sys.platform == "win32":
+        base = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+        return base / "lada" / "logs"
+    elif sys.platform == "darwin":
+        return Path.home() / "Library" / "Logs" / "lada"
+    else:
+        state_home = os.environ.get("XDG_STATE_HOME", Path.home() / ".local" / "state")
+        return Path(state_home) / "lada" / "logs"
+
+
+def _get_log_dir() -> Path:
+    if "LADA_LOG_DIR" in os.environ:
+        return Path(os.environ["LADA_LOG_DIR"])
+
+    # Read log_directory from saved config so early-boot logs also go there
+    for config_dir in _get_config_dirs():
+        config_file = config_dir / "lada.conf"
+        try:
+            if config_file.exists():
+                config = json.loads(config_file.read_text(encoding="utf-8"))
+                configured = config.get("log_directory")
+                if configured:
+                    log_dir = Path(configured)
+                    log_dir.mkdir(parents=True, exist_ok=True)
+                    return log_dir
+        except Exception:
+            pass
+
+    return _get_default_log_dir()
+
+
+_LOG_FORMAT = logging.Formatter(
+    "%(asctime)s [%(levelname)-8s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
+
+def _get_log_rollover_settings() -> tuple[int, int]:
+    try:
+        max_bytes = int(os.environ.get("LADA_LOG_MAX_BYTES", DEFAULT_LOG_MAX_BYTES))
+    except ValueError:
+        max_bytes = DEFAULT_LOG_MAX_BYTES
+    try:
+        backup_count = int(os.environ.get("LADA_LOG_BACKUP_COUNT", DEFAULT_LOG_BACKUP_COUNT))
+    except ValueError:
+        backup_count = DEFAULT_LOG_BACKUP_COUNT
+    return max(0, max_bytes), max(0, backup_count)
+
+
+def _create_file_handler(log_file: Path) -> logging.FileHandler:
+    max_bytes, backup_count = _get_log_rollover_settings()
+    if max_bytes > 0 and backup_count > 0:
+        return RotatingFileHandler(
+            str(log_file),
+            maxBytes=max_bytes,
+            backupCount=backup_count,
+            encoding="utf-8",
+        )
+    return logging.FileHandler(str(log_file), encoding="utf-8")
+
+
+def set_log_file(log_file_path: str | Path, propagate_directory: bool = True) -> None:
+    """Switch the root logger's file handler to a specific log file."""
+    root = logging.getLogger()
+    log_file = Path(log_file_path)
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    os.environ["LADA_LOG_FILE"] = str(log_file)
+    if propagate_directory:
+        os.environ["LADA_LOG_DIR"] = str(log_file.parent)
+
+    for handler in list(root.handlers):
+        if isinstance(handler, logging.FileHandler):
+            root.removeHandler(handler)
+            handler.close()
+
+    file_handler = _create_file_handler(log_file)
+    file_handler.setFormatter(_LOG_FORMAT)
+    root.addHandler(file_handler)
+
+
+def set_log_directory(new_path: str | None) -> None:
+    """Switch the root logger's file handler and propagate it to child processes."""
+    new_dir = Path(new_path) if new_path else _get_default_log_dir()
+    new_dir.mkdir(parents=True, exist_ok=True)
+    os.environ["LADA_LOG_DIR"] = str(new_dir)
+    new_log_file = new_dir / "lada.log"
+    set_log_file(new_log_file)
+
+
+def _setup_logging():
+    log_dir = _get_log_dir()
+    log_dir.mkdir(parents=True, exist_ok=True)
+    os.environ["LADA_LOG_DIR"] = str(log_dir)
+    log_file = Path(os.environ["LADA_LOG_FILE"]) if "LADA_LOG_FILE" in os.environ else log_dir / "lada.log"
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+
+    root = logging.getLogger()
+    root.setLevel(LOG_LEVEL)
+
+    stream_handler = logging.StreamHandler(sys.stderr)
+    stream_handler.setFormatter(_LOG_FORMAT)
+    root.addHandler(stream_handler)
+
+    file_handler = _create_file_handler(log_file)
+    file_handler.setFormatter(_LOG_FORMAT)
+    root.addHandler(file_handler)
+
+    # Notify early (before any logger is active) where logs are written
+    print(
+        f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Logging to {log_file}",
+        file=sys.stderr,
+    )
+
+
+_setup_logging()
 
 IS_FLATPAK = "FLATPAK_ID" in os.environ and "XDG_RUNTIME_DIR" in os.environ
 if IS_FLATPAK and "TMPDIR" not in os.environ:

@@ -144,6 +144,45 @@ SPDX-License-Identifier: AGPL-3.0
                                     </object>
                                 </child>
                                 <child>
+                                    <object class="AdwComboRow" id="combo_row_batch_export_device">
+                                        <property name="title" translatable="true">Batch processing device</property>
+                                        <property name="subtitle" translatable="true">Device selection for queued file exports.</property>
+                                        <property name="model">
+                                            <object class="GtkStringList">
+                                                <items>
+                                                </items>
+                                            </object>
+                                        </property>
+                                        <signal name="notify::selected"
+                                                handler="combo_row_batch_export_device_selected_callback"/>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="AdwSpinRow" id="spin_row_batch_export_jobs_per_device">
+                                        <property name="title" translatable="true">Jobs per device</property>
+                                        <property name="subtitle" translatable="true">How many queued files each selected GPU may process at once. 1 is recommended unless you have enough VRAM.</property>
+                                        <signal name="notify::value"
+                                                handler="spin_row_batch_export_jobs_per_device_selected_callback"/>
+                                        <property name="adjustment">
+                                            <object class="GtkAdjustment">
+                                                <property name="lower">1</property>
+                                                <property name="upper">4</property>
+                                                <property name="value">1</property>
+                                                <property name="step-increment">1</property>
+                                                <property name="page-increment">1</property>
+                                            </object>
+                                        </property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="AdwSwitchRow" id="switch_row_batch_export_force_configured_jobs">
+                                        <property name="title" translatable="true">Force configured GPU jobs</property>
+                                        <property name="subtitle" translatable="true">Use the configured jobs per device even when automatic VRAM sizing would reduce it.</property>
+                                        <signal name="notify::active"
+                                                handler="switch_row_batch_export_force_configured_jobs_active_callback"/>
+                                    </object>
+                                </child>
+                                <child>
                                     <object class="AdwExpanderRow" id="expander_row_export_directory">
                                         <property name="title" translatable="true">Output Directory</property>
                                         <property name="tooltip-text" translatable="true">Directory where restored files will be saved</property>
@@ -224,6 +263,18 @@ SPDX-License-Identifier: AGPL-3.0
                                          </child>
                                          <child>
                                              <object class="AdwActionRow">
+                                                 <property name="title" translatable="true">Show notification</property>
+                                                 <property name="subtitle" translatable="true">Play a sound and show a Windows notification after export is completed.</property>
+                                                 <child type="prefix">
+                                                     <object class="GtkCheckButton" id="check_button_post_export_notification">
+                                                         <property name="group">check_button_post_export_shutdown</property>
+                                                         <signal name="toggled" handler="check_button_post_export_notification_callback"/>
+                                                     </object>
+                                                 </child>
+                                             </object>
+                                         </child>
+                                         <child>
+                                             <object class="AdwActionRow">
                                                  <property name="title" translatable="true">Execute custom command</property>
                                                  <property name="subtitle" translatable="true">Run a custom shell command after export is completed.</property>
                                                  <child type="prefix">
@@ -255,15 +306,28 @@ SPDX-License-Identifier: AGPL-3.0
                          <child>
                              <object class="AdwPreferencesGroup">
                                  <property name="title" translatable="true">Troubleshooting</property>
-                                 <property name="visible" bind-source="ConfigSidebar" bind-property="show-playback-section"/>
                                  <child>
-                                     <object class="AdwActionRow">
+                                     <object class="AdwActionRow" id="action_row_show_mosaic_detections">
                                          <property name="title" translatable="true">Show mosaic detections</property>
                                          <property name="subtitle" translatable="true">Show detected mosaic areas. Useful to evaluate quality of detection model.</property>
+                                         <property name="visible" bind-source="ConfigSidebar" bind-property="show-playback-section"/>
                                          <child type="prefix">
                                              <object class="GtkCheckButton" id="check_button_show_mosaic_detections">
                                                  <property name="active">true</property>
                                                  <signal name="toggled" handler="check_button_show_mosaic_detections_callback"/>
+                                             </object>
+                                         </child>
+                                     </object>
+                                 </child>
+                                 <child>
+                                     <object class="AdwActionRow" id="action_row_log_directory">
+                                         <property name="title" translatable="true">Log Directory</property>
+                                         <property name="tooltip-text" translatable="true">Directory where log files are saved</property>
+                                         <child type="suffix">
+                                             <object class="GtkButton">
+                                                 <property name="icon-name">folder-open-symbolic</property>
+                                                 <property name="valign">3</property>
+                                                 <signal name="clicked" handler="toggle_button_log_directory_filepicker_callback"/>
                                              </object>
                                          </child>
                                      </object>

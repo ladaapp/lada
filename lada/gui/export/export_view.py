@@ -4,13 +4,16 @@
 import logging
 import os
 import pathlib
+import shutil
+import subprocess
 import threading
 import time
 import traceback
 
 from gi.repository import Gtk, GObject, Gio, Adw, GLib
 
-from lada import LOG_LEVEL
+from lada import LOG_LEVEL, ModelFiles, _get_log_dir
+from lada.export.multi_device_scheduler import ExportEvent, ExportSummary, ExportWorkerSettings, MultiDeviceExportScheduler, generate_run_id
 from lada.gui import utils
 from lada.gui.config.config import Config, PostExportAction
 from lada.gui.config.no_gpu_banner import NoGpuBanner
@@ -22,7 +25,7 @@ from lada.gui.export.export_utils import ResumeInformation
 from lada.gui.export.shutdown_manager import ShutdownManager, ShutdownError
 from lada.gui.export.spinner_button import SpinnerButton
 from lada.gui.frame_restorer_provider import FrameRestorerOptions, FRAME_RESTORER_PROVIDER
-from lada.utils import audio_utils, video_utils
+from lada.utils import audio_utils, device_utils, os_utils, video_utils
 from lada.utils.threading_utils import STOP_MARKER, ErrorMarker
 
 here = pathlib.Path(__file__).parent.resolve()
@@ -59,6 +62,11 @@ class ExportView(Gtk.Widget):
         self.video_writer: video_utils.VideoWriter | None = None
         self.progress_calculator: export_utils.ProgressCalculator | None = None
         self.temp_file_path: str | None = None
+        self.multi_device_scheduler: MultiDeviceExportScheduler | None = None
+        self.multi_device_export_thread: threading.Thread | None = None
+        self.multi_device_task_id_to_idx: dict[str, int] = {}
+        self.multi_device_progress_calculators: dict[str, export_utils.EventProgressCalculator] = {}
+        self.batch_export_serial_device: str | None = None
 
         self.connect("video-export-finished", self.on_video_export_finished)
         self.connect("video-export-failed", self.on_video_export_failed)
@@ -138,12 +146,13 @@ class ExportView(Gtk.Widget):
         if self.single_file:
             return
         count_queued_items = sum([item.state == ExportItemState.QUEUED for item in self.model])
-        is_in_progress = self.in_progress_idx is not None
+        is_multi_device_export = self.multi_device_scheduler is not None
+        is_in_progress = self.in_progress_idx is not None or is_multi_device_export
         is_paused = self.resume_info is not None
         is_any_queued_items = count_queued_items > 0
         self.button_start_export.set_visible(not is_in_progress and is_any_queued_items)
-        self.button_pause_export.set_visible(is_in_progress and not is_paused)
-        self.button_resume_export.set_visible(is_paused)
+        self.button_pause_export.set_visible(is_in_progress and not is_paused and not is_multi_device_export)
+        self.button_resume_export.set_visible(is_paused and not is_multi_device_export)
         self.button_cancel_export.set_visible(is_in_progress)
 
     @GObject.Signal(name="video-export-finished")
@@ -201,6 +210,13 @@ class ExportView(Gtk.Widget):
 
     @Gtk.Template.Callback()
     def on_button_cancel_export_clicked(self, button_clicked):
+        if self.multi_device_scheduler is not None:
+            self.stop_requested = True
+            self.multi_device_scheduler.cancel()
+            self.button_cancel_export.set_sensitive(False)
+            self.button_cancel_export.set_spinner_visible(True)
+            self.button_pause_export.set_sensitive(False)
+            return
         if self.resume_info is None:
             # in-progress
             self.stop_requested = True
@@ -239,6 +255,8 @@ class ExportView(Gtk.Widget):
         export_utils.open_error_dialog(self, model_item.original_file.get_basename(), model_item.error_details)
 
     def on_remove_item_requested(self, obj, idx):
+        if self.multi_device_scheduler is not None:
+            return
         self.model.remove(idx)
         self.update_export_buttons()
 
@@ -256,6 +274,30 @@ class ExportView(Gtk.Widget):
         self.single_file_page.set_button_start_restore_label(label)
         self.button_start_export.set_label(label)
 
+    def get_batch_export_devices(self) -> list[str]:
+        configured_device = self._config.batch_export_device
+        if configured_device == "selected":
+            return [self._config.device]
+        if configured_device == "all-cuda":
+            return [device for device in device_utils.detect_available_devices() if device.startswith("cuda:")]
+        if configured_device == "cpu":
+            return ["cpu"]
+        if device_utils.is_torch_device_available(configured_device):
+            return [configured_device]
+        logger.warning(f"Batch export device {configured_device} is not available, falling back to selected device {self._config.device}")
+        return [self._config.device]
+
+    def should_use_multi_device_batch_export(self) -> bool:
+        devices = self.get_batch_export_devices()
+        return not self.single_file and self._config.batch_export_device == "all-cuda" and len(devices) > 1
+
+    def get_batch_export_serial_device(self) -> str:
+        devices = self.get_batch_export_devices()
+        return devices[0] if devices else self._config.device
+
+    def get_temp_file_path(self, temp_dir: str, restore_file_path: str):
+        return os.path.join(temp_dir, f"{os.path.basename(os.path.splitext(restore_file_path)[0])}.tmp{os.path.splitext(restore_file_path)[1]}")
+
     def get_next_queued_item_idx(self) -> int | None:
         for idx, item in enumerate(self.model):
             if item.state == ExportItemState.QUEUED:
@@ -269,6 +311,7 @@ class ExportView(Gtk.Widget):
             self.view_switcher.set_sensitive(True)
             self.config_sidebar.set_property("disabled", False)
             self.in_progress_idx = None
+            self.batch_export_serial_device = None
             self.update_export_buttons()
             self.execute_post_export_action()
         else:
@@ -288,10 +331,12 @@ class ExportView(Gtk.Widget):
 
         model_item = self.model[idx]
         model_item.state = ExportItemState.PROCESSING
+        model_item.current_device = self.batch_export_serial_device or self._config.device
 
         if self.single_file:
             self.single_file_page.show_video_export_started(save_file, self.temp_file_path, self._config.mp4_fast_start)
         self.multiple_files_page.show_video_export_started(idx, self.temp_file_path, self._config.mp4_fast_start)
+        self.multiple_files_page.on_video_export_device_changed(idx, model_item.current_device)
 
     def on_video_export_finished(self, obj):
         assert self.in_progress_idx is not None
@@ -323,6 +368,7 @@ class ExportView(Gtk.Widget):
         model_item = self.model[self.in_progress_idx]
         model_item.state = ExportItemState.QUEUED
         model_item.progress = ExportItemDataProgress()
+        model_item.current_device = ""
 
         if self.single_file:
             self.single_file_page.on_video_export_stopped()
@@ -404,15 +450,174 @@ class ExportView(Gtk.Widget):
                     restored_files.append(restored_file)
             self.multiple_files_page.on_video_export_started(restored_files)
 
-        item = self.model[self.get_next_queued_item_idx()]
-        self._start_export(item.original_file, item.restored_file)
+        if self.should_use_multi_device_batch_export():
+            self._start_multi_device_export()
+        else:
+            self.batch_export_serial_device = None if self.single_file else self.get_batch_export_serial_device()
+            item = self.model[self.get_next_queued_item_idx()]
+            self._start_export(item.original_file, item.restored_file)
+
+    def _start_multi_device_export(self):
+        queued_indices = [idx for idx, item in enumerate(self.model) if item.state == ExportItemState.QUEUED]
+        if not queued_indices:
+            return
+
+        restoration_modelfile = ModelFiles.get_restoration_model_by_name(self._config.mosaic_restoration_model)
+        detection_modelfile = ModelFiles.get_detection_model_by_name(self._config.mosaic_detection_model)
+        if restoration_modelfile is None or detection_modelfile is None:
+            export_utils.open_error_dialog(self, _("Batch export"), _("Selected model files are not available"))
+            return
+
+        devices = self.get_batch_export_devices()
+        preset = utils.get_selected_preset(self.config)
+        worker_settings = ExportWorkerSettings(
+            base_temp_dir=self._config.temp_directory,
+            run_id=generate_run_id(),
+            log_directory=str(_get_log_dir()),
+            mosaic_restoration_model_name=self._config.mosaic_restoration_model,
+            mosaic_restoration_model_path=restoration_modelfile.path,
+            mosaic_restoration_config_path=None,
+            mosaic_detection_model_path=detection_modelfile.path,
+            fp16=self._config.fp16_enabled,
+            detect_face_mosaics=self._config.detect_face_mosaics,
+            max_clip_length=self._config.max_clip_duration,
+            encoder=preset.encoder_name,
+            encoder_options=preset.encoder_options,
+            mp4_fast_start=self._config.mp4_fast_start,
+        )
+
+        input_files = [self.model[idx].original_file.get_path() for idx in queued_indices]
+        output_files = [self.model[idx].restored_file.get_path() for idx in queued_indices]
+        self.multi_device_task_id_to_idx = {f"{task_idx + 1:06d}": model_idx for task_idx, model_idx in enumerate(queued_indices)}
+        self.multi_device_progress_calculators = {}
+        self.multi_device_scheduler = MultiDeviceExportScheduler(
+            input_files=input_files,
+            output_files=output_files,
+            devices=devices,
+            settings=worker_settings,
+            jobs_per_device=self._config.batch_export_jobs_per_device,
+            gpu_worker_policy="fixed" if self._config.batch_export_force_configured_jobs else "auto",
+        )
+        self.stop_requested = False
+        self.view_switcher.set_sensitive(False)
+        self.config_sidebar.set_property("disabled", True)
+        self.button_add_files.set_sensitive(False)
+        self.button_cancel_export.set_sensitive(True)
+        self.button_cancel_export.set_spinner_visible(False)
+        self.update_export_buttons()
+
+        def run_scheduler():
+            try:
+                summary = self.multi_device_scheduler.run(
+                    event_callback=lambda event: GLib.idle_add(
+                        lambda event=event: self.on_multi_device_export_event(event)
+                    )
+                )
+                GLib.idle_add(lambda summary=summary: self.on_multi_device_export_finished(summary))
+            except Exception as e:
+                GLib.idle_add(lambda error=e: self.on_multi_device_export_error(error))
+
+        self.multi_device_export_thread = threading.Thread(target=run_scheduler, daemon=True)
+        self.multi_device_export_thread.start()
+
+    def on_multi_device_export_event(self, event: ExportEvent):
+        if event.event_type == "log":
+            if event.error:
+                logger.error(event.error)
+            elif event.message:
+                logger.info(event.message)
+            return
+        if not event.task_id or event.task_id not in self.multi_device_task_id_to_idx:
+            return
+
+        idx = self.multi_device_task_id_to_idx[event.task_id]
+        model_item = self.model[idx]
+
+        if event.event_type == "task_started":
+            model_item.current_device = event.device or ""
+            model_item.progress = ExportItemDataProgress()
+            model_item.state = ExportItemState.PROCESSING
+            self.multi_device_progress_calculators[event.task_id] = export_utils.EventProgressCalculator()
+            temp_file_path = self.get_temp_file_path(event.temporary_directory, event.output_path) if event.temporary_directory and event.output_path else None
+            self.multiple_files_page.show_video_export_started(idx, temp_file_path, self._config.mp4_fast_start)
+            self.multiple_files_page.on_video_export_device_changed(idx, model_item.current_device)
+        elif event.event_type == "task_progress":
+            progress_calculator = self.multi_device_progress_calculators.get(event.task_id)
+            if progress_calculator is None:
+                progress_calculator = export_utils.EventProgressCalculator()
+                self.multi_device_progress_calculators[event.task_id] = progress_calculator
+            progress = progress_calculator.get_progress(
+                event.progress or 0.0,
+                event.frames_done or 0,
+                event.frames_total or 0,
+            )
+            model_item.progress = progress
+            self.multiple_files_page.on_video_export_progress(idx, progress)
+        elif event.event_type == "task_finished":
+            model_item.progress.complete()
+            model_item.state = ExportItemState.FINISHED
+            self.multi_device_progress_calculators.pop(event.task_id, None)
+            self.multiple_files_page.on_video_export_finished(idx)
+        elif event.event_type == "task_failed":
+            model_item.state = ExportItemState.FAILED
+            model_item.error_details = event.error or _("Video export failed")
+            self.multi_device_progress_calculators.pop(event.task_id, None)
+            self.multiple_files_page.on_video_export_failed(idx)
+
+    def on_multi_device_export_finished(self, summary: ExportSummary):
+        if summary.cancelled:
+            for idx, model_item in enumerate(self.model):
+                if model_item.state == ExportItemState.PROCESSING:
+                    model_item.state = ExportItemState.QUEUED
+                    model_item.progress = ExportItemDataProgress()
+                    model_item.current_device = ""
+                    self.multiple_files_page.on_video_export_stopped(idx)
+
+        self.multi_device_scheduler = None
+        self.multi_device_export_thread = None
+        self.multi_device_task_id_to_idx = {}
+        self.multi_device_progress_calculators = {}
+        self.stop_requested = False
+        self.view_switcher.set_sensitive(True)
+        self.config_sidebar.set_property("disabled", False)
+        self.button_add_files.set_sensitive(True)
+        self.button_start_export.set_sensitive(True)
+        self.button_cancel_export.set_sensitive(True)
+        self.button_cancel_export.set_spinner_visible(False)
+        self.button_pause_export.set_sensitive(True)
+        self.update_export_buttons()
+
+        if not summary.cancelled:
+            self.execute_post_export_action()
+
+    def on_multi_device_export_error(self, error: Exception):
+        logger.error(f"Error on multi-device export: {error}")
+        for idx, model_item in enumerate(self.model):
+            if model_item.state == ExportItemState.PROCESSING:
+                model_item.state = ExportItemState.QUEUED
+                model_item.progress = ExportItemDataProgress()
+                model_item.current_device = ""
+                self.multiple_files_page.on_video_export_stopped(idx)
+        self.multi_device_scheduler = None
+        self.multi_device_export_thread = None
+        self.multi_device_task_id_to_idx = {}
+        self.multi_device_progress_calculators = {}
+        self.stop_requested = False
+        self.view_switcher.set_sensitive(True)
+        self.config_sidebar.set_property("disabled", False)
+        self.button_add_files.set_sensitive(True)
+        self.button_cancel_export.set_sensitive(True)
+        self.button_cancel_export.set_spinner_visible(False)
+        self.update_export_buttons()
+        export_utils.open_error_dialog(self, _("Batch export"), str(error))
 
     def _start_export(self, source_file: Gio.File, restore_file: Gio.File):
         assert os.path.isfile(source_file.get_path())
         restore_file_path = restore_file.get_path()
         temp_dir = self._config.temp_directory
-        video_tmp_file_output_path = os.path.join(temp_dir, f"{os.path.basename(os.path.splitext(restore_file_path)[0])}.tmp{os.path.splitext(restore_file_path)[1]}")
+        video_tmp_file_output_path = self.get_temp_file_path(temp_dir, restore_file_path)
         self.temp_file_path = video_tmp_file_output_path
+        export_device = self.batch_export_serial_device or self._config.device
 
         if not self.resume_info:
             self.show_video_export_started(restore_file)
@@ -439,7 +644,7 @@ class ExportView(Gtk.Widget):
             frame_restorer_options = FrameRestorerOptions(self._config.mosaic_restoration_model,
                                                           self._config.mosaic_detection_model,
                                                           video_utils.get_video_meta_data(source_file.get_path()),
-                                                          self._config.device,
+                                                          export_device,
                                                           self._config.max_clip_duration,
                                                           False,
                                                           False,
@@ -458,10 +663,22 @@ class ExportView(Gtk.Widget):
                     start_ns = 0
                     start_frame_num = 0
                     preset = utils.get_selected_preset(self.config)
+                    encoder_options = video_utils.bind_nvenc_encoder_options_to_device(
+                        preset.encoder_name,
+                        preset.encoder_options,
+                        export_device,
+                    )
+                    if encoder_options != preset.encoder_options:
+                        logger.info(
+                            "Bound NVENC encoder %s options to %s: %s",
+                            preset.encoder_name,
+                            export_device,
+                            encoder_options,
+                        )
                     self.video_writer = video_utils.VideoWriter(
                         video_tmp_file_output_path, video_metadata.video_width,
                         video_metadata.video_height, video_metadata.video_fps_exact,
-                        encoder=preset.encoder_name, encoder_options=preset.encoder_options,
+                        encoder=preset.encoder_name, encoder_options=encoder_options,
                         time_base=video_metadata.time_base, mp4_fast_start=self._config.mp4_fast_start)
                     self.progress_calculator = export_utils.ProgressCalculator(video_metadata)
 
@@ -580,15 +797,40 @@ class ExportView(Gtk.Widget):
             logger.info("Post-export action: Shutting down PC - showing confirmation dialog")
             self.show_shutdown_confirmation_dialog()
             self.emit("shutdown-confirmation-requested")
+        elif action == PostExportAction.NOTIFICATION:
+            self.execute_post_export_notification()
         elif action == PostExportAction.CUSTOM_COMMAND:
             command = self._config.post_export_custom_command.strip()
             if command:
                 logger.info(f"Post-export action: Executing custom command: {command}")
-                import subprocess
                 try:
                     subprocess.Popen(command, shell=True)
                 except Exception as e:
                     logger.error(f"Failed to execute custom command '{command}': {e}")
+
+    def execute_post_export_notification(self):
+        script_path = here.parents[2].joinpath("notify_export_complete.ps1")
+        powershell = shutil.which("powershell") or shutil.which("pwsh")
+        if powershell is None:
+            logger.error("Post-export notification failed: PowerShell executable not found")
+            return
+        if not script_path.exists():
+            logger.error(f"Post-export notification failed: script not found at {script_path}")
+            return
+        logger.info(f"Post-export action: Executing notification script: {script_path}")
+        try:
+            subprocess.Popen(
+                [
+                    powershell,
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-File",
+                    str(script_path),
+                ],
+                startupinfo=os_utils.get_subprocess_startup_info(),
+            )
+        except Exception as e:
+            logger.error(f"Failed to execute notification script '{script_path}': {e}")
 
     def show_shutdown_confirmation_dialog(self):
         dialog = Adw.AlertDialog(
@@ -634,3 +876,5 @@ class ExportView(Gtk.Widget):
 
     def close(self):
         self.stop_requested = True
+        if self.multi_device_scheduler is not None:
+            self.multi_device_scheduler.cancel()

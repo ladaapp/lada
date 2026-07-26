@@ -16,6 +16,9 @@ def load_models(
     mosaic_detection_model_path: str,
     fp16: bool,
     detect_face_mosaics: bool):
+    device = torch.device(device)
+    if device.type == "cuda":
+        torch.cuda.set_device(device.index if device.index is not None else 0)
     if mosaic_restoration_model_name.startswith("deepmosaics"):
         from lada.models.deepmosaics.models import loadmodel
         from lada.restorationpipeline.deepmosaics_mosaic_restorer import DeepmosaicsMosaicRestorer

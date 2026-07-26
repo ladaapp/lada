@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0
 
 import logging
+import multiprocessing
 import pathlib
 import sys
 
@@ -22,6 +23,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=LOG_LEVEL)
 
 def main():
+    multiprocessing.freeze_support()
     if load_fallback:
         from lada.gui.missing_flatpak_extension_application import MissingFlatpakExtensionApplication
         app = MissingFlatpakExtensionApplication()

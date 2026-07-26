@@ -80,15 +80,86 @@ def VideoReaderOpenCV(*args, **kwargs):
         cap.release()
 
 class VideoReader:
-    def __init__(self, file):
+    def __init__(self, file, hwaccel: str | None = None, device=None):
         self.file = file
         self.container = None
+        self.device = torch.device(device) if device is not None else None
+        self.hwaccel_name, self.hwaccel_device = self._resolve_hwaccel(hwaccel, self.device)
+        self.hwaccel = self._create_hwaccel(self.hwaccel_name, self.hwaccel_device)
+
+    @staticmethod
+    def _resolve_hwaccel(hwaccel_name: str | None, device: torch.device | None) -> tuple[str | None, str | None]:
+        configured = hwaccel_name if hwaccel_name is not None else os.environ.get("LADA_VIDEO_READER_HWACCEL", "auto")
+        if configured is None:
+            return None, None
+
+        configured = configured.strip().lower()
+        if configured in ("", "0", "false", "no", "off", "disable", "disabled"):
+            return None, None
+
+        explicit_device = os.environ.get("LADA_VIDEO_READER_HWACCEL_DEVICE")
+        if explicit_device is not None and explicit_device.strip() == "":
+            explicit_device = None
+
+        if configured == "auto":
+            if device is not None and device.type == "cuda":
+                index = device.index if device.index is not None else 0
+                return "cuda", explicit_device or str(index)
+            return None, None
+
+        if configured.startswith("cuda:"):
+            return "cuda", configured.split(":", 1)[1]
+
+        if configured == "cuda" and explicit_device is None and device is not None and device.type == "cuda":
+            index = device.index if device.index is not None else 0
+            return "cuda", str(index)
+
+        return configured, explicit_device
+
+    @staticmethod
+    def _create_hwaccel(hwaccel_name: str | None, hwaccel_device: str | None = None):
+        if hwaccel_name is None:
+            return None
+        try:
+            from av.codec.hwaccel import HWAccel
+
+            return HWAccel(hwaccel_name, device=hwaccel_device, allow_software_fallback=True)
+        except Exception as e:
+            logger.warning(
+                "Unable to enable video reader hardware acceleration %s%s: %s",
+                hwaccel_name,
+                f":{hwaccel_device}" if hwaccel_device is not None else "",
+                e,
+            )
+            return None
 
     def __enter__(self):
         # We currently do not pass through metadata to the output file so let's just ignore potential errors. Fixes #127
         # E.g. metadata could be encoded in CP936 instead of UTF-8 which would raise an error if we don't pass it in metadata_encoding.
         # If we use it in the future we have to consider non-default character encodings.
-        self.container = av.open(self.file, metadata_errors='ignore')
+        open_kwargs = {"metadata_errors": "ignore"}
+        if self.hwaccel is not None:
+            open_kwargs["hwaccel"] = self.hwaccel
+        try:
+            self.container = av.open(self.file, **open_kwargs)
+            if self.hwaccel is not None:
+                logger.info(
+                    "VideoReader enabled %s%s hardware acceleration for %s",
+                    self.hwaccel_name,
+                    f":{self.hwaccel_device}" if self.hwaccel_device is not None else "",
+                    self.file,
+                )
+        except Exception:
+            if self.hwaccel is None:
+                raise
+            logger.warning(
+                "VideoReader could not open %s with %s hardware acceleration; falling back to software decode",
+                self.file,
+                self.hwaccel_name,
+                exc_info=True,
+            )
+            self.hwaccel = None
+            self.container = av.open(self.file, metadata_errors='ignore')
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -397,6 +468,54 @@ def _is_codec_hardware_acceleration_working(codec_name: str, hwaccel_device_type
     except Exception:
         return False
 
+
+def is_nvenc_encoder(encoder: str) -> bool:
+    return encoder.lower().endswith("_nvenc")
+
+
+def is_hardware_accelerated_encoder(encoder: str) -> bool:
+    encoder = encoder.lower()
+    return (
+        encoder.endswith("_nvenc")
+        or encoder.endswith("_qsv")
+        or encoder.endswith("_amf")
+        or encoder.endswith("_videotoolbox")
+    )
+
+
+def get_cuda_device_index(device) -> int | None:
+    if device is None:
+        return None
+    try:
+        torch_device = torch.device(device)
+    except (RuntimeError, TypeError, ValueError):
+        return None
+    if torch_device.type != "cuda":
+        return None
+    if torch_device.index is None:
+        return None
+    return torch_device.index
+
+
+def encoder_options_has_option(encoder_options: str, option_name: str) -> bool:
+    option_name = option_name.lstrip("-")
+    try:
+        tokens = shlex.split(encoder_options or "")
+    except ValueError:
+        return False
+    return any(token.lstrip("-").split(":", 1)[0] == option_name for token in tokens)
+
+
+def bind_nvenc_encoder_options_to_device(encoder: str, encoder_options: str, device) -> str:
+    cuda_device_index = get_cuda_device_index(device)
+    if not is_nvenc_encoder(encoder) or cuda_device_index is None:
+        return encoder_options
+    if encoder_options_has_option(encoder_options, "gpu"):
+        return encoder_options
+    suffix = f"-gpu {cuda_device_index}"
+    return f"{encoder_options} {suffix}".strip()
+
+
 class VideoWriter:
     def _parse_encoder_options(self, encoder_options: str):
         tokens = shlex.split(encoder_options)
@@ -406,7 +525,7 @@ class VideoWriter:
         }
         return parsed_encoder_options
 
-    def __init__(self, output_path, width, height, fps, encoder: str, encoder_options: str, time_base=None, mp4_fast_start=False):
+    def __init__(self, output_path, width, height, fps, encoder: str, encoder_options: str, time_base=None, mp4_fast_start=False, encoder_thread_count: int | None = None):
         container_options = {}
         if mp4_fast_start and (output_path.lower().endswith(".mp4") or output_path.lower().endswith(".mov")):
             container_options["movflags"] = "+frag_keyframe+empty_moov+faststart"
@@ -429,14 +548,17 @@ class VideoWriter:
 
         video_stream_out.width = width
         video_stream_out.height = height
-        video_stream_out.thread_count = 0
+        if encoder_thread_count is None:
+            encoder_thread_count = 1 if is_hardware_accelerated_encoder(encoder) else 0
+
+        video_stream_out.thread_count = encoder_thread_count
         video_stream_out.thread_type = 3
         video_stream_out.time_base = time_base
 
         # up until PyAV 15.5.0 it was enough to set these settings on the stream only.
         video_stream_out.codec_context.width = width
         video_stream_out.codec_context.height = height
-        video_stream_out.codec_context.thread_count = 0
+        video_stream_out.codec_context.thread_count = encoder_thread_count
         video_stream_out.codec_context.thread_type = 3
         video_stream_out.codec_context.time_base = time_base
 
@@ -463,11 +585,11 @@ class VideoWriter:
     def _process_buffer(self, flush_all=False):
         """Processes the buffer to encode frames."""
         if len(self.frame_queue) > (self.BUFFER_MAX_SIZE / 2) or (flush_all and self.frame_queue):
-            frame_to_encode = self.frame_queue.popleft()
+            frame_to_encode, frame_format = self.frame_queue.popleft()
             pts_to_assign = heapq.heappop(self.pts_heap)
             self.pts_set.remove(pts_to_assign)
 
-            out_frame = av.VideoFrame.from_ndarray(frame_to_encode, format='rgb24')
+            out_frame = av.VideoFrame.from_ndarray(frame_to_encode, format=frame_format)
             out_frame.pts = pts_to_assign
             out_packet = self.video_stream.encode(out_frame)
             if out_packet:
@@ -485,12 +607,11 @@ class VideoWriter:
         # See https://codeberg.org/ladaapp/lada/pulls/33 for more information/discussion.
         if isinstance(frame, torch.Tensor):
             frame = frame.cpu().numpy()
-        if bgr2rgb:
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_format = "bgr24" if bgr2rgb else "rgb24"
 
         if frame_pts not in self.pts_set:
             heapq.heappush(self.pts_heap, frame_pts)
-            self.frame_queue.append(frame)
+            self.frame_queue.append((frame, frame_format))
             self.pts_set.add(frame_pts)
 
         self._process_buffer()

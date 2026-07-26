@@ -20,3 +20,6 @@ __pycache__/
 *.pyc
 *.mo
 *.ep
+*.log
+*.7z
+start_gui.ps1

@@ -24,6 +24,9 @@ class ConfigSidebar(Gtk.Box):
     __gtype_name__ = 'ConfigSidebar'
 
     combo_row_gpu = Gtk.Template.Child()
+    combo_row_batch_export_device = Gtk.Template.Child()
+    spin_row_batch_export_jobs_per_device = Gtk.Template.Child()
+    switch_row_batch_export_force_configured_jobs: Adw.SwitchRow = Gtk.Template.Child()
     spin_row_preview_buffer_duration = Gtk.Template.Child()
     spin_row_clip_max_duration = Gtk.Template.Child()
     switch_row_mute_audio = Gtk.Template.Child()
@@ -43,6 +46,7 @@ class ConfigSidebar(Gtk.Box):
     toggle_button_initial_view_export: Gtk.ToggleButton = Gtk.Template.Child()
     expander_row_post_export_action: Adw.ExpanderRow = Gtk.Template.Child()
     check_button_post_export_shutdown: Gtk.CheckButton = Gtk.Template.Child()
+    check_button_post_export_notification: Gtk.CheckButton = Gtk.Template.Child()
     check_button_post_export_custom_command: Gtk.CheckButton = Gtk.Template.Child()
     entry_row_post_export_custom_command: Adw.EntryRow = Gtk.Template.Child()
     check_button_show_mosaic_detections: Gtk.CheckButton = Gtk.Template.Child()
@@ -53,6 +57,7 @@ class ConfigSidebar(Gtk.Box):
     expander_row_detection_models: Adw.ExpanderRow = Gtk.Template.Child()
     expander_row_restoration_models: Adw.ExpanderRow = Gtk.Template.Child()
     spin_row_subtitles_font_size: Adw.SpinRow = Gtk.Template.Child()
+    action_row_log_directory: Adw.ActionRow = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -66,6 +71,7 @@ class ConfigSidebar(Gtk.Box):
         self._presets_action_rows: list[Adw.ActionRow] = []
         self._detection_models_actions_rows: list[Adw.ActionRow] = []
         self._restoration_models_actions_rows: list[Adw.ActionRow] = []
+        self._batch_export_device_options: list[tuple[str, str]] = []
 
     def init_sidebar_from_config(self, config: Config):
         self.check_button_show_mosaic_detections.props.active = config.show_mosaic_detections
@@ -79,8 +85,12 @@ class ConfigSidebar(Gtk.Box):
             if config.device == device:
                 configured_gpu_selection_idx = gpu_selection_idx
         self.combo_row_gpu.set_model(combo_row_gpu_list)
-        if configured_gpu_selection_idx:
+        if configured_gpu_selection_idx is not None:
             self.combo_row_gpu.set_selected(configured_gpu_selection_idx)
+
+        self.init_batch_export_device_combo(config)
+        self.spin_row_batch_export_jobs_per_device.set_value(config.batch_export_jobs_per_device)
+        self.switch_row_batch_export_force_configured_jobs.set_active(config.batch_export_force_configured_jobs)
 
         # init restoration model
         for row in self._restoration_models_actions_rows:
@@ -151,11 +161,17 @@ class ConfigSidebar(Gtk.Box):
         # init temp directory
         self.action_row_temp_directory.set_subtitle(config.temp_directory)
 
+        # init log directory
+        from lada import _get_log_dir
+        log_dir = _get_log_dir() if config.log_directory is None else pathlib.Path(config.log_directory)
+        self.action_row_log_directory.set_subtitle(str(log_dir))
+
         self.toggle_button_initial_view_preview.set_active(config.initial_view == "watch")
         self.toggle_button_initial_view_export.set_active(config.initial_view == "export")
 
         # init post-export action
         self.check_button_post_export_shutdown.set_active(config.post_export_action == PostExportAction.SHUTDOWN)
+        self.check_button_post_export_notification.set_active(config.post_export_action == PostExportAction.NOTIFICATION)
         self.check_button_post_export_custom_command.set_active(config.post_export_action == PostExportAction.CUSTOM_COMMAND)
         self.expander_row_post_export_action.set_enable_expansion(config.post_export_action != PostExportAction.NONE)
         self.expander_row_post_export_action.set_expanded(config.post_export_action != PostExportAction.NONE)
@@ -209,6 +225,54 @@ class ConfigSidebar(Gtk.Box):
             if device_name == selected_gpu_name:
                 self._config.device = device
                 break
+
+    def init_batch_export_device_combo(self, config: Config):
+        self._batch_export_device_options = self.get_batch_export_device_options()
+        combo_row_batch_export_device_list = Gtk.StringList.new([])
+        configured_selection_idx = 0
+        for idx, (device, label) in enumerate(self._batch_export_device_options):
+            combo_row_batch_export_device_list.append(label)
+            if config.batch_export_device == device:
+                configured_selection_idx = idx
+        self.combo_row_batch_export_device.set_model(combo_row_batch_export_device_list)
+        self.combo_row_batch_export_device.set_selected(configured_selection_idx)
+
+    def get_batch_export_device_options(self) -> list[tuple[str, str]]:
+        available_gpus = utils.get_available_gpus()
+        options = [
+            ("selected", _("Selected device")),
+            ("cpu", _("CPU")),
+        ]
+
+        cuda_gpus = [(device, device_name) for device, device_name in available_gpus if device.startswith("cuda:")]
+        if len(cuda_gpus) > 1:
+            options.append(("all-cuda", _("All CUDA GPUs")))
+
+        for device, device_name in available_gpus:
+            if device.startswith("cuda:"):
+                device_idx = device.split(":", 1)[1]
+                options.append((device, _("GPU {device_idx}: {device_name}").format(device_idx=device_idx, device_name=device_name)))
+            else:
+                options.append((device, device_name))
+        return options
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def combo_row_batch_export_device_selected_callback(self, combo_row, value):
+        selected_idx = combo_row.get_property("selected")
+        if selected_idx >= len(self._batch_export_device_options):
+            return
+        self._config.batch_export_device = self._batch_export_device_options[selected_idx][0]
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def spin_row_batch_export_jobs_per_device_selected_callback(self, spin_row, value):
+        self._config.batch_export_jobs_per_device = int(spin_row.get_property("value"))
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def switch_row_batch_export_force_configured_jobs_active_callback(self, switch_row, active):
+        self._config.batch_export_force_configured_jobs = switch_row.get_property("active")
 
     @Gtk.Template.Callback()
     @skip_if_uninitialized
@@ -316,6 +380,13 @@ class ConfigSidebar(Gtk.Box):
     def check_button_post_export_shutdown_callback(self, check_button):
         if check_button.get_active():
             self._config.post_export_action = PostExportAction.SHUTDOWN
+        self.update_custom_command_visibility(self._config.post_export_action)
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def check_button_post_export_notification_callback(self, check_button):
+        if check_button.get_active():
+            self._config.post_export_action = PostExportAction.NOTIFICATION
         self.update_custom_command_visibility(self._config.post_export_action)
 
     @Gtk.Template.Callback()
@@ -536,6 +607,30 @@ class ConfigSidebar(Gtk.Box):
                     logger.error(f"Error selecting folder: {error.message}")
                     raise error
         file_dialog.select_folder(callback=on_select_temp_folder)
+
+    @Gtk.Template.Callback()
+    @skip_if_uninitialized
+    def toggle_button_log_directory_filepicker_callback(self, button_clicked):
+        self.show_select_log_folder()
+
+    def show_select_log_folder(self):
+        file_dialog = Gtk.FileDialog()
+        file_dialog.set_title(_("Select a folder for log files"))
+        if self._config.log_directory:
+            file_dialog.set_initial_folder(Gio.File.new_for_path(self._config.log_directory))
+        def on_select_folder(_file_dialog, result):
+            try:
+                selected_folder: Gio.File = _file_dialog.select_folder_finish(result)
+                selected_folder_path = selected_folder.get_path()
+                self._config.log_directory = selected_folder_path
+                self.action_row_log_directory.set_subtitle(selected_folder_path)
+            except GLib.Error as error:
+                if error.code == 2:
+                    logger.debug("FileDialog cancelled: Dismissed by user")
+                else:
+                    logger.error(f"Error selecting folder: {error.message}")
+                    raise error
+        file_dialog.select_folder(callback=on_select_folder)
 
     def update_custom_command_visibility(self, action: PostExportAction):
         self.entry_row_post_export_custom_command.set_visible(action == PostExportAction.CUSTOM_COMMAND)

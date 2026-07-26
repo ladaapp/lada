@@ -11,6 +11,40 @@
 - **Recover Pixelated Videos**: Restore pixelated or mosaic scenes in adult videos.
 - **Watch/Export Videos**: Use either the CLI or GUI to watch or export your restored videos.
 
+## Performance improvements in this fork
+
+This branch includes several Windows/CUDA export optimizations focused on multi-GPU throughput and BasicVSR++ pipeline utilization:
+
+- **Multi-GPU queued export**: queued files can be distributed across all CUDA GPUs, with one worker per selected GPU by default.
+- **Correct CUDA/NVENC binding**: each worker sets its PyTorch CUDA device and binds NVENC encoders to the matching GPU with FFmpeg's `-gpu N` option.
+- **CUDA hardware decode**: video reading can use CUDA hardware acceleration and maps the decoder to the selected worker GPU when available.
+- **Shared frame reader**: detection and restoration can share decoded frames to avoid decoding the same video stream twice.
+- **Detailed performance logging**: export logs include periodic JSON samples for FPS, CPU/GPU/NVENC/NVDEC usage, queue pressure, and stage timing.
+- **BasicVSR++ windowed restoration**: long mosaic clips are split into overlapping windows so restored frames are produced earlier and the encoder waits less.
+- **BasicVSR++ micro-batch restoration**: same-length restoration windows can be batched into one model forward pass to improve GPU utilization.
+- **Windows source-start helper**: `start_gui.ps1` sets practical defaults for the optimized pipeline when launching the GUI from this checkout.
+
+The source-start helper defaults to:
+
+```powershell
+.\start_gui.ps1
+```
+
+which sets:
+
+```text
+LADA_SHARED_DECODE_MAX_MB=4096
+LADA_BASICVSRPP_RESTORE_WINDOW_FRAMES=160
+LADA_BASICVSRPP_RESTORE_WINDOW_OVERLAP=32
+LADA_BASICVSRPP_RESTORE_BATCH_SIZE=2
+```
+
+You can override these values for testing:
+
+```powershell
+.\start_gui.ps1 -BasicVsrppRestoreWindowFrames 128 -BasicVsrppRestoreWindowOverlap 32 -BasicVsrppRestoreBatchSize 1
+```
+
 ## Usage
 
 ### GUI
@@ -30,6 +64,10 @@ After opening a file, you can either watch the restored video in real time or ex
 
 Additional settings can be found in the left sidebar.
 
+For queued exports, the Export settings include a batch processing device option. Select `All CUDA GPUs` to process multiple queued files in parallel across available CUDA GPUs. The `Jobs per device` option controls how many files each selected GPU may process at once; keep it at `1` unless you have enough VRAM. Single-file export and video playback still use the regular selected device and are not split across GPUs.
+
+The Post-Export Action setting can show a Windows notification when all queued exports complete. It uses the bundled `notify_export_complete.ps1` helper script.
+
 ### CLI
 
 You can also use the command-line interface (CLI) to restore video(s):
@@ -40,6 +78,40 @@ lada-cli --input <input video path>
 <img src="assets/screenshot_cli_1.png" alt="screenshot showing video export" width="60%">
 
 For more information about additional options, use the `--help` argument.
+
+#### Multi-GPU batch export
+
+Multi-GPU export processes multiple files in parallel. It does not split a single video across multiple GPUs.
+
+To automatically use all detected CUDA GPUs for a directory export:
+
+```shell
+lada-cli --input "D:\videos" --output "D:\out" --devices auto
+```
+
+To manually select two CUDA GPUs:
+
+```shell
+lada-cli --input "D:\videos" --output "D:\out" --devices cuda:0,cuda:1
+```
+
+To limit total concurrency, for example to process only one file at a time even when multiple GPUs are available:
+
+```shell
+lada-cli --input "D:\videos" --output "D:\out" --devices auto --parallel 1
+```
+
+The `--device` option remains the default single-process path. The new `--devices` option is only used for multi-file exports; single-file input still uses one device.
+
+For video restoration, keep `--jobs-per-device 1` unless you are sure your GPUs have enough VRAM. If you run out of VRAM, reduce `--parallel` instead of increasing `--jobs-per-device`.
+
+Multi-device workers automatically limit their PyTorch/OpenCV CPU thread pools based on worker count. If CPU scheduling becomes the bottleneck, you can override this with `--worker-cpu-threads`, for example:
+
+```shell
+lada-cli --input "D:\videos" --output "D:\out" --devices auto --jobs-per-device 2 --worker-cpu-threads 2
+```
+
+`--devices auto` currently enables parallel scheduling for CUDA devices. CPU, MPS, and XPU fall back to single-device processing by default. PyTorch inference is assigned to devices such as `cuda:0` and `cuda:1`. During multi-device export, NVENC encoders such as `h264_nvenc` and `hevc_nvenc` are bound to the worker's CUDA index by adding FFmpeg's `-gpu N` option unless the user already supplied a `-gpu` encoder option.
 
 ## Performance expectations and hardware requirements
 The restoration quality can vary depending on the scene. Some may look quite realistic, while others could display noticeable artifacts, sometimes worse than the original mosaics.

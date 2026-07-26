@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: Lada Authors
 # SPDX-License-Identifier: AGPL-3.0
 import os
+import time
+from collections import deque
 from dataclasses import dataclass
 from fractions import Fraction
 
@@ -138,6 +140,48 @@ class ProgressCalculator:
             progress.time_remaining_s = progress.frames_remaining * mean_duration
             progress.speed_fps = 1. / mean_duration
         return progress
+
+
+class EventProgressCalculator:
+    def __init__(self, min_elapsed_s: float = 5.0, sample_window_s: float = 120.0):
+        self.started_at = time.monotonic()
+        self.sample_window_s = sample_window_s
+        self.min_elapsed_s = min_elapsed_s
+        self.samples = deque()
+
+    def get_progress(self, fraction: float, frames_done: int, frames_total: int, now: float | None = None) -> ExportItemDataProgress:
+        now = time.monotonic() if now is None else now
+        elapsed_s = max(0.0, now - self.started_at)
+        frames_done = max(0, int(frames_done))
+        frames_total = max(0, int(frames_total))
+
+        self.samples.append((now, frames_done))
+        while len(self.samples) > 1 and now - self.samples[0][0] > self.sample_window_s:
+            self.samples.popleft()
+
+        progress = ExportItemDataProgress()
+        progress.time_done_s = elapsed_s
+        progress.frames_done = frames_done
+        progress.fraction = fraction if fraction > 0 else (frames_done / frames_total if frames_total else 0.0)
+        progress.frames_remaining = max(0, frames_total - frames_done)
+
+        speed_fps = 0.0
+        if len(self.samples) >= 2:
+            first_sample_time, first_sample_frames = self.samples[0]
+            sample_elapsed_s = now - first_sample_time
+            sample_frames_done = frames_done - first_sample_frames
+            if sample_elapsed_s > 0 and sample_frames_done > 0:
+                speed_fps = sample_frames_done / sample_elapsed_s
+        elif elapsed_s > 0 and frames_done > 0:
+            speed_fps = frames_done / elapsed_s
+
+        progress.enough_datapoints = elapsed_s >= self.min_elapsed_s and speed_fps > 0
+        if progress.enough_datapoints:
+            progress.speed_fps = speed_fps
+            progress.time_remaining_s = progress.frames_remaining / speed_fps if speed_fps > 0 else 0.0
+
+        return progress
+
 
 @dataclass
 class ResumeInformation:
