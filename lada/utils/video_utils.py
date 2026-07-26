@@ -80,25 +80,57 @@ def VideoReaderOpenCV(*args, **kwargs):
         cap.release()
 
 class VideoReader:
-    def __init__(self, file, hwaccel: str | None = None):
+    def __init__(self, file, hwaccel: str | None = None, device=None):
         self.file = file
         self.container = None
-        self.hwaccel_name = hwaccel if hwaccel is not None else os.environ.get("LADA_VIDEO_READER_HWACCEL", "off")
-        self.hwaccel = self._create_hwaccel(self.hwaccel_name)
+        self.device = torch.device(device) if device is not None else None
+        self.hwaccel_name, self.hwaccel_device = self._resolve_hwaccel(hwaccel, self.device)
+        self.hwaccel = self._create_hwaccel(self.hwaccel_name, self.hwaccel_device)
 
     @staticmethod
-    def _create_hwaccel(hwaccel_name: str | None):
+    def _resolve_hwaccel(hwaccel_name: str | None, device: torch.device | None) -> tuple[str | None, str | None]:
+        configured = hwaccel_name if hwaccel_name is not None else os.environ.get("LADA_VIDEO_READER_HWACCEL", "auto")
+        if configured is None:
+            return None, None
+
+        configured = configured.strip().lower()
+        if configured in ("", "0", "false", "no", "off", "disable", "disabled"):
+            return None, None
+
+        explicit_device = os.environ.get("LADA_VIDEO_READER_HWACCEL_DEVICE")
+        if explicit_device is not None and explicit_device.strip() == "":
+            explicit_device = None
+
+        if configured == "auto":
+            if device is not None and device.type == "cuda":
+                index = device.index if device.index is not None else 0
+                return "cuda", explicit_device or str(index)
+            return None, None
+
+        if configured.startswith("cuda:"):
+            return "cuda", configured.split(":", 1)[1]
+
+        if configured == "cuda" and explicit_device is None and device is not None and device.type == "cuda":
+            index = device.index if device.index is not None else 0
+            return "cuda", str(index)
+
+        return configured, explicit_device
+
+    @staticmethod
+    def _create_hwaccel(hwaccel_name: str | None, hwaccel_device: str | None = None):
         if hwaccel_name is None:
-            return None
-        hwaccel_name = hwaccel_name.strip().lower()
-        if hwaccel_name in ("", "0", "false", "no", "off", "disable", "disabled"):
             return None
         try:
             from av.codec.hwaccel import HWAccel
 
-            return HWAccel(hwaccel_name, allow_software_fallback=True)
+            return HWAccel(hwaccel_name, device=hwaccel_device, allow_software_fallback=True)
         except Exception as e:
-            logger.warning("Unable to enable video reader hardware acceleration %s: %s", hwaccel_name, e)
+            logger.warning(
+                "Unable to enable video reader hardware acceleration %s%s: %s",
+                hwaccel_name,
+                f":{hwaccel_device}" if hwaccel_device is not None else "",
+                e,
+            )
             return None
 
     def __enter__(self):
@@ -111,7 +143,12 @@ class VideoReader:
         try:
             self.container = av.open(self.file, **open_kwargs)
             if self.hwaccel is not None:
-                logger.info("VideoReader enabled %s hardware acceleration for %s", self.hwaccel_name, self.file)
+                logger.info(
+                    "VideoReader enabled %s%s hardware acceleration for %s",
+                    self.hwaccel_name,
+                    f":{self.hwaccel_device}" if self.hwaccel_device is not None else "",
+                    self.file,
+                )
         except Exception:
             if self.hwaccel is None:
                 raise

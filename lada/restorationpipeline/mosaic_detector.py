@@ -190,6 +190,24 @@ class Clip:
             self.crop_shapes[i] = crop_shape
             self.pad_after_resizes.append(pad_after_resize)
 
+    @classmethod
+    def from_clip_range(cls, clip: 'Clip', start_idx: int, end_idx: int, id):
+        assert 0 <= start_idx < end_idx <= len(clip.frames)
+        segment = cls.__new__(cls)
+        segment.id = id
+        segment.file_path = clip.file_path
+        segment.frame_start = clip.frame_start + start_idx
+        segment.frame_end = clip.frame_start + end_idx - 1
+        segment.size = clip.size
+        segment.pad_mode = clip.pad_mode
+        segment.frames = list(clip.frames[start_idx:end_idx])
+        segment.masks = list(clip.masks[start_idx:end_idx])
+        segment.boxes = list(clip.boxes[start_idx:end_idx])
+        segment.crop_shapes = list(clip.crop_shapes[start_idx:end_idx])
+        segment.pad_after_resizes = list(clip.pad_after_resizes[start_idx:end_idx])
+        segment._index = 0
+        return segment
+
     def get_max_width_height(self):
         max_width = 0
         max_height = 0
@@ -500,7 +518,7 @@ class MosaicDetector:
                 logger.debug("frame feeder worker: stopped by request")
             return
 
-        with video_utils.VideoReader(self.video_meta_data.video_file) as video_reader:
+        with video_utils.VideoReader(self.video_meta_data.video_file, device=self.device) as video_reader:
             if self.start_ns > 0:
                 video_reader.seek(self.start_ns)
             video_frames_generator = video_reader.frames()

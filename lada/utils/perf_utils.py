@@ -15,7 +15,7 @@ import threading
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Any, Iterator
+from typing import Any, Callable, Iterator
 
 
 DEFAULT_PERF_SAMPLE_INTERVAL_S = 30.0
@@ -286,14 +286,16 @@ class PerformanceSampler:
         frames_total: int,
         progress: float | None = None,
         force: bool = False,
-    ):
+        extra_payload: dict[str, Any] | None = None,
+        extra_payload_factory: Callable[[], dict[str, Any]] | None = None,
+    ) -> bool:
         if self.interval_s <= 0 and not force:
-            return
+            return False
 
         now = time.monotonic()
         interval_s = now - self._last_wall
         if not force and interval_s < self.interval_s:
-            return
+            return False
 
         elapsed_s = now - self._start_wall
         process_time = time.process_time()
@@ -322,12 +324,17 @@ class PerformanceSampler:
             "cpu_process_percent": (process_time_delta_s / interval_s) * 100 if interval_s > 0 else None,
             "process_time_delta_s": process_time_delta_s,
         }
+        if extra_payload:
+            payload.update(extra_payload)
+        if extra_payload_factory is not None:
+            payload.update(extra_payload_factory())
         payload.update(get_resource_snapshot(self.device))
         log_json(self.logger, "PERF_SAMPLE_JSON", payload)
 
         self._last_wall = now
         self._last_process_time = process_time
         self._last_frames_done = frames_done
+        return True
 
 
 class StageTimer:
@@ -336,6 +343,7 @@ class StageTimer:
         self.metadata = metadata or {}
         self.started_at_s = time.time()
         self._stats: dict[str, StageTiming] = {}
+        self._interval_stats: dict[str, StageTiming] = {}
         self._lock = threading.Lock()
 
     @contextmanager
@@ -352,6 +360,17 @@ class StageTimer:
             timing.count += 1
             timing.total_s += duration_s
             timing.max_s = max(timing.max_s, duration_s)
+            interval_timing = self._interval_stats.setdefault(stage, StageTiming())
+            interval_timing.count += 1
+            interval_timing.total_s += duration_s
+            interval_timing.max_s = max(interval_timing.max_s, duration_s)
+
+    def snapshot(self, reset: bool = False) -> list[dict[str, object]]:
+        with self._lock:
+            stats = dict(self._interval_stats)
+            if reset:
+                self._interval_stats = {}
+        return self._format_stage_stats(stats)
 
     def log_summary(self, logger: logging.Logger, level: int = logging.INFO):
         with self._lock:
@@ -373,6 +392,17 @@ class StageTimer:
         if stats is None:
             with self._lock:
                 stats = dict(self._stats)
+        return {
+            "event": "performance_summary",
+            "timer": self.name,
+            "metadata": self.metadata,
+            "pid": os.getpid(),
+            "elapsed_s": time.time() - self.started_at_s,
+            "stages": self._format_stage_stats(stats),
+        }
+
+    @staticmethod
+    def _format_stage_stats(stats: dict[str, StageTiming]) -> list[dict[str, object]]:
         stages = []
         for stage, timing in sorted(stats.items(), key=lambda item: item[1].total_s, reverse=True):
             avg_ms = (timing.total_s / timing.count) * 1000
@@ -385,11 +415,4 @@ class StageTimer:
                     "max_s": timing.max_s,
                 }
             )
-        return {
-            "event": "performance_summary",
-            "timer": self.name,
-            "metadata": self.metadata,
-            "pid": os.getpid(),
-            "elapsed_s": time.time() - self.started_at_s,
-            "stages": stages,
-        }
+        return stages

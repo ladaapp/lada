@@ -76,6 +76,16 @@ def process_video_file(
         interval_s=perf_sample_interval_s,
     )
 
+    def collect_perf_diagnostics(reset_stage_timers: bool = True) -> dict[str, Any]:
+        diagnostics: dict[str, Any] = {
+            "stage_interval": stage_timer.snapshot(reset=reset_stage_timers),
+        }
+        if frame_restorer is not None:
+            diagnostics["frame_restorer"] = frame_restorer.get_diagnostics(
+                reset_stage_timers=reset_stage_timers
+            )
+        return diagnostics
+
     video_tmp_file_output_path = os.path.join(
         temp_dir_path,
         f"{os.path.basename(os.path.splitext(output_path)[0])}.tmp{os.path.splitext(output_path)[1]}",
@@ -87,7 +97,13 @@ def process_video_file(
         progressbar = progress_bar_factory(video_metadata)
 
     try:
-        performance_sampler.maybe_log(0, frames_total, progress=0.0, force=True)
+        performance_sampler.maybe_log(
+            0,
+            frames_total,
+            progress=0.0,
+            force=True,
+            extra_payload_factory=collect_perf_diagnostics,
+        )
         frame_restorer = FrameRestorer(
             device,
             input_path,
@@ -134,6 +150,7 @@ def process_video_file(
                     frames_done,
                     video_metadata.frames_count,
                     progress=min(frames_done / frames_total, 1.0),
+                    extra_payload_factory=collect_perf_diagnostics,
                 )
                 if progressbar is not None:
                     progressbar.update()
@@ -178,6 +195,7 @@ def process_video_file(
         video_metadata.frames_count,
         progress=min(frames_done / frames_total, 1.0),
         force=True,
+        extra_payload_factory=collect_perf_diagnostics,
     )
 
     if not success and raise_on_error:
