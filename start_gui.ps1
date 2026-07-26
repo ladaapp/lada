@@ -4,6 +4,7 @@ param(
     [int]$SharedDecodeMaxMb = 4096,
     [int]$BasicVsrppRestoreWindowFrames = 160,
     [int]$BasicVsrppRestoreWindowOverlap = 32,
+    [int]$BasicVsrppRestoreBatchSize = 4,
     [switch]$Console
 )
 
@@ -49,12 +50,14 @@ $env:LADA_MODEL_WEIGHTS_DIR = $ModelWeightsDir
 $env:LADA_SHARED_DECODE_MAX_MB = [string]$SharedDecodeMaxMb
 $env:LADA_BASICVSRPP_RESTORE_WINDOW_FRAMES = [string]$BasicVsrppRestoreWindowFrames
 $env:LADA_BASICVSRPP_RESTORE_WINDOW_OVERLAP = [string]$BasicVsrppRestoreWindowOverlap
+$env:LADA_BASICVSRPP_RESTORE_BATCH_SIZE = [string]$BasicVsrppRestoreBatchSize
 $env:PYTHONUTF8 = "1"
 
 Set-Location -LiteralPath $ProjectRoot
 Write-Host "Using model weights: $ModelWeightsDir"
 Write-Host "Using shared decode memory limit: $SharedDecodeMaxMb MB"
 Write-Host "Using BasicVSR++ restore window: $BasicVsrppRestoreWindowFrames frames, overlap: $BasicVsrppRestoreWindowOverlap frames"
+Write-Host "Using BasicVSR++ restore batch size: $BasicVsrppRestoreBatchSize"
 
 if ($Console) {
     & $Python -m lada.gui.main

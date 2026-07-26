@@ -28,6 +28,7 @@ MOSAIC_DETECTION_BATCH_SIZE = 8
 DEFAULT_SHARED_DECODE_MAX_MB = 4096
 DEFAULT_BASICVSRPP_RESTORE_WINDOW_FRAMES = 96
 DEFAULT_BASICVSRPP_RESTORE_WINDOW_OVERLAP = 32
+DEFAULT_BASICVSRPP_RESTORE_BATCH_SIZE = 1
 
 class FrameRestorer:
     def __init__(self, device, video_file, max_clip_length, mosaic_restoration_model_name,
@@ -119,12 +120,15 @@ class FrameRestorer:
         self.pin_frame_transfers = self._should_pin_frame_transfers()
         self._pin_frame_transfer_warning_logged = False
         self.basicvsrpp_restore_window_frames, self.basicvsrpp_restore_window_overlap = self._get_basicvsrpp_window_settings()
+        self.basicvsrpp_restore_batch_size = self._get_basicvsrpp_restore_batch_size()
         if self.basicvsrpp_restore_window_frames is not None:
             logger.info(
                 "BasicVSR++ windowed restoration enabled: window=%d overlap=%d",
                 self.basicvsrpp_restore_window_frames,
                 self.basicvsrpp_restore_window_overlap,
             )
+        if self.mosaic_restoration_model_name.startswith("basicvsrpp"):
+            logger.info("BasicVSR++ restore batch size: %d", self.basicvsrpp_restore_batch_size)
 
     def _should_pin_frame_transfers(self) -> bool:
         if self.device.type != "cuda":
@@ -152,6 +156,15 @@ class FrameRestorer:
             overlap = DEFAULT_BASICVSRPP_RESTORE_WINDOW_OVERLAP
         overlap = max(0, min(overlap, window_frames // 2))
         return window_frames, overlap
+
+    def _get_basicvsrpp_restore_batch_size(self) -> int:
+        if not self.mosaic_restoration_model_name.startswith("basicvsrpp"):
+            return 1
+        try:
+            batch_size = int(os.environ.get("LADA_BASICVSRPP_RESTORE_BATCH_SIZE", DEFAULT_BASICVSRPP_RESTORE_BATCH_SIZE))
+        except ValueError:
+            batch_size = DEFAULT_BASICVSRPP_RESTORE_BATCH_SIZE
+        return max(1, batch_size)
 
     def _pin_for_frame_transfer(self, frame: torch.Tensor) -> tuple[torch.Tensor, bool]:
         if not self.pin_frame_transfers or frame.device.type != "cpu":
@@ -335,6 +348,7 @@ class FrameRestorer:
             "use_shared_frame_reader": self.use_shared_frame_reader,
             "basicvsrpp_restore_window_frames": self.basicvsrpp_restore_window_frames,
             "basicvsrpp_restore_window_overlap": self.basicvsrpp_restore_window_overlap,
+            "basicvsrpp_restore_batch_size": self.basicvsrpp_restore_batch_size,
             "stop_requested": self.stop_requested,
             "eof": self.eof,
         }
@@ -352,6 +366,17 @@ class FrameRestorer:
             else:
                 raise NotImplementedError()
         return restored_clip_images
+
+    def _restore_clip_frames_batch(self, videos: list[list[ImageTensor]]) -> list[list[ImageTensor]]:
+        if len(videos) == 1:
+            return [self._restore_clip_frames(videos[0])]
+        if not self.mosaic_restoration_model_name.startswith("basicvsrpp"):
+            return [self._restore_clip_frames(video) for video in videos]
+        from lada.restorationpipeline.basicvsrpp_mosaic_restorer import BasicvsrppMosaicRestorer
+        assert isinstance(self.mosaic_restoration_model, BasicvsrppMosaicRestorer)
+        with self.stage_timer.measure("clip_restore_model"):
+            with self.stage_timer.measure("clip_restore_model_batch"):
+                return self.mosaic_restoration_model.restore_batch(videos)
 
     def _should_blend_cpu_frame_on_device(self, clip_img: torch.Tensor) -> bool:
         return self.device.type in ("cuda", "xpu") and clip_img.device.type == self.device.type
@@ -470,23 +495,59 @@ class FrameRestorer:
             and len(clip.frames) > self.basicvsrpp_restore_window_frames
         )
 
+    def _create_restored_clip_segment(
+        self,
+        clip: Clip,
+        input_start: int,
+        output_start: int,
+        output_end: int,
+        restored_window_images: list[ImageTensor],
+    ):
+        local_output_start = output_start - input_start
+        local_output_end = output_end - input_start
+        restored_clip = Clip.from_clip_range(
+            clip,
+            output_start,
+            output_end,
+            f"{clip.id}:{output_start}-{output_end}",
+        )
+        output_images = restored_window_images[local_output_start:local_output_end]
+        assert len(output_images) == len(restored_clip.frames)
+        for i, restored_image in enumerate(output_images):
+            assert restored_clip.frames[i].shape == restored_image.shape
+            restored_clip.frames[i] = restored_image
+        return restored_clip
+
     def _restore_clip_segment(self, clip: Clip, input_start: int, input_end: int, output_start: int, output_end: int):
         with self.stage_timer.measure("clip_restore_total"):
             restored_window_images = self._restore_clip_frames(clip.frames[input_start:input_end])
-            local_output_start = output_start - input_start
-            local_output_end = output_end - input_start
-            restored_clip = Clip.from_clip_range(
+            restored_clip = self._create_restored_clip_segment(
                 clip,
+                input_start,
                 output_start,
                 output_end,
-                f"{clip.id}:{output_start}-{output_end}",
+                restored_window_images,
             )
-            output_images = restored_window_images[local_output_start:local_output_end]
-            assert len(output_images) == len(restored_clip.frames)
-            for i, restored_image in enumerate(output_images):
-                assert restored_clip.frames[i].shape == restored_image.shape
-                restored_clip.frames[i] = restored_image
         return restored_clip
+
+    def _restore_clip_segments_batch(self, window_tasks: list[tuple[Clip, int, int, int, int]]) -> list[Clip]:
+        with self.stage_timer.measure("clip_restore_total"):
+            restored_windows = self._restore_clip_frames_batch(
+                [clip.frames[input_start:input_end] for clip, input_start, input_end, _output_start, _output_end in window_tasks]
+            )
+            restored_clips = []
+            for task, restored_window_images in zip(window_tasks, restored_windows):
+                clip, input_start, _input_end, output_start, output_end = task
+                restored_clips.append(
+                    self._create_restored_clip_segment(
+                        clip,
+                        input_start,
+                        output_start,
+                        output_end,
+                        restored_window_images,
+                    )
+                )
+            return restored_clips
 
     def _iter_restored_clips(self, clip: Clip):
         if not self._should_restore_clip_in_windows(clip):
@@ -503,13 +564,41 @@ class FrameRestorer:
             self.basicvsrpp_restore_window_frames,
             self.basicvsrpp_restore_window_overlap,
         )
+        pending_window_tasks: list[tuple[Clip, int, int, int, int]] = []
+
+        def flush_pending_window_tasks() -> list[Clip]:
+            nonlocal pending_window_tasks
+            if len(pending_window_tasks) == 0:
+                return []
+            tasks = pending_window_tasks
+            pending_window_tasks = []
+            with self.stage_timer.measure("clip_restore_window_total"):
+                if len(tasks) == 1:
+                    return [self._restore_clip_segment(*tasks[0])]
+                return self._restore_clip_segments_batch(tasks)
+
         for input_start, input_end, output_start, output_end in self._iter_window_ranges(
             len(clip.frames),
             self.basicvsrpp_restore_window_frames,
             self.basicvsrpp_restore_window_overlap,
         ):
-            with self.stage_timer.measure("clip_restore_window_total"):
-                restored_clip = self._restore_clip_segment(clip, input_start, input_end, output_start, output_end)
+            task = (clip, input_start, input_end, output_start, output_end)
+            input_frame_count = input_end - input_start
+            if (
+                pending_window_tasks
+                and (
+                    input_frame_count != pending_window_tasks[0][2] - pending_window_tasks[0][1]
+                    or len(pending_window_tasks) >= self.basicvsrpp_restore_batch_size
+                )
+            ):
+                for restored_clip in flush_pending_window_tasks():
+                    yield restored_clip
+            pending_window_tasks.append(task)
+            if len(pending_window_tasks) >= self.basicvsrpp_restore_batch_size:
+                for restored_clip in flush_pending_window_tasks():
+                    yield restored_clip
+
+        for restored_clip in flush_pending_window_tasks():
             yield restored_clip
 
     def _collect_garbage(self, clip_buffer):

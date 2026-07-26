@@ -10,11 +10,24 @@ class BasicvsrppMosaicRestorer:
         self.dtype = torch.float16 if fp16 else torch.float32
 
     def restore(self, video: list[ImageTensor], max_frames=-1) -> list[ImageTensor]:
-        input_frame_count = len(video)
-        input_frame_shape = video[0].shape
+        return self.restore_batch([video], max_frames=max_frames)[0]
+
+    def restore_batch(self, videos: list[list[ImageTensor]], max_frames=-1) -> list[list[ImageTensor]]:
+        assert len(videos) > 0
+        input_frame_count = len(videos[0])
+        input_frame_shape = videos[0][0].shape
+        for video in videos:
+            assert len(video) == input_frame_count
+            assert video[0].shape == input_frame_shape
         with torch.inference_mode():
             result = []
-            inference_view = torch.stack([x.permute(2, 0, 1) for x in video], dim=0).to(device=self.device).to(dtype=self.dtype).div_(255.0).unsqueeze(0)
+            inference_view = torch.stack(
+                [
+                    torch.stack([frame.permute(2, 0, 1) for frame in video], dim=0)
+                    for video in videos
+                ],
+                dim=0,
+            ).to(device=self.device).to(dtype=self.dtype).div_(255.0)
 
             if max_frames > 0:
                 for i in range(0, inference_view.shape[1], max_frames):
@@ -25,11 +38,12 @@ class BasicvsrppMosaicRestorer:
                 result = self.model(inputs=inference_view)
 
             # (H, W, C[BGR]) uint8 images to (B, T, C, H, W) float in [0,1]
-            result = result.squeeze(0)[:input_frame_count] # -> (T, C, H, W)
-            result = result.mul_(255.0).round_().clamp_(0, 255).to(dtype=torch.uint8).permute(0, 2, 3, 1) # (T, H, W, C)
-            result = list(torch.unbind(result, 0)) # (T, H, W, C) to list of (H, W, C)
-            output_frame_count = len(result)
-            output_frame_shape = result[0].shape
-            assert input_frame_count == output_frame_count and input_frame_shape == output_frame_shape
+            result = result[:, :input_frame_count] # -> (B, T, C, H, W)
+            result = result.mul_(255.0).round_().clamp_(0, 255).to(dtype=torch.uint8).permute(0, 1, 3, 4, 2) # (B, T, H, W, C)
+            restored_videos = [list(torch.unbind(video_result, 0)) for video_result in torch.unbind(result, 0)]
+            for restored_video in restored_videos:
+                output_frame_count = len(restored_video)
+                output_frame_shape = restored_video[0].shape
+                assert input_frame_count == output_frame_count and input_frame_shape == output_frame_shape
 
-        return result
+        return restored_videos
