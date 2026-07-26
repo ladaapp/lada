@@ -11,6 +11,40 @@
 - **Recover Pixelated Videos**: Restore pixelated or mosaic scenes in adult videos.
 - **Watch/Export Videos**: Use either the CLI or GUI to watch or export your restored videos.
 
+## Performance improvements in this fork
+
+This branch includes several Windows/CUDA export optimizations focused on multi-GPU throughput and BasicVSR++ pipeline utilization:
+
+- **Multi-GPU queued export**: queued files can be distributed across all CUDA GPUs, with one worker per selected GPU by default.
+- **Correct CUDA/NVENC binding**: each worker sets its PyTorch CUDA device and binds NVENC encoders to the matching GPU with FFmpeg's `-gpu N` option.
+- **CUDA hardware decode**: video reading can use CUDA hardware acceleration and maps the decoder to the selected worker GPU when available.
+- **Shared frame reader**: detection and restoration can share decoded frames to avoid decoding the same video stream twice.
+- **Detailed performance logging**: export logs include periodic JSON samples for FPS, CPU/GPU/NVENC/NVDEC usage, queue pressure, and stage timing.
+- **BasicVSR++ windowed restoration**: long mosaic clips are split into overlapping windows so restored frames are produced earlier and the encoder waits less.
+- **BasicVSR++ micro-batch restoration**: same-length restoration windows can be batched into one model forward pass to improve GPU utilization.
+- **Windows source-start helper**: `start_gui.ps1` sets practical defaults for the optimized pipeline when launching the GUI from this checkout.
+
+The source-start helper defaults to:
+
+```powershell
+.\start_gui.ps1
+```
+
+which sets:
+
+```text
+LADA_SHARED_DECODE_MAX_MB=4096
+LADA_BASICVSRPP_RESTORE_WINDOW_FRAMES=160
+LADA_BASICVSRPP_RESTORE_WINDOW_OVERLAP=32
+LADA_BASICVSRPP_RESTORE_BATCH_SIZE=2
+```
+
+You can override these values for testing:
+
+```powershell
+.\start_gui.ps1 -BasicVsrppRestoreWindowFrames 128 -BasicVsrppRestoreWindowOverlap 32 -BasicVsrppRestoreBatchSize 1
+```
+
 ## Usage
 
 ### GUI
