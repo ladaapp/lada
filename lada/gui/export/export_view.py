@@ -239,6 +239,8 @@ class ExportView(Gtk.Widget):
         export_utils.open_error_dialog(self, model_item.original_file.get_basename(), model_item.error_details)
 
     def on_remove_item_requested(self, obj, idx):
+        if self.in_progress_idx is not None and idx < self.in_progress_idx:
+            self.in_progress_idx -= 1
         self.model.remove(idx)
         self.update_export_buttons()
 
